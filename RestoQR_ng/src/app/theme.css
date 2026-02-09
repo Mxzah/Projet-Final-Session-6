@@ -1,0 +1,202 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Space+Grotesk:wght@400;500;600&display=swap");
+
+:host {
+    --ink: #1b1a17;
+    --clay: #f3ede4;
+    --sand: #fbf8f2;
+    --copper: #c86d3f;
+    --rust: #8a3f24;
+    --sage: #7a8f6a;
+    --shadow: 0 25px 60px rgba(27, 26, 23, 0.18);
+
+    display: block;
+    min-height: 100vh;
+    overflow: hidden;
+    background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
+    color: var(--ink);
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+:host::before,
+:host::after {
+    content: "";
+    position: fixed;
+    inset: auto auto 8% -10%;
+    width: 320px;
+    height: 320px;
+    background: conic-gradient(from 120deg, rgba(200, 109, 63, 0.15), rgba(122, 143, 106, 0.15));
+    border-radius: 50%;
+    filter: blur(10px);
+    z-index: 0;
+}
+
+:host::after {
+    inset: -5% -10% auto auto;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(200, 109, 63, 0.2), transparent 70%);
+}
+
+.page {
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 96px);
+    display: grid;
+    grid-template-columns: minmax(280px, 560px);
+    justify-content: center;
+    align-items: start;
+    padding: 2.5rem clamp(1.5rem, 4vw, 5rem) 4.5rem;
+}
+
+.site-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem clamp(1.5rem, 4vw, 5rem) 0;
+}
+
+.brand {
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.3rem;
+    text-transform: uppercase;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.panel {
+    background: var(--sand);
+    border-radius: 28px;
+    padding: 2.75rem;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(27, 26, 23, 0.08);
+    animation: float-in 0.8s ease forwards;
+}
+
+.panel__header {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.2rem;
+    font-size: 0.75rem;
+    color: var(--rust);
+    margin: 0;
+}
+
+h1 {
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-size: clamp(2rem, 3vw, 2.6rem);
+    margin: 0;
+}
+
+.subtitle {
+    margin: 0;
+    color: rgba(27, 26, 23, 0.7);
+}
+
+.form {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.field {
+    display: grid;
+    gap: 0.5rem;
+}
+
+label {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+input,
+select {
+    border: 1px solid rgba(27, 26, 23, 0.2);
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--copper);
+    box-shadow: 0 0 0 3px rgba(200, 109, 63, 0.2);
+}
+
+.form__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+button {
+    border-radius: 999px;
+    padding: 0.8rem 1.8rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.primary {
+    background: linear-gradient(120deg, var(--copper), var(--rust));
+    color: #fff;
+    box-shadow: 0 12px 25px rgba(138, 63, 36, 0.35);
+}
+
+.ghost {
+    background: transparent;
+    border: 1px solid rgba(27, 26, 23, 0.2);
+    color: var(--ink);
+}
+
+@keyframes float-in {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 900px) {
+    .page {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .panel {
+        padding: 2rem 1.5rem;
+    }
+
+    .site-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .form__actions {
+        flex-direction: column;
+    }
+
+    button {
+        width: 100%;
+    }
+}

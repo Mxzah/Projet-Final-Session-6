@@ -1,0 +1,66 @@
+<header class="site-header">
+  <div class="brand">RestoQR</div>
+  <nav class="header-actions">
+    <button type="button" class="ghost">Retour admin</button>
+  </nav>
+</header>
+
+<main class="page">
+  <section class="panel">
+    <header class="panel__header">
+      <p class="eyebrow">Mode admin</p>
+      <h1>Creer un compte usager</h1>
+      <p class="subtitle">Ajouter un nouvel employe avec un role controle.</p>
+    </header>
+
+    <form class="form" autocomplete="off">
+      <div class="field">
+        <label for="fullName">Nom complet</label>
+        <input
+          id="fullName"
+          name="fullName"
+          type="text"
+          placeholder="Ex: Camille Tremblay"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="camille@restoqr.ca"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Minimum 8 caracteres"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="" disabled selected>Choisir un role</option>
+          <option value="serveur">Serveur</option>
+          <option value="cuisinier">Cuisinier</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <div class="form__actions">
+        <button type="button" class="ghost">Annuler</button>
+        <button type="submit" class="primary">Creer le compte</button>
+      </div>
+    </form>
+  </section>
+</main>

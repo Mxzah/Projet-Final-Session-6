@@ -1,0 +1,41 @@
+<header class="site-header">
+  <div class="brand">RestoQR</div>
+</header>
+
+<main class="page">
+  <section class="panel">
+    <header class="panel__header">
+      <p class="eyebrow">Acces admin</p>
+      <h1>Connexion</h1>
+      <p class="subtitle">Entrer votre email et mot de passe.</p>
+    </header>
+
+    <form class="form" autocomplete="off">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input
+          id="loginEmail"
+          name="loginEmail"
+          type="email"
+          placeholder="ex: admin@restoqr.ca"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="loginPassword">Mot de passe</label>
+        <input
+          id="loginPassword"
+          name="loginPassword"
+          type="password"
+          placeholder="Votre mot de passe"
+          required
+        />
+      </div>
+
+      <div class="form__actions login-actions">
+        <button type="submit" class="primary">Se connecter</button>
+      </div>
+    </form>
+  </section>
+</main>
