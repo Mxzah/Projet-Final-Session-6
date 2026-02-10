@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+valid_user:
+  email: test@restoqr.ca
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  first_name: Jean
+  last_name: Tremblay
+  type: Client
+  status: active
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+inactive_user:
+  email: inactive@restoqr.ca
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  first_name: Marie
+  last_name: Gagnon
+  type: Client
+  status: inactive
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

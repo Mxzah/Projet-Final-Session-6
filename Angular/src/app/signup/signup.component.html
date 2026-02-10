@@ -1,0 +1,108 @@
+<header class="site-header">
+  <div class="brand">RestoQR</div>
+</header>
+
+<main class="page-signup">
+  <div class="outer-container">
+    <div class="welcome-header">
+      <h2 class="welcome-title">Nouveau sur RestoQR?</h2>
+      <p class="welcome-text">Créez votre compte en quelques instants.</p>
+    </div>
+
+    <section class="inner-container">
+      <header class="panel__header">
+        <h1>Inscription</h1>
+        <p class="subtitle">Remplissez les informations ci-dessous.</p>
+      </header>
+
+      <form class="form" autocomplete="off" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div class="field">
+          <label for="signupFirstName">Prénom</label>
+          <input
+            id="signupFirstName"
+            type="text"
+            placeholder="Votre prénom"
+            formControlName="firstName"
+          />
+          <div class="field-error" *ngIf="signupForm.get('firstName')?.touched && signupForm.get('firstName')?.invalid">
+            <span *ngIf="signupForm.get('firstName')?.errors?.['required']">Le prénom est requis</span>
+            <span *ngIf="signupForm.get('firstName')?.errors?.['maxlength']">Maximum 50 caractères</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="signupLastName">Nom</label>
+          <input
+            id="signupLastName"
+            type="text"
+            placeholder="Votre nom"
+            formControlName="lastName"
+          />
+          <div class="field-error" *ngIf="signupForm.get('lastName')?.touched && signupForm.get('lastName')?.invalid">
+            <span *ngIf="signupForm.get('lastName')?.errors?.['required']">Le nom est requis</span>
+            <span *ngIf="signupForm.get('lastName')?.errors?.['maxlength']">Maximum 50 caractères</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="signupEmail">Email</label>
+          <input
+            id="signupEmail"
+            type="email"
+            placeholder="ex: admin@restoqr.ca"
+            formControlName="email"
+          />
+          <div class="field-error" *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.invalid">
+            <span *ngIf="signupForm.get('email')?.errors?.['required']">L'email est requis</span>
+            <span *ngIf="signupForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="signupPassword">Mot de passe</label>
+          <input
+            id="signupPassword"
+            type="password"
+            placeholder="Minimum 6 caractères"
+            formControlName="password"
+          />
+          <div class="field-error" *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.invalid">
+            <span *ngIf="signupForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
+            <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Minimum 6 caractères</span>
+            <span *ngIf="signupForm.get('password')?.errors?.['maxlength']">Maximum 128 caractères</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="signupPasswordConfirm">Confirmer le mot de passe</label>
+          <input
+            id="signupPasswordConfirm"
+            type="password"
+            placeholder="Confirmer le mot de passe"
+            formControlName="passwordConfirmation"
+          />
+          <div class="field-error" *ngIf="signupForm.get('passwordConfirmation')?.touched && signupForm.get('passwordConfirmation')?.invalid">
+            <span *ngIf="signupForm.get('passwordConfirmation')?.errors?.['required']">La confirmation est requise</span>
+            <span *ngIf="signupForm.get('passwordConfirmation')?.errors?.['minlength']">Minimum 6 caractères</span>
+            <span *ngIf="signupForm.get('passwordConfirmation')?.errors?.['maxlength']">Maximum 128 caractères</span>
+          </div>
+          <div class="field-error" *ngIf="signupForm.errors?.['passwordMismatch'] && signupForm.get('passwordConfirmation')?.touched">
+            Les mots de passe ne correspondent pas
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
+        <div class="form__actions signup-actions">
+          <button type="submit" class="primary" [disabled]="isLoading || signupForm.invalid">
+            {{ isLoading ? 'Inscription...' : 'Créer le compte' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <p class="access-note"><a routerLink="/login">Déjà inscrit? Se connecter</a></p>
+  </div>
+</main>

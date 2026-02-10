@@ -1,0 +1,59 @@
+<header class="site-header">
+  <div class="brand">RestoQR</div>
+  <div class="header-actions">
+    <button class="ghost" (click)="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<main class="page-reservation">
+  <div class="outer-container">
+    <div class="welcome-header">
+      <h2 class="welcome-title">Bienvenue à votre table</h2>
+      <p class="welcome-text">Préparez votre expérience culinaire en quelques étapes.</p>
+    </div>
+
+    <section class="inner-container">
+      <header class="panel__header">
+        <p class="eyebrow">Réservation</p>
+        <h1>
+          Infos de table
+          @if (tableId) {
+            <strong>#{{ tableId }}</strong>
+          }
+        </h1>
+        <p class="subtitle">Dites-nous combien vous êtes et l'ambiance souhaitée.</p>
+      </header>
+
+      <form class="form" autocomplete="off" (ngSubmit)="onSubmit($event)">
+        <div class="field">
+          <label for="guestCount">Nombre de personnes</label>
+          <input
+            id="guestCount"
+            name="guestCount"
+            type="number"
+            min="1"
+            placeholder="Ex: 4"
+            [(ngModel)]="guestCount"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="reservationVibe">Vibe de la réservation</label>
+          <select id="reservationVibe" name="reservationVibe" [(ngModel)]="reservationVibe" required>
+            <option value="" disabled>Choisir une vibe</option>
+            <option value="mariage">Mariage</option>
+            <option value="fete">Fête</option>
+            <option value="anniversaire">Anniversaire</option>
+            <option value="affaires">Affaires</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+
+        <div class="form__actions reservation-actions">
+          <button type="submit" class="primary">Accéder au menu</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>

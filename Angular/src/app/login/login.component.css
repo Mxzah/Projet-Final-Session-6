@@ -1,0 +1,144 @@
+@import url("../theme.css");
+
+.page-login {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 60px);
+    padding: 1rem;
+}
+
+.outer-container {
+    background: rgba(200, 109, 63, 0.15);
+    border: 1px solid rgba(200, 109, 63, 0.2);
+    border-radius: 28px;
+    padding: 2.5rem;
+    max-width: 540px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(27, 26, 23, 0.08);
+}
+
+.welcome-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-title {
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--rust);
+}
+
+.welcome-text {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(27, 26, 23, 0.7);
+}
+
+.inner-container {
+    background: var(--sand);
+    border-radius: 20px;
+    padding: 2.5rem;
+    border: 1px solid rgba(27, 26, 23, 0.1);
+}
+
+.access-note {
+    text-align: center;
+    margin: 1.5rem 0 0 0;
+    font-size: 0.85rem;
+}
+
+.access-note a {
+    color: var(--rust);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.access-note a:hover {
+    text-decoration: underline;
+}
+
+.login-actions {
+    justify-content: center;
+}
+
+.login-actions button {
+    width: 100%;
+}
+
+.error-message {
+    color: #dc3545;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.form__footer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.form__footer a {
+    color: #000000;
+    text-decoration: none;
+}
+
+.form__footer a:hover {
+    text-decoration: underline;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 500px) {
+    .page-login {
+        padding: 0.5rem;
+        min-height: calc(100vh - 40px);
+    }
+
+    .outer-container {
+        padding: 1rem;
+        border-radius: 16px;
+        max-width: 100%;
+    }
+
+    .welcome-header {
+        margin-bottom: 1rem;
+    }
+
+    .welcome-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .welcome-text {
+        font-size: 0.8rem;
+    }
+
+    .inner-container {
+        padding: 1.25rem;
+        border-radius: 12px;
+    }
+
+    .inner-container .panel__header {
+        margin-bottom: 0.75rem;
+    }
+
+    .inner-container .panel__header h1 {
+        font-size: 1.5rem;
+    }
+
+    .inner-container .panel__header .subtitle {
+        font-size: 0.85rem;
+    }
+
+    .access-note {
+        margin-top: 1rem;
+    }
+}

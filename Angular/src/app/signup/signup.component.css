@@ -1,0 +1,150 @@
+@import url("../theme.css");
+
+.page-signup {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: calc(100vh - 60px);
+    padding: 0.5rem 1rem;
+}
+
+.outer-container {
+    background: rgba(200, 109, 63, 0.15);
+    border: 1px solid rgba(200, 109, 63, 0.2);
+    border-radius: 24px;
+    padding: 1.5rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(27, 26, 23, 0.08);
+}
+
+.welcome-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.welcome-title {
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-size: 1.35rem;
+    margin: 0 0 0.35rem 0;
+    color: var(--rust);
+}
+
+.welcome-text {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(27, 26, 23, 0.7);
+}
+
+.inner-container {
+    background: var(--sand);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(27, 26, 23, 0.1);
+}
+
+.inner-container .panel__header {
+    margin-bottom: 0.6rem;
+}
+
+.inner-container .panel__header h1 {
+    font-size: 1.6rem;
+}
+
+.inner-container .panel__header .subtitle {
+    font-size: 0.85rem;
+}
+
+.inner-container .form {
+    gap: 0.6rem;
+}
+
+.inner-container .field input {
+    padding: 0.55rem 0.8rem;
+}
+
+.access-note {
+    text-align: center;
+    margin: 1rem 0 0 0;
+    font-size: 0.85rem;
+}
+
+.access-note a {
+    color: var(--rust);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.access-note a:hover {
+    text-decoration: underline;
+}
+
+.signup-actions {
+    justify-content: center;
+}
+
+.signup-actions button {
+    width: 100%;
+}
+
+.error-message {
+    color: #dc3545;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 500px) {
+    .page-signup {
+        padding: 0.5rem;
+        min-height: calc(100vh - 40px);
+    }
+
+    .outer-container {
+        padding: 1rem;
+        border-radius: 16px;
+        max-width: 100%;
+    }
+
+    .welcome-header {
+        margin-bottom: 1rem;
+    }
+
+    .welcome-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .welcome-text {
+        font-size: 0.8rem;
+    }
+
+    .inner-container {
+        padding: 1.25rem;
+        border-radius: 12px;
+    }
+
+    .inner-container .panel__header {
+        margin-bottom: 0.75rem;
+    }
+
+    .inner-container .panel__header h1 {
+        font-size: 1.5rem;
+    }
+
+    .inner-container .panel__header .subtitle {
+        font-size: 0.85rem;
+    }
+
+    .access-note {
+        margin-top: 1rem;
+    }
+}
