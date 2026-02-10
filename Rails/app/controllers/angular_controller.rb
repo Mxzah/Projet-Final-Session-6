@@ -1,5 +1,5 @@
 class AngularController < ActionController::Base
   def index
-    render file: "public/index.html", layout: false
+    render file: "#{Rails.root}/public/index.html", layout: false
   end
 end
