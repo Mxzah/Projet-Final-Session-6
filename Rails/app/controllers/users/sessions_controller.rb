@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Users::SessionsController < Devise::SessionsController
+  skip_before_action :verify_signed_out_user, only: :destroy
   respond_to :json
 
   # POST /resource/sign_in
@@ -28,6 +29,12 @@ class Users::SessionsController < Devise::SessionsController
   # DELETE /resource/sign_out
   def destroy
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
-    render json: { success: signed_out }, status: :ok
+    respond_to_on_destroy
+  end
+
+  private
+
+  def respond_to_on_destroy
+    render json: { success: true }, status: :ok
   end
 end

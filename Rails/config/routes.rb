@@ -7,7 +7,8 @@ Rails.application.routes.draw do
   root to: "angular#index"
 
   namespace :api, constraints: { format: 'json' } do
-    # Add your API resources here
+    resources :reservations, only: [:index, :create]
+    get 'current_user', to: 'sessions#current_user'
   end
 
   match '*url', to: "angular#index", via: :get

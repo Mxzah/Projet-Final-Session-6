@@ -4,11 +4,12 @@ import { SignupComponent } from './signup/signup.component';
 import { ReservationComponent } from './reservation/reservation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { guestGuard } from './guards/guest.guard';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', component: LoginComponent, canActivate: [guestGuard] },
     { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
     { path: 'signup', component: SignupComponent, canActivate: [guestGuard] },
-    { path: 'reservation', component: ReservationComponent },
+    { path: 'reservation', component: ReservationComponent, canActivate: [authGuard] },
     { path: '**', component: NotFoundComponent }
 ];

@@ -74,8 +74,13 @@ export class AuthService {
 
   logout() {
     return this.apiService.delete<null>('/users/sign_out').pipe(
-      tap(response => {
-        if (response.success) {
+      tap({
+        next: (response) => {
+          this.currentUser = null;
+          this.clearUserFromStorage();
+          this.isLoggedInSubject.next(false);
+        },
+        error: () => {
           this.currentUser = null;
           this.clearUserFromStorage();
           this.isLoggedInSubject.next(false);

@@ -39,14 +39,16 @@ export class LoginComponent {
     const requestBody = { user: { email, password } };
     console.log('Requête envoyée:', requestBody);
 
-    this.authService.login(email!, password!).subscribe(response => {
-      this.isLoading = false;
-      console.log('Réponse reçue:', response);
-      if (response.success && response.data) {
-        console.log('Connexion réussie!', response.data.email);
+    this.authService.login(email!, password!).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        console.log('Connexion réussie!', response.data?.email);
         this.router.navigate(['/reservation']);
-      } else {
-        this.errorMessage = response.errors?.join(', ') || 'Identifiants invalides';
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Erreur de connexion:', error);
+        this.errorMessage = error.errors?.join(', ') || 'Une erreur est survenue lors de la connexion';
       }
     });
   }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, map, catchError, of } from 'rxjs';
+import { Observable, map, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface ApiResponse<T = any> {
@@ -21,13 +21,21 @@ export class ApiService {
     return this.http.post<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, body, {
       withCredentials: true
     }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('API Error:', error);
-        return of({
+      map(response => {
+        if (!response.success) {
+          throw response;
+        }
+        return response;
+      }),
+      catchError((error: HttpErrorResponse | ApiResponse<T>) => {
+        if ('success' in error && error.success === false) {
+          return throwError(() => error);
+        }
+        return throwError(() => ({
           success: false,
           data: null,
-          errors: error.error?.errors || ['Une erreur est survenue']
-        });
+          errors: (error as HttpErrorResponse).error?.errors || ['Une erreur est survenue']
+        }));
       })
     );
   }
@@ -36,13 +44,22 @@ export class ApiService {
     return this.http.get<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, {
       withCredentials: true
     }).pipe(
-      catchError((error: HttpErrorResponse) => {
+      map(response => {
+        if (!response.success) {
+          throw response;
+        }
+        return response;
+      }),
+      catchError((error: HttpErrorResponse | ApiResponse<T>) => {
         console.error('API Error:', error);
-        return of({
+        if ('success' in error && error.success === false) {
+          return throwError(() => error);
+        }
+        return throwError(() => ({
           success: false,
           data: null,
-          errors: error.error?.errors || ['Une erreur est survenue']
-        });
+          errors: (error as HttpErrorResponse).error?.errors || ['Une erreur est survenue']
+        }));
       })
     );
   }
@@ -51,13 +68,22 @@ export class ApiService {
     return this.http.put<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, body, {
       withCredentials: true
     }).pipe(
-      catchError((error: HttpErrorResponse) => {
+      map(response => {
+        if (!response.success) {
+          throw response;
+        }
+        return response;
+      }),
+      catchError((error: HttpErrorResponse | ApiResponse<T>) => {
         console.error('API Error:', error);
-        return of({
+        if ('success' in error && error.success === false) {
+          return throwError(() => error);
+        }
+        return throwError(() => ({
           success: false,
           data: null,
-          errors: error.error?.errors || ['Une erreur est survenue']
-        });
+          errors: (error as HttpErrorResponse).error?.errors || ['Une erreur est survenue']
+        }));
       })
     );
   }
@@ -66,13 +92,22 @@ export class ApiService {
     return this.http.delete<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, {
       withCredentials: true
     }).pipe(
-      catchError((error: HttpErrorResponse) => {
+      map(response => {
+        if (!response.success) {
+          throw response;
+        }
+        return response;
+      }),
+      catchError((error: HttpErrorResponse | ApiResponse<T>) => {
         console.error('API Error:', error);
-        return of({
+        if ('success' in error && error.success === false) {
+          return throwError(() => error);
+        }
+        return throwError(() => ({
           success: false,
           data: null,
-          errors: error.error?.errors || ['Une erreur est survenue']
-        });
+          errors: (error as HttpErrorResponse).error?.errors || ['Une erreur est survenue']
+        }));
       })
     );
   }

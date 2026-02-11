@@ -32,8 +32,17 @@ export class ReservationComponent {
   }
 
   logout(): void {
-    this.authService.logout().subscribe(response => {
-      if (response.success) {
+    this.authService.logout().subscribe({
+      next: (response) => {
+        console.log('Logout response:', response);
+        if (response.success) {
+          this.router.navigate(['/login']);
+        }
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+        // Déconnexion locale même si le serveur échoue
+        localStorage.removeItem('currentUser');
         this.router.navigate(['/login']);
       }
     });
