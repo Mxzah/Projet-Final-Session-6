@@ -59,7 +59,7 @@ production:
     <<: *default
     database: restoqr_api_production
     username: restoqr_api
-    password: <%= ENV["RESTOQR_API_DATABASE_PASSWORD"] %>
+    password: ''
   cache:
     <<: *primary_production
     database: restoqr_api_production_cache
