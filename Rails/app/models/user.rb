@@ -4,6 +4,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  before_validation :set_default_type, on: :create
+
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
   validates :type, presence: true
@@ -22,6 +24,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def set_default_type
+    self.type ||= 'Client'
+  end
 
   def password_required?
     !persisted? || !password.nil? || !password_confirmation.nil?

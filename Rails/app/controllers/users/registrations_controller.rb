@@ -17,7 +17,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
         sign_up(resource_name, resource)
         render json: {
           success: true,
-          data: { email: resource.email, first_name: resource.first_name, last_name: resource.last_name }
+          data: { email: resource.email, first_name: resource.first_name, last_name: resource.last_name, type: resource.type }
         }, status: :ok
       else
         expire_data_after_sign_in!

@@ -2,7 +2,6 @@
 
 class Users::SessionsController < Devise::SessionsController
   skip_before_action :verify_signed_out_user, only: :destroy
-  respond_to :json
 
   # POST /resource/sign_in
   def create
@@ -15,14 +14,25 @@ class Users::SessionsController < Devise::SessionsController
         data: {
           email: resource.email,
           first_name: resource.first_name,
-          last_name: resource.last_name
+          last_name: resource.last_name,
+          type: resource.type
         }
       }, status: :ok
     else
-      render json: {
-        success: false,
-        errors: ['Email ou mot de passe invalide']
-      }, status: :ok
+      # Vérifier si l'utilisateur existe mais est inactif
+      user = User.unscoped.find_by(email: params[:user][:email])
+
+      if user && user.valid_password?(params[:user][:password]) && !user.active_for_authentication?
+        render json: {
+          success: false,
+          errors: ['Vous devez être connecté pour accéder à cette ressource']
+        }, status: :unauthorized
+      else
+        render json: {
+          success: false,
+          errors: ['Email ou mot de passe invalide']
+        }, status: :ok
+      end
     end
   end
 

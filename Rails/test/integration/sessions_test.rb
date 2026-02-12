@@ -18,6 +18,7 @@ class SessionsTest < ActionDispatch::IntegrationTest
     assert_equal user.email, json_response["data"]["email"]
     assert_equal user.first_name, json_response["data"]["first_name"]
     assert_equal user.last_name, json_response["data"]["last_name"]
+    assert_equal user.type, json_response["data"]["type"]
   end
 
   # Test 2: Connexion échouée avec mauvais mot de passe
@@ -63,9 +64,9 @@ class SessionsTest < ActionDispatch::IntegrationTest
       }
     }, as: :json
 
-    # Devise retourne 401 pour les utilisateurs inactifs
-    assert_response :unauthorized
+    assert_response :ok
     json_response = JSON.parse(response.body)
-    assert json_response["errors"].present?
+    assert_not json_response["success"]
+    assert_includes json_response["errors"], "Vous devez être connecté pour accéder à cette ressource"
   end
 end
