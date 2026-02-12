@@ -1,15 +1,4 @@
 class CustomFailure < Devise::FailureApp
-  def http_status
-    # Si l'utilisateur existe et a un bon mot de passe mais est inactif
-    if request.format == :json
-      user = User.unscoped.find_by(email: request.params.dig(:user, :email))
-      if user && user.valid_password?(request.params.dig(:user, :password)) && !user.active_for_authentication?
-        return 401
-      end
-    end
-    200
-  end
-
   def respond
     if request.format == :json
       json_failure
@@ -19,19 +8,13 @@ class CustomFailure < Devise::FailureApp
   end
 
   def json_failure
-    # Détermine le message approprié basé sur l'état de l'utilisateur
-    user = User.unscoped.find_by(email: request.params.dig(:user, :email))
-    message = if user && user.valid_password?(request.params.dig(:user, :password)) && !user.active_for_authentication?
-                I18n.t("devise.failure.inactive")
-              else
-                i18n_message
-              end
-
-    self.status = http_status
+    # Toujours retourner 200 avec success: false et un message générique en français
+    self.status = 200
     self.content_type = 'application/json'
     self.response_body = {
       success: false,
-      errors: [message]
+      data: nil,
+      errors: ["Email ou mot de passe invalide"]
     }.to_json
   end
 end

@@ -25,11 +25,13 @@ class Users::SessionsController < Devise::SessionsController
       if user && user.valid_password?(params[:user][:password]) && !user.active_for_authentication?
         render json: {
           success: false,
-          errors: ['Vous devez être connecté pour accéder à cette ressource']
-        }, status: :unauthorized
+          data: nil,
+          errors: ["Votre compte n'est pas encore activé"]
+        }, status: :ok
       else
         render json: {
           success: false,
+          data: nil,
           errors: ['Email ou mot de passe invalide']
         }, status: :ok
       end
