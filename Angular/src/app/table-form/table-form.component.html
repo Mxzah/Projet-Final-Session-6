@@ -1,0 +1,71 @@
+<header class="site-header">
+  <div class="brand">RestoQR</div>
+  <button class="logout-btn" (click)="logout()">Déconnexion</button>
+</header>
+
+<main class="page-form">
+  <!-- No table scanned -->
+  @if (noTable) {
+    <div class="outer-container">
+      <div class="no-table-state">
+        <div class="icon">📷</div>
+        <h2>Aucune table détectée</h2>
+        <p>Veuillez scanner le code QR sur votre table pour continuer.</p>
+      </div>
+    </div>
+  }
+
+  <!-- Table found -->
+  @if (table) {
+    <div class="outer-container">
+      <div class="welcome-header">
+        <h2 class="welcome-title">Infos de la table #{{ table.number }}</h2>
+        <p class="welcome-text">Complétez les informations pour votre expérience.</p>
+      </div>
+
+      <section class="inner-container">
+        <form class="form" (ngSubmit)="goToMenu()">
+          <div class="field">
+            <label for="guestCount">Nombre de clients</label>
+            <input
+              id="guestCount"
+              type="number"
+              min="1"
+              [max]="table.capacity"
+              placeholder="Ex: 2"
+              [(ngModel)]="guestCount"
+              name="guestCount"
+              required
+            />
+            <span class="field-hint">Capacité maximale : {{ table.capacity }} personnes</span>
+          </div>
+
+          <div class="field">
+            <label for="vibe">Ambiance de la table</label>
+            <select
+              id="vibe"
+              [(ngModel)]="selectedVibe"
+              name="vibe"
+              required
+            >
+              <option value="" disabled>Choisir une ambiance...</option>
+              @for (vibe of vibes; track vibe) {
+                <option [value]="vibe">{{ vibe }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form__actions">
+            <button
+              type="submit"
+              class="primary"
+              [disabled]="!guestCount || !selectedVibe"
+            >
+              Accéder au menu test
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+</main>

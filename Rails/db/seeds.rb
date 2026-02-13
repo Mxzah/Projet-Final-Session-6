@@ -32,3 +32,28 @@ puts "- Administrator: admin@restoqr.ca"
 puts "- Client: client@restoqr.ca"
 puts "- Waiter: waiter@restoqr.ca"
 puts "Password for all: password123"
+
+# Create restaurant tables
+puts "\nCreating tables..."
+
+tables_data = [
+  { number: 1, capacity: 2 },
+  { number: 2, capacity: 2 },
+  { number: 3, capacity: 4 },
+  { number: 4, capacity: 4 },
+  { number: 5, capacity: 4 },
+  { number: 6, capacity: 6 },
+  { number: 7, capacity: 6 },
+  { number: 8, capacity: 8 },
+  { number: 9, capacity: 8 },
+  { number: 10, capacity: 10 }
+]
+
+tables_data.each do |td|
+  table = Table.find_or_create_by!(number: td[:number]) do |t|
+    t.capacity = td[:capacity]
+  end
+  puts "- Table ##{table.number} (#{table.capacity} places) — Token: #{table.qr_token}"
+end
+
+puts "\nAll seeds created!"

@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractContro
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { TableService } from '../services/table.service';
 
 @Component({
   selector: 'app-signup',
@@ -25,8 +26,9 @@ export class SignupComponent {
 
   constructor(
     private authService: AuthService,
+    private tableService: TableService,
     private router: Router
-  ) {}
+  ) { }
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
@@ -59,7 +61,6 @@ export class SignupComponent {
         type: 'Client'
       }
     };
-    console.log('Requête envoyée:', requestBody);
 
     this.authService.signup(
       email!,
@@ -70,10 +71,14 @@ export class SignupComponent {
       'Client'
     ).subscribe(response => {
       this.isLoading = false;
-      console.log('Réponse reçue:', response);
       if (response.success && response.data) {
-        console.log('Inscription réussie!', response.data.email);
-        this.router.navigate(['/reservation']);
+        if (this.tableService.getPendingToken()) {
+          this.tableService.validateAndSavePendingToken().subscribe(() => {
+            this.router.navigate(['/form']);
+          });
+        } else {
+          this.router.navigate(['/form']);
+        }
       } else {
         this.errorMessage = response.errors?.join(', ') || 'Échec de l\'inscription';
       }

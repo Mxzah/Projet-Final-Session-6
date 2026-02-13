@@ -10,7 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_10_152859) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_13_160948) do
+  create_table "tables", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.integer "capacity", default: 4, null: false
+    t.datetime "created_at", null: false
+    t.integer "number", null: false
+    t.string "qr_token", limit: 36, null: false
+    t.string "status", limit: 20, default: "available", null: false
+    t.datetime "updated_at", null: false
+    t.index ["number"], name: "index_tables_on_number", unique: true
+    t.index ["qr_token"], name: "index_tables_on_qr_token", unique: true
+    t.index ["status"], name: "index_tables_on_status"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "deleted_at"

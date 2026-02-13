@@ -65,6 +65,12 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [
+              ".ngrok-free.dev",
+              ".ngrok.io"
+            ]
+          },
           "configurations": {
             "production": {
               "buildTarget": "RestoQR_ng:build:production"

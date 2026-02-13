@@ -1,0 +1,45 @@
+import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TableService } from '../services/table.service';
+import { AuthService } from '../services/auth.service';
+
+@Component({
+    selector: 'app-table-scan',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './table-scan.component.html',
+    styleUrls: ['./table-scan.component.css']
+})
+export class TableScanComponent implements OnInit {
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private tableService: TableService,
+        private authService: AuthService,
+        @Inject(PLATFORM_ID) private platformId: Object
+    ) { }
+
+    ngOnInit(): void {
+        if (!isPlatformBrowser(this.platformId)) {
+            return;
+        }
+
+        const qrToken = this.route.snapshot.paramMap.get('token');
+
+        if (!qrToken) {
+            this.router.navigate(['/login']);
+            return;
+        }
+
+        this.tableService.setPendingToken(qrToken);
+
+        if (this.authService.isAuthenticated()) {
+            this.tableService.validateAndSavePendingToken().subscribe(() => {
+                this.router.navigate(['/form']);
+            });
+        } else {
+            this.router.navigate(['/login']);
+        }
+    }
+}

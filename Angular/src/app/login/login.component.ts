@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { TableService } from '../services/table.service';
 
 @Component({
   selector: 'app-login',
@@ -22,8 +23,9 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
+    private tableService: TableService,
     private router: Router
-  ) {}
+  ) { }
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
@@ -36,14 +38,16 @@ export class LoginComponent {
 
     const { email, password } = this.loginForm.value;
 
-    const requestBody = { user: { email, password } };
-    console.log('Requête envoyée:', requestBody);
-
     this.authService.login(email!, password!).subscribe({
       next: (response) => {
         this.isLoading = false;
-        console.log('Connexion réussie!', response.data?.email);
-        this.router.navigate(['/reservation']);
+        if (this.tableService.getPendingToken()) {
+          this.tableService.validateAndSavePendingToken().subscribe(() => {
+            this.router.navigate(['/form']);
+          });
+        } else {
+          this.router.navigate(['/form']);
+        }
       },
       error: (error) => {
         this.isLoading = false;

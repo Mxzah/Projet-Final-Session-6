@@ -1,6 +1,30 @@
 @import url("../theme.css");
 
-.page-reservation {
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+}
+
+.logout-btn {
+    background: transparent;
+    border: 1px solid var(--rust);
+    color: var(--rust);
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, color 0.2s;
+}
+
+.logout-btn:hover {
+    background: var(--rust);
+    color: white;
+}
+
+.page-form {
     position: relative;
     z-index: 1;
     display: flex;
@@ -46,25 +70,47 @@
     border: 1px solid rgba(27, 26, 23, 0.1);
 }
 
-.reservation-actions {
-    justify-content: center;
+.field-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(27, 26, 23, 0.5);
+    margin-top: 0.25rem;
 }
 
-.reservation-actions button {
+.form__actions {
+    margin-top: 1.5rem;
+}
+
+.form__actions button {
     width: 100%;
 }
 
-@media (max-width: 500px) {
-    .site-header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-    }
+/* No table state */
+.no-table-state {
+    text-align: center;
+    padding: 2rem 1rem;
+}
 
-    .page-reservation {
+.no-table-state .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.no-table-state h2 {
+    font-family: "Fraunces", "Times New Roman", serif;
+    color: var(--rust);
+    margin: 0 0 0.5rem 0;
+}
+
+.no-table-state p {
+    color: rgba(27, 26, 23, 0.7);
+    margin: 0;
+}
+
+@media (max-width: 500px) {
+    .page-form {
         padding: 0.5rem;
-        min-height: calc(100vh - 60px);
-        justify-content: center;
+        min-height: calc(100vh - 40px);
     }
 
     .outer-container {
@@ -73,33 +119,12 @@
         max-width: 100%;
     }
 
-    .welcome-header {
-        margin-bottom: 1rem;
-    }
-
     .welcome-title {
         font-size: 1.25rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .welcome-text {
-        font-size: 0.8rem;
     }
 
     .inner-container {
         padding: 1.25rem;
         border-radius: 12px;
-    }
-
-    .inner-container .panel__header {
-        margin-bottom: 0.75rem;
-    }
-
-    .inner-container .panel__header h1 {
-        font-size: 1.5rem;
-    }
-
-    .inner-container .panel__header .subtitle {
-        font-size: 0.85rem;
     }
 }

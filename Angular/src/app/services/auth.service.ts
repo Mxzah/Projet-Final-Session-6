@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
@@ -16,12 +17,20 @@ export class AuthService {
   private currentUser: UserData | null = null;
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  private isBrowser: boolean;
 
-  constructor(private apiService: ApiService) {
-    this.loadUserFromStorage();
+  constructor(
+    private apiService: ApiService,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+    if (this.isBrowser) {
+      this.loadUserFromStorage();
+    }
   }
 
   private loadUserFromStorage(): void {
+    if (!this.isBrowser) return;
     const userData = localStorage.getItem('currentUser');
     if (userData) {
       this.currentUser = JSON.parse(userData);
@@ -30,10 +39,12 @@ export class AuthService {
   }
 
   private saveUserToStorage(user: UserData): void {
+    if (!this.isBrowser) return;
     localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
   private clearUserFromStorage(): void {
+    if (!this.isBrowser) return;
     localStorage.removeItem('currentUser');
   }
 

@@ -1,0 +1,135 @@
+<header class="site-header">
+  <div class="brand">RestoQR</div>
+  <div class="header-actions">
+    <button class="ghost" (click)="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<main class="page-admin">
+  <div class="outer-container">
+    <div class="welcome-header">
+      <h2 class="welcome-title">Gestion des tables</h2>
+      <p class="welcome-text">Créez des tables, personnalisez et téléchargez vos QR codes.</p>
+    </div>
+
+    <!-- QR Style Customization -->
+    <section class="inner-container style-section">
+      <h3>🎨 Style des QR codes</h3>
+
+      <div class="base-url-field">
+        <label>🔗 URL de base (pour les QR codes)</label>
+        <input type="text" [(ngModel)]="baseUrl" (ngModelChange)="onBaseUrlChange()" placeholder="https://votre-url.ngrok-free.dev" />
+        <small>Utilise l'URL ngrok pour que les QR fonctionnent sur mobile</small>
+      </div>
+
+      <div class="style-grid">
+        <div class="style-field">
+          <label>Motif des points</label>
+          <select [(ngModel)]="qrDotType" (ngModelChange)="onStyleChange()">
+            @for (dt of dotTypes; track dt) {
+              <option [value]="dt">{{ dt }}</option>
+            }
+          </select>
+        </div>
+        <div class="style-field">
+          <label>Couleur des points</label>
+          <div class="color-row">
+            <input type="color" [(ngModel)]="qrDotColor" (ngModelChange)="onStyleChange()" />
+            <code>{{ qrDotColor }}</code>
+          </div>
+        </div>
+        <div class="style-field">
+          <label>Coins (carré)</label>
+          <select [(ngModel)]="qrCornerSquareType" (ngModelChange)="onStyleChange()">
+            @for (ct of cornerSquareTypes; track ct) {
+              <option [value]="ct">{{ ct }}</option>
+            }
+          </select>
+        </div>
+        <div class="style-field">
+          <label>Coins (point)</label>
+          <select [(ngModel)]="qrCornerDotType" (ngModelChange)="onStyleChange()">
+            @for (cdt of cornerDotTypes; track cdt) {
+              <option [value]="cdt">{{ cdt }}</option>
+            }
+          </select>
+        </div>
+        <div class="style-field">
+          <label>Couleur des coins</label>
+          <div class="color-row">
+            <input type="color" [(ngModel)]="qrCornerColor" (ngModelChange)="onStyleChange()" />
+            <code>{{ qrCornerColor }}</code>
+          </div>
+        </div>
+        <div class="style-field">
+          <label>Couleur du fond</label>
+          <div class="color-row">
+            <input type="color" [(ngModel)]="qrBgColor" (ngModelChange)="onStyleChange()" />
+            <code>{{ qrBgColor }}</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Create new table -->
+    <section class="inner-container create-section">
+      <h3>+ Ajouter une table</h3>
+      <form class="create-form" (ngSubmit)="createTable()">
+        <div class="form-row">
+          <div class="field">
+            <label for="newNumber">Numéro</label>
+            <input id="newNumber" type="number" min="1" placeholder="Ex: 11" [(ngModel)]="newTableNumber" name="number" required />
+          </div>
+          <div class="field">
+            <label for="newCapacity">Capacité</label>
+            <input id="newCapacity" type="number" min="1" max="20" [(ngModel)]="newTableCapacity" name="capacity" required />
+          </div>
+          <button type="submit" class="primary create-btn" [disabled]="isCreating || !newTableNumber">
+            {{ isCreating ? '...' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+      @if (errorMessage) {
+        <div class="error-msg">{{ errorMessage }}</div>
+      }
+    </section>
+
+    <!-- Tables list -->
+    @if (isLoading) {
+      <div class="loading">Chargement...</div>
+    }
+
+    @if (!isLoading && tables.length === 0) {
+      <div class="empty">Aucune table créée.</div>
+    }
+
+    @for (table of tables; track table.id) {
+      <section class="table-card">
+        <div class="table-top-row">
+          <div class="table-info">
+            <div class="table-number">Table #{{ table.number }}</div>
+            <div class="table-meta">
+              <span class="badge capacity">{{ table.capacity }} places</span>
+              <span class="badge" [class.available]="table.status === 'available'" [class.occupied]="table.status === 'occupied'">
+                {{ table.status === 'available' ? 'Disponible' : table.status === 'occupied' ? 'Occupée' : table.status }}
+              </span>
+            </div>
+          </div>
+          <div class="qr-container" [id]="'qr-' + table.qr_token"></div>
+        </div>
+
+        <div class="table-url">
+          <code class="url-text">{{ getTableUrl(table) }}</code>
+        </div>
+
+        <div class="table-actions">
+          <button class="action-btn" (click)="copyUrl(table)">
+            {{ copiedToken === table.qr_token ? '✓ Copié!' : '📋 Copier' }}
+          </button>
+          <button class="action-btn" (click)="downloadQr(table, 'svg')">⬇ SVG</button>
+          <button class="action-btn" (click)="downloadQr(table, 'png')">⬇ PNG</button>
+        </div>
+      </section>
+    }
+  </div>
+</main>
