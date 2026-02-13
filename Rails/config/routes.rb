@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     get 'tables/:qr_token/qr_code', to: 'tables#qr_code'
 
     get 'current_user', to: 'sessions#current_user'
+    get 'menu', to: 'menu#index'
   end
 
   match '*url', to: "angular#index", via: :get
