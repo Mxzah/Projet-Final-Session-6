@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TableService, TableData } from '../services/table.service';
 import { AuthService } from '../services/auth.service';
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
     selector: 'app-table-form',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, HeaderComponent],
     templateUrl: './table-form.component.html',
     styleUrls: ['./table-form.component.css']
 })

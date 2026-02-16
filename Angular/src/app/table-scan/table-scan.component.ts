@@ -3,11 +3,12 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TableService } from '../services/table.service';
 import { AuthService } from '../services/auth.service';
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
     selector: 'app-table-scan',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, HeaderComponent],
     templateUrl: './table-scan.component.html',
     styleUrls: ['./table-scan.component.css']
 })

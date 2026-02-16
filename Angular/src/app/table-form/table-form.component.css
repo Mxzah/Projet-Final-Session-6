@@ -1,29 +1,5 @@
 @import url("../theme.css");
 
-.site-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1.5rem;
-}
-
-.logout-btn {
-    background: transparent;
-    border: 1px solid var(--rust);
-    color: var(--rust);
-    padding: 0.4rem 1rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.2s, color 0.2s;
-}
-
-.logout-btn:hover {
-    background: var(--rust);
-    color: white;
-}
-
 .page-form {
     position: relative;
     z-index: 1;

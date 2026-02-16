@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { TableService } from '../services/table.service';
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, HeaderComponent],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css'
 })

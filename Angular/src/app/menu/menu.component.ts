@@ -2,14 +2,15 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MenuService } from '../services/menu.service';
+import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
+import { HeaderComponent } from '../header/header.component';
 import { Item, Category } from './menu.models';
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HeaderComponent],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
 })
@@ -67,23 +68,33 @@ export class MenuComponent implements OnInit {
   });
 
   constructor(
-    private menuService: MenuService,
+    private itemsService: ItemsService,
     private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.menuService.getMenu().subscribe({
-      next: (data) => {
-        const sorted = [...data.categories].sort((a, b) => a.position - b.position);
+    this.itemsService.getItems().subscribe({
+      next: (items: Item[]) => {
+        this.allItems.set(items);
+        const catMap = new Map<number, Category>();
+        for (const item of items) {
+          if (!catMap.has(item.category_id)) {
+            catMap.set(item.category_id, {
+              id: item.category_id,
+              name: item.category_name ?? '—',
+              position: catMap.size
+            });
+          }
+        }
+        const sorted = [...catMap.values()].sort((a, b) => a.position - b.position);
         this.categories.set(sorted);
-        this.allItems.set(data.items);
         if (sorted.length > 0) {
           this.activeCategory.set(sorted[0].id);
         }
         this.isLoading.set(false);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMessage.set(
           err.errors?.join(', ') || 'Erreur lors du chargement du menu'
         );
