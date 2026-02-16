@@ -1,6 +1,6 @@
 class Order < ApplicationRecord
   belongs_to :table
-  belongs_to :client, class_name: "User"
+  belongs_to :client, class_name: "User"   #belongs_to est OBLIGATOIRE (
   belongs_to :server, class_name: "User", optional: true
   belongs_to :vibe, optional: true
   has_many :order_lines
@@ -22,17 +22,17 @@ class Order < ApplicationRecord
 
   private
 
-  def ended_at_after_created_at
+  def ended_at_after_created_at   #CHECK (ended_at >= created_at)
     return unless ended_at.present? && created_at.present?
     errors.add(:ended_at, "doit être après la date de création") if ended_at < created_at
   end
 
-  def nb_people_within_table_seats
+  def nb_people_within_table_seats   #ne peut pas dépasser le nb_seats de la table associée
     return unless nb_people.present? && table.present?
     errors.add(:nb_people, "ne peut pas dépasser le nombre de places de la table (#{table.nb_seats})") if nb_people > table.nb_seats
   end
 
-  def client_has_no_other_open_order
+  def client_has_no_other_open_order  #un client ne peut avoir qu'une seule commande ouverte (ended_at IS NULL)
     return unless client_id.present?
     existing = Order.unscoped.where(client_id: client_id, ended_at: nil, deleted_at: nil).where.not(id: id)
     errors.add(:client_id, "a déjà une commande ouverte") if existing.exists?

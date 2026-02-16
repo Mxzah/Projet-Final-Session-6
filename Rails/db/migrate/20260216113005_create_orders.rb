@@ -13,8 +13,8 @@ class CreateOrders < ActiveRecord::Migration[8.1]
       t.datetime :deleted_at
     end
 
-    add_foreign_key :orders, :users, column: :client_id
-    add_foreign_key :orders, :users, column: :server_id
+    add_foreign_key :orders, :users, column: :client_id  #reference de client_id de la table users
+    add_foreign_key :orders, :users, column: :server_id  #reference de server_id de la table users
     add_index :orders, :client_id, name: "idx_orders_client_id"
     add_index :orders, :server_id, name: "idx_orders_server_id"
     add_index :orders, :created_at, name: "idx_orders_created_at"

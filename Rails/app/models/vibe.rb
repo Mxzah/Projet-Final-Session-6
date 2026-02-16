@@ -10,7 +10,7 @@ class Vibe < ApplicationRecord
   validates :image, content_type: { in: %w[image/jpeg image/png], message: "doit être un fichier JPG ou PNG" },
                     size: { less_than: 5.megabytes, message: "doit être inférieur à 5 MB" }, if: :image_attached?
 
-  default_scope { where(deleted_at: nil) }
+  default_scope { where(deleted_at: nil) }  #prend les select ous les delete son nul 
 
   def soft_delete
     update(deleted_at: Time.current)
