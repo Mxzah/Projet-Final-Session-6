@@ -25,6 +25,32 @@
     font-size: 1.5rem;
     margin: 0 0 0.5rem 0;
     color: var(--rust);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.btn-add {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--copper);
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.15s ease;
+}
+
+.btn-add:hover {
+    opacity: 0.85;
 }
 
 .welcome-text {
@@ -146,6 +172,211 @@
     text-align: center;
     padding: 2rem;
     color: rgba(27, 26, 23, 0.5);
+}
+
+/* ── Modal ── */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal {
+    position: relative;
+    background: var(--sand);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid rgba(27, 26, 23, 0.1);
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background: var(--clay);
+}
+
+.modal-edit {
+    max-width: 500px;
+}
+
+.modal-title {
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-size: 1.25rem;
+    margin: 0 0 0.75rem 0;
+    color: var(--ink);
+}
+
+.modal-text {
+    margin: 0 0 1.5rem 0;
+    font-size: 0.9rem;
+    color: rgba(27, 26, 23, 0.7);
+}
+
+.modal-error {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.modal-field {
+    margin-bottom: 1rem;
+}
+
+.modal-field label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+}
+
+.modal-field input,
+.modal-field textarea,
+.modal-field select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid rgba(27, 26, 23, 0.15);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    background: #fff;
+    color: var(--ink);
+    box-sizing: border-box;
+}
+
+.modal-field input:focus,
+.modal-field textarea:focus,
+.modal-field select:focus {
+    outline: none;
+    border-color: var(--copper);
+}
+
+.modal-field input.ng-dirty.ng-invalid,
+.modal-field textarea.ng-dirty.ng-invalid,
+.modal-field select.ng-dirty.ng-invalid {
+    border-color: #dc3545;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.78rem;
+    margin-top: 0.25rem;
+}
+
+.image-preview {
+    width: 100%;
+    max-height: 180px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    background: var(--clay);
+}
+
+.image-preview img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.modal-field input[type="file"] {
+    font-size: 0.85rem;
+    padding: 0.4rem 0;
+    border: none;
+    background: none;
+}
+
+.modal-field textarea {
+    resize: vertical;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.btn-cancel {
+    padding: 0.5rem 1.25rem;
+    border: 1px solid rgba(27, 26, 23, 0.15);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.btn-cancel:hover {
+    background: rgba(27, 26, 23, 0.04);
+}
+
+.btn-danger {
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--rust);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
+
+.btn-primary {
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--copper);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 /* ── Responsive ── */
