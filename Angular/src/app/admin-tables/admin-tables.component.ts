@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
-import { AuthService } from '../services/auth.service';
 import QRCodeStyling from 'styled-qr-code';
 
 interface TableInfo {
@@ -50,9 +48,7 @@ export class AdminTablesComponent implements OnInit {
     private qrInstances: Map<string, QRCodeStyling> = new Map();
 
     constructor(
-        private apiService: ApiService,
-        private authService: AuthService,
-        private router: Router
+        private apiService: ApiService
     ) { }
 
     ngOnInit(): void {
@@ -180,7 +176,7 @@ export class AdminTablesComponent implements OnInit {
         this.apiService.post<TableInfo>('/api/tables', {
             table: {
                 number: this.newTableNumber,
-                capacity: this.newTableCapacity
+                nb_seats: this.newTableCapacity
             }
         }).subscribe({
             next: (response) => {
@@ -198,10 +194,4 @@ export class AdminTablesComponent implements OnInit {
         });
     }
 
-    logout(): void {
-        this.authService.logout().subscribe({
-            next: () => this.router.navigate(['/login']),
-            error: () => this.router.navigate(['/login'])
-        });
-    }
 }

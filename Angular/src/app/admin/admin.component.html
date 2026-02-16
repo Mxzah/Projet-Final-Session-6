@@ -1,0 +1,18 @@
+<app-header (logoutClick)="logout()" />
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab" [class.active]="activeTab === 'tables'" (click)="switchTab('tables')">Tables</button>
+    <button class="tab" [class.active]="activeTab === 'menu'" (click)="switchTab('menu')">Items</button>
+  </div>
+</nav>
+
+<div class="tab-content">
+  @if (activeTab === 'tables') {
+    <app-admin-tables />
+  }
+
+  @if (activeTab === 'menu') {
+    <app-admin-items />
+  }
+</div>

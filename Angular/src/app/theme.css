@@ -54,7 +54,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem clamp(1rem, 3vw, 3rem) 0;
+    padding: 1rem clamp(1rem, 3vw, 3rem);
+    background: linear-gradient(120deg, var(--copper), var(--rust));
+    color: #fff;
 }
 
 .brand {
@@ -62,6 +64,7 @@
     font-size: 1.1rem;
     letter-spacing: 0.3rem;
     text-transform: uppercase;
+    color: #fff;
 }
 
 .header-actions {
@@ -161,6 +164,15 @@ button {
     background: transparent;
     border: 1px solid rgba(27, 26, 23, 0.2);
     color: var(--ink);
+}
+
+.site-header .ghost {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.site-header .ghost:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 @keyframes float-in {

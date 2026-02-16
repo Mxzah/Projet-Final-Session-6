@@ -1,13 +1,22 @@
-<header class="site-header">
-  <div class="brand">RestoQR</div>
-  <div class="header-actions">
-    <div class="cart-display">
+<app-header (logoutClick)="logout()">
+  <span class="header-divider">|</span>
+  <div class="cart-display cart-header">
+    <div class="cart-icon-wrap">
       <span class="cart-icon">&#128722;</span>
-      <span class="cart-total">Sous-total CA$0.00</span>
+      <span class="cart-badge">1</span>
     </div>
-    <button class="ghost" (click)="logout()">Déconnexion</button>
+    <div class="cart-text">
+      <span class="cart-label">Sous-total</span>
+      <span class="cart-price">CA$0.00</span>
+    </div>
   </div>
-</header>
+</app-header>
+
+<div class="cart-bottom-bar">
+  <span class="cart-icon">&#128722;</span>
+  <span class="cart-bottom-text">1 item &bull; CA$0.00</span>
+  <span class="cart-bottom-arrow">&#8250;</span>
+</div>
 
 <main class="menu-page">
   @if (isLoading()) {

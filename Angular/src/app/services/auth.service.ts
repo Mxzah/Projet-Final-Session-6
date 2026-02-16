@@ -8,6 +8,7 @@ export interface UserData {
   email: string;
   first_name: string;
   last_name: string;
+  type: string;
 }
 
 @Injectable({
@@ -102,6 +103,10 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.isLoggedInSubject.value;
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser?.type === 'Administrator';
   }
 
   getCurrentUser(): UserData | null {

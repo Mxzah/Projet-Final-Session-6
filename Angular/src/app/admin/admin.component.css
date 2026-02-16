@@ -1,0 +1,72 @@
+@import url("../theme.css");
+
+:host {
+    display: block;
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
+}
+
+/* ── Tabs ── */
+.tabs {
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem clamp(1rem, 3vw, 3rem);
+    position: sticky;
+    top: 3.5rem;
+    z-index: 40;
+    background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
+}
+
+.tabs-inner {
+    display: flex;
+    gap: 0.25rem;
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.3rem;
+    box-shadow: 0 2px 8px rgba(27, 26, 23, 0.1);
+}
+
+.tab {
+    padding: 0.6rem 1.75rem;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(27, 26, 23, 0.45);
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.tab:hover {
+    color: var(--ink);
+}
+
+.tab.active {
+    color: #fff;
+    background: linear-gradient(120deg, var(--copper), var(--rust));
+    font-weight: 600;
+}
+
+/* ── Placeholder ── */
+.placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    color: rgba(27, 26, 23, 0.4);
+    font-size: 1.1rem;
+}
+
+@media (max-width: 500px) {
+    .tabs {
+        top: 3rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .tab {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.85rem;
+    }
+}

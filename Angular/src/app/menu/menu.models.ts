@@ -11,10 +11,6 @@ export interface Item {
   price: number;
   image_url: string;
   category_id: number;
+  category_name?: string;
   deleted_at: string | null;
-}
-
-export interface MenuData {
-  categories: Category[];
-  items: Item[];
 }

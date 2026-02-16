@@ -1,0 +1,9 @@
+<header class="site-header">
+  <div class="brand">RestoQR</div>
+  <div class="header-actions">
+    @if (showLogout) {
+      <button class="ghost" (click)="logoutClick.emit()">Déconnexion</button>
+    }
+    <ng-content />
+  </div>
+</header>

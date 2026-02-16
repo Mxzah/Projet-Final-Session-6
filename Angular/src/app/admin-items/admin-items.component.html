@@ -1,0 +1,42 @@
+<main class="page-admin">
+  <div class="outer-container">
+    <div class="welcome-header">
+      <h2 class="welcome-title">Gestion des items</h2>
+      <p class="welcome-text">Consultez les plats et boissons du restaurant.</p>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading">Chargement...</div>
+    }
+
+    @if (!isLoading() && items().length === 0) {
+      <div class="empty">Aucun item.</div>
+    }
+
+    @if (!isLoading() && items().length > 0) {
+      <div class="items-grid">
+        @for (item of items(); track item.id) {
+          <div class="item-card">
+            <div class="item-image">
+              @if (item.image_url) {
+                <img [src]="item.image_url" [alt]="item.name" />
+              } @else {
+                <div class="image-placeholder"></div>
+              }
+            </div>
+            <div class="item-body">
+              <div class="item-name">{{ item.name }}</div>
+              <div class="item-description">{{ item.description }}</div>
+              <div class="item-category">{{ item.category_name ?? '—' }}</div>
+              <div class="item-price">{{ item.price | number:'1.2-2' }} $</div>
+            </div>
+            <div class="item-actions">
+              <button class="action-btn edit" title="Modifier">&#9998;</button>
+              <button class="action-btn delete" title="Supprimer">&#128465;</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</main>
