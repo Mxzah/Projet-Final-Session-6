@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -25,7 +25,8 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private tableService: TableService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) { }
 
   onSubmit(): void {
@@ -53,6 +54,7 @@ export class LoginComponent {
       error: (error: any) => {
         this.isLoading = false;
         this.errorMessage = error?.errors?.join(', ') || error?.error?.errors?.join(', ') || 'Une erreur est survenue lors de la connexion';
+        this.cdr.detectChanges();
       }
     });
   }

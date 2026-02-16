@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, map, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -14,17 +14,12 @@ export interface ApiResponse<T = any> {
 })
 export class ApiService {
   private apiUrl = environment.apiUrl;
-  private headers = new HttpHeaders({
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  });
 
   constructor(private http: HttpClient) {}
 
   post<T>(endpoint: string, body: any): Observable<ApiResponse<T>> {
     return this.http.post<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, body, {
-      withCredentials: true,
-      headers: this.headers
+      withCredentials: true
     }).pipe(
       map(response => {
         if (!response.success) {
@@ -47,8 +42,7 @@ export class ApiService {
 
   get<T>(endpoint: string): Observable<ApiResponse<T>> {
     return this.http.get<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, {
-      withCredentials: true,
-      headers: this.headers
+      withCredentials: true
     }).pipe(
       map(response => {
         if (!response.success) {
@@ -57,7 +51,7 @@ export class ApiService {
         return response;
       }),
       catchError((error: HttpErrorResponse | ApiResponse<T>) => {
-        console.error('API Error:', error);
+
         if ('success' in error && error.success === false) {
           return throwError(() => error);
         }
@@ -72,8 +66,7 @@ export class ApiService {
 
   put<T>(endpoint: string, body: any): Observable<ApiResponse<T>> {
     return this.http.put<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, body, {
-      withCredentials: true,
-      headers: this.headers
+      withCredentials: true
     }).pipe(
       map(response => {
         if (!response.success) {
@@ -82,7 +75,7 @@ export class ApiService {
         return response;
       }),
       catchError((error: HttpErrorResponse | ApiResponse<T>) => {
-        console.error('API Error:', error);
+
         if ('success' in error && error.success === false) {
           return throwError(() => error);
         }
@@ -97,8 +90,7 @@ export class ApiService {
 
   delete<T>(endpoint: string): Observable<ApiResponse<T>> {
     return this.http.delete<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, {
-      withCredentials: true,
-      headers: this.headers
+      withCredentials: true
     }).pipe(
       map(response => {
         if (!response.success) {
@@ -107,7 +99,7 @@ export class ApiService {
         return response;
       }),
       catchError((error: HttpErrorResponse | ApiResponse<T>) => {
-        console.error('API Error:', error);
+
         if ('success' in error && error.success === false) {
           return throwError(() => error);
         }
