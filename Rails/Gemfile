@@ -41,6 +41,9 @@ gem "devise"
 # QR Code generation
 gem "rqrcode", "~> 2.0"
 
+# Active Storage validations (content_type, size)
+gem "active_storage_validations"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

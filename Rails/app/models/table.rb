@@ -1,24 +1,32 @@
 class Table < ApplicationRecord
-  validates :number, presence: true, uniqueness: true, numericality: { only_integer: true, greater_than: 0 }
-  validates :qr_token, presence: true, uniqueness: true
-  validates :capacity, presence: true, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 20 }
-  validates :status, presence: true, inclusion: { in: %w[available occupied reserved maintenance] }
+  has_many :orders
+  has_many :availabilities, as: :available
 
-  before_validation :generate_qr_token, on: :create
+  has_one_attached :image
 
-  scope :available, -> { where(status: 'available') }
+  validates :number, presence: true, uniqueness: true,
+                     numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 999 }
+  validates :nb_seats, presence: true,
+                       numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 20 }
+  validates :temporary_code, uniqueness: true, allow_nil: true, length: { maximum: 50 }
+  validates :image, content_type: { in: %w[image/jpeg image/png], message: "doit être un fichier JPG ou PNG" },
+                    size: { less_than: 5.megabytes, message: "doit être inférieur à 5 MB" }, if: :image_attached?
+  validate :cleaned_at_after_created_at
 
-  def occupy!
-    update!(status: 'occupied')
-  end
+  default_scope { where(deleted_at: nil) }
 
-  def release!
-    update!(status: 'available')
+  def soft_delete
+    update(deleted_at: Time.current)
   end
 
   private
 
-  def generate_qr_token
-    self.qr_token ||= SecureRandom.uuid
+  def cleaned_at_after_created_at
+    return unless cleaned_at.present? && created_at.present?
+    errors.add(:cleaned_at, "doit être après la date de création") if cleaned_at < created_at
+  end
+
+  def image_attached?
+    image.attached?
   end
 end

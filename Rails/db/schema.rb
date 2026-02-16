@@ -10,17 +10,115 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_13_160948) do
-  create_table "tables", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
-    t.integer "capacity", default: 4, null: false
+ActiveRecord::Schema[8.1].define(version: 2026_02_16_113133) do
+  create_table "availabilities", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.bigint "available_id", null: false
+    t.string "available_type", limit: 50, null: false
     t.datetime "created_at", null: false
+    t.string "description"
+    t.datetime "end_at"
+    t.datetime "start_at", null: false
+    t.index ["available_type", "available_id"], name: "idx_availabilities_type_id"
+  end
+
+  create_table "categories", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", limit: 100, null: false
+    t.integer "position", default: 0, null: false
+    t.index ["name"], name: "uniq_categories_name", unique: true
+    t.index ["position"], name: "uniq_categories_position", unique: true
+  end
+
+  create_table "combo_items", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.bigint "combo_id", null: false
+    t.datetime "deleted_at"
+    t.bigint "item_id", null: false
+    t.integer "quantity", null: false
+    t.index ["combo_id", "item_id"], name: "uniq_combo_items", unique: true
+    t.index ["combo_id"], name: "index_combo_items_on_combo_id"
+    t.index ["deleted_at"], name: "idx_combo_items_deleted_at"
+    t.index ["item_id"], name: "index_combo_items_on_item_id"
+  end
+
+  create_table "combos", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.string "description"
+    t.string "name", limit: 100, null: false
+    t.decimal "price", precision: 6, scale: 2, null: false
+    t.index ["deleted_at"], name: "idx_combos_deleted_at"
+  end
+
+  create_table "items", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.string "description"
+    t.string "name", limit: 100, null: false
+    t.decimal "price", precision: 6, scale: 2, null: false
+    t.index ["category_id"], name: "index_items_on_category_id"
+    t.index ["deleted_at"], name: "idx_items_deleted_at"
+  end
+
+  create_table "order_lines", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "note"
+    t.bigint "order_id", null: false
+    t.bigint "orderable_id", null: false
+    t.string "orderable_type", limit: 50, null: false
+    t.integer "quantity", null: false
+    t.string "status", limit: 20, default: "sent", null: false
+    t.decimal "unit_price", precision: 6, scale: 2, null: false
+    t.index ["order_id"], name: "index_order_lines_on_order_id"
+    t.index ["orderable_type", "orderable_id"], name: "idx_order_lines_type_id"
+    t.index ["status"], name: "idx_order_lines_status"
+  end
+
+  create_table "orders", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.bigint "client_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.datetime "ended_at"
+    t.integer "nb_people", null: false
+    t.string "note"
+    t.bigint "server_id"
+    t.bigint "table_id", null: false
+    t.decimal "tip", precision: 5, scale: 2
+    t.bigint "vibe_id"
+    t.index ["client_id"], name: "idx_orders_client_id"
+    t.index ["created_at"], name: "idx_orders_created_at"
+    t.index ["deleted_at"], name: "idx_orders_deleted_at"
+    t.index ["server_id"], name: "idx_orders_server_id"
+    t.index ["table_id"], name: "index_orders_on_table_id"
+    t.index ["vibe_id"], name: "index_orders_on_vibe_id"
+  end
+
+  create_table "reviews", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.string "comment", limit: 500, null: false
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.integer "rating", null: false
+    t.bigint "reviewable_id", null: false
+    t.string "reviewable_type", limit: 50, null: false
+    t.datetime "updated_at"
+    t.bigint "user_id", null: false
+    t.index ["deleted_at"], name: "idx_reviews_deleted_at"
+    t.index ["reviewable_type", "reviewable_id"], name: "idx_reviews_type_id"
+    t.index ["user_id"], name: "index_reviews_on_user_id"
+  end
+
+  create_table "tables", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.datetime "cleaned_at"
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.string "image"
+    t.integer "nb_seats", default: 4, null: false
     t.integer "number", null: false
-    t.string "qr_token", limit: 36, null: false
-    t.string "status", limit: 20, default: "available", null: false
+    t.string "temporary_code", limit: 50
     t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "idx_tables_deleted_at"
     t.index ["number"], name: "index_tables_on_number", unique: true
-    t.index ["qr_token"], name: "index_tables_on_qr_token", unique: true
-    t.index ["status"], name: "index_tables_on_status"
+    t.index ["temporary_code"], name: "index_tables_on_temporary_code", unique: true
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
@@ -39,5 +137,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_13_160948) do
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["status"], name: "idx_users_status"
+    t.index ["type"], name: "idx_users_type"
   end
+
+  create_table "vibes", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.string "color", limit: 7, null: false
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.string "name", limit: 50, null: false
+    t.index ["deleted_at"], name: "idx_vibes_deleted_at"
+    t.index ["name"], name: "uniq_vibes_name", unique: true
+  end
+
+  add_foreign_key "combo_items", "combos"
+  add_foreign_key "combo_items", "items"
+  add_foreign_key "items", "categories"
+  add_foreign_key "order_lines", "orders"
+  add_foreign_key "orders", "tables"
+  add_foreign_key "orders", "users", column: "client_id"
+  add_foreign_key "orders", "users", column: "server_id"
+  add_foreign_key "orders", "vibes"
+  add_foreign_key "reviews", "users"
 end
