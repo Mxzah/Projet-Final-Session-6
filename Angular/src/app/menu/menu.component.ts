@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
+import { CartService } from '../services/cart.service';
 import { HeaderComponent } from '../header/header.component';
 import { Item, Category } from './menu.models';
 
@@ -25,6 +26,9 @@ export class MenuComponent implements OnInit {
   sortOrder = signal<string>('none');
   priceMin = signal<number | null>(null);
   priceMax = signal<number | null>(null);
+
+  // Cart sidebar
+  cartOpen = signal<boolean>(false);
 
   // Modal
   selectedItem = signal<Item | null>(null);
@@ -70,6 +74,7 @@ export class MenuComponent implements OnInit {
   constructor(
     private itemsService: ItemsService,
     private authService: AuthService,
+    public cartService: CartService,
     private router: Router
   ) {}
 
@@ -167,13 +172,24 @@ export class MenuComponent implements OnInit {
   addToCart(): void {
     const item = this.selectedItem();
     if (!item) return;
-    console.log('Ajout au panier:', {
-      item: item.name,
+    this.cartService.addLine({
+      orderable_type: 'Item',
+      orderable_id: item.id,
+      name: item.name,
+      description: item.description,
+      unit_price: item.price,
       quantity: this.modalQuantity(),
-      note: this.modalNote(),
-      total: this.modalTotal()
+      note: this.modalNote()
     });
     this.closeModal();
+  }
+
+  toggleCart(): void {
+    this.cartOpen.set(!this.cartOpen());
+  }
+
+  goToOrder(): void {
+    this.router.navigate(['/order']);
   }
 
   onAddToCart(item: Item): void {

@@ -1,0 +1,241 @@
+@import url("../theme.css");
+
+.order-page {
+  padding: 1.5rem clamp(1rem, 3vw, 3rem);
+  min-height: calc(100vh - 60px);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loading, .error-banner, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+}
+
+.error-banner p {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.order-header {
+  margin-bottom: 2rem;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--copper);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.btn-back:hover {
+  text-decoration: underline;
+}
+
+.order-title {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  margin: 0.5rem 0 0.25rem;
+  color: var(--ink);
+}
+
+.order-meta {
+  font-size: 0.9rem;
+  color: rgba(27, 26, 23, 0.6);
+  margin: 0;
+}
+
+.section-title {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: 1.2rem;
+  margin: 0 0 1rem;
+  color: var(--ink);
+}
+
+.order-lines {
+  margin-bottom: 1.5rem;
+}
+
+.order-line-card {
+  background: var(--sand);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(27, 26, 23, 0.08);
+  border: 1px solid rgba(27, 26, 23, 0.06);
+}
+
+.line-info {
+  flex: 1;
+}
+
+.line-name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
+  color: var(--ink);
+}
+
+.line-details {
+  font-size: 0.85rem;
+  color: rgba(27, 26, 23, 0.6);
+  margin: 0 0 0.25rem;
+}
+
+.line-note {
+  font-size: 0.8rem;
+  color: rgba(27, 26, 23, 0.5);
+  font-style: italic;
+  margin: 0 0 0.25rem;
+}
+
+.line-status {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-sent {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-in_preparation {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-ready {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-served {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+.line-price {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.line-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit, .btn-delete {
+  padding: 0.4rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(27, 26, 23, 0.15);
+  background: #fff;
+  color: var(--ink);
+}
+
+.no-lines {
+  text-align: center;
+  color: rgba(27, 26, 23, 0.5);
+  padding: 2rem;
+}
+
+.order-summary {
+  background: var(--sand);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(27, 26, 23, 0.08);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.summary-price {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.order-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-edit-order, .btn-delete-order {
+  flex: 1;
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(27, 26, 23, 0.15);
+  background: #fff;
+  color: var(--ink);
+}
+
+.btn-send {
+  flex: 2;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 0.85rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-send:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+  .order-line-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .line-actions {
+    width: 100%;
+  }
+
+  .btn-edit, .btn-delete {
+    flex: 1;
+  }
+
+  .order-actions {
+    flex-direction: column;
+  }
+
+  .btn-edit-order, .btn-delete-order, .btn-send {
+    flex: unset;
+    width: 100%;
+  }
+}

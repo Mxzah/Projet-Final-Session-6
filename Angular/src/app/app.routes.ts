@@ -5,6 +5,7 @@ import { TableScanComponent } from './table-scan/table-scan.component';
 import { TableFormComponent } from './table-form/table-form.component';
 import { AdminComponent } from './admin/admin.component';
 import { MenuComponent } from './menu/menu.component';
+import { OrderComponent } from './order/order.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { guestGuard } from './guards/guest.guard';
 import { authGuard } from './guards/auth.guard';
@@ -18,5 +19,6 @@ export const routes: Routes = [
     { path: 'form', component: TableFormComponent, canActivate: [authGuard] },
     { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
     { path: 'menu', component: MenuComponent, canActivate: [authGuard] },
+    { path: 'order', component: OrderComponent, canActivate: [authGuard] },
     { path: '**', component: NotFoundComponent }
 ];

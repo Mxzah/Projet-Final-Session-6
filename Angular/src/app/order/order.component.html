@@ -1,0 +1,54 @@
+<app-header (logoutClick)="logout()"></app-header>
+
+<main class="order-page">
+  @if (lines().length === 0) {
+    <div class="empty-state">
+      <p>Aucune commande en cours.</p>
+      <button class="btn-back" (click)="goBack()">Retour au menu</button>
+    </div>
+  } @else {
+    <div class="order-container">
+      <div class="order-header">
+        <button class="btn-back" (click)="goBack()">&larr; Retour au menu</button>
+        <h1 class="order-title">Votre commande</h1>
+      </div>
+
+      <div class="order-lines">
+        <h2 class="section-title">Lignes de commande</h2>
+
+        @for (line of lines(); track $index) {
+          <div class="order-line-card">
+            <div class="line-info">
+              <h3 class="line-name">{{ line.name }}</h3>
+              <p class="line-details">{{ line.quantity }} x CA${{ line.unit_price.toFixed(2) }}</p>
+              @if (line.note) {
+                <p class="line-note">Note: {{ line.note }}</p>
+              }
+              <span class="line-status status-sent">Envoyée</span>
+            </div>
+            <div class="line-price">
+              CA${{ (line.unit_price * line.quantity).toFixed(2) }}
+            </div>
+            <div class="line-actions">
+              <button class="btn-edit" (click)="onEdit()">Modifier</button>
+              <button class="btn-delete" (click)="onDelete()">Supprimer</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="order-summary">
+        <div class="summary-row">
+          <span>Sous-total</span>
+          <span class="summary-price">CA${{ subtotal().toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <div class="order-actions">
+        <button class="btn-edit-order" (click)="onEdit()">Modifier</button>
+        <button class="btn-delete-order" (click)="onDelete()">Supprimer</button>
+        <button class="btn-send" (click)="onSend()">Envoyer</button>
+      </div>
+    </div>
+  }
+</main>

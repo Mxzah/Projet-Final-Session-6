@@ -1,20 +1,20 @@
 <app-header (logoutClick)="logout()">
   <span class="header-divider">|</span>
-  <div class="cart-display cart-header">
+  <div class="cart-display cart-header" (click)="toggleCart()">
     <div class="cart-icon-wrap">
       <span class="cart-icon">&#128722;</span>
-      <span class="cart-badge">1</span>
+      <span class="cart-badge">{{ cartService.totalItems() }}</span>
     </div>
     <div class="cart-text">
       <span class="cart-label">Sous-total</span>
-      <span class="cart-price">CA$0.00</span>
+      <span class="cart-price">CA${{ cartService.subtotal().toFixed(2) }}</span>
     </div>
   </div>
 </app-header>
 
 <div class="cart-bottom-bar">
   <span class="cart-icon">&#128722;</span>
-  <span class="cart-bottom-text">1 item &bull; CA$0.00</span>
+  <span class="cart-bottom-text">{{ cartService.totalItems() }} item(s) &bull; CA${{ cartService.subtotal().toFixed(2) }}</span>
   <span class="cart-bottom-arrow">&#8250;</span>
 </div>
 
@@ -28,7 +28,7 @@
       <p>{{ errorMessage() }}</p>
     </div>
   } @else {
-    <div class="menu-layout">
+    <div class="menu-layout" [class.menu-layout-cart-open]="cartOpen()">
       <aside class="sidebar">
         <h2 class="sidebar-title">Catégories</h2>
         <nav class="category-nav">
@@ -117,6 +117,43 @@
           }
         }
       </section>
+
+      <!-- Cart sidebar -->
+      <aside class="cart-sidebar" [class.cart-sidebar-open]="cartOpen()">
+        <div class="cart-sidebar-header">
+          <span class="cart-sidebar-close" (click)="toggleCart()">&times;</span>
+          <h2 class="cart-sidebar-title">Votre commande</h2>
+        </div>
+
+        <div class="cart-sidebar-lines">
+          @for (line of cartService.lines(); track $index) {
+            <div class="cart-line">
+              <div class="cart-line-info">
+                <h3 class="cart-line-name">{{ line.name }}</h3>
+                <p class="cart-line-meta">CA${{ line.unit_price.toFixed(2) }} / unit &middot; <span class="cart-line-qty">{{ line.quantity }} portion{{ line.quantity > 1 ? 's' : '' }}</span></p>
+              </div>
+              <div class="cart-line-total">
+                <span class="cart-line-total-label">TOTAL</span>
+                <span class="cart-line-total-price">CA${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
+              </div>
+              <div class="cart-line-actions">
+                <button class="btn-cart-edit" (click)="$event.stopPropagation()">Modifier</button>
+                <button class="btn-cart-remove" (click)="$event.stopPropagation()">Retirer</button>
+              </div>
+            </div>
+          } @empty {
+            <p class="cart-empty">Votre panier est vide.</p>
+          }
+        </div>
+
+        <div class="cart-sidebar-footer">
+          <div class="cart-subtotal">
+            <span>Sous-total</span>
+            <span class="cart-subtotal-price">CA${{ cartService.subtotal().toFixed(2) }}</span>
+          </div>
+          <button class="btn-continue" [disabled]="cartService.totalItems() === 0" (click)="goToOrder()">Continuer</button>
+        </div>
+      </aside>
     </div>
   }
 </main>
