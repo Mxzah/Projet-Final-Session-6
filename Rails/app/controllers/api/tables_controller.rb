@@ -1,7 +1,7 @@
 module Api
   class TablesController < ApplicationController
     def show
-      table = Table.find_by(qr_token: params[:qr_token])
+      table = Table.find_by(temporary_code: params[:qr_token])
 
       if table.nil?
         render json: {
@@ -14,13 +14,7 @@ module Api
 
       render json: {
         success: true,
-        data: {
-          id: table.id,
-          number: table.number,
-          capacity: table.capacity,
-          status: table.status,
-          qr_token: table.qr_token
-        },
+        data: table_json(table),
         errors: []
       }, status: :ok
     end
@@ -30,32 +24,19 @@ module Api
 
       render json: {
         success: true,
-        data: tables.map { |t|
-          {
-            id: t.id,
-            number: t.number,
-            capacity: t.capacity,
-            status: t.status,
-            qr_token: t.qr_token
-          }
-        },
+        data: tables.map { |t| table_json(t) },
         errors: []
       }, status: :ok
     end
 
     def create
       table = Table.new(table_params)
+      table.temporary_code = SecureRandom.hex(16)
 
       if table.save
         render json: {
           success: true,
-          data: {
-            id: table.id,
-            number: table.number,
-            capacity: table.capacity,
-            status: table.status,
-            qr_token: table.qr_token
-          },
+          data: table_json(table),
           errors: []
         }, status: :created
       else
@@ -68,7 +49,7 @@ module Api
     end
 
     def qr_code
-      table = Table.find_by(qr_token: params[:qr_token])
+      table = Table.find_by(temporary_code: params[:qr_token])
 
       if table.nil?
         render json: {
@@ -79,7 +60,7 @@ module Api
         return
       end
 
-      qr_url = "#{request.base_url}/table/#{table.qr_token}"
+      qr_url = "#{request.base_url}/table/#{table.temporary_code}"
       qrcode = RQRCode::QRCode.new(qr_url)
       svg = qrcode.as_svg(
         color: "1B1A17",
@@ -99,10 +80,21 @@ module Api
         errors: []
       }, status: :ok
     end
+
     private
 
     def table_params
-      params.require(:table).permit(:number, :capacity)
+      params.require(:table).permit(:number, :nb_seats)
+    end
+
+    def table_json(table)
+      {
+        id: table.id,
+        number: table.number,
+        capacity: table.nb_seats,
+        status: table.orders.where(ended_at: nil).any? ? 'occupied' : 'available',
+        qr_token: table.temporary_code
+      }
     end
   end
 end

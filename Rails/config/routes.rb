@@ -11,8 +11,10 @@ Rails.application.routes.draw do
     get 'tables/:qr_token', to: 'tables#show'
     get 'tables/:qr_token/qr_code', to: 'tables#qr_code'
 
+    resources :categories, only: [:index, :show, :create, :update, :destroy]
+    resources :items, only: [:index, :show, :create, :update, :destroy]
+
     get 'current_user', to: 'sessions#current_user'
-    get 'menu', to: 'menu#index'
   end
 
   match '*url', to: "angular#index", via: :get

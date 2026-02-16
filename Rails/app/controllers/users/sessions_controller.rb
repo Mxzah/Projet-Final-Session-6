@@ -5,36 +5,33 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    self.resource = warden.authenticate(auth_options)
+    user = User.find_by(email: params[:user][:email])
 
-    if resource
-      sign_in(resource_name, resource)
-      render json: {
-        success: true,
-        data: {
-          email: resource.email,
-          first_name: resource.first_name,
-          last_name: resource.last_name,
-          type: resource.type
-        }
-      }, status: :ok
-    else
-      # Vérifier si l'utilisateur existe mais est inactif
-      user = User.unscoped.find_by(email: params[:user][:email])
-
-      if user && user.valid_password?(params[:user][:password]) && !user.active_for_authentication?
+    if user && user.valid_password?(params[:user][:password])
+      if user.active_for_authentication?
+        sign_in(:user, user)
         render json: {
-          success: false,
-          data: nil,
-          errors: ["Votre compte n'est pas encore activé"]
+          success: true,
+          data: {
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            type: user.type
+          }
         }, status: :ok
       else
         render json: {
           success: false,
           data: nil,
-          errors: ['Email ou mot de passe invalide']
+          errors: ["Votre compte n'est pas encore activé"]
         }, status: :ok
       end
+    else
+      render json: {
+        success: false,
+        data: nil,
+        errors: ['Email ou mot de passe invalide']
+      }, status: :ok
     end
   end
 

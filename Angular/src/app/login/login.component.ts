@@ -50,10 +50,9 @@ export class LoginComponent {
           this.router.navigate(['/form']);
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isLoading = false;
-        console.error('Erreur de connexion:', error);
-        this.errorMessage = error.errors?.join(', ') || 'Une erreur est survenue lors de la connexion';
+        this.errorMessage = error?.errors?.join(', ') || error?.error?.errors?.join(', ') || 'Une erreur est survenue lors de la connexion';
       }
     });
   }
