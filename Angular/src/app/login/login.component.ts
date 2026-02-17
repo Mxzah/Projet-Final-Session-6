@@ -3,6 +3,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { CartService } from '../services/cart.service';
+import { OrderService } from '../services/order.service';
 import { TableService } from '../services/table.service';
 import { HeaderComponent } from '../header/header.component';
 
@@ -24,6 +26,8 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
+    private cartService: CartService,
+    private orderService: OrderService,
     private tableService: TableService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -43,13 +47,16 @@ export class LoginComponent {
     this.authService.login(email!, password!).subscribe({
       next: (response) => {
         this.isLoading = false;
-        if (this.tableService.getPendingToken()) {
-          this.tableService.validateAndSavePendingToken().subscribe(() => {
+        this.cartService.clear();
+        this.orderService.closeOpenOrders().subscribe(() => {
+          if (this.tableService.getPendingToken()) {
+            this.tableService.validateAndSavePendingToken().subscribe(() => {
+              this.router.navigate(['/form']);
+            });
+          } else {
             this.router.navigate(['/form']);
-          });
-        } else {
-          this.router.navigate(['/form']);
-        }
+          }
+        });
       },
       error: (error: any) => {
         this.isLoading = false;

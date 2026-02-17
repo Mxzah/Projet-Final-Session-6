@@ -27,10 +27,28 @@ Waiter.find_or_create_by!(email: 'waiter@restoqr.ca') do |user|
   user.status = 'active'
 end
 
+Waiter.find_or_create_by!(email: 'marie@restoqr.ca') do |user|
+  user.first_name = 'Marie'
+  user.last_name = 'Dupont'
+  user.password = 'password123'
+  user.password_confirmation = 'password123'
+  user.status = 'active'
+end
+
+Waiter.find_or_create_by!(email: 'jean@restoqr.ca') do |user|
+  user.first_name = 'Jean'
+  user.last_name = 'Tremblay'
+  user.password = 'password123'
+  user.password_confirmation = 'password123'
+  user.status = 'active'
+end
+
 puts "Users created!"
 puts "- Administrator: admin@restoqr.ca"
 puts "- Client: client@restoqr.ca"
 puts "- Waiter: waiter@restoqr.ca"
+puts "- Waiter: marie@restoqr.ca"
+puts "- Waiter: jean@restoqr.ca"
 puts "Password for all: password123"
 
 # Create restaurant tables

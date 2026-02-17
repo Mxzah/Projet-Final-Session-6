@@ -12,6 +12,7 @@ export interface OrderLineData {
   orderable_id: number;
   orderable_name: string;
   orderable_description: string;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -24,6 +25,7 @@ export interface OrderData {
   table_number: number;
   client_id: number;
   server_id: number | null;
+  server_name: string | null;
   vibe_id: number | null;
   created_at: string;
   ended_at: string | null;
@@ -42,19 +44,27 @@ export class OrderService {
     return this.api.get<OrderData[]>('/api/orders');
   }
 
-  getOrder(id: number): Observable<ApiResponse<OrderData>> {
-    return this.api.get<OrderData>(`/api/orders/${id}`);
+  getOrder(id: number): Observable<ApiResponse<OrderData[]>> {
+    return this.api.get<OrderData[]>(`/api/orders/${id}`);
   }
 
-  createOrder(data: { nb_people: number; note: string; table_id: number }): Observable<ApiResponse<OrderData>> {
-    return this.api.post<OrderData>('/api/orders', { order: data });
+  createOrder(data: { nb_people: number; note: string; table_id: number }): Observable<ApiResponse<OrderData[]>> {
+    return this.api.post<OrderData[]>('/api/orders', { order: data });
   }
 
   getOrderLines(orderId: number): Observable<ApiResponse<OrderLineData[]>> {
     return this.api.get<OrderLineData[]>(`/api/orders/${orderId}/order_lines`);
   }
 
-  createOrderLine(orderId: number, data: { quantity: number; note: string; orderable_type: string; orderable_id: number }): Observable<ApiResponse<OrderLineData>> {
-    return this.api.post<OrderLineData>(`/api/orders/${orderId}/order_lines`, { order_line: data });
+  createOrderLine(orderId: number, data: { quantity: number; note: string; orderable_type: string; orderable_id: number }): Observable<ApiResponse<OrderLineData[]>> {
+    return this.api.post<OrderLineData[]>(`/api/orders/${orderId}/order_lines`, { order_line: data });
+  }
+
+  closeOpenOrders(): Observable<ApiResponse<any>> {
+    return this.api.post<any>('/api/orders/close_open', {});
+  }
+
+  getAssignedWaiter(): Observable<ApiResponse<{ id: number; name: string }[]>> {
+    return this.api.get<{ id: number; name: string }[]>('/api/waiters/assigned');
   }
 }

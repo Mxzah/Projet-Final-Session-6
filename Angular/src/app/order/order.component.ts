@@ -1,29 +1,132 @@
-import { Component, computed } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
+import { OrderLineData, OrderService } from '../services/order.service';
+import { TableService } from '../services/table.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+
+interface DisplayOrderLine {
+  id: number;
+  quantity: number;
+  unit_price: number;
+  note: string;
+  status: string;
+  name: string;
+  image_url: string | null;
+}
 
 @Component({
   selector: 'app-order',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [
+    CommonModule,
+    HeaderComponent,
+    MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatIconModule
+  ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
 })
-export class OrderComponent {
-  lines = computed(() => this.cartService.lines());
-  subtotal = computed(() => this.cartService.subtotal());
+export class OrderComponent implements OnInit {
+  private openOrderId = signal<number | null>(null);
+  private serverLines = signal<DisplayOrderLine[]>([]);
+  serverName = signal<string | null>(null);
+  isSending = signal<boolean>(false);
+
+  private pendingLines = computed<DisplayOrderLine[]>(() =>
+    this.cartService.lines().map((line, index) => ({
+      id: -1 - index,
+      quantity: line.quantity,
+      unit_price: line.unit_price,
+      note: line.note,
+      status: 'pending',
+      name: line.name,
+      image_url: line.image_url || null
+    }))
+  );
+
+  lines = computed<DisplayOrderLine[]>(() => [...this.serverLines(), ...this.pendingLines()]);
+  subtotal = computed(() => this.lines().reduce((sum, line) => sum + line.unit_price * line.quantity, 0));
+  totalItems = computed(() => this.lines().reduce((sum, line) => sum + line.quantity, 0));
+  pendingCount = computed(() => this.cartService.lines().length);
 
   constructor(
     public cartService: CartService,
     private authService: AuthService,
+    private orderService: OrderService,
+    private tableService: TableService,
     private router: Router
   ) {}
 
+  ngOnInit(): void {
+    this.loadOpenOrder();
+    this.loadAssignedWaiter();
+  }
+
+  private mapApiLine(line: OrderLineData): DisplayOrderLine {
+    return {
+      id: line.id,
+      quantity: line.quantity,
+      unit_price: line.unit_price,
+      note: line.note,
+      status: line.status,
+      name: line.orderable_name || `${line.orderable_type} #${line.orderable_id}`,
+      image_url: line.image_url || null
+    };
+  }
+
+  private loadOpenOrder(): void {
+    this.orderService.getOrders().subscribe({
+      next: (response) => {
+        const orders = response.data || [];
+        const openOrder = orders.find(order => !order.ended_at) || null;
+
+        if (!openOrder) {
+          this.openOrderId.set(null);
+          this.serverLines.set([]);
+          return;
+        }
+
+        this.openOrderId.set(openOrder.id);
+        if (openOrder.server_name) {
+          this.serverName.set(openOrder.server_name);
+        }
+        this.serverLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
+      },
+      error: () => {
+        this.openOrderId.set(null);
+        this.serverLines.set([]);
+      }
+    });
+  }
+
+  private loadAssignedWaiter(): void {
+    if (this.serverName()) return;
+    this.orderService.getAssignedWaiter().subscribe({
+      next: (response) => {
+        const waiter = response.data?.[0];
+        if (waiter) {
+          this.serverName.set(waiter.name);
+        }
+      }
+    });
+  }
+
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
+      pending: '',
       sent: 'Envoyée',
       in_preparation: 'En préparation',
       ready: 'Prête',
@@ -33,15 +136,78 @@ export class OrderComponent {
   }
 
   onSend(): void {
-    // nothing for now
+    const linesToCreate = this.cartService.lines();
+
+    if (linesToCreate.length === 0 || this.isSending()) {
+      return;
+    }
+
+    const createLines = (orderId: number) => {
+      const requests = linesToCreate.map((line) =>
+        this.orderService.createOrderLine(orderId, {
+          quantity: line.quantity,
+          note: line.note,
+          orderable_type: line.orderable_type,
+          orderable_id: line.orderable_id
+        })
+      );
+
+      return forkJoin(requests);
+    };
+
+    const existingOrderId = this.openOrderId();
+    this.isSending.set(true);
+
+    const send$ = existingOrderId
+      ? createLines(existingOrderId)
+      : (() => {
+          const table = this.tableService.getCurrentTable();
+
+          if (!table) {
+            this.isSending.set(false);
+            alert('Please scan/select a table before sending the order.');
+            this.router.navigate(['/form']);
+            return of(null);
+          }
+
+          return this.orderService.createOrder({
+            nb_people: 1,
+            note: '',
+            table_id: table.id
+          }).pipe(
+            switchMap((response) => {
+              const createdOrder = response.data?.[0];
+
+              if (!createdOrder) {
+                return of(null);
+              }
+
+              this.openOrderId.set(createdOrder.id);
+              return createLines(createdOrder.id);
+            })
+          );
+        })();
+
+    send$.subscribe({
+      next: (result) => {
+        if (!result) {
+          return;
+        }
+
+        this.cartService.clear();
+        this.loadOpenOrder();
+      },
+      error: () => {
+        alert('Unable to send order lines. Please try again.');
+      },
+      complete: () => {
+        this.isSending.set(false);
+      }
+    });
   }
 
-  onEdit(): void {
-    // nothing for now
-  }
-
-  onDelete(): void {
-    // nothing for now
+  onAddItems(): void {
+    this.router.navigate(['/menu']);
   }
 
   goBack(): void {
@@ -49,6 +215,7 @@ export class OrderComponent {
   }
 
   logout(): void {
+    this.cartService.clear();
     this.authService.logout().subscribe({
       next: (response) => {
         if (response.success) {

@@ -20,7 +20,7 @@ img {
     padding: 1.5rem clamp(1rem, 3vw, 3rem);
     min-height: calc(100vh - 60px);
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .menu-layout {
@@ -43,6 +43,8 @@ img {
     align-self: start;
     position: sticky;
     top: 4.5rem;
+    max-height: calc(100vh - 5.5rem);
+    overflow-y: auto;
 }
 
 .sidebar-title {
@@ -682,10 +684,10 @@ img {
     border: 1px solid rgba(27, 26, 23, 0.08);
     display: none;
     flex-direction: column;
-    align-self: start;
     position: sticky;
     top: 4.5rem;
-    max-height: calc(100vh - 5.5rem);
+    align-self: start;
+    height: calc(100vh - 5.5rem);
     overflow: hidden;
 }
 
@@ -856,8 +858,8 @@ img {
         gap: 1.5rem;
     }
 
-    .cart-sidebar {
-        display: none;
+    .menu-layout-cart-open {
+        grid-template-columns: 200px 1fr 300px;
     }
 }
 
@@ -875,6 +877,22 @@ img {
         grid-template-columns: 1fr;
         gap: 0.75rem;
         padding-bottom: 3.5rem;
+    }
+
+    .menu-layout-cart-open {
+        grid-template-columns: 1fr;
+    }
+
+    /* Cart sidebar becomes full-screen overlay on mobile */
+    .cart-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 100%;
+        border-radius: 0;
+        z-index: 200;
     }
 
     .sidebar {

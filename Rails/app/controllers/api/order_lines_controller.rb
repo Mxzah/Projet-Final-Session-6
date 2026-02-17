@@ -7,7 +7,7 @@ module Api
       order = Order.find_by(id: params[:order_id], client_id: current_user.id)
 
       unless order
-        return render json: { success: false, data: [], errors: ["Order not found"] }, status: :ok
+        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
       end
 
       lines = order.order_lines.order(created_at: :asc)
@@ -15,6 +15,7 @@ module Api
       render json: {
         success: true,
         data: lines.map { |l| line_json(l) },
+        error: [],
         errors: []
       }, status: :ok
     end
@@ -24,7 +25,7 @@ module Api
       order = Order.find_by(id: params[:order_id], client_id: current_user.id)
 
       unless order
-        return render json: { success: false, data: line_params.to_h, errors: ["Order not found"] }, status: :ok
+        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
       end
 
       line = order.order_lines.build(line_params)
@@ -39,14 +40,18 @@ module Api
       if line.save
         render json: {
           success: true,
-          data: line_json(line),
+          data: [line_json(line)],
+          error: [],
           errors: []
         }, status: :ok
       else
+        full_errors = line.errors.full_messages
+
         render json: {
           success: false,
-          data: nil,
-          errors: line.errors.full_messages
+          data: [],
+          error: full_errors,
+          errors: full_errors
         }, status: :ok
       end
     end
@@ -74,8 +79,7 @@ module Api
         orderable_type: line.orderable_type,
         orderable_id: line.orderable_id,
         orderable_name: orderable&.name,
-        orderable_description: orderable&.try(:description),
-        created_at: line.created_at
+        orderable_description: orderable&.try(:description),      image_url: orderable&.respond_to?(:image) && orderable.image.attached? ? url_for(orderable.image) : nil,        created_at: line.created_at
       }
     end
   end

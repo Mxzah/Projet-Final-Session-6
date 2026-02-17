@@ -197,7 +197,8 @@ export class MenuComponent implements OnInit {
       description: item.description,
       unit_price: item.price,
       quantity: this.modalQuantity(),
-      note: this.modalNote()
+      note: this.modalNote(),
+      image_url: item.image_url || null
     });
     this.closeModal();
   }
@@ -215,6 +216,7 @@ export class MenuComponent implements OnInit {
   }
 
   logout(): void {
+    this.cartService.clear();
     this.authService.logout().subscribe({
       next: (response) => {
         if (response.success) {

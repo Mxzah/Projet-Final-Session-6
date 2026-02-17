@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 export interface ApiResponse<T = any> {
   success: boolean;
   data: T | null;
+  error?: string[];
   errors?: string[];
 }
 
@@ -31,10 +32,12 @@ export class ApiService {
         if ('success' in error && error.success === false) {
           return throwError(() => error);
         }
+        const serverErrors = (error as HttpErrorResponse).error?.errors || (error as HttpErrorResponse).error?.error;
         return throwError(() => ({
           success: false,
           data: null,
-          errors: (error as HttpErrorResponse).error?.errors || ['Une erreur est survenue']
+          error: serverErrors || ['Une erreur est survenue'],
+          errors: serverErrors || ['Une erreur est survenue']
         }));
       })
     );
@@ -55,10 +58,12 @@ export class ApiService {
         if ('success' in error && error.success === false) {
           return throwError(() => error);
         }
+        const serverErrors = (error as HttpErrorResponse).error?.errors || (error as HttpErrorResponse).error?.error;
         return throwError(() => ({
           success: false,
           data: null,
-          errors: (error as HttpErrorResponse).error?.errors || ['Une erreur est survenue']
+          error: serverErrors || ['Une erreur est survenue'],
+          errors: serverErrors || ['Une erreur est survenue']
         }));
       })
     );
@@ -79,10 +84,12 @@ export class ApiService {
         if ('success' in error && error.success === false) {
           return throwError(() => error);
         }
+        const serverErrors = (error as HttpErrorResponse).error?.errors || (error as HttpErrorResponse).error?.error;
         return throwError(() => ({
           success: false,
           data: null,
-          errors: (error as HttpErrorResponse).error?.errors || ['Une erreur est survenue']
+          error: serverErrors || ['Une erreur est survenue'],
+          errors: serverErrors || ['Une erreur est survenue']
         }));
       })
     );
@@ -103,10 +110,12 @@ export class ApiService {
         if ('success' in error && error.success === false) {
           return throwError(() => error);
         }
+        const serverErrors = (error as HttpErrorResponse).error?.errors || (error as HttpErrorResponse).error?.error;
         return throwError(() => ({
           success: false,
           data: null,
-          errors: (error as HttpErrorResponse).error?.errors || ['Une erreur est survenue']
+          error: serverErrors || ['Une erreur est survenue'],
+          errors: serverErrors || ['Une erreur est survenue']
         }));
       })
     );

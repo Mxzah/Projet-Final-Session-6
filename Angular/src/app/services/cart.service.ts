@@ -8,6 +8,7 @@ export interface CartLine {
   unit_price: number;
   quantity: number;
   note: string;
+  image_url: string | null;
 }
 
 @Injectable({
@@ -20,17 +21,7 @@ export class CartService {
   subtotal = computed(() => this.lines().reduce((sum, l) => sum + l.unit_price * l.quantity, 0));
 
   addLine(line: CartLine): void {
-    const current = this.lines();
-    const existing = current.findIndex(
-      l => l.orderable_type === line.orderable_type && l.orderable_id === line.orderable_id && l.note === line.note
-    );
-    if (existing >= 0) {
-      const updated = [...current];
-      updated[existing] = { ...updated[existing], quantity: updated[existing].quantity + line.quantity };
-      this.lines.set(updated);
-    } else {
-      this.lines.set([...current, line]);
-    }
+    this.lines.set([...this.lines(), { ...line }]);
   }
 
   clear(): void {

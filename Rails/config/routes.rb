@@ -17,6 +17,9 @@ Rails.application.routes.draw do
     resources :orders, only: [:index, :show, :create] do
       resources :order_lines, only: [:index, :create]
     end
+    post 'orders/close_open', to: 'orders#close_open'
+
+    get 'waiters/assigned', to: 'waiters#assigned'
 
     get 'current_user', to: 'sessions#current_user'
   end

@@ -2,52 +2,98 @@
 
 <main class="order-page">
   @if (lines().length === 0) {
-    <div class="empty-state">
-      <p>Aucune commande en cours.</p>
-      <button class="btn-back" (click)="goBack()">Retour au menu</button>
-    </div>
+    <mat-card class="empty-state" appearance="outlined">
+      <mat-card-content>
+        <mat-icon aria-hidden="true">receipt_long</mat-icon>
+        <p>Aucune commande en cours.</p>
+        <button mat-raised-button color="primary" (click)="onAddItems()">
+          <mat-icon aria-hidden="true"></mat-icon>
+          Ajouter +
+        </button>
+      </mat-card-content>
+    </mat-card>
   } @else {
     <div class="order-container">
       <div class="order-header">
-        <button class="btn-back" (click)="goBack()">&larr; Retour au menu</button>
         <h1 class="order-title">Votre commande</h1>
+        @if (serverName()) {
+          <div class="server-info">
+            <mat-icon>person</mat-icon>
+            <span>Serveur: <strong>{{ serverName() }}</strong></span>
+          </div>
+        }
+        <button mat-raised-button color="primary" (click)="onAddItems()">
+          <mat-icon aria-hidden="true"></mat-icon>
+          Ajouter +
+        </button>
       </div>
 
       <div class="order-lines">
         <h2 class="section-title">Lignes de commande</h2>
 
         @for (line of lines(); track $index) {
-          <div class="order-line-card">
-            <div class="line-info">
-              <h3 class="line-name">{{ line.name }}</h3>
-              <p class="line-details">{{ line.quantity }} x CA${{ line.unit_price.toFixed(2) }}</p>
-              @if (line.note) {
-                <p class="line-note">Note: {{ line.note }}</p>
-              }
-              <span class="line-status status-sent">Envoyée</span>
-            </div>
-            <div class="line-price">
-              CA${{ (line.unit_price * line.quantity).toFixed(2) }}
-            </div>
-            <div class="line-actions">
-              <button class="btn-edit" (click)="onEdit()">Modifier</button>
-              <button class="btn-delete" (click)="onDelete()">Supprimer</button>
-            </div>
-          </div>
+          <mat-card class="order-line-card" [class.pending-line]="line.status === 'pending'" appearance="outlined">
+            <mat-card-content class="line-content">
+              <div class="line-main">
+                @if (line.image_url) {
+                  <div class="line-image">
+                    <img [src]="line.image_url" [alt]="line.name" loading="lazy" />
+                  </div>
+                }
+                <div class="line-info">
+                  <div class="line-head">
+                    <h3 class="line-name">{{ line.name }}</h3>
+                    @if (line.status !== 'pending') {
+                      <mat-chip-set>
+                        <mat-chip selected color="primary">{{ getStatusLabel(line.status) }}</mat-chip>
+                      </mat-chip-set>
+                    } @else {
+                      <span class="pending-badge">En attente de l'envoie</span>
+                    }
+                  </div>
+                  <p class="line-details">{{ line.quantity }} x CA${{ line.unit_price.toFixed(2) }}</p>
+                  @if (line.note) {
+                    <p class="line-note">
+                      <mat-icon aria-hidden="true">sticky_note_2</mat-icon>
+                      <span>{{ line.note }}</span>
+                    </p>
+                  }
+                </div>
+
+                <div class="line-total">
+                  <span>Total</span>
+                  <strong class="line-price">CA${{ (line.unit_price * line.quantity).toFixed(2) }}</strong>
+                </div>
+              </div>
+
+              <div class="line-actions">
+                <button mat-stroked-button class="btn-line-edit">
+                  <mat-icon>edit</mat-icon> Modifier
+                </button>
+                <button mat-stroked-button color="warn" class="btn-line-delete">
+                  <mat-icon>delete</mat-icon> Supprimer
+                </button>
+              </div>
+
+            </mat-card-content>
+          </mat-card>
         }
       </div>
 
-      <div class="order-summary">
+      <mat-card class="order-summary" appearance="outlined">
         <div class="summary-row">
-          <span>Sous-total</span>
+          <span>Sous-total ({{ totalItems() }} article@if (totalItems() > 1) {s})</span>
           <span class="summary-price">CA${{ subtotal().toFixed(2) }}</span>
         </div>
-      </div>
+      </mat-card>
+
+      <mat-divider></mat-divider>
 
       <div class="order-actions">
-        <button class="btn-edit-order" (click)="onEdit()">Modifier</button>
-        <button class="btn-delete-order" (click)="onDelete()">Supprimer</button>
-        <button class="btn-send" (click)="onSend()">Envoyer</button>
+        <button mat-raised-button color="primary" [disabled]="pendingCount() === 0 || isSending()" (click)="onSend()">
+          <mat-icon aria-hidden="true">send</mat-icon>
+          Envoyer
+        </button>
       </div>
     </div>
   }

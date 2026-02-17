@@ -11,6 +11,7 @@ module Api
       render json: {
         success: true,
         data: orders.map { |o| order_json(o) },
+        error: [],
         errors: []
       }, status: :ok
     end
@@ -20,12 +21,13 @@ module Api
       order = Order.includes(:table, :order_lines).find_by(id: params[:id], client_id: current_user.id)
 
       unless order
-        return render json: { success: false, data: nil, errors: ["Order not found"] }, status: :ok
+        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
       end
 
       render json: {
         success: true,
-        data: order_json(order),
+        data: [order_json(order)],
+        error: [],
         errors: []
       }, status: :ok
     end
@@ -38,16 +40,33 @@ module Api
       if order.save
         render json: {
           success: true,
-          data: order_json(order),
+          data: [order_json(order)],
+          error: [],
           errors: []
         }, status: :ok
       else
+        full_errors = order.errors.full_messages
+
         render json: {
           success: false,
-          data: nil,
-          errors: order.errors.full_messages
+          data: [],
+          error: full_errors,
+          errors: full_errors
         }, status: :ok
       end
+    end
+
+    # POST /api/orders/close_open
+    def close_open
+      open_orders = Order.where(client_id: current_user.id, ended_at: nil)
+      open_orders.each { |o| o.update(ended_at: Time.current) }
+
+      render json: {
+        success: true,
+        data: [],
+        error: [],
+        errors: []
+      }, status: :ok
     end
 
     private
@@ -58,6 +77,7 @@ module Api
 
     def order_json(order)
       lines = order.order_lines.map do |l|
+        orderable = find_orderable(l.orderable_type, l.orderable_id)
         {
           id: l.id,
           quantity: l.quantity,
@@ -66,7 +86,9 @@ module Api
           status: l.status,
           orderable_type: l.orderable_type,
           orderable_id: l.orderable_id,
-          created_at: l.created_at
+          orderable_name: orderable&.name,
+          orderable_description: orderable&.try(:description),
+          image_url: orderable&.respond_to?(:image) && orderable.image.attached? ? url_for(orderable.image) : nil
         }
       end
 
@@ -81,12 +103,19 @@ module Api
         table_number: order.table&.number,
         client_id: order.client_id,
         server_id: order.server_id,
+        server_name: order.server ? "#{order.server.first_name} #{order.server.last_name}" : nil,
         vibe_id: order.vibe_id,
         created_at: order.created_at,
         ended_at: order.ended_at,
         order_lines: lines,
         total: total
       }
+    end
+
+    def find_orderable(type, id)
+      return nil unless type.present? && id.present?
+      return nil unless %w[Item Combo].include?(type)
+      type.constantize.find_by(id: id)
     end
   end
 end
