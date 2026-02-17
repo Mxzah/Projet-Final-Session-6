@@ -1,9 +1,13 @@
-<header class="site-header">
-  <div class="brand">RestoQR</div>
+<mat-toolbar class="site-header">
+  <span class="brand">RestoQR</span>
+  <span class="spacer"></span>
   <div class="header-actions">
     @if (showLogout) {
-      <button class="ghost" (click)="logoutClick.emit()">Déconnexion</button>
+      <button mat-button class="logout-btn" (click)="logoutClick.emit()">
+        <mat-icon>logout</mat-icon>
+        Déconnexion
+      </button>
     }
     <ng-content />
   </div>
-</header>
+</mat-toolbar>
