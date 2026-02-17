@@ -1,7 +1,6 @@
 module Api
   class CategoriesController < ApplicationController
     before_action :authenticate_user!
-    before_action :set_category, only: [:show, :update, :destroy]
 
     # GET /api/categories
     def index
@@ -14,14 +13,6 @@ module Api
       }, status: :ok
     end
 
-    # GET /api/categories/:id
-    def show
-      render json: {
-        success: true,
-        data: category_json(@category),
-        errors: []
-      }, status: :ok
-    end
 
     # POST /api/categories
     def create
@@ -38,40 +29,6 @@ module Api
           success: false,
           data: nil,
           errors: category.errors.full_messages
-        }, status: :unprocessable_entity
-      end
-    end
-
-    # PATCH/PUT /api/categories/:id
-    def update
-      if @category.update(category_params)
-        render json: {
-          success: true,
-          data: category_json(@category),
-          errors: []
-        }, status: :ok
-      else
-        render json: {
-          success: false,
-          data: nil,
-          errors: @category.errors.full_messages
-        }, status: :unprocessable_entity
-      end
-    end
-
-    # DELETE /api/categories/:id
-    def destroy
-      if @category.destroy
-        render json: {
-          success: true,
-          data: nil,
-          errors: []
-        }, status: :ok
-      else
-        render json: {
-          success: false,
-          data: nil,
-          errors: @category.errors.full_messages
         }, status: :unprocessable_entity
       end
     end
