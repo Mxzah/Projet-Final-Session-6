@@ -1,4 +1,8 @@
-<app-header (logoutClick)="logout()">
+<app-header
+  [showLogout]="authService.isAuthenticated()"
+  [showLogin]="!authService.isAuthenticated()"
+  (logoutClick)="logout()"
+  (loginClick)="goToLogin()">
   <span class="header-divider">|</span>
   <div class="cart-display cart-header" (click)="toggleCart()">
     <div class="cart-icon-wrap">

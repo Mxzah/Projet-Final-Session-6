@@ -8,6 +8,12 @@
         Déconnexion
       </button>
     }
+    @if (showLogin) {
+      <button mat-button class="logout-btn" (click)="loginClick.emit()">
+        <mat-icon>login</mat-icon>
+        Connexion
+      </button>
+    }
     <ng-content />
   </div>
 </mat-toolbar>

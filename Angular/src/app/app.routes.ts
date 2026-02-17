@@ -20,7 +20,7 @@ export const routes: Routes = [
     { path: 'table/:token', component: TableScanComponent },
     { path: 'form', component: TableFormComponent, canActivate: [authGuard] },
     { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
-    { path: 'menu', component: MenuComponent, canActivate: [authGuard] },
+    { path: 'menu', component: MenuComponent },
     { path: 'order', component: OrderComponent, canActivate: [authGuard] },
     { path: 'cuisine', component: CuisineComponent, canActivate: [cuisineGuard] },
     { path: '**', component: NotFoundComponent }

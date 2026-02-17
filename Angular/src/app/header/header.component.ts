@@ -13,5 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class HeaderComponent {
   @Input() showLogout = true;
+  @Input() showLogin = false;
   @Output() logoutClick = new EventEmitter<void>();
+  @Output() loginClick = new EventEmitter<void>();
 }

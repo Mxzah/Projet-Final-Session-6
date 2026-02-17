@@ -71,7 +71,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   constructor(
     private itemsService: ItemsService,
-    private authService: AuthService,
+    public authService: AuthService,
     public cartService: CartService,
     private router: Router
   ) {}
@@ -213,6 +213,10 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   onAddToCart(item: Item): void {
     this.openItemModal(item);
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
 
   logout(): void {
