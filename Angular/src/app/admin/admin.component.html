@@ -1,18 +1,18 @@
 <app-header (logoutClick)="logout()" />
 
-<nav class="tabs">
-  <div class="tabs-inner">
-    <button class="tab" [class.active]="activeTab === 'tables'" (click)="switchTab('tables')">Tables</button>
-    <button class="tab" [class.active]="activeTab === 'menu'" (click)="switchTab('menu')">Items</button>
-  </div>
-</nav>
+<div class="tabs-wrapper">
+  <mat-tab-group class="admin-tabs" [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
+    <mat-tab label="Tables"></mat-tab>
+    <mat-tab label="Items"></mat-tab>
+  </mat-tab-group>
+</div>
 
 <div class="tab-content">
-  @if (activeTab === 'tables') {
+  @if (tabIndex === 0) {
     <app-admin-tables />
   }
 
-  @if (activeTab === 'menu') {
+  @if (tabIndex === 1) {
     <app-admin-items />
   }
 </div>

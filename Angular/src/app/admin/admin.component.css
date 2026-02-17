@@ -6,8 +6,8 @@
     background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
 }
 
-/* ── Tabs ── */
-.tabs {
+/* ── Tabs wrapper ── */
+.tabs-wrapper {
     display: flex;
     justify-content: center;
     padding: 0.75rem clamp(1rem, 3vw, 3rem);
@@ -17,36 +17,64 @@
     background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
 }
 
-.tabs-inner {
-    display: flex;
-    gap: 0.25rem;
+/* ── Mat-tab-group styling ── */
+::ng-deep .admin-tabs .mat-mdc-tab-header {
     background: #fff;
     border-radius: 999px;
     padding: 0.3rem;
     box-shadow: 0 2px 8px rgba(27, 26, 23, 0.1);
+    border-bottom: none !important;
 }
 
-.tab {
-    padding: 0.6rem 1.75rem;
-    border: none;
-    background: transparent;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: rgba(27, 26, 23, 0.45);
-    cursor: pointer;
+::ng-deep .admin-tabs .mat-mdc-tab-label-container {
+    border-bottom: none !important;
+}
+
+::ng-deep .admin-tabs .mdc-tab {
+    padding: 0 1.75rem !important;
+    min-width: auto !important;
+    height: 40px !important;
+    border-radius: 999px !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    color: rgba(27, 26, 23, 0.45) !important;
     transition: color 0.2s ease, background 0.2s ease;
-    font-family: "Space Grotesk", "Segoe UI", sans-serif;
 }
 
-.tab:hover {
-    color: var(--ink);
+::ng-deep .admin-tabs .mdc-tab:hover .mdc-tab__text-label {
+    color: var(--ink) !important;
 }
 
-.tab.active {
-    color: #fff;
-    background: linear-gradient(120deg, var(--copper), var(--rust));
-    font-weight: 600;
+::ng-deep .admin-tabs .mdc-tab--active {
+    background: linear-gradient(120deg, var(--copper), var(--rust)) !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+::ng-deep .admin-tabs .mdc-tab--active .mdc-tab__text-label {
+    color: #fff !important;
+}
+
+/* Hide the Material ink bar (we use background gradient instead) */
+::ng-deep .admin-tabs .mat-mdc-tab-header .mdc-tab-indicator {
+    display: none !important;
+}
+
+/* Hide the ripple effect */
+::ng-deep .admin-tabs .mat-mdc-tab .mat-ripple {
+    display: none !important;
+}
+
+/* Hide bottom border line */
+::ng-deep .admin-tabs .mat-mdc-tab-header {
+    --mdc-tab-indicator-active-indicator-height: 0 !important;
+}
+
+::ng-deep .admin-tabs .mdc-tab__text-label {
+    color: rgba(27, 26, 23, 0.45) !important;
+    transition: color 0.2s ease !important;
 }
 
 /* ── Placeholder ── */
@@ -60,13 +88,14 @@
 }
 
 @media (max-width: 500px) {
-    .tabs {
+    .tabs-wrapper {
         top: 3rem;
         padding: 0.5rem 1rem;
     }
 
-    .tab {
-        padding: 0.5rem 1.25rem;
-        font-size: 0.85rem;
+    ::ng-deep .admin-tabs .mdc-tab {
+        padding: 0 1.25rem !important;
+        height: 36px !important;
+        font-size: 0.85rem !important;
     }
 }

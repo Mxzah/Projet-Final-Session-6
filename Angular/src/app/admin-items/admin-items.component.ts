@@ -1,6 +1,13 @@
 import { Component, OnInit, signal, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ItemsService } from '../services/items.service';
 import { Item, Category } from '../menu/menu.models';
 import { ApiService } from '../services/api.service';
@@ -15,7 +22,12 @@ function notOnlyWhitespace(control: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-admin-items',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, ReactiveFormsModule,
+    MatCardModule, MatButtonModule, MatIconModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './admin-items.component.html',
   styleUrls: ['./admin-items.component.css']
 })

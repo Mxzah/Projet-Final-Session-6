@@ -3,13 +3,17 @@
     <div class="welcome-header">
       <h2 class="welcome-title">
         Gestion des items
-        <button class="btn-add" title="Ajouter un item" (click)="openCreate()">+</button>
+        <button mat-mini-fab class="btn-add" title="Ajouter un item" (click)="openCreate()">
+          <mat-icon>add</mat-icon>
+        </button>
       </h2>
       <p class="welcome-text">Consultez les plats et boissons du restaurant.</p>
     </div>
 
     @if (isLoading()) {
-      <div class="loading">Chargement...</div>
+      <div class="loading">
+        <mat-spinner diameter="48"></mat-spinner>
+      </div>
     }
 
     @if (!isLoading() && items().length === 0) {
@@ -19,7 +23,7 @@
     @if (!isLoading() && items().length > 0) {
       <div class="items-grid">
         @for (item of items(); track item.id) {
-          <div class="item-card">
+          <mat-card class="item-card">
             <div class="item-image">
               @if (item.image_url) {
                 <img [src]="item.image_url" [alt]="item.name" />
@@ -27,17 +31,21 @@
                 <div class="image-placeholder"></div>
               }
             </div>
-            <div class="item-body">
-              <div class="item-name">{{ item.name }}</div>
-              <div class="item-description">{{ item.description }}</div>
-              <div class="item-category">{{ item.category_name ?? '—' }}</div>
-              <div class="item-price">{{ item.price | number:'1.2-2' }} $</div>
-            </div>
-            <div class="item-actions">
-              <button class="action-btn edit" title="Modifier" (click)="openEdit(item)">&#9998;</button>
-              <button class="action-btn delete" title="Supprimer" (click)="confirmDelete(item)">&#128465;</button>
-            </div>
-          </div>
+            <mat-card-content class="item-body">
+              <mat-card-title class="item-name">{{ item.name }}</mat-card-title>
+              <mat-card-subtitle class="item-description">{{ item.description }}</mat-card-subtitle>
+              <span class="item-category">{{ item.category_name ?? '—' }}</span>
+              <span class="item-price">{{ item.price | number:'1.2-2' }} $</span>
+            </mat-card-content>
+            <mat-card-actions class="item-actions">
+              <button mat-icon-button class="action-btn edit" title="Modifier" (click)="openEdit(item)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn delete" title="Supprimer" (click)="confirmDelete(item)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
         }
       </div>
     }
@@ -47,110 +55,120 @@
 <!-- Modale de confirmation de suppression -->
 @if (itemToDelete()) {
   <div class="modal-overlay">
-    <div class="modal">
-      <button class="modal-close" (click)="cancelDelete()">&times;</button>
-      <h3 class="modal-title">Supprimer l'item</h3>
-      <p class="modal-text">Voulez-vous vraiment supprimer <strong>{{ itemToDelete()!.name }}</strong> ?</p>
-      <div class="modal-actions">
-        <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
-        <button class="btn-danger" (click)="deleteItem()">Supprimer</button>
-      </div>
-    </div>
+    <mat-card class="modal">
+      <button mat-icon-button class="modal-close" (click)="cancelDelete()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">Supprimer l'item</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="modal-text">Voulez-vous vraiment supprimer <strong>{{ itemToDelete()!.name }}</strong> ?</p>
+      </mat-card-content>
+      <mat-card-actions class="modal-actions">
+        <button mat-stroked-button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+        <button mat-flat-button class="btn-danger" (click)="deleteItem()">Supprimer</button>
+      </mat-card-actions>
+    </mat-card>
   </div>
 }
 
 <!-- Modale de création / modification -->
 @if (editingItem() || isCreating()) {
   <div class="modal-overlay">
-    <div class="modal modal-edit">
-      <button class="modal-close" (click)="cancelEdit()">&times;</button>
-      <h3 class="modal-title">{{ isCreating() ? 'Ajouter un item' : 'Modifier l\'item' }}</h3>
+    <mat-card class="modal modal-edit">
+      <button mat-icon-button class="modal-close" (click)="cancelEdit()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ isCreating() ? 'Ajouter un item' : 'Modifier l\'item' }}</mat-card-title>
+      </mat-card-header>
 
-      @if (editError()) {
-        <div class="modal-error">{{ editError() }}</div>
-      }
+      <mat-card-content>
+        @if (editError()) {
+          <div class="modal-error">{{ editError() }}</div>
+        }
 
-      <form [formGroup]="editForm" (ngSubmit)="isCreating() ? saveCreate() : saveEdit()">
-        <div class="modal-field">
-          <label for="editName">Nom</label>
-          <input id="editName" type="text" formControlName="name" />
-          @if (editForm.controls.name.dirty && editForm.controls.name.errors) {
-            <div class="field-error">
-              @if (editForm.controls.name.errors['required']) {
-                Le nom est requis.
-              } @else if (editForm.controls.name.errors['maxlength']) {
-                Le nom ne doit pas dépasser 100 caractères.
-              } @else if (editForm.controls.name.errors['whitespace']) {
-                Le nom ne peut pas être composé uniquement d'espaces.
-              }
-            </div>
-          }
-        </div>
-
-        <div class="modal-field">
-          <label for="editDescription">Description</label>
-          <textarea id="editDescription" formControlName="description" rows="3"></textarea>
-          @if (editForm.controls.description.dirty && editForm.controls.description.errors) {
-            <div class="field-error">
-              @if (editForm.controls.description.errors['maxlength']) {
-                La description ne doit pas dépasser 255 caractères.
-              } @else if (editForm.controls.description.errors['whitespace']) {
-                La description ne peut pas être composée uniquement d'espaces.
-              }
-            </div>
-          }
-        </div>
-
-        <div class="modal-field">
-          <label for="editPrice">Prix ($)</label>
-          <input id="editPrice" type="number" formControlName="price" step="0.01" />
-          @if (editForm.controls.price.dirty && editForm.controls.price.errors) {
-            <div class="field-error">
-              @if (editForm.controls.price.errors['required']) {
-                Le prix est requis.
-              } @else if (editForm.controls.price.errors['min']) {
-                Le prix doit être supérieur ou égal à 0.
-              } @else if (editForm.controls.price.errors['max']) {
-                Le prix ne doit pas dépasser 9999.99 $.
-              }
-            </div>
-          }
-        </div>
-
-        <div class="modal-field">
-          <label for="editCategory">Catégorie</label>
-          <select id="editCategory" formControlName="category_id">
-            @for (cat of categories(); track cat.id) {
-              <option [ngValue]="cat.id">{{ cat.name }}</option>
+        <form [formGroup]="editForm" (ngSubmit)="isCreating() ? saveCreate() : saveEdit()">
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>Nom</mat-label>
+            <input matInput formControlName="name" />
+            @if (editForm.controls.name.dirty && editForm.controls.name.errors) {
+              <mat-error>
+                @if (editForm.controls.name.errors['required']) {
+                  Le nom est requis.
+                } @else if (editForm.controls.name.errors['maxlength']) {
+                  Le nom ne doit pas dépasser 100 caractères.
+                } @else if (editForm.controls.name.errors['whitespace']) {
+                  Le nom ne peut pas être composé uniquement d'espaces.
+                }
+              </mat-error>
             }
-          </select>
-          @if (editForm.controls.category_id.dirty && editForm.controls.category_id.errors) {
-            <div class="field-error">
-              La catégorie est requise.
-            </div>
-          }
-        </div>
+          </mat-form-field>
 
-        <div class="modal-field">
-          <label for="editImage">Image</label>
-          @if (editImagePreview()) {
-            <div class="image-preview">
-              <img [src]="editImagePreview()" alt="Aperçu" />
-            </div>
-          }
-          <input id="editImage" type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" />
-          @if (editImageError()) {
-            <div class="field-error">{{ editImageError() }}</div>
-          }
-        </div>
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+            @if (editForm.controls.description.dirty && editForm.controls.description.errors) {
+              <mat-error>
+                @if (editForm.controls.description.errors['maxlength']) {
+                  La description ne doit pas dépasser 255 caractères.
+                } @else if (editForm.controls.description.errors['whitespace']) {
+                  La description ne peut pas être composée uniquement d'espaces.
+                }
+              </mat-error>
+            }
+          </mat-form-field>
 
-        <div class="modal-actions">
-          <button type="button" class="btn-cancel" (click)="cancelEdit()">Annuler</button>
-          <button type="submit" class="btn-primary" [disabled]="editLoading() || editForm.invalid">
-            {{ editLoading() ? 'Enregistrement...' : (isCreating() ? 'Ajouter' : 'Enregistrer') }}
-          </button>
-        </div>
-      </form>
-    </div>
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>Prix ($)</mat-label>
+            <input matInput type="number" formControlName="price" step="0.01" />
+            @if (editForm.controls.price.dirty && editForm.controls.price.errors) {
+              <mat-error>
+                @if (editForm.controls.price.errors['required']) {
+                  Le prix est requis.
+                } @else if (editForm.controls.price.errors['min']) {
+                  Le prix doit être supérieur ou égal à 0.
+                } @else if (editForm.controls.price.errors['max']) {
+                  Le prix ne doit pas dépasser 9999.99 $.
+                }
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>Catégorie</mat-label>
+            <mat-select formControlName="category_id">
+              @for (cat of categories(); track cat.id) {
+                <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+              }
+            </mat-select>
+            @if (editForm.controls.category_id.dirty && editForm.controls.category_id.errors) {
+              <mat-error>La catégorie est requise.</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="modal-field">
+            <label class="file-label">Image</label>
+            @if (editImagePreview()) {
+              <div class="image-preview">
+                <img [src]="editImagePreview()" alt="Aperçu" />
+              </div>
+            }
+            <input type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" />
+            @if (editImageError()) {
+              <mat-error class="file-error">{{ editImageError() }}</mat-error>
+            }
+          </div>
+
+          <mat-card-actions class="modal-actions">
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEdit()">Annuler</button>
+            <button mat-flat-button type="submit" class="btn-primary" [disabled]="editLoading() || editForm.invalid">
+              {{ editLoading() ? 'Enregistrement...' : (isCreating() ? 'Ajouter' : 'Enregistrer') }}
+            </button>
+          </mat-card-actions>
+        </form>
+      </mat-card-content>
+    </mat-card>
   </div>
 }
