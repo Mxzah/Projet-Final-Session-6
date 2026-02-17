@@ -1,6 +1,6 @@
 module Api
   class ItemsController < ApplicationController
-    before_action :authenticate_user!
+    before_action :authenticate_user!, except: [:index]
     before_action :set_item, only: [:show, :update, :destroy]
 
     # GET /api/items?search=…&sort=asc|desc&price_min=…&price_max=…
