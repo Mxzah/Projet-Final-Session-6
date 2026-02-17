@@ -1,0 +1,80 @@
+<app-header (logoutClick)="logout()" />
+
+<div class="page">
+  <div class="page-header">
+    <p class="eyebrow">Tableau de bord</p>
+    <h1>Cuisine</h1>
+    <p class="subtitle">Commandes actives en temps réel</p>
+  </div>
+
+  @if (loading) {
+    <div class="spinner-wrapper">
+      <mat-spinner diameter="48" />
+    </div>
+  }
+
+  @if (error) {
+    <div class="error-msg">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error }}</span>
+      <button mat-button (click)="loadOrders()">Réessayer</button>
+    </div>
+  }
+
+  @if (!loading && !error && orders.length === 0) {
+    <div class="empty-state">
+      <mat-icon>restaurant</mat-icon>
+      <p>Aucune commande active</p>
+    </div>
+  }
+
+  @if (!loading && !error && orders.length > 0) {
+    <div class="orders-grid">
+      @for (order of orders; track order.id) {
+        <mat-card class="order-card">
+          <mat-card-header>
+            <div class="card-title-row">
+              <span class="table-badge">Table {{ order.table_number }}</span>
+              <span class="people-badge">
+                <mat-icon>people</mat-icon>{{ order.nb_people }} personne(s)
+              </span>
+            </div>
+            <div class="server-row">
+              <mat-icon>person</mat-icon>
+              <span>{{ order.server_name ?? 'Aucun serveur assigné' }}</span>
+            </div>
+          </mat-card-header>
+
+          @if (order.note) {
+            <div class="order-note">
+              <mat-icon>sticky_note_2</mat-icon>
+              <span>{{ order.note }}</span>
+            </div>
+          }
+
+          <mat-divider />
+
+          <mat-card-content>
+            <p class="lines-label">Lignes de commande</p>
+            <div class="lines-list">
+              @for (line of order.order_lines; track line.id) {
+                <div class="line-row">
+                  <div class="line-info">
+                    <span class="line-name">{{ line.orderable_name }}</span>
+                    <span class="line-qty">x{{ line.quantity }}</span>
+                    @if (line.note) {
+                      <span class="line-note">— {{ line.note }}</span>
+                    }
+                  </div>
+                  <span class="status-chip {{ getStatusClass(line.status) }}">
+                    {{ getStatusLabel(line.status) }}
+                  </span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

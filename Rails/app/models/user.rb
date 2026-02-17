@@ -12,7 +12,7 @@ class User < ApplicationRecord
                          format: { without: /\A\s*\z/, message: "ne peut pas être composé uniquement d'espaces" }
   validates :last_name, presence: true, length: { maximum: 50 },
                         format: { without: /\A\s*\z/, message: "ne peut pas être composé uniquement d'espaces" }
-  validates :type, presence: true, inclusion: { in: %w[Administrator Waiter Client] }
+  validates :type, presence: true, inclusion: { in: %w[Administrator Waiter Client Cook] }
   validates :status, presence: true, inclusion: { in: %w[active inactive blocked] }
   validates :password, length: { minimum: 6, maximum: 128 }, if: :password_required?
 

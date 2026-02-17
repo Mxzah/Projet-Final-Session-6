@@ -22,6 +22,8 @@ Rails.application.routes.draw do
     get 'waiters/assigned', to: 'waiters#assigned'
 
     get 'current_user', to: 'sessions#current_user'
+
+    get 'cuisine/orders', to: 'cuisine#orders'
   end
 
   match '*url', to: "angular#index", via: :get

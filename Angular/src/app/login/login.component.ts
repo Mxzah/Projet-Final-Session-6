@@ -48,6 +48,12 @@ export class LoginComponent {
       next: (response) => {
         this.isLoading = false;
         this.cartService.clear();
+
+        if (this.authService.isCook()) {
+          this.router.navigate(['/cuisine']);
+          return;
+        }
+
         this.orderService.closeOpenOrders().subscribe(() => {
           if (this.tableService.getPendingToken()) {
             this.tableService.validateAndSavePendingToken().subscribe(() => {

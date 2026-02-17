@@ -6,10 +6,12 @@ import { TableFormComponent } from './table-form/table-form.component';
 import { AdminComponent } from './admin/admin.component';
 import { MenuComponent } from './menu/menu.component';
 import { OrderComponent } from './order/order.component';
+import { CuisineComponent } from './cuisine/cuisine.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { guestGuard } from './guards/guest.guard';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { cuisineGuard } from './guards/cuisine.guard';
 
 export const routes: Routes = [
     { path: '', component: LoginComponent, canActivate: [guestGuard] },
@@ -20,5 +22,6 @@ export const routes: Routes = [
     { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
     { path: 'menu', component: MenuComponent, canActivate: [authGuard] },
     { path: 'order', component: OrderComponent, canActivate: [authGuard] },
+    { path: 'cuisine', component: CuisineComponent, canActivate: [cuisineGuard] },
     { path: '**', component: NotFoundComponent }
 ];

@@ -43,12 +43,39 @@ Waiter.find_or_create_by!(email: 'jean@restoqr.ca') do |user|
   user.status = 'active'
 end
 
+Cook.find_or_create_by!(email: 'cook@restoqr.ca') do |user|
+  user.first_name = 'Chef'
+  user.last_name = 'Cuisine'
+  user.password = 'password123'
+  user.password_confirmation = 'password123'
+  user.status = 'active'
+end
+
+Client.find_or_create_by!(email: 'alice@restoqr.ca') do |user|
+  user.first_name = 'Alice'
+  user.last_name = 'Martin'
+  user.password = 'password123'
+  user.password_confirmation = 'password123'
+  user.status = 'active'
+end
+
+Client.find_or_create_by!(email: 'bob@restoqr.ca') do |user|
+  user.first_name = 'Bob'
+  user.last_name = 'Gagnon'
+  user.password = 'password123'
+  user.password_confirmation = 'password123'
+  user.status = 'active'
+end
+
 puts "Users created!"
 puts "- Administrator: admin@restoqr.ca"
 puts "- Client: client@restoqr.ca"
+puts "- Client: alice@restoqr.ca"
+puts "- Client: bob@restoqr.ca"
 puts "- Waiter: waiter@restoqr.ca"
 puts "- Waiter: marie@restoqr.ca"
 puts "- Waiter: jean@restoqr.ca"
+puts "- Cook: cook@restoqr.ca"
 puts "Password for all: password123"
 
 # Create restaurant tables
@@ -157,5 +184,87 @@ items_data.each do |id|
   end
   puts "- #{id[:name]} (#{id[:category]}) — CA$#{id[:price]}"
 end
+
+# ── Demo orders for kitchen dashboard ──────────────────────────────────────
+puts "\nCreating demo orders..."
+
+marie   = Waiter.find_by(email: 'marie@restoqr.ca')
+jean    = Waiter.find_by(email: 'jean@restoqr.ca')
+client1 = Client.find_by(email: 'client@restoqr.ca')
+client2 = Client.find_by(email: 'alice@restoqr.ca')
+client3 = Client.find_by(email: 'bob@restoqr.ca')
+table3  = Table.find_by(number: 3)
+table5  = Table.find_by(number: 5)
+table7  = Table.find_by(number: 7)
+
+tartare  = Item.find_by(name: 'Tartare de Saumon')
+risotto  = Item.find_by(name: 'Risotto aux Truffes')
+filet    = Item.find_by(name: 'Filet Mignon AAA')
+fondant  = Item.find_by(name: 'Fondant au Chocolat')
+petoncle = Item.find_by(name: 'Pétoncles Poêlés')
+brulee   = Item.find_by(name: 'Crème Brûlée à la Vanille')
+
+# Order 1 — client1, table 3, server marie
+order1 = Order.find_or_create_by!(client_id: client1.id, ended_at: nil) do |o|
+  o.table    = table3
+  o.nb_people = 3
+  o.server   = marie
+  o.note     = 'Allergie aux arachides'
+end
+
+OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', orderable_id: tartare.id) do |l|
+  l.quantity   = 2
+  l.unit_price = tartare.price
+  l.status     = 'sent'
+end
+
+OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', orderable_id: risotto.id) do |l|
+  l.quantity   = 1
+  l.unit_price = risotto.price
+  l.status     = 'in_preparation'
+end
+
+puts "- Order ##{order1.id} (Table #{table3.number}, #{marie.first_name})"
+
+# Order 2 — client2, table 5, server jean
+order2 = Order.find_or_create_by!(client_id: client2.id, ended_at: nil) do |o|
+  o.table    = table5
+  o.nb_people = 2
+  o.server   = jean
+end
+
+OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', orderable_id: filet.id) do |l|
+  l.quantity   = 1
+  l.unit_price = filet.price
+  l.status     = 'ready'
+end
+
+OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', orderable_id: fondant.id) do |l|
+  l.quantity   = 2
+  l.unit_price = fondant.price
+  l.status     = 'sent'
+end
+
+puts "- Order ##{order2.id} (Table #{table5.number}, #{jean.first_name})"
+
+# Order 3 — client3, table 7, no server
+order3 = Order.find_or_create_by!(client_id: client3.id, ended_at: nil) do |o|
+  o.table    = table7
+  o.nb_people = 4
+end
+
+OrderLine.find_or_create_by!(order_id: order3.id, orderable_type: 'Item', orderable_id: petoncle.id) do |l|
+  l.quantity   = 3
+  l.unit_price = petoncle.price
+  l.status     = 'in_preparation'
+end
+
+OrderLine.find_or_create_by!(order_id: order3.id, orderable_type: 'Item', orderable_id: brulee.id) do |l|
+  l.quantity   = 4
+  l.unit_price = brulee.price
+  l.status     = 'sent'
+end
+
+puts "- Order ##{order3.id} (Table #{table7.number}, no server)"
 
 puts "\nAll seeds created!"

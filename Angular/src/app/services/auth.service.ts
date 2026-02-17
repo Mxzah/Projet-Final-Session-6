@@ -109,6 +109,18 @@ export class AuthService {
     return this.currentUser?.type === 'Administrator';
   }
 
+  isWaiter(): boolean {
+    return this.currentUser?.type === 'Waiter';
+  }
+
+  isCook(): boolean {
+    return this.currentUser?.type === 'Cook';
+  }
+
+  isKitchenStaff(): boolean {
+    return this.isAdmin() || this.isWaiter() || this.isCook();
+  }
+
   getCurrentUser(): UserData | null {
     return this.currentUser;
   }

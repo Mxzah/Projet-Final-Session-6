@@ -1,0 +1,2 @@
+class Cook < User
+end
