@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -34,7 +34,7 @@ import { Item, Category } from './menu.models';
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnDestroy {
   categories = signal<Category[]>([]);
   allItems = signal<Item[]>([]);
   activeCategory = signal<number>(0);
@@ -54,32 +54,11 @@ export class MenuComponent implements OnInit {
   modalQuantity = signal<number>(1);
   modalNote = signal<string>('');
 
+  private searchTimer: any = null;
+
   itemsByCategory = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-    const sort = this.sortOrder();
-    const min = this.priceMin();
-    const max = this.priceMax();
-
     return this.categories().map(cat => {
-      let items = this.allItems().filter(item => item.category_id === cat.id);
-
-      if (query) {
-        items = items.filter(item => item.name.toLowerCase().includes(query));
-      }
-
-      if (min !== null && min > 0) {
-        items = items.filter(item => item.price >= min);
-      }
-      if (max !== null && max > 0) {
-        items = items.filter(item => item.price <= max);
-      }
-
-      if (sort === 'asc') {
-        items = [...items].sort((a, b) => a.price - b.price);
-      } else if (sort === 'desc') {
-        items = [...items].sort((a, b) => b.price - a.price);
-      }
-
+      const items = this.allItems().filter(item => item.category_id === cat.id);
       return { ...cat, items };
     });
   });
@@ -98,7 +77,21 @@ export class MenuComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.itemsService.getItems().subscribe({
+    this.loadItems(true);
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+  }
+
+  loadItems(showLoading = false): void {
+    if (showLoading) this.isLoading.set(true);
+    this.itemsService.getItems({
+      search: this.searchQuery(),
+      sort: this.sortOrder(),
+      price_min: this.priceMin(),
+      price_max: this.priceMax()
+    }).subscribe({
       next: (items: Item[]) => {
         this.allItems.set(items);
         const catMap = new Map<number, Category>();
@@ -113,7 +106,7 @@ export class MenuComponent implements OnInit {
         }
         const sorted = [...catMap.values()].sort((a, b) => a.position - b.position);
         this.categories.set(sorted);
-        if (sorted.length > 0) {
+        if (sorted.length > 0 && !sorted.find(c => c.id === this.activeCategory())) {
           this.activeCategory.set(sorted[0].id);
         }
         this.isLoading.set(false);
@@ -129,20 +122,27 @@ export class MenuComponent implements OnInit {
 
   onSearchInput(event: Event): void {
     this.searchQuery.set((event.target as HTMLInputElement).value);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.loadItems(), 300);
   }
 
   onSortChange(value: string): void {
     this.sortOrder.set(value);
+    this.loadItems();
   }
 
   onPriceMinChange(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.priceMin.set(val ? parseFloat(val) : null);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.loadItems(), 300);
   }
 
   onPriceMaxChange(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.priceMax.set(val ? parseFloat(val) : null);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.loadItems(), 300);
   }
 
   onMobileCategoryChange(value: number): void {

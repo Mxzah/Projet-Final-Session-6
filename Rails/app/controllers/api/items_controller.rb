@@ -3,9 +3,32 @@ module Api
     before_action :authenticate_user!
     before_action :set_item, only: [:show, :update, :destroy]
 
-    # GET /api/items
+    # GET /api/items?search=…&sort=asc|desc&price_min=…&price_max=…
     def index
-      items = Item.includes(:category).order(:category_id, :name)
+      items = Item.includes(:category)
+
+      # Search
+      if params[:search].present?
+        items = items.where("items.name LIKE ?", "%#{params[:search]}%")
+      end
+
+      # Filter
+      if params[:price_min].present?
+        items = items.where("items.price >= ?", params[:price_min].to_f)
+      end
+      if params[:price_max].present?
+        items = items.where("items.price <= ?", params[:price_max].to_f)
+      end
+
+      # Sort
+      case params[:sort]
+      when "asc"
+        items = items.order(price: :asc)
+      when "desc"
+        items = items.order(price: :desc)
+      else
+        items = items.order(:category_id, :name)
+      end
 
       render json: {
         success: true,

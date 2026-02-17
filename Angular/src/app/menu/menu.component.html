@@ -86,35 +86,42 @@
           </mat-form-field>
         </div>
 
-        @for (group of itemsByCategory(); track group.id) {
-          @if (group.items.length > 0) {
-          <div class="category-section" [id]="'category-' + group.id">
-            <h1 class="category-heading">{{ group.name }}</h1>
-
-            <div class="items-grid">
-              @for (item of group.items; track item.id) {
-                <mat-card class="menu-card" (click)="openItemModal(item)">
-                  <mat-card-content class="card-content-row">
-                    <div class="card-info">
-                      <mat-card-title class="card-name">{{ item.name }}</mat-card-title>
-                      <mat-card-subtitle class="card-description">{{ item.description }}</mat-card-subtitle>
-                      <span class="card-price">CA${{ item.price.toFixed(2) }}</span>
-                    </div>
-                    <div class="card-right">
-                      <div class="card-image">
-                        <img [src]="item.image_url" [alt]="item.name" loading="lazy" />
-                      </div>
-                      <button mat-mini-fab class="add-btn" [attr.aria-label]="'Ajouter ' + item.name">
-                        <mat-icon>add</mat-icon>
-                      </button>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-              } @empty {
-                <p class="no-items">Aucun item dans cette catégorie.</p>
-              }
-            </div>
+        @if (allItems().length === 0) {
+          <div class="no-results">
+            <mat-icon class="no-results-icon">search_off</mat-icon>
+            <p class="no-results-text">Aucun item trouvé.</p>
           </div>
+        } @else {
+          @for (group of itemsByCategory(); track group.id) {
+            @if (group.items.length > 0) {
+            <div class="category-section" [id]="'category-' + group.id">
+              <h1 class="category-heading">{{ group.name }}</h1>
+
+              <div class="items-grid">
+                @for (item of group.items; track item.id) {
+                  <mat-card class="menu-card" (click)="openItemModal(item)">
+                    <mat-card-content class="card-content-row">
+                      <div class="card-info">
+                        <mat-card-title class="card-name">{{ item.name }}</mat-card-title>
+                        <mat-card-subtitle class="card-description">{{ item.description }}</mat-card-subtitle>
+                        <span class="card-price">CA${{ item.price.toFixed(2) }}</span>
+                      </div>
+                      <div class="card-right">
+                        <div class="card-image">
+                          <img [src]="item.image_url" [alt]="item.name" loading="lazy" />
+                        </div>
+                        <button mat-mini-fab class="add-btn" [attr.aria-label]="'Ajouter ' + item.name">
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                } @empty {
+                  <p class="no-items">Aucun item dans cette catégorie.</p>
+                }
+              </div>
+            </div>
+            }
           }
         }
       </section>

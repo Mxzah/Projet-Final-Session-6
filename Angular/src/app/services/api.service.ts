@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, map, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -43,9 +43,18 @@ export class ApiService {
     );
   }
 
-  get<T>(endpoint: string): Observable<ApiResponse<T>> {
+  get<T>(endpoint: string, queryParams?: Record<string, string>): Observable<ApiResponse<T>> {
+    let params = new HttpParams();
+    if (queryParams) {
+      for (const key of Object.keys(queryParams)) {
+        if (queryParams[key]) {
+          params = params.set(key, queryParams[key]);
+        }
+      }
+    }
     return this.http.get<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, {
-      withCredentials: true
+      withCredentials: true,
+      params
     }).pipe(
       map(response => {
         if (!response.success) {

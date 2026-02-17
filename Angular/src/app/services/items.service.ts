@@ -9,8 +9,14 @@ import { Item } from '../menu/menu.models';
 export class ItemsService {
   constructor(private apiService: ApiService) {}
 
-  getItems(): Observable<Item[]> {
-    return this.apiService.get<Item[]>('/api/items').pipe(
+  getItems(filters?: { search?: string; sort?: string; price_min?: number | null; price_max?: number | null }): Observable<Item[]> {
+    const params: Record<string, string> = {};
+    if (filters?.search) params['search'] = filters.search;
+    if (filters?.sort && filters.sort !== 'none') params['sort'] = filters.sort;
+    if (filters?.price_min != null && filters.price_min > 0) params['price_min'] = String(filters.price_min);
+    if (filters?.price_max != null && filters.price_max > 0) params['price_max'] = String(filters.price_max);
+
+    return this.apiService.get<Item[]>('/api/items', params).pipe(
       map(response => response.data!)
     );
   }

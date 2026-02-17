@@ -221,6 +221,28 @@ img {
     min-width: 0;
 }
 
+/* ── No results ── */
+.no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    color: rgba(27, 26, 23, 0.4);
+}
+
+.no-results-icon {
+    font-size: 3rem !important;
+    width: 3rem !important;
+    height: 3rem !important;
+    margin-bottom: 1rem;
+}
+
+.no-results-text {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
 /* ── Main content ── */
 .category-section {
     scroll-margin-top: 5rem;
