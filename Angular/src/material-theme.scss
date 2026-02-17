@@ -1,0 +1,27 @@
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$orange-palette,
+      tertiary: mat.$red-palette,
+    ),
+    typography: 'Space Grotesk',
+    density: 0,
+  ));
+
+  // Override Material primary colors to match our copper/rust theme
+  --mat-sys-primary: #c86d3f;
+  --mat-sys-on-primary: #fff;
+  --mat-sys-primary-container: #f7e6d8;
+  --mat-sys-on-primary-container: #8a3f24;
+  --mat-sys-tertiary: #8a3f24;
+  --mat-sys-on-tertiary: #fff;
+  --mat-sys-error: #dc3545;
+  --mat-sys-on-error: #fff;
+}
+
+body {
+  color-scheme: light;
+  margin: 0;
+}

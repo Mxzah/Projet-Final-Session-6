@@ -11,8 +11,8 @@
 
     display: block;
     min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow-x: clip;
+    overflow-y: visible;
     background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
     color: var(--ink);
     font-family: "Space Grotesk", "Segoe UI", sans-serif;
@@ -226,7 +226,8 @@ button {
 
 @media (max-width: 400px) {
     :host {
-        overflow: auto;
+        overflow-x: clip;
+        overflow-y: visible;
     }
 
     .page {

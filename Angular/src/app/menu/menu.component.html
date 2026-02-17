@@ -2,8 +2,7 @@
   <span class="header-divider">|</span>
   <div class="cart-display cart-header" (click)="toggleCart()">
     <div class="cart-icon-wrap">
-      <span class="cart-icon">&#128722;</span>
-      <span class="cart-badge">{{ cartService.totalItems() }}</span>
+      <mat-icon [matBadge]="cartService.totalItems()" matBadgeSize="small" matBadgeColor="warn">shopping_cart</mat-icon>
     </div>
     <div class="cart-text">
       <span class="cart-label">Sous-total</span>
@@ -12,81 +11,79 @@
   </div>
 </app-header>
 
-<div class="cart-bottom-bar">
-  <span class="cart-icon">&#128722;</span>
+<mat-toolbar class="cart-bottom-bar">
+  <mat-icon>shopping_cart</mat-icon>
   <span class="cart-bottom-text">{{ cartService.totalItems() }} item(s) &bull; CA${{ cartService.subtotal().toFixed(2) }}</span>
-  <span class="cart-bottom-arrow">&#8250;</span>
-</div>
+  <mat-icon>chevron_right</mat-icon>
+</mat-toolbar>
 
 <main class="menu-page">
   @if (isLoading()) {
     <div class="loading">
-      <p>Chargement du menu...</p>
+      <mat-spinner diameter="48"></mat-spinner>
     </div>
   } @else if (errorMessage()) {
-    <div class="error-banner">
-      <p>{{ errorMessage() }}</p>
-    </div>
+    <mat-card class="error-banner">
+      <mat-card-content>
+        <p>{{ errorMessage() }}</p>
+      </mat-card-content>
+    </mat-card>
   } @else {
     <div class="menu-layout" [class.menu-layout-cart-open]="cartOpen()">
       <aside class="sidebar">
         <h2 class="sidebar-title">Catégories</h2>
-        <nav class="category-nav">
+        <mat-nav-list class="category-nav">
           @for (cat of categories(); track cat.id) {
-            <button
+            <mat-list-item
               class="category-btn"
               [class.active]="cat.id === activeCategory()"
               (click)="selectCategory(cat.id)"
             >
-              {{ cat.name }}
-            </button>
+              <span matListItemTitle>{{ cat.name }}</span>
+            </mat-list-item>
           }
-        </nav>
+        </mat-nav-list>
       </aside>
 
       <section class="menu-content">
-        <div class="ssf-bar">
-          <div class="ssf-search">
-            <input
-              type="text"
-              placeholder="Rechercher un item..."
-              (input)="onSearchInput($event)"
-            />
-          </div>
-          <div class="ssf-sort">
-            <select (change)="onSortChange($event)">
-              <option value="none">Trier par prix</option>
-              <option value="asc">Prix croissant</option>
-              <option value="desc">Prix décroissant</option>
-            </select>
-          </div>
+        <mat-toolbar class="ssf-bar">
+          <mat-form-field class="ssf-search" appearance="outline">
+            <mat-label>Rechercher un item...</mat-label>
+            <input matInput type="text" (input)="onSearchInput($event)" />
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+
           <div class="ssf-filter">
-            <input
-              type="number"
-              placeholder="Prix min"
-              min="0"
-              step="0.01"
-              (input)="onPriceMinChange($event)"
-            />
+            <mat-form-field appearance="outline">
+              <mat-label>Prix min</mat-label>
+              <input matInput type="number" min="0" step="0.01" (input)="onPriceMinChange($event)" />
+            </mat-form-field>
             <span class="ssf-separator">—</span>
-            <input
-              type="number"
-              placeholder="Prix max"
-              min="0"
-              step="0.01"
-              (input)="onPriceMaxChange($event)"
-            />
+            <mat-form-field appearance="outline">
+              <mat-label>Prix max</mat-label>
+              <input matInput type="number" min="0" step="0.01" (input)="onPriceMaxChange($event)" />
+            </mat-form-field>
           </div>
-        </div>
+
+          <mat-form-field class="ssf-sort" appearance="outline">
+            <mat-label>Trier par prix</mat-label>
+            <mat-select (selectionChange)="onSortChange($event.value)">
+              <mat-option value="none">Trier par prix</mat-option>
+              <mat-option value="asc">Prix croissant</mat-option>
+              <mat-option value="desc">Prix décroissant</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-toolbar>
 
         <div class="mobile-category-select">
-          <select (change)="onMobileCategoryChange($event)">
-            @for (cat of categories(); track cat.id) {
-              <option [value]="cat.id" [selected]="cat.id === activeCategory()">
-                {{ cat.name }}
-              </option>
-            }
-          </select>
+          <mat-form-field appearance="outline" class="mobile-cat-field">
+            <mat-label>Catégorie</mat-label>
+            <mat-select [value]="activeCategory()" (selectionChange)="onMobileCategoryChange($event.value)">
+              @for (cat of categories(); track cat.id) {
+                <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         </div>
 
         @for (group of itemsByCategory(); track group.id) {
@@ -96,19 +93,23 @@
 
             <div class="items-grid">
               @for (item of group.items; track item.id) {
-                <article class="menu-card" (click)="openItemModal(item)">
-                  <div class="card-info">
-                    <h3 class="card-name">{{ item.name }}</h3>
-                    <p class="card-description">{{ item.description }}</p>
-                    <span class="card-price">CA${{ item.price.toFixed(2) }}</span>
-                  </div>
-                  <div class="card-right">
-                    <div class="card-image">
-                      <img [src]="item.image_url" [alt]="item.name" loading="lazy" />
+                <mat-card class="menu-card" (click)="openItemModal(item)">
+                  <mat-card-content class="card-content-row">
+                    <div class="card-info">
+                      <mat-card-title class="card-name">{{ item.name }}</mat-card-title>
+                      <mat-card-subtitle class="card-description">{{ item.description }}</mat-card-subtitle>
+                      <span class="card-price">CA${{ item.price.toFixed(2) }}</span>
                     </div>
-                    <button class="add-btn" [attr.aria-label]="'Ajouter ' + item.name">+</button>
-                  </div>
-                </article>
+                    <div class="card-right">
+                      <div class="card-image">
+                        <img [src]="item.image_url" [alt]="item.name" loading="lazy" />
+                      </div>
+                      <button mat-mini-fab class="add-btn" [attr.aria-label]="'Ajouter ' + item.name">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
               } @empty {
                 <p class="no-items">Aucun item dans cette catégorie.</p>
               }
@@ -120,38 +121,42 @@
 
       <!-- Cart sidebar -->
       <aside class="cart-sidebar" [class.cart-sidebar-open]="cartOpen()">
-        <div class="cart-sidebar-header">
-          <span class="cart-sidebar-close" (click)="toggleCart()">&times;</span>
+        <mat-toolbar class="cart-sidebar-header">
+          <button mat-icon-button class="cart-sidebar-close" (click)="toggleCart()">
+            <mat-icon>close</mat-icon>
+          </button>
           <h2 class="cart-sidebar-title">Votre commande</h2>
-        </div>
+        </mat-toolbar>
 
         <div class="cart-sidebar-lines">
           @for (line of cartService.lines(); track $index) {
-            <div class="cart-line">
-              <div class="cart-line-info">
-                <h3 class="cart-line-name">{{ line.name }}</h3>
-                <p class="cart-line-meta">CA${{ line.unit_price.toFixed(2) }} / unit &middot; <span class="cart-line-qty">{{ line.quantity }} portion{{ line.quantity > 1 ? 's' : '' }}</span></p>
-              </div>
-              <div class="cart-line-total">
-                <span class="cart-line-total-label">TOTAL</span>
-                <span class="cart-line-total-price">CA${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
-              </div>
-              <div class="cart-line-actions">
-                <button class="btn-cart-edit" (click)="$event.stopPropagation()">Modifier</button>
-                <button class="btn-cart-remove" (click)="$event.stopPropagation()">Retirer</button>
-              </div>
-            </div>
+            <mat-card class="cart-line">
+              <mat-card-content>
+                <mat-card-title class="cart-line-name">{{ line.name }}</mat-card-title>
+                <mat-card-subtitle class="cart-line-meta">CA${{ line.unit_price.toFixed(2) }} / unit &middot; <span class="cart-line-qty">{{ line.quantity }} portion{{ line.quantity > 1 ? 's' : '' }}</span></mat-card-subtitle>
+                <div class="cart-line-total">
+                  <span class="cart-line-total-label">TOTAL</span>
+                  <span class="cart-line-total-price">CA${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
+                </div>
+                <mat-card-actions class="cart-line-actions">
+                  <button mat-stroked-button class="btn-cart-edit" (click)="$event.stopPropagation()">Modifier</button>
+                  <button mat-stroked-button color="warn" class="btn-cart-remove" (click)="$event.stopPropagation()">Retirer</button>
+                </mat-card-actions>
+              </mat-card-content>
+            </mat-card>
           } @empty {
             <p class="cart-empty">Votre panier est vide.</p>
           }
         </div>
+
+        <mat-divider></mat-divider>
 
         <div class="cart-sidebar-footer">
           <div class="cart-subtotal">
             <span>Sous-total</span>
             <span class="cart-subtotal-price">CA${{ cartService.subtotal().toFixed(2) }}</span>
           </div>
-          <button class="btn-continue" [disabled]="cartService.totalItems() === 0" (click)="goToOrder()">Continuer</button>
+          <button mat-flat-button class="btn-continue" [disabled]="cartService.totalItems() === 0" (click)="goToOrder()">Continuer</button>
         </div>
       </aside>
     </div>
@@ -161,18 +166,20 @@
 <!-- Modal -->
 @if (selectedItem()) {
   <div class="modal-overlay" (click)="onOverlayClick($event)">
-    <div class="modal">
-      <button class="modal-close" (click)="closeModal()">&times;</button>
+    <mat-card class="modal">
+      <button mat-icon-button class="modal-close" (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </button>
 
-      <div class="modal-body">
+      <mat-card-content class="modal-body">
         <div class="modal-image">
           <img [src]="selectedItem()!.image_url" [alt]="selectedItem()!.name" />
         </div>
 
-        <div class="modal-details">
-          <h2 class="modal-name">{{ selectedItem()!.name }}</h2>
-          <p class="modal-description">{{ selectedItem()!.description }}</p>
-        </div>
+        <mat-card-header class="modal-details">
+          <mat-card-title class="modal-name">{{ selectedItem()!.name }}</mat-card-title>
+          <mat-card-subtitle class="modal-description">{{ selectedItem()!.description }}</mat-card-subtitle>
+        </mat-card-header>
 
         <div class="modal-price-box">
           <span class="modal-price-label">À PARTIR DE</span>
@@ -181,31 +188,35 @@
         </div>
 
         <div class="modal-note-section">
-          <label class="modal-note-label">
-            Instructions spéciales
-            <span class="modal-note-optional">(optionnel)</span>
-          </label>
-          <textarea
-            class="modal-note-input"
-            placeholder="Ex: Sans oignon, extra sauce, bien cuit..."
-            maxlength="255"
-            [value]="modalNote()"
-            (input)="onNoteInput($event)"
-          ></textarea>
-          <span class="modal-note-count">{{ modalNote().length }}/255</span>
+          <mat-form-field appearance="outline" class="modal-note-field">
+            <mat-label>Instructions spéciales (optionnel)</mat-label>
+            <textarea
+              matInput
+              placeholder="Ex: Sans oignon, extra sauce, bien cuit..."
+              maxlength="255"
+              [value]="modalNote()"
+              (input)="onNoteInput($event)"
+              rows="3"
+            ></textarea>
+            <mat-hint align="end">{{ modalNote().length }}/255</mat-hint>
+          </mat-form-field>
         </div>
-      </div>
+      </mat-card-content>
 
-      <div class="modal-footer">
+      <mat-card-actions class="modal-footer">
         <div class="modal-quantity">
-          <button class="qty-btn" (click)="decrementQuantity()" [disabled]="modalQuantity() <= 1">−</button>
+          <button mat-icon-button class="qty-btn" (click)="decrementQuantity()" [disabled]="modalQuantity() <= 1">
+            <mat-icon>remove</mat-icon>
+          </button>
           <span class="qty-value">{{ modalQuantity() }}</span>
-          <button class="qty-btn" (click)="incrementQuantity()">+</button>
+          <button mat-icon-button class="qty-btn" (click)="incrementQuantity()">
+            <mat-icon>add</mat-icon>
+          </button>
         </div>
-        <button class="modal-add-btn" (click)="addToCart()">
+        <button mat-flat-button class="modal-add-btn" (click)="addToCart()">
           Ajouter au panier — CA${{ modalTotal().toFixed(2) }}
         </button>
-      </div>
-    </div>
+      </mat-card-actions>
+    </mat-card>
   </div>
 }

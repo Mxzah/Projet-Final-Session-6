@@ -2,6 +2,19 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatChipsModule } from '@angular/material/chips';
 import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
@@ -11,7 +24,13 @@ import { Item, Category } from './menu.models';
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [
+    CommonModule, FormsModule, HeaderComponent,
+    MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatButtonModule, MatIconModule, MatBadgeModule,
+    MatProgressSpinnerModule, MatDividerModule,
+    MatCardModule, MatToolbarModule, MatListModule, MatChipsModule
+  ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
 })
@@ -112,8 +131,8 @@ export class MenuComponent implements OnInit {
     this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 
-  onSortChange(event: Event): void {
-    this.sortOrder.set((event.target as HTMLSelectElement).value);
+  onSortChange(value: string): void {
+    this.sortOrder.set(value);
   }
 
   onPriceMinChange(event: Event): void {
@@ -126,9 +145,8 @@ export class MenuComponent implements OnInit {
     this.priceMax.set(val ? parseFloat(val) : null);
   }
 
-  onMobileCategoryChange(event: Event): void {
-    const id = parseInt((event.target as HTMLSelectElement).value, 10);
-    this.selectCategory(id);
+  onMobileCategoryChange(value: number): void {
+    this.selectCategory(value);
   }
 
   selectCategory(id: number): void {
