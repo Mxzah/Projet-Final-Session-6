@@ -165,6 +165,9 @@ export class AdminItemsComponent implements OnInit {
 
   saveCreate(): void {
     Object.values(this.editForm.controls).forEach(c => c.markAsDirty());
+    if (!this.editImage && !this.editImageError()) {
+      this.editImageError.set(this.ts.t('admin.imageRequired'));
+    }
     if (this.editForm.invalid) return;
     if (this.editImageError()) return;
 
@@ -220,14 +223,14 @@ export class AdminItemsComponent implements OnInit {
 
     const validTypes = ['image/jpeg', 'image/png'];
     if (!validTypes.includes(file.type)) {
-      this.editImageError.set('L\'image doit être un fichier JPG ou PNG.');
+      this.editImageError.set(this.ts.t('admin.imageFormat'));
       input.value = '';
       return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      this.editImageError.set('L\'image doit être inférieure à 5 MB.');
+      this.editImageError.set(this.ts.t('admin.imageSize'));
       input.value = '';
       return;
     }

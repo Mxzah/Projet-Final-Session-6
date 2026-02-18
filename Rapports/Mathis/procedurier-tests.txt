@@ -239,14 +239,18 @@ MODULE 8 — Création d'un item
      - Sélectionner une image de plus de 5 MB
      - Message d'erreur : « L'image doit être inférieure à 5 MB. »
 
-8.11 Création réussie
+8.11 Validation — Image obligatoire
+     - Remplir tous les champs sauf l'image et cliquer sur « Ajouter »
+     - Message d'erreur : « L'image est obligatoire. »
+
+8.12 Création réussie
      - Remplir tous les champs avec des valeurs valides (nom, description,
        prix, catégorie) et sélectionner une image JPG/PNG valide
      - Clic sur « Ajouter »
      - La modal se ferme
      - Le nouvel item apparaît dans la liste
 
-8.12 Annulation
+8.13 Annulation
      - Remplir des champs puis cliquer sur « Annuler »
      - La modal se ferme, aucun item n'est créé
 
@@ -262,7 +266,7 @@ MODULE 9 — Modification d'un item
      - L'aperçu de l'image existante est affiché
 
 9.2  Validations
-     - Mêmes validations que la création (8.2 à 8.10)
+     - Mêmes validations que la création (8.2 à 8.11)
 
 9.3  Modification réussie
      - Modifier le nom et/ou le prix d'un item existant
