@@ -13,9 +13,7 @@ class OrderLine < ApplicationRecord
                    format: { without: /\A\s*\z/, message: "ne peut pas être composé uniquement d'espaces" }, allow_blank: true
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :orderable_type, presence: true, inclusion: { in: %w[Item Combo] }
-  validate :status_must_follow_sequence, if: :status_changed?
-  validate :orderable_must_be_available
-  validate :cannot_modify_unless_sent, on: :update
+ 
 
   private
 
