@@ -6,7 +6,7 @@ module Api
     # GET /api/cuisine/orders
     def orders
       active_orders = Order.where(ended_at: nil)
-                           .includes(:table, :client, :server, :order_lines)
+                           .includes(:table, :client, :server, :order_lines, :vibe)
                            .order(created_at: :asc)
 
       render json: {
@@ -49,6 +49,9 @@ module Api
         id: order.id,
         nb_people: order.nb_people,
         note: order.note,
+        tip: order.tip.to_f,
+        vibe_name: order.vibe&.name,
+        vibe_color: order.vibe&.color,
         table_number: order.table&.number,
         server_name: order.server ? "#{order.server.first_name} #{order.server.last_name}" : nil,
         created_at: order.created_at,

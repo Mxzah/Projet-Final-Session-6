@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 
     get 'current_user', to: 'sessions#current_user'
 
+    resources :vibes, only: [:index]
     get 'cuisine/orders', to: 'cuisine#orders'
   end
 

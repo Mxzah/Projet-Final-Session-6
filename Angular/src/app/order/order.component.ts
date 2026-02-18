@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -12,7 +13,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 interface DisplayOrderLine {
   id: number;
@@ -29,21 +33,34 @@ interface DisplayOrderLine {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     HeaderComponent,
     MatButtonModule,
     MatCardModule,
     MatChipsModule,
     MatDividerModule,
-    MatIconModule
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
 })
 export class OrderComponent implements OnInit {
-  private openOrderId = signal<number | null>(null);
+  openOrderId = signal<number | null>(null);
   private serverLines = signal<DisplayOrderLine[]>([]);
   serverName = signal<string | null>(null);
   isSending = signal<boolean>(false);
+
+  // Existing order details (read-only display)
+  existingNote = signal<string | null>(null);
+  existingTip = signal<number>(0);
+  existingVibeName = signal<string | null>(null);
+  existingVibeColor = signal<string | null>(null);
+
+  // Form inputs for new order (regular properties for ngModel)
+  noteInput = '';
+  tipInput: number | null = null;
 
   private pendingLines = computed<DisplayOrderLine[]>(() =>
     this.cartService.lines().map((line, index) => ({
@@ -96,10 +113,19 @@ export class OrderComponent implements OnInit {
         if (!openOrder) {
           this.openOrderId.set(null);
           this.serverLines.set([]);
+          this.existingNote.set(null);
+          this.existingTip.set(0);
+          this.existingVibeName.set(null);
+          this.existingVibeColor.set(null);
           return;
         }
 
         this.openOrderId.set(openOrder.id);
+        this.existingNote.set(openOrder.note || null);
+        this.existingTip.set(openOrder.tip ?? 0);
+        this.existingVibeName.set(openOrder.vibe_name ?? null);
+        this.existingVibeColor.set(openOrder.vibe_color ?? null);
+
         if (openOrder.server_name) {
           this.serverName.set(openOrder.server_name);
         }
@@ -151,7 +177,6 @@ export class OrderComponent implements OnInit {
           orderable_id: line.orderable_id
         })
       );
-
       return forkJoin(requests);
     };
 
@@ -172,16 +197,13 @@ export class OrderComponent implements OnInit {
 
           return this.orderService.createOrder({
             nb_people: 1,
-            note: '',
-            table_id: table.id
+            note: this.noteInput,
+            table_id: table.id,
+            tip: this.tipInput
           }).pipe(
             switchMap((response) => {
               const createdOrder = response.data?.[0];
-
-              if (!createdOrder) {
-                return of(null);
-              }
-
+              if (!createdOrder) return of(null);
               this.openOrderId.set(createdOrder.id);
               return createLines(createdOrder.id);
             })
@@ -190,10 +212,7 @@ export class OrderComponent implements OnInit {
 
     send$.subscribe({
       next: (result) => {
-        if (!result) {
-          return;
-        }
-
+        if (!result) return;
         this.cartService.clear();
         this.loadOpenOrder();
       },

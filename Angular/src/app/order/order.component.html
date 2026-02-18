@@ -16,12 +16,19 @@
     <div class="order-container">
       <div class="order-header">
         <h1 class="order-title">Votre commande</h1>
-        @if (serverName()) {
-          <div class="server-info">
-            <mat-icon>person</mat-icon>
-            <span>Serveur: <strong>{{ serverName() }}</strong></span>
-          </div>
-        }
+        <div class="server-vibe-row">
+          @if (serverName()) {
+            <div class="server-info">
+              <mat-icon>person</mat-icon>
+              <span>Serveur: <strong>{{ serverName() }}</strong></span>
+            </div>
+          }
+          <span class="vibe-badge-header"
+            [style.background-color]="(existingVibeColor() || '#C87941') + '22'"
+            [style.color]="existingVibeColor() || '#C87941'">
+            ✦ {{ existingVibeName() || 'pas implementer' }}
+          </span>
+        </div>
         <button mat-raised-button color="primary" (click)="onAddItems()">
           <mat-icon aria-hidden="true"></mat-icon>
           Ajouter +
@@ -85,6 +92,48 @@
           <span>Sous-total ({{ totalItems() }} article@if (totalItems() > 1) {s})</span>
           <span class="summary-price">CA${{ subtotal().toFixed(2) }}</span>
         </div>
+      </mat-card>
+
+      <!-- Détails de la commande : affichage si commande existante, formulaire sinon -->
+      <mat-card class="order-details-card" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title class="details-title">Détails</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content class="details-content">
+
+          @if (openOrderId() !== null) {
+            <!-- Commande existante : affichage en lecture seule -->
+            @if (existingNote()) {
+              <div class="detail-item">
+                <mat-icon>sticky_note_2</mat-icon>
+                <span>{{ existingNote() }}</span>
+              </div>
+            }
+            @if (existingTip() > 0) {
+              <div class="detail-item">
+                <mat-icon>payments</mat-icon>
+                <span>Pourboire : CA${{ existingTip().toFixed(2) }}</span>
+              </div>
+            }
+            @if (!existingNote() && existingTip() === 0) {
+              <p class="no-details">Aucun détail ajouté.</p>
+            }
+          } @else {
+            <!-- Nouvelle commande : formulaire -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Note générale (optionnelle)</mat-label>
+              <textarea matInput [(ngModel)]="noteInput" rows="2"
+                placeholder="Ex: le petit garçon aux cheveux blonds fête son anniversaire"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Pourboire (CA$)</mat-label>
+              <input matInput type="number" [(ngModel)]="tipInput" min="0" step="0.5">
+            </mat-form-field>
+          }
+
+        </mat-card-content>
       </mat-card>
 
       <mat-divider></mat-divider>

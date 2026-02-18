@@ -31,7 +31,7 @@ module Api
       line = order.order_lines.build(line_params)
       line.status = "sent"
 
-      # Set unit_price from the orderable
+       # Va chercher le Item ou Combo
       orderable = find_orderable(line.orderable_type, line.orderable_id)
       if orderable
         line.unit_price = orderable.price
@@ -57,11 +57,12 @@ module Api
     end
 
     private
-
+    #Filtre les paramètres autorisés venant du body de la requête. Seuls quantity, note, orderable_type, et orderable_id sont acceptés
     def line_params
       params.require(:order_line).permit(:quantity, :note, :orderable_type, :orderable_id)
     end
 
+    # Va chercher le Item ou Combo pour assigner le prix unitaire
     def find_orderable(type, id)
       return nil unless type.present? && id.present?
       return nil unless %w[Item Combo].include?(type)
@@ -76,10 +77,12 @@ module Api
         unit_price: line.unit_price.to_f,
         note: line.note,
         status: line.status,
-        orderable_type: line.orderable_type,
-        orderable_id: line.orderable_id,
-        orderable_name: orderable&.name,
-        orderable_description: orderable&.try(:description),      image_url: orderable&.respond_to?(:image) && orderable.image.attached? ? url_for(orderable.image) : nil,        created_at: line.created_at
+        orderable_type: line.orderable_type, #Le type de l'objet commandé (Item ou Combo)
+        orderable_id: line.orderable_id, #L'id de cet objet dans sa table.
+        orderable_name: orderable&.name,  #Le nom
+        orderable_description: orderable&.try(:description),     # la description 
+        image_url: orderable&.respond_to?(:image) && orderable.image.attached? ? url_for(orderable.image) : nil,     
+        created_at: line.created_at
       }
     end
   end

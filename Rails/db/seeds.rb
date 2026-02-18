@@ -216,6 +216,24 @@ items_data.each do |id|
   puts "- #{id[:name]} (#{id[:category]}) — CA$#{id[:price]}"
 end
 
+# ── Vibes ──────────────────────────────────────────────────────────────────
+puts "\nCreating vibes..."
+
+vibes_data = [
+  { name: 'Fête',  color: '#FFB347' },
+  { name: 'Date',  color: '#FF6B9D' },
+  { name: 'Mort',  color: '#2C3E50' }
+]
+
+vibes = {}
+vibes_data.each do |vd|
+  vibe = Vibe.find_or_create_by!(name: vd[:name]) do |v|
+    v.color = vd[:color]
+  end
+  vibes[vd[:name]] = vibe
+  puts "- #{vibe.name} (#{vibe.color})"
+end
+
 # ── Demo orders for kitchen dashboard ──────────────────────────────────────
 puts "\nCreating demo orders..."
 
@@ -241,13 +259,15 @@ unless tartare && risotto && filet && fondant && petoncle && brulee
   return
 end
 
-# Order 1 — client1, table 3, server marie
+# Order 1 — client1, table 3, server marie, vibe Fête
 order1 = Order.find_or_create_by!(client_id: client1.id, ended_at: nil) do |o|
   o.table    = table3
   o.nb_people = 3
   o.server   = marie
   o.note     = 'Allergie aux arachides'
+  o.vibe     = vibes['Fête']
 end
+order1.update!(vibe: vibes['Fête']) if order1.vibe.nil?
 
 OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', orderable_id: tartare.id) do |l|
   l.quantity   = 2
@@ -263,12 +283,14 @@ end
 
 puts "- Order ##{order1.id} (Table #{table3.number}, #{marie.first_name})"
 
-# Order 2 — client2, table 5, server jean
+# Order 2 — client2, table 5, server jean, vibe Date
 order2 = Order.find_or_create_by!(client_id: client2.id, ended_at: nil) do |o|
   o.table    = table5
   o.nb_people = 2
   o.server   = jean
+  o.vibe     = vibes['Date']
 end
+order2.update!(vibe: vibes['Date']) if order2.vibe.nil?
 
 OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', orderable_id: filet.id) do |l|
   l.quantity   = 1
@@ -284,11 +306,13 @@ end
 
 puts "- Order ##{order2.id} (Table #{table5.number}, #{jean.first_name})"
 
-# Order 3 — client3, table 7, no server
+# Order 3 — client3, table 7, no server, vibe Mort
 order3 = Order.find_or_create_by!(client_id: client3.id, ended_at: nil) do |o|
   o.table    = table7
   o.nb_people = 4
+  o.vibe     = vibes['Mort']
 end
+order3.update!(vibe: vibes['Mort']) if order3.vibe.nil?
 
 OrderLine.find_or_create_by!(order_id: order3.id, orderable_type: 'Item', orderable_id: petoncle.id) do |l|
   l.quantity   = 3

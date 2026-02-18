@@ -2,10 +2,10 @@ module Api
   class OrdersController < ApplicationController
     before_action :authenticate_user!
 
-    # GET /api/orders
+    # GET /api/orders    Retourne toutes les commandes de l'utilisateur connecté.
     def index
       orders = Order.where(client_id: current_user.id)
-                    .includes(:table, :order_lines)
+                    .includes(:table, :order_lines, :vibe, :server)
                     .order(created_at: :desc)
 
       render json: {
@@ -16,9 +16,9 @@ module Api
       }, status: :ok
     end
 
-    # GET /api/orders/:id
+    # GET /api/orders/:id    Retourne les détails d'une commande spécifique de l'utilisateur connecté.
     def show
-      order = Order.includes(:table, :order_lines).find_by(id: params[:id], client_id: current_user.id)
+      order = Order.includes(:table, :order_lines, :vibe, :server).find_by(id: params[:id], client_id: current_user.id)
 
       unless order
         return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
@@ -56,7 +56,7 @@ module Api
       end
     end
 
-    # POST /api/orders/close_open
+    # Ferme toutes les commandes ouvertes de l'utilisateur
     def close_open
       open_orders = Order.where(client_id: current_user.id, ended_at: nil)
       open_orders.each { |o| o.update(ended_at: Time.current) }
@@ -70,9 +70,9 @@ module Api
     end
 
     private
-
+    #Filtre les paramètres
     def order_params
-      params.require(:order).permit(:nb_people, :note, :table_id, :vibe_id)
+      params.require(:order).permit(:nb_people, :note, :table_id, :vibe_id, :tip)
     end
 
     def order_json(order)
@@ -105,13 +105,15 @@ module Api
         server_id: order.server_id,
         server_name: order.server ? "#{order.server.first_name} #{order.server.last_name}" : nil,
         vibe_id: order.vibe_id,
+        vibe_name: order.vibe&.name,
+        vibe_color: order.vibe&.color,
         created_at: order.created_at,
         ended_at: order.ended_at,
         order_lines: lines,
         total: total
       }
     end
-
+    #trouve le Item ou Combo
     def find_orderable(type, id)
       return nil unless type.present? && id.present?
       return nil unless %w[Item Combo].include?(type)

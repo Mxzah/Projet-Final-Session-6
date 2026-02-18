@@ -42,6 +42,13 @@
             <div class="server-row">
               <mat-icon>person</mat-icon>
               <span>{{ order.server_name ?? 'Aucun serveur assigné' }}</span>
+              @if (order.vibe_name) {
+                <span class="vibe-badge"
+                  [style.background-color]="order.vibe_color + '22'"
+                  [style.color]="order.vibe_color">
+                  ✦ {{ order.vibe_name }}
+                </span>
+              }
             </div>
           </mat-card-header>
 
@@ -49,6 +56,13 @@
             <div class="order-note">
               <mat-icon>sticky_note_2</mat-icon>
               <span>{{ order.note }}</span>
+            </div>
+          }
+
+          @if (order.tip > 0) {
+            <div class="order-tip">
+              <mat-icon>payments</mat-icon>
+              <span>Pourboire : CA${{ order.tip.toFixed(2) }}</span>
             </div>
           }
 
@@ -60,10 +74,15 @@
               @for (line of order.order_lines; track line.id) {
                 <div class="line-row">
                   <div class="line-info">
-                    <span class="line-name">{{ line.orderable_name }}</span>
-                    <span class="line-qty">x{{ line.quantity }}</span>
+                    <div class="line-top">
+                      <span class="line-name">{{ line.orderable_name }}</span>
+                      <span class="line-qty">x{{ line.quantity }}</span>
+                    </div>
                     @if (line.note) {
-                      <span class="line-note">— {{ line.note }}</span>
+                      <div class="line-note">
+                        <mat-icon>sticky_note_2</mat-icon>
+                        <span>{{ line.note }}</span>
+                      </div>
                     }
                   </div>
                   <span class="status-chip {{ getStatusClass(line.status) }}">
@@ -73,6 +92,15 @@
               }
             </div>
           </mat-card-content>
+
+          <div class="card-actions">
+            <button mat-stroked-button class="btn-edit">
+              <mat-icon>edit</mat-icon> Modifier
+            </button>
+            <button mat-stroked-button class="btn-delete">
+              <mat-icon>delete</mat-icon> Supprimer
+            </button>
+          </div>
         </mat-card>
       }
     </div>

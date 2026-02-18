@@ -17,6 +17,9 @@ export interface CuisineOrder {
   id: number;
   nb_people: number;
   note: string | null;
+  tip: number;
+  vibe_name: string | null;
+  vibe_color: string | null;
   table_number: number;
   server_name: string | null;
   created_at: string;
