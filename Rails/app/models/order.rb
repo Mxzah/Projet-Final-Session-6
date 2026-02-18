@@ -27,10 +27,7 @@ class Order < ApplicationRecord
     errors.add(:ended_at, "doit être après la date de création") if ended_at < created_at
   end
 
-  def nb_people_within_table_seats   #ne peut pas dépasser le nb_seats de la table associée
-    return unless nb_people.present? && table.present?
-    errors.add(:nb_people, "ne peut pas dépasser le nombre de places de la table (#{table.nb_seats})") if nb_people > table.nb_seats
-  end
+ 
 
   def client_has_no_other_open_order  #un client ne peut avoir qu'une seule commande ouverte (ended_at IS NULL)
     return unless client_id.present?

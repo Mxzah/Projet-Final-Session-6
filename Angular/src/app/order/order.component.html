@@ -123,13 +123,23 @@
             <!-- Nouvelle commande : formulaire -->
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Note générale (optionnelle)</mat-label>
-              <textarea matInput [(ngModel)]="noteInput" rows="2"
+              <textarea matInput [(ngModel)]="noteInput" rows="2" maxlength="255"
                 placeholder="Ex: le petit garçon aux cheveux blonds fête son anniversaire"></textarea>
+              <mat-hint align="end">{{ noteInput.length }} / 255</mat-hint>
+              @if (noteInput.length > 0 && noteInput.trim().length === 0) {
+                <mat-error>La note ne peut pas être composée uniquement d'espaces.</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Pourboire (CA$)</mat-label>
-              <input matInput type="number" [(ngModel)]="tipInput" min="0" step="0.5">
+              <input matInput type="number" [(ngModel)]="tipInput" min="0" max="999.99" step="0.5">
+              @if (tipInput !== null && tipInput < 0) {
+                <mat-error>Le pourboire ne peut pas être négatif.</mat-error>
+              }
+              @if (tipInput !== null && tipInput > 999.99) {
+                <mat-error>Le pourboire ne peut pas dépasser 999,99 CA$.</mat-error>
+              }
             </mat-form-field>
           }
 
@@ -139,7 +149,7 @@
       <mat-divider></mat-divider>
 
       <div class="order-actions">
-        <button mat-raised-button color="primary" [disabled]="pendingCount() === 0 || isSending()" (click)="onSend()">
+        <button mat-raised-button color="primary" [disabled]="pendingCount() === 0 || isSending() || isFormInvalid()" (click)="onSend()">
           <mat-icon aria-hidden="true">send</mat-icon>
           Envoyer
         </button>

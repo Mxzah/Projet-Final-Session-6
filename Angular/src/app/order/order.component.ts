@@ -150,6 +150,13 @@ export class OrderComponent implements OnInit {
     });
   }
 
+  isFormInvalid(): boolean {
+    if (this.openOrderId() !== null) return false;
+    const noteOnlySpaces = this.noteInput.length > 0 && this.noteInput.trim().length === 0;
+    const tipOutOfRange = this.tipInput !== null && (this.tipInput < 0 || this.tipInput > 999.99);
+    return noteOnlySpaces || tipOutOfRange;
+  }
+
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       pending: '',
@@ -164,7 +171,7 @@ export class OrderComponent implements OnInit {
   onSend(): void {
     const linesToCreate = this.cartService.lines();
 
-    if (linesToCreate.length === 0 || this.isSending()) {
+    if (linesToCreate.length === 0 || this.isSending() || this.isFormInvalid()) {
       return;
     }
 
