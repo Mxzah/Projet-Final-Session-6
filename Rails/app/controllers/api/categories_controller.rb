@@ -1,6 +1,6 @@
 module Api
   class CategoriesController < ApplicationController
-    before_action :authenticate_user!
+    before_action :authenticate_user!, except: [:index]
 
     # GET /api/categories
     def index

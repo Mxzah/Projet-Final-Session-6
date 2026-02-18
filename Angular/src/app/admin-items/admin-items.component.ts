@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ItemsService } from '../services/items.service';
 import { Item, Category } from '../menu/menu.models';
 import { ApiService } from '../services/api.service';
+import { TranslationService } from '../services/translation.service';
 
 function notOnlyWhitespace(control: AbstractControl): ValidationErrors | null {
   if (control.value && /^\s*$/.test(control.value)) {
@@ -63,6 +64,7 @@ export class AdminItemsComponent implements OnInit {
   constructor(
     private itemsService: ItemsService,
     private apiService: ApiService,
+    public ts: TranslationService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -80,6 +82,11 @@ export class AdminItemsComponent implements OnInit {
         );
         this.items.set(sorted);
         this.isLoading.set(false);
+
+        // Fallback: if categories not loaded yet, extract from items
+        if (this.categories().length === 0) {
+          this.extractCategoriesFromItems(items);
+        }
       },
       error: () => {
         this.isLoading.set(false);
@@ -93,8 +100,29 @@ export class AdminItemsComponent implements OnInit {
         if (response.data) {
           this.categories.set(response.data);
         }
+      },
+      error: (err) => {
+        console.error('[AdminItems] /api/categories failed:', err);
+        // Fallback: extract from items if already loaded
+        if (this.items().length > 0) {
+          this.extractCategoriesFromItems(this.items());
+        }
       }
     });
+  }
+
+  private extractCategoriesFromItems(items: Item[]): void {
+    const catMap = new Map<number, Category>();
+    for (const item of items) {
+      if (!catMap.has(item.category_id)) {
+        catMap.set(item.category_id, {
+          id: item.category_id,
+          name: item.category_name ?? '—',
+          position: catMap.size
+        });
+      }
+    }
+    this.categories.set([...catMap.values()]);
   }
 
   // ── Suppression ──
@@ -160,7 +188,7 @@ export class AdminItemsComponent implements OnInit {
         this.editLoading.set(false);
       },
       error: (err: any) => {
-        this.editError.set(err?.errors?.join(', ') || 'Erreur lors de la création');
+        this.editError.set(err?.errors?.join(', ') || this.ts.t('admin.createError'));
         this.editLoading.set(false);
         this.cdr.detectChanges();
       }
@@ -249,7 +277,7 @@ export class AdminItemsComponent implements OnInit {
         this.editLoading.set(false);
       },
       error: (err: any) => {
-        this.editError.set(err?.errors?.join(', ') || 'Erreur lors de la modification');
+        this.editError.set(err?.errors?.join(', ') || this.ts.t('admin.editError'));
         this.editLoading.set(false);
         this.cdr.detectChanges();
       }

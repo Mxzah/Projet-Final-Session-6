@@ -18,6 +18,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
+import { TranslationService } from '../services/translation.service';
 import { HeaderComponent } from '../header/header.component';
 import { Item, Category } from './menu.models';
 
@@ -73,6 +74,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     private itemsService: ItemsService,
     public authService: AuthService,
     public cartService: CartService,
+    public ts: TranslationService,
     private router: Router
   ) {}
 
@@ -113,7 +115,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.errorMessage.set(
-          err.errors?.join(', ') || 'Erreur lors du chargement du menu'
+          err.errors?.join(', ') || this.ts.t('menu.loadError')
         );
         this.isLoading.set(false);
       }

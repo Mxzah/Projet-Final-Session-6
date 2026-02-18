@@ -56,6 +56,35 @@
     margin-right: 0.35rem;
 }
 
+.lang-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border-radius: 14px !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+    padding: 0 0.75rem !important;
+    height: 34px !important;
+    line-height: 34px !important;
+    min-width: unset !important;
+}
+
+.lang-btn:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+::ng-deep .lang-btn .mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-right: 0.25rem;
+}
+
+::ng-deep .active-lang {
+    font-weight: 700 !important;
+    background: rgba(0, 0, 0, 0.05);
+}
+
 @media (max-width: 600px) {
     .site-header {
         padding: 0 1rem !important;

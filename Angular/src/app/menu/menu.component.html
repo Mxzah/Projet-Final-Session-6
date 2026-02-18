@@ -9,7 +9,7 @@
       <mat-icon [matBadge]="cartService.totalItems()" matBadgeSize="small" matBadgeColor="warn">shopping_cart</mat-icon>
     </div>
     <div class="cart-text">
-      <span class="cart-label">Sous-total</span>
+      <span class="cart-label">{{ ts.t('menu.subtotal') }}</span>
       <span class="cart-price">CA${{ cartService.subtotal().toFixed(2) }}</span>
     </div>
   </div>
@@ -17,7 +17,7 @@
 
 <mat-toolbar class="cart-bottom-bar">
   <mat-icon>shopping_cart</mat-icon>
-  <span class="cart-bottom-text">{{ cartService.totalItems() }} item(s) &bull; CA${{ cartService.subtotal().toFixed(2) }}</span>
+  <span class="cart-bottom-text">{{ cartService.totalItems() }} {{ ts.t('menu.item') }} &bull; CA${{ cartService.subtotal().toFixed(2) }}</span>
   <mat-icon>chevron_right</mat-icon>
 </mat-toolbar>
 
@@ -35,7 +35,7 @@
   } @else {
     <div class="menu-layout" [class.menu-layout-cart-open]="cartOpen()">
       <aside class="sidebar">
-        <h2 class="sidebar-title">Catégories</h2>
+        <h2 class="sidebar-title">{{ ts.t('menu.categories') }}</h2>
         <mat-nav-list class="category-nav">
           @for (cat of categories(); track cat.id) {
             <mat-list-item
@@ -52,36 +52,36 @@
       <section class="menu-content">
         <mat-toolbar class="ssf-bar">
           <mat-form-field class="ssf-search" appearance="outline">
-            <mat-label>Rechercher un item...</mat-label>
+            <mat-label>{{ ts.t('menu.search') }}</mat-label>
             <input matInput type="text" (input)="onSearchInput($event)" />
             <mat-icon matPrefix>search</mat-icon>
           </mat-form-field>
 
           <div class="ssf-filter">
             <mat-form-field appearance="outline">
-              <mat-label>Prix min</mat-label>
+              <mat-label>{{ ts.t('menu.priceMin') }}</mat-label>
               <input matInput type="number" min="0" step="0.01" (input)="onPriceMinChange($event)" />
             </mat-form-field>
             <span class="ssf-separator">—</span>
             <mat-form-field appearance="outline">
-              <mat-label>Prix max</mat-label>
+              <mat-label>{{ ts.t('menu.priceMax') }}</mat-label>
               <input matInput type="number" min="0" step="0.01" (input)="onPriceMaxChange($event)" />
             </mat-form-field>
           </div>
 
           <mat-form-field class="ssf-sort" appearance="outline">
-            <mat-label>Trier par prix</mat-label>
+            <mat-label>{{ ts.t('menu.sortByPrice') }}</mat-label>
             <mat-select (selectionChange)="onSortChange($event.value)">
-              <mat-option value="none">Trier par prix</mat-option>
-              <mat-option value="asc">Prix croissant</mat-option>
-              <mat-option value="desc">Prix décroissant</mat-option>
+              <mat-option value="none">{{ ts.t('menu.sortByPrice') }}</mat-option>
+              <mat-option value="asc">{{ ts.t('menu.priceAsc') }}</mat-option>
+              <mat-option value="desc">{{ ts.t('menu.priceDesc') }}</mat-option>
             </mat-select>
           </mat-form-field>
         </mat-toolbar>
 
         <div class="mobile-category-select">
           <mat-form-field appearance="outline" class="mobile-cat-field">
-            <mat-label>Catégorie</mat-label>
+            <mat-label>{{ ts.t('menu.category') }}</mat-label>
             <mat-select [value]="activeCategory()" (selectionChange)="onMobileCategoryChange($event.value)">
               @for (cat of categories(); track cat.id) {
                 <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
@@ -93,7 +93,7 @@
         @if (allItems().length === 0) {
           <div class="no-results">
             <mat-icon class="no-results-icon">search_off</mat-icon>
-            <p class="no-results-text">Aucun item trouvé.</p>
+            <p class="no-results-text">{{ ts.t('menu.noResults') }}</p>
           </div>
         } @else {
           @for (group of itemsByCategory(); track group.id) {
@@ -121,7 +121,7 @@
                     </mat-card-content>
                   </mat-card>
                 } @empty {
-                  <p class="no-items">Aucun item dans cette catégorie.</p>
+                  <p class="no-items">{{ ts.t('menu.noItems') }}</p>
                 }
               </div>
             </div>
@@ -136,7 +136,7 @@
           <button mat-icon-button class="cart-sidebar-close" (click)="toggleCart()">
             <mat-icon>close</mat-icon>
           </button>
-          <h2 class="cart-sidebar-title">Votre commande</h2>
+          <h2 class="cart-sidebar-title">{{ ts.t('menu.yourOrder') }}</h2>
         </mat-toolbar>
 
         <div class="cart-sidebar-lines">
@@ -144,19 +144,19 @@
             <mat-card class="cart-line">
               <mat-card-content>
                 <mat-card-title class="cart-line-name">{{ line.name }}</mat-card-title>
-                <mat-card-subtitle class="cart-line-meta">CA${{ line.unit_price.toFixed(2) }} / unit &middot; <span class="cart-line-qty">{{ line.quantity }} portion{{ line.quantity > 1 ? 's' : '' }}</span></mat-card-subtitle>
+                <mat-card-subtitle class="cart-line-meta">CA${{ line.unit_price.toFixed(2) }} {{ ts.t('menu.unit') }} &middot; <span class="cart-line-qty">{{ line.quantity }} {{ line.quantity > 1 ? ts.t('menu.portions') : ts.t('menu.portion') }}</span></mat-card-subtitle>
                 <div class="cart-line-total">
                   <span class="cart-line-total-label">TOTAL</span>
                   <span class="cart-line-total-price">CA${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
                 </div>
                 <mat-card-actions class="cart-line-actions">
-                  <button mat-stroked-button class="btn-cart-edit" (click)="$event.stopPropagation()">Modifier</button>
-                  <button mat-stroked-button color="warn" class="btn-cart-remove" (click)="$event.stopPropagation()">Retirer</button>
+                  <button mat-stroked-button class="btn-cart-edit" (click)="$event.stopPropagation()">{{ ts.t('menu.modify') }}</button>
+                  <button mat-stroked-button color="warn" class="btn-cart-remove" (click)="$event.stopPropagation()">{{ ts.t('menu.remove') }}</button>
                 </mat-card-actions>
               </mat-card-content>
             </mat-card>
           } @empty {
-            <p class="cart-empty">Votre panier est vide.</p>
+            <p class="cart-empty">{{ ts.t('menu.cartEmpty') }}</p>
           }
         </div>
 
@@ -164,10 +164,10 @@
 
         <div class="cart-sidebar-footer">
           <div class="cart-subtotal">
-            <span>Sous-total</span>
+            <span>{{ ts.t('menu.subtotal') }}</span>
             <span class="cart-subtotal-price">CA${{ cartService.subtotal().toFixed(2) }}</span>
           </div>
-          <button mat-flat-button class="btn-continue" [disabled]="cartService.totalItems() === 0" (click)="goToOrder()">Continuer</button>
+          <button mat-flat-button class="btn-continue" [disabled]="cartService.totalItems() === 0" (click)="goToOrder()">{{ ts.t('menu.continue') }}</button>
         </div>
       </aside>
     </div>
@@ -193,17 +193,17 @@
         </mat-card-header>
 
         <div class="modal-price-box">
-          <span class="modal-price-label">À PARTIR DE</span>
+          <span class="modal-price-label">{{ ts.t('menu.fromPrice') }}</span>
           <span class="modal-price">CA${{ selectedItem()!.price.toFixed(2) }}</span>
-          <span class="modal-price-note">Le prix peut varier selon les options.</span>
+          <span class="modal-price-note">{{ ts.t('menu.priceNote') }}</span>
         </div>
 
         <div class="modal-note-section">
           <mat-form-field appearance="outline" class="modal-note-field">
-            <mat-label>Instructions spéciales (optionnel)</mat-label>
+            <mat-label>{{ ts.t('menu.specialInstructions') }}</mat-label>
             <textarea
               matInput
-              placeholder="Ex: Sans oignon, extra sauce, bien cuit..."
+              [placeholder]="ts.t('menu.specialPlaceholder')"
               maxlength="255"
               [value]="modalNote()"
               (input)="onNoteInput($event)"
@@ -225,7 +225,7 @@
           </button>
         </div>
         <button mat-flat-button class="modal-add-btn" (click)="addToCart()">
-          Ajouter au panier — CA${{ modalTotal().toFixed(2) }}
+          {{ ts.t('menu.addToCart') }} — CA${{ modalTotal().toFixed(2) }}
         </button>
       </mat-card-actions>
     </mat-card>

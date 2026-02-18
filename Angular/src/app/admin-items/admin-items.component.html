@@ -2,12 +2,12 @@
   <div class="outer-container">
     <div class="welcome-header">
       <h2 class="welcome-title">
-        Gestion des items
-        <button mat-mini-fab class="btn-add" title="Ajouter un item" (click)="openCreate()">
+        {{ ts.t('admin.itemsTitle') }}
+        <button mat-mini-fab class="btn-add" [title]="ts.t('admin.addItem')" (click)="openCreate()">
           <mat-icon>add</mat-icon>
         </button>
       </h2>
-      <p class="welcome-text">Consultez les plats et boissons du restaurant.</p>
+      <p class="welcome-text">{{ ts.t('admin.itemsSubtitle') }}</p>
     </div>
 
     @if (isLoading()) {
@@ -17,7 +17,7 @@
     }
 
     @if (!isLoading() && items().length === 0) {
-      <div class="empty">Aucun item.</div>
+      <div class="empty">{{ ts.t('admin.noItems') }}</div>
     }
 
     @if (!isLoading() && items().length > 0) {
@@ -38,10 +38,10 @@
               <span class="item-price">{{ item.price | number:'1.2-2' }} $</span>
             </mat-card-content>
             <mat-card-actions class="item-actions">
-              <button mat-icon-button class="action-btn edit" title="Modifier" (click)="openEdit(item)">
+              <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(item)">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button class="action-btn delete" title="Supprimer" (click)="confirmDelete(item)">
+              <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(item)">
                 <mat-icon>delete</mat-icon>
               </button>
             </mat-card-actions>
@@ -60,14 +60,14 @@
         <mat-icon>close</mat-icon>
       </button>
       <mat-card-header>
-        <mat-card-title class="modal-title">Supprimer l'item</mat-card-title>
+        <mat-card-title class="modal-title">{{ ts.t('admin.deleteItem') }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <p class="modal-text">Voulez-vous vraiment supprimer <strong>{{ itemToDelete()!.name }}</strong> ?</p>
+        <p class="modal-text">{{ ts.t('admin.deleteConfirm') }} <strong>{{ itemToDelete()!.name }}</strong> ?</p>
       </mat-card-content>
       <mat-card-actions class="modal-actions">
-        <button mat-stroked-button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
-        <button mat-flat-button class="btn-danger" (click)="deleteItem()">Supprimer</button>
+        <button mat-stroked-button class="btn-cancel" (click)="cancelDelete()">{{ ts.t('admin.cancel') }}</button>
+        <button mat-flat-button class="btn-danger" (click)="deleteItem()">{{ ts.t('admin.delete') }}</button>
       </mat-card-actions>
     </mat-card>
   </div>
@@ -81,7 +81,7 @@
         <mat-icon>close</mat-icon>
       </button>
       <mat-card-header>
-        <mat-card-title class="modal-title">{{ isCreating() ? 'Ajouter un item' : 'Modifier l\'item' }}</mat-card-title>
+        <mat-card-title class="modal-title">{{ isCreating() ? ts.t('admin.addItem') : ts.t('admin.editItem') }}</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
@@ -91,65 +91,65 @@
 
         <form [formGroup]="editForm" (ngSubmit)="isCreating() ? saveCreate() : saveEdit()">
           <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>Nom</mat-label>
+            <mat-label>{{ ts.t('admin.name') }}</mat-label>
             <input matInput formControlName="name" />
             @if (editForm.controls.name.dirty && editForm.controls.name.errors) {
               <mat-error>
                 @if (editForm.controls.name.errors['required']) {
-                  Le nom est requis.
+                  {{ ts.t('admin.nameRequired') }}
                 } @else if (editForm.controls.name.errors['maxlength']) {
-                  Le nom ne doit pas dépasser 100 caractères.
+                  {{ ts.t('admin.nameMaxLength') }}
                 } @else if (editForm.controls.name.errors['whitespace']) {
-                  Le nom ne peut pas être composé uniquement d'espaces.
+                  {{ ts.t('admin.nameWhitespace') }}
                 }
               </mat-error>
             }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>Description</mat-label>
+            <mat-label>{{ ts.t('admin.description') }}</mat-label>
             <textarea matInput formControlName="description" rows="3"></textarea>
             @if (editForm.controls.description.dirty && editForm.controls.description.errors) {
               <mat-error>
                 @if (editForm.controls.description.errors['maxlength']) {
-                  La description ne doit pas dépasser 255 caractères.
+                  {{ ts.t('admin.descMaxLength') }}
                 } @else if (editForm.controls.description.errors['whitespace']) {
-                  La description ne peut pas être composée uniquement d'espaces.
+                  {{ ts.t('admin.descWhitespace') }}
                 }
               </mat-error>
             }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>Prix ($)</mat-label>
+            <mat-label>{{ ts.t('admin.price') }}</mat-label>
             <input matInput type="number" formControlName="price" step="0.01" />
             @if (editForm.controls.price.dirty && editForm.controls.price.errors) {
               <mat-error>
                 @if (editForm.controls.price.errors['required']) {
-                  Le prix est requis.
+                  {{ ts.t('admin.priceRequired') }}
                 } @else if (editForm.controls.price.errors['min']) {
-                  Le prix doit être supérieur ou égal à 0.
+                  {{ ts.t('admin.priceMin') }}
                 } @else if (editForm.controls.price.errors['max']) {
-                  Le prix ne doit pas dépasser 9999.99 $.
+                  {{ ts.t('admin.priceMax') }}
                 }
               </mat-error>
             }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>Catégorie</mat-label>
+            <mat-label>{{ ts.t('admin.category') }}</mat-label>
             <mat-select formControlName="category_id">
               @for (cat of categories(); track cat.id) {
                 <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
               }
             </mat-select>
             @if (editForm.controls.category_id.dirty && editForm.controls.category_id.errors) {
-              <mat-error>La catégorie est requise.</mat-error>
+              <mat-error>{{ ts.t('admin.categoryRequired') }}</mat-error>
             }
           </mat-form-field>
 
           <div class="modal-field">
-            <label class="file-label">Image</label>
+            <label class="file-label">{{ ts.t('admin.image') }}</label>
             @if (editImagePreview()) {
               <div class="image-preview">
                 <img [src]="editImagePreview()" alt="Aperçu" />
@@ -162,9 +162,9 @@
           </div>
 
           <mat-card-actions class="modal-actions">
-            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEdit()">Annuler</button>
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEdit()">{{ ts.t('admin.cancel') }}</button>
             <button mat-flat-button type="submit" class="btn-primary" [disabled]="editLoading() || editForm.invalid">
-              {{ editLoading() ? 'Enregistrement...' : (isCreating() ? 'Ajouter' : 'Enregistrer') }}
+              {{ editLoading() ? ts.t('admin.saving') : (isCreating() ? ts.t('admin.add') : ts.t('admin.save')) }}
             </button>
           </mat-card-actions>
         </form>

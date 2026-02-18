@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { TranslationService, Lang } from '../services/translation.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -16,4 +18,10 @@ export class HeaderComponent {
   @Input() showLogin = false;
   @Output() logoutClick = new EventEmitter<void>();
   @Output() loginClick = new EventEmitter<void>();
+
+  constructor(public ts: TranslationService) {}
+
+  setLang(lang: Lang): void {
+    this.ts.setLang(lang);
+  }
 }

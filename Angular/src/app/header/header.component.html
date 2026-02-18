@@ -2,16 +2,29 @@
   <span class="brand">RestoQR</span>
   <span class="spacer"></span>
   <div class="header-actions">
+    <button mat-button class="lang-btn" [matMenuTriggerFor]="langMenu">
+      <mat-icon>language</mat-icon>
+      {{ ts.lang() === 'fr' ? 'FR' : 'EN' }}
+    </button>
+    <mat-menu #langMenu="matMenu">
+      <button mat-menu-item (click)="setLang('fr')" [class.active-lang]="ts.lang() === 'fr'">
+        Français
+      </button>
+      <button mat-menu-item (click)="setLang('en')" [class.active-lang]="ts.lang() === 'en'">
+        English
+      </button>
+    </mat-menu>
+
     @if (showLogout) {
       <button mat-button class="logout-btn" (click)="logoutClick.emit()">
         <mat-icon>logout</mat-icon>
-        Déconnexion
+        {{ ts.t('header.logout') }}
       </button>
     }
     @if (showLogin) {
       <button mat-button class="logout-btn" (click)="loginClick.emit()">
         <mat-icon>login</mat-icon>
-        Connexion
+        {{ ts.t('header.login') }}
       </button>
     }
     <ng-content />
