@@ -1,0 +1,327 @@
+================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+                              Page : Menu (menu)
+================================================================================
+
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca   / password123
+  - Client   : client@restoqr.ca  / password123
+
+================================================================================
+MODULE 1 — Header
+================================================================================
+
+1.1  Bouton Connexion (utilisateur non connecté)
+     - Ouvrir la page /menu sans être connecté
+     - Le bouton « Connexion » est visible
+     - Clic sur « Connexion » : Redirection vers /login
+
+1.2  Bouton Déconnexion (utilisateur connecté)
+     Avec client@restoqr.ca : password123
+     - Se connecter, accéder à /menu
+     - Le bouton « Déconnexion » est visible
+     - Clic sur « Déconnexion » : Redirection vers /login, session terminée
+
+1.3  Changement de langue
+     - Clic sur le bouton « FR » dans le header
+     - Un menu déroulant apparaît avec « Français » et « English »
+     - Clic sur « English » : L'interface passe en anglais (labels, boutons, textes)
+     - Le bouton affiche maintenant « EN »
+     - Clic sur « EN » puis « Français » : L'interface revient en français
+     - Rafraîchir la page : La langue choisie est conservée (localStorage)
+
+
+================================================================================
+MODULE 2 — Navigation par catégories
+================================================================================
+
+2.1  Sidebar desktop (écran large >= 900px)
+     - Les catégories sont listées dans la sidebar de gauche
+     - La première catégorie est active par défaut (style surligné)
+     - Clic sur une autre catégorie : La page scrolle vers la section correspondante
+     - La catégorie cliquée devient active (style surligné)
+
+2.2  Dropdown mobile (écran < 900px)
+     - Réduire la fenêtre sous 900px de largeur
+     - La sidebar disparaît, un dropdown de catégories apparaît
+     - Le dropdown affiche la catégorie active
+     - Sélectionner une autre catégorie : La page scrolle vers la section correspondante
+
+================================================================================
+MODULE 3 — Recherche, tri et filtres (SSF)
+================================================================================
+
+3.1  Recherche par nom
+     - Taper un nom d'item existant dans la barre de recherche (ex: « Burger »)
+     - Après ~300ms, seuls les items correspondants s'affichent
+     - Effacer la recherche : Tous les items réapparaissent
+
+3.2  Recherche sans résultat
+     - Taper un texte qui ne correspond à aucun item (ex: « xyzzzz »)
+     - Le message « Aucun résultat trouvé » apparaît avec l'icône search_off
+
+3.3  Tri par prix ascendant
+     - Dans le dropdown « Trier par prix », sélectionner « Prix croissant »
+     - Les items sont réordonnés du moins cher au plus cher
+
+3.4  Tri par prix descendant
+     - Sélectionner « Prix décroissant »
+     - Les items sont réordonnés du plus cher au moins cher
+
+3.5  Filtre prix minimum
+     - Entrer une valeur dans le champ « Prix min » (ex: 10)
+     - Seuls les items avec un prix >= 10 s'affichent
+     - Entrer une valeur qui ne correspond à aucunu item (ex: 99999) : Aucun item ne s'affiche,
+       message « Aucun résultat trouvé »
+
+3.6  Filtre prix maximum
+     - Entrer une valeur dans le champ « Prix max » (ex: 15)
+     - Seuls les items avec un prix <= 15 s'affichent
+     - Entrer une valeur qui ne correspond à aucunu item : Aucun item ne s'affiche,
+       message « Aucun résultat trouvé »
+
+3.7  Combinaison de filtres
+     - Entrer prix min = 5, prix max = 20, et taper un terme de recherche
+     - Seuls les items correspondant aux 3 critères s'affichent
+     - Ajouter un tri par prix croissant : Les résultats filtrés sont triés
+
+================================================================================
+MODULE 4 — Affichage du menu
+================================================================================
+
+4.1  Chargement initial
+     - Accéder à /menu
+     - Un spinner de chargement (mat-spinner) s'affiche pendant le chargement
+     - Une fois chargé, le spinner disparaît et les items s'affichent
+
+4.2  Affichage des items par catégorie
+     - Les items sont regroupés par catégorie avec un titre de section (h1)
+     - Chaque carte affiche : nom, description, prix (CA$X.XX) et image
+     - Un bouton « + » est visible sur chaque carte
+
+4.3  Erreur de chargement
+     - Si le serveur est inaccessible, un message d'erreur s'affiche dans un bandeau
+
+================================================================================
+MODULE 5 — Modal d'item
+================================================================================
+
+5.1  Ouverture de la modal
+     - Clic sur une carte d'item : La modal s'ouvre
+     - La modal affiche : image, nom, description, prix
+
+5.2  Quantité — Incrémenter
+     - La quantité par défaut est 1
+     - Clic sur le bouton « + » : La quantité passe à 2
+     - Le total se met à jour (prix × quantité)
+     - Avec une quantité de 50, le bouton « + » est désactivé (grisé)
+
+5.3  Quantité — Décrémenter
+     - Avec une quantité de 2, clic sur « - » : La quantité passe à 1
+     - Avec une quantité de 1, le bouton « - » est désactivé (grisé)
+
+5.4  Note spéciale
+     - Taper un texte dans le champ « Instructions spéciales » (ex: « Sans oignon »)
+     - Le compteur de caractères s'affiche (ex: 11/255)
+     - Maximum 255 caractères autorisés
+
+5.5  Ajouter au panier
+     - Sélectionner quantité = 2 et ajouter une note
+     - Clic sur « Ajouter au panier — CA$XX.XX »
+     - La modal se ferme
+     - Le badge du panier dans le header se met à jour (+2)
+     - Le sous-total du header se met à jour
+
+5.6  Fermeture de la modal — Bouton X
+     - Clic sur le bouton « X » en haut à droite : La modal se ferme
+     - Aucun item n'est ajouté au panier
+
+5.7  Fermeture de la modal — Clic overlay
+     - Clic sur la zone grisée derrière la modal : La modal se ferme
+     - Aucun item n'est ajouté au panier
+
+
+================================================================================
+================================================================================
+                    Page : Administration des items (admin-items)
+================================================================================
+
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca   / password123
+  - Client   : client@restoqr.ca  / password123
+  - Serveur  : waiter@restoqr.ca  / password123
+
+================================================================================
+MODULE 6 — Accès à la page admin
+================================================================================
+
+6.1  Accès sans être connecté
+     - Ouvrir directement l'URL /admin dans le navigateur sans être connecté
+     - Redirection automatique vers /login
+
+6.2  Accès avec un compte client
+     Avec client@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+6.3  Accès avec un compte serveur
+     Avec waiter@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+6.4  Accès avec un compte admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - La page d'administration s'affiche correctement
+
+================================================================================
+MODULE 7 — Affichage de la liste des items
+================================================================================
+
+7.1  Chargement initial
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/items
+     - Un spinner de chargement s'affiche pendant le chargement
+     - Une fois chargé, les items s'affichent en grille, trié par catégorie
+
+7.2  Affichage des cartes
+     - Chaque carte affiche : image, nom, description,
+       catégorie, prix (X.XX $)
+     - Chaque carte a un bouton « modifier » (icône edit) et « supprimer »
+       (icône delete)
+
+7.3  État vide
+     - Si aucun item n'existe, le message « Aucun item trouvé » s'affiche
+
+================================================================================
+MODULE 8 — Création d'un item
+================================================================================
+
+8.1  Ouverture de la modal de création
+     Avec admin@restoqr.ca : password123
+     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
+     - Le titre de la modal est « Ajouter un item »
+     - Les champs sont vides (nom, description, prix à 0, catégorie par défaut)
+
+8.2  Validation — Nom requis
+     - Laisser le champ « Nom » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le nom est requis »
+
+8.3  Validation — Nom trop long
+     - Entrer un nom de plus de 100 caractères
+     - Message d'erreur : « Maximum 100 caractères »
+
+8.4  Validation — Nom espaces seulement
+     - Entrer uniquement des espaces dans le champ « Nom »
+     - Message d'erreur : « Ne peut pas contenir uniquement des espaces »
+
+8.5  Validation — Description trop longue
+     - Entrer une description de plus de 255 caractères
+     - Message d'erreur : « Maximum 255 caractères »
+
+8.6  Validation — Prix requis
+     - Vider le champ « Prix » et cliquer sur « Ajouter »
+     - Message d'erreur : « Le prix est requis »
+
+8.7  Validation — Prix négatif
+     - Entrer un prix négatif (ex: -5)
+     - Message d'erreur : « Le prix doit être >= 0 »
+
+8.8  Validation — Prix trop élevé
+     - Entrer un prix supérieur à 9999.99
+     - Message d'erreur : « Le prix doit être <= 9999.99 »
+
+8.9  Validation — Image format invalide
+     - Sélectionner un fichier non JPG/PNG (ex: .gif, .pdf)
+     - Message d'erreur : « L'image doit être un fichier JPG ou PNG. »
+
+8.10 Validation — Image trop lourde
+     - Sélectionner une image de plus de 5 MB
+     - Message d'erreur : « L'image doit être inférieure à 5 MB. »
+
+8.11 Création réussie
+     - Remplir tous les champs avec des valeurs valides (nom, description,
+       prix, catégorie) et sélectionner une image JPG/PNG valide
+     - Clic sur « Ajouter »
+     - La modal se ferme
+     - Le nouvel item apparaît dans la liste
+
+8.12 Annulation
+     - Remplir des champs puis cliquer sur « Annuler »
+     - La modal se ferme, aucun item n'est créé
+
+================================================================================
+MODULE 9 — Modification d'un item
+================================================================================
+
+9.1  Ouverture de la modal de modification
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « edit » d'un item existant
+     - La modal s'ouvre avec le titre « Modifier l'item »
+     - Les champs sont pré-remplis (nom, description, prix, catégorie)
+     - L'aperçu de l'image existante est affiché
+
+9.2  Validations
+     - Mêmes validations que la création (8.2 à 8.10)
+
+9.3  Modification réussie
+     - Modifier le nom et/ou le prix d'un item existant
+     - Clic sur « Enregistrer »
+     - La modal se ferme
+     - L'item mis à jour s'affiche dans la liste avec les nouvelles valeurs
+
+9.4  Remplacement d'image
+     - Ouvrir la modification d'un item avec une image existante
+     - Sélectionner une nouvelle image JPG/PNG valide
+     - L'aperçu se met à jour avec la nouvelle image
+     - Clic sur « Enregistrer » : L'image est remplacée
+
+9.5  Annulation
+     - Modifier des champs puis cliquer sur « Annuler »
+     - La modal se ferme, l'item n'est pas modifié
+
+================================================================================
+MODULE 10 — Suppression d'un item
+================================================================================
+
+10.1 Ouverture de la modal de confirmation
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « delete » d'un item
+     - Une modal de confirmation s'ouvre
+     - Le message affiche le nom de l'item à supprimer
+
+10.2 Annulation de la suppression
+     - Clic sur « Annuler » : La modal se ferme, l'item est toujours dans la liste
+
+10.3 Fermeture par le bouton X
+     - Clic sur le bouton « X » : La modal se ferme, l'item est toujours dans la liste
+
+10.4 Confirmation de la suppression
+     - Clic sur « Supprimer »
+     - La modal se ferme
+     - L'item disparaît de la liste et de la page du menu
+
+================================================================================
+MODULE 11 — Traduction (admin-items)
+================================================================================
+
+11.1 Traduction en anglais
+     Avec admin@restoqr.ca : password123
+     - Changer la langue à « English » via le header
+     - Le titre passe à « Items Management »
+     - Les boutons passent en anglais (Add, Save, Cancel, Delete)
+     - Les labels des champs passent en anglais (Name, Description, Price,
+       Category, Image)
+     - Les messages de validation passent en anglais
+     - Les messages de confirmation de suppression passent en anglais
+
+11.2 Traduction en français
+     - Changer la langue à « Français » via le header
+     - Tous les textes reviennent en français
+
+11.3 Persistance de la langue
+     - Changer la langue à « English »
+     - Rafraîchir la page
+     - L'interface reste en anglais
+
+================================================================================

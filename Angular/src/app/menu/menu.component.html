@@ -220,7 +220,7 @@
             <mat-icon>remove</mat-icon>
           </button>
           <span class="qty-value">{{ modalQuantity() }}</span>
-          <button mat-icon-button class="qty-btn" (click)="incrementQuantity()">
+          <button mat-icon-button class="qty-btn" (click)="incrementQuantity()" [disabled]="modalQuantity() >= 50">
             <mat-icon>add</mat-icon>
           </button>
         </div>

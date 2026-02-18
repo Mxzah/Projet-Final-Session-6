@@ -182,7 +182,9 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   incrementQuantity(): void {
-    this.modalQuantity.set(this.modalQuantity() + 1);
+    if (this.modalQuantity() < 50) {
+      this.modalQuantity.set(this.modalQuantity() + 1);
+    }
   }
 
   onNoteInput(event: Event): void {
