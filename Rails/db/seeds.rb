@@ -273,6 +273,7 @@ OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', ordera
   l.quantity   = 2
   l.unit_price = tartare.price
   l.status     = 'sent'
+  l.note       = 'Sans câpres'
 end
 
 OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', orderable_id: risotto.id) do |l|
@@ -283,12 +284,14 @@ end
 
 puts "- Order ##{order1.id} (Table #{table3.number}, #{marie.first_name})"
 
-# Order 2 — client2, table 5, server jean, vibe Date
+# Order 2 — client2, table 5, server jean, vibe Date + note + tip
 order2 = Order.find_or_create_by!(client_id: client2.id, ended_at: nil) do |o|
-  o.table    = table5
+  o.table     = table5
   o.nb_people = 2
-  o.server   = jean
-  o.vibe     = vibes['Date']
+  o.server    = jean
+  o.vibe      = vibes['Date']
+  o.note      = 'gros date '
+  o.tip       = 15.00
 end
 order2.update!(vibe: vibes['Date']) if order2.vibe.nil?
 
@@ -296,6 +299,7 @@ OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', ordera
   l.quantity   = 1
   l.unit_price = filet.price
   l.status     = 'ready'
+  l.note       = 'Saignant, sans sauce'
 end
 
 OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', orderable_id: fondant.id) do |l|
@@ -304,13 +308,14 @@ OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', ordera
   l.status     = 'sent'
 end
 
-puts "- Order ##{order2.id} (Table #{table5.number}, #{jean.first_name})"
+puts "- Order ##{order2.id} (Table #{table5.number}, #{jean.first_name}, tip: $15.00)"
 
-# Order 3 — client3, table 7, no server, vibe Mort
+# Order 3 — client3, table 7, no server, vibe Mort + tip
 order3 = Order.find_or_create_by!(client_id: client3.id, ended_at: nil) do |o|
-  o.table    = table7
+  o.table     = table7
   o.nb_people = 4
-  o.vibe     = vibes['Mort']
+  o.vibe      = vibes['Mort']
+  o.tip       = 5.50
 end
 order3.update!(vibe: vibes['Mort']) if order3.vibe.nil?
 
@@ -318,6 +323,7 @@ OrderLine.find_or_create_by!(order_id: order3.id, orderable_type: 'Item', ordera
   l.quantity   = 3
   l.unit_price = petoncle.price
   l.status     = 'in_preparation'
+  l.note       = 'Sans sel'
 end
 
 OrderLine.find_or_create_by!(order_id: order3.id, orderable_type: 'Item', orderable_id: brulee.id) do |l|
@@ -326,6 +332,6 @@ OrderLine.find_or_create_by!(order_id: order3.id, orderable_type: 'Item', ordera
   l.status     = 'sent'
 end
 
-puts "- Order ##{order3.id} (Table #{table7.number}, no server)"
+puts "- Order ##{order3.id} (Table #{table7.number}, no server, tip: $5.50)"
 
 puts "\nAll seeds created!"

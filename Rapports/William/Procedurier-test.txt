@@ -1,0 +1,272 @@
+================================================================================
+                       PROCÉDURIER DE TESTS — RestoQR
+                  Pages : /menu (panier) · /order · /cuisine
+================================================================================
+
+Identifiants utilisés :
+  - Client   : client@restoqr.ca  / password123
+  - Cuisine  : cuisine@restoqr.ca / password123
+
+================================================================================
+MODULE 1 — Panier dans /menu (cart.service)
+================================================================================
+
+1.1  Ajout d'un item au panier
+     Avec client@restoqr.ca : password123
+     - Se connecter et accéder à /menu
+     - Cliquer sur un item (ex: « Tartare de Saumon »)
+     - La modal s'ouvre avec quantité = 1 par défaut
+     - Cliquer sur « Ajouter au panier »
+     - Le badge du panier dans le header se met à jour (+1)
+     - Le sous-total dans le panneau de droite affiche le bon montant
+
+
+1.4  Bouton Continuer
+     - Avec au moins 1 item dans le panier
+     - Cliquer sur « Continuer »
+     - Redirection vers /order
+
+1.5  Bouton Continuer désactivé si panier vide
+     - Panier vide
+     - Le bouton « Continuer » n'est pas visible ou est désactivé
+
+
+================================================================================
+MODULE 2 — Page /order — État vide
+================================================================================
+
+2.1  Page vide sans article dans le panier
+     Avec client@restoqr.ca : password123
+     - Accéder à /order sans avoir ajouté d'item au panier
+     - Un message « Aucune commande en cours. » s'affiche
+     - Un bouton « Ajouter + » est visible
+     - Clic sur « Ajouter + » : Redirection vers /menu
+
+2.2  Page avec des lignes de commande déjà envoyées (commande existante)
+     Avec client@restoqr.ca : password123
+     - Une commande est déjà ouverte sur le serveur avec des lignes envoyées
+     - Accéder à /order (sans items dans le panier local)
+     - La page affiche les lignes déjà enregistrées en base :
+       · Chaque ligne affiche : nom du plat, quantité × prix, total
+       · Un badge de statut s'affiche selon l'avancement :
+         « Envoyée », « En préparation », « Prête » ou « Servie »
+       · Si une ligne a une note, elle s'affiche sous le nom du plat
+     - Le sous-total reflète le total des lignes existantes
+     - La section « Détails » est en lecture seule (pas de formulaire)
+     - Le bouton « Envoyer » est désactivé (aucun nouvel item à envoyer)
+     - Le bouton « Ajouter + » permet d'aller ajouter de nouveaux items
+
+
+================================================================================
+MODULE 3 — Page /order — Affichage d'une nouvelle commande
+================================================================================
+
+3.1  En-tête de la commande
+     Avec client@restoqr.ca : password123
+     - Ajouter un item au panier et accéder à /order
+     - Le titre « Votre commande » est visible
+     - Le nom du serveur assigné à la table est affiché
+       (ex : « Serveur : Marie Dupont »)
+     - Le badge d'ambiance est visible à côté du serveur
+       (affiche « pas implémenté » si aucun vibe assigné)
+     - Un bouton « Ajouter + » est visible en haut à droite
+
+3.2  Lignes de commande
+     - Chaque item du panier apparaît comme une carte
+     - La carte affiche : nom de l'item, quantité × prix unitaire, total
+     - L'image de l'item est affichée si disponible
+     - Un badge « En attente de l'envoi » est affiché (couleur distincte)
+     - Si l'item a une note spéciale, elle apparaît avec une icône 📝
+
+3.3  Note de ligne (instruction spéciale)
+     - Ajouter un item avec une note (ex : « Sans oignon »)
+     - Dans /order, la note s'affiche sous le nom de l'item
+      
+
+3.4  Sous-total
+     - Sous le tableau des lignes, le sous-total est affiché
+     - Format : « Sous-total (N article(s)) CA$XX.XX »
+     - Le total est la somme correcte de toutes les lignes
+
+3.5  Boutons Modifier / Supprimer sur les lignes
+     - Chaque ligne affiche deux boutons : « Modifier » et « Supprimer »
+     - Ces boutons sont visibles mais non fonctionnels pour l'instant
+
+
+================================================================================
+MODULE 4 — Page /order — Section Détails (nouvelle commande)
+================================================================================
+
+4.1  Affichage du formulaire Détails
+     - Accéder à /order sans commande ouverte sur le serveur
+     - La section « Détails » affiche un formulaire avec :
+       · Un champ texte « Note générale (optionnelle) »
+       · Un champ nombre « Pourboire (CA$) »
+
+4.2  Validation — Note uniquement composée d'espaces
+     - Entrer uniquement des espaces dans le champ « Note générale »
+     - Message d'erreur : « La note ne peut pas être composée
+       uniquement d'espaces. »
+     - Le bouton « Envoyer » devient désactivé (grisé)
+
+4.3  Validation — Note trop longue
+     - Le champ « Note générale » est limité à 255 caractères
+       (attribut maxlength)
+     - Un compteur « N / 255 » s'affiche en bas à droite du champ
+
+4.4  Validation — Pourboire négatif
+     - Entrer -1 dans le champ « Pourboire »
+     - Message d'erreur : « Le pourboire ne peut pas être négatif. »
+     - Le bouton « Envoyer » devient désactivé
+
+4.5  Validation — Pourboire trop élevé
+     - Entrer 1000 dans le champ « Pourboire »
+     - Message d'erreur : « Le pourboire ne peut pas dépasser 999,99 CA$. »
+     - Le bouton « Envoyer » devient désactivé
+
+4.6  Envoi de la commande
+     - Remplir une note valide (ex : « Table anniversaire »)
+       et un pourboire valide (ex : 5)
+     - Cliquer sur « Envoyer »
+     - Les lignes « En attente de l'envoi » deviennent « Envoyée »
+     - La section Détails passe en mode lecture seule (plus de formulaire)
+
+4.7  Bouton Envoyer désactivé si panier vide
+     - Si aucune ligne n'est « En attente de l'envoi »
+     - Le bouton « Envoyer » est désactivé (grisé)
+
+
+================================================================================
+MODULE 5 — Page /order — Section Détails (commande existante)
+================================================================================
+
+5.1  Affichage en lecture seule
+     - Une commande est déjà ouverte sur le serveur (avec note et pourboire)
+     - La section « Détails » affiche les valeurs en lecture seule :
+       · Note 
+       · Pourboire avec icône payments (ex : « Pourboire : CA$5.00 »)
+     - Aucun formulaire n'est affiché
+
+5.2  Aucun détail
+     - Commande ouverte sans note ni pourboire
+     - Le message « Aucun détail ajouté. » s'affiche
+
+5.3  Vibe existant
+     - Si la commande a un vibe assigné (ex : « Date »)
+     - Le badge de vibe dans l'en-tête affiche le nom avec sa couleur
+       à côté du nom du serveur
+
+
+================================================================================
+MODULE 6 — Page /cuisine — Affichage général
+================================================================================
+
+6.1  Accès sans être connecté
+     - Accéder à /cuisine sans être connecté
+     - Redirection automatique vers /login
+
+6.2  Accès avec un compte sans rôle cuisine
+     Avec client@restoqr.ca : password123
+     - Accéder à /cuisine
+     - Redirection automatique vers /menu
+
+6.3  Accès avec un compte cuisine
+     Avec cuisine@restoqr.ca : password123
+     - Accéder à /cuisine
+     - Le tableau de bord s'affiche avec le titre « Cuisine »
+       et le sous-titre « Commandes actives en temps réel »
+
+6.4  État vide
+     - Aucune commande active en base
+     - Le message « Aucune commande active » s'affiche avec
+       l'icône restaurant
+
+
+
+
+================================================================================
+MODULE 7 — Page /cuisine — Cartes de commande
+================================================================================
+
+7.1  En-tête de la carte
+     Avec cuisine@restoqr.ca : password123
+     - Une commande active existe (Table 3, 3 personnes)
+     - La carte affiche : badge « Table 3 » et « 3 personne(s) »
+     - Le nom du serveur est affiché (ex : « Marie Dupont »)
+     - Si un vibe est assigné, le badge s'affiche à côté du serveur
+       avec sa couleur (ex : « ✦ Date » en rose)
+
+7.2  Note générale de la commande
+     - Si la commande a une note (ex : « Allergie aux arachides »)
+     - La note s'affiche sous l'en-tête 
+       en couleur cuivre
+
+7.3  Pourboire
+     - Si la commande a un pourboire > 0
+     - Une section verte s'affiche : « Pourboire : CA$5.00 »
+
+7.4  Lignes de commande
+     - La section « Lignes de commande » liste chaque plat
+     - Chaque ligne affiche : nom du plat, quantité (x2), statut
+     - Les statuts affichés : Envoyée, En préparation, Prête, Servie
+       (chacun avec une couleur distincte)
+
+7.5  Note de ligne
+     - Si une ligne a une note (ex : « Sans sel »)
+     - La note s'affiche sous le nom du plat sur une nouvelle ligne
+        
+
+7.6  Boutons Modifier / Supprimer
+     - Chaque carte a deux boutons en bas : « Modifier » et « Supprimer »
+     - Ces boutons sont visibles mais non fonctionnels pour l'instant
+
+
+================================================================================
+MODULE 8 — Traduction (/order et /cuisine)
+================================================================================
+
+8.1  Traduction en anglais — Header
+     - Sur n'importe quelle page, changer la langue à « English »
+     - Les textes du header passent en anglais :
+       · « Déconnexion » → « Logout »
+       · « Connexion » → « Login »
+     - Le bouton de langue affiche maintenant « EN »
+     - Retour en français : clic sur « EN » puis « Français »
+       les textes reviennent en français
+
+8.2  Traduction en anglais — /order
+     Avec client@restoqr.ca : password123
+     - Accéder à /order avec des items dans le panier
+     - Changer la langue à « English » via le header
+     - Les textes passent en anglais :
+       · « Votre commande » → « Your order »
+       · « Lignes de commande » → « Order lines »
+       · « En attente de l'envoi » → « Pending »
+       · « Sous-total » → « Subtotal »
+       · « Détails » → « Details »
+       · « Note générale (optionnelle) » → « General note (optional) »
+       · « Pourboire (CA$) » → « Tip (CA$) »
+       · « Envoyer » → « Send »
+
+8.3  Traduction en anglais — /cuisine
+     Avec cuisine@restoqr.ca : password123
+     - Accéder à /cuisine
+     - Changer la langue à « English » via le header
+     - Les textes passent en anglais :
+       · « Tableau de bord » → « Dashboard »
+       · « Cuisine » → « Kitchen »
+       · « Commandes actives en temps réel » → « Active orders in real time »
+       · « personne(s) » → « person(s) »
+       · « Aucun serveur assigné » → « No server assigned »
+       · Statuts : « Envoyée » → « Sent », « En préparation » → « In preparation »
+
+8.4  Retour en français
+     - Cliquer sur « Français » dans le header
+     - Tous les textes reviennent en français
+
+8.5  Persistance de la langue
+     - Changer la langue à « English »
+     - Rafraîchir la page
+     - L'interface reste en anglais
+
+================================================================================
