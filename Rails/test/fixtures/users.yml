@@ -10,6 +10,16 @@ valid_user:
   created_at: <%= Time.current %>
   updated_at: <%= Time.current %>
 
+admin_user:
+  email: admin@restoqr.ca
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  first_name: Admin
+  last_name: RestoQR
+  type: Administrator
+  status: active
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
 inactive_user:
   email: inactive@restoqr.ca
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>

@@ -15,6 +15,7 @@ class Item < ApplicationRecord
   validates :price, presence: true,
                     numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 9999.99 }
   validate :image_presence
+  validate :deleted_at_must_be_now
   validates :image, content_type: { in: %w[image/jpeg image/png], message: "doit être un fichier JPG ou PNG" },
                     size: { less_than: 5.megabytes, message: "doit être inférieur à 5 MB" }, if: :image_attached?
 
@@ -32,5 +33,14 @@ class Item < ApplicationRecord
 
   def image_attached?
     image.attached?
+  end
+
+  def deleted_at_must_be_now
+    return if deleted_at.nil?
+    return unless deleted_at_changed?
+
+    if (deleted_at - Time.current).abs > 5.seconds
+      errors.add(:deleted_at, "doit être l'heure actuelle")
+    end
   end
 end

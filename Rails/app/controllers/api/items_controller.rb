@@ -1,6 +1,7 @@
 module Api
   class ItemsController < ApplicationController
     before_action :authenticate_user!, except: [:index]
+    before_action :require_admin!, only: [:create, :update, :destroy]
     before_action :set_item, only: [:show, :update, :destroy]
 
     # GET /api/items?search=…&sort=asc|desc&price_min=…&price_max=…
@@ -61,7 +62,7 @@ module Api
           success: false,
           data: nil,
           errors: item.errors.full_messages
-        }, status: :unprocessable_entity
+        }, status: :ok
       end
     end
 
@@ -78,7 +79,7 @@ module Api
           success: false,
           data: nil,
           errors: @item.errors.full_messages
-        }, status: :unprocessable_entity
+        }, status: :ok
       end
     end
 
@@ -103,7 +104,17 @@ module Api
         success: false,
         data: nil,
         errors: ["Item introuvable"]
-      }, status: :not_found
+      }, status: :ok
+    end
+
+    def require_admin!
+      return if current_user&.type == "Administrator"
+
+      render json: {
+        success: false,
+        data: nil,
+        errors: ["Accès réservé aux administrateurs"]
+      }, status: :ok
     end
 
     def item_params

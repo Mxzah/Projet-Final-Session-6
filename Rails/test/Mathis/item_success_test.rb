@@ -2,7 +2,7 @@ require "test_helper"
 
 class ItemSuccessTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:valid_user)
+    @user = users(:admin_user)
     @category = categories(:entrees)
     @category2 = categories(:plats)
 
