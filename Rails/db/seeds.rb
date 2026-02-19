@@ -67,11 +67,20 @@ Client.find_or_create_by!(email: 'bob@restoqr.ca') do |user|
   user.status = 'active'
 end
 
+Client.find_or_create_by!(email: 'demo@restoqr.ca') do |user|
+  user.first_name = 'Demo'
+  user.last_name = 'Client'
+  user.password = 'password123'
+  user.password_confirmation = 'password123'
+  user.status = 'active'
+end
+
 puts "Users created!"
 puts "- Administrator: admin@restoqr.ca"
 puts "- Client: client@restoqr.ca"
 puts "- Client: alice@restoqr.ca"
 puts "- Client: bob@restoqr.ca"
+puts "- Client: demo@restoqr.ca (utilisé pour les commandes demo)"
 puts "- Waiter: waiter@restoqr.ca"
 puts "- Waiter: marie@restoqr.ca"
 puts "- Waiter: jean@restoqr.ca"
@@ -239,7 +248,7 @@ puts "\nCreating demo orders..."
 
 marie   = Waiter.find_by(email: 'marie@restoqr.ca')
 jean    = Waiter.find_by(email: 'jean@restoqr.ca')
-client1 = Client.find_by(email: 'client@restoqr.ca')
+client1 = Client.find_by(email: 'demo@restoqr.ca')
 client2 = Client.find_by(email: 'alice@restoqr.ca')
 client3 = Client.find_by(email: 'bob@restoqr.ca')
 table3  = Table.find_by(number: 3)
@@ -261,11 +270,11 @@ end
 
 # Order 1 — client1, table 3, server marie, vibe Fête
 order1 = Order.find_or_create_by!(client_id: client1.id, ended_at: nil) do |o|
-  o.table    = table3
+  o.table     = table3
   o.nb_people = 3
-  o.server   = marie
-  o.note     = 'Allergie aux arachides'
-  o.vibe     = vibes['Fête']
+  o.server    = marie
+  o.note      = 'Allergie aux arachides'
+  o.vibe      = vibes['Fête']
 end
 order1.update!(vibe: vibes['Fête']) if order1.vibe.nil?
 
@@ -282,7 +291,8 @@ OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', ordera
   l.status     = 'in_preparation'
 end
 
-puts "- Order ##{order1.id} (Table #{table3.number}, #{marie.first_name})"
+order1.update_column(:created_at, 2.hours.ago)
+puts "- Order ##{order1.id} (Table #{table3.number}, #{marie.first_name}) — il y a 2h"
 
 # Order 2 — client2, table 5, server jean, vibe Date + note + tip
 order2 = Order.find_or_create_by!(client_id: client2.id, ended_at: nil) do |o|
@@ -290,7 +300,7 @@ order2 = Order.find_or_create_by!(client_id: client2.id, ended_at: nil) do |o|
   o.nb_people = 2
   o.server    = jean
   o.vibe      = vibes['Date']
-  o.note      = 'gros date '
+  o.note      = 'gros date'
   o.tip       = 15.00
 end
 order2.update!(vibe: vibes['Date']) if order2.vibe.nil?
@@ -308,7 +318,8 @@ OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', ordera
   l.status     = 'sent'
 end
 
-puts "- Order ##{order2.id} (Table #{table5.number}, #{jean.first_name}, tip: $15.00)"
+order2.update_column(:created_at, 45.minutes.ago)
+puts "- Order ##{order2.id} (Table #{table5.number}, #{jean.first_name}, tip: $15.00) — il y a 45min"
 
 # Order 3 — client3, table 7, no server, vibe Mort + tip
 order3 = Order.find_or_create_by!(client_id: client3.id, ended_at: nil) do |o|
@@ -332,6 +343,7 @@ OrderLine.find_or_create_by!(order_id: order3.id, orderable_type: 'Item', ordera
   l.status     = 'sent'
 end
 
-puts "- Order ##{order3.id} (Table #{table7.number}, no server, tip: $5.50)"
+order3.update_column(:created_at, 10.minutes.ago)
+puts "- Order ##{order3.id} (Table #{table7.number}, no server, tip: $5.50) — il y a 10min"
 
 puts "\nAll seeds created!"

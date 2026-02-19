@@ -9,9 +9,15 @@ module Api
                            .includes(:table, :client, :server, :order_lines, :vibe)
                            .order(created_at: :asc)
 
+      all_lines = active_orders.flat_map(&:order_lines)
+      item_ids  = all_lines.select { |l| l.orderable_type == 'Item' }.map(&:orderable_id).uniq
+      combo_ids = all_lines.select { |l| l.orderable_type == 'Combo' }.map(&:orderable_id).uniq
+      items_map  = Item.where(id: item_ids).index_by(&:id)
+      combos_map = Combo.where(id: combo_ids).index_by(&:id)
+
       render json: {
         success: true,
-        data: active_orders.map { |o| order_json(o) },
+        data: active_orders.map { |o| order_json(o, items_map, combos_map) },
         errors: []
       }, status: :ok
     end
@@ -30,9 +36,9 @@ module Api
       end
     end
 
-    def order_json(order)
+    def order_json(order, items_map, combos_map)
       lines = order.order_lines.map do |l|
-        orderable = find_orderable(l.orderable_type, l.orderable_id)
+        orderable = find_orderable(l.orderable_type, l.orderable_id, items_map, combos_map)
         {
           id: l.id,
           quantity: l.quantity,
@@ -59,10 +65,11 @@ module Api
       }
     end
 
-    def find_orderable(type, id)
+    def find_orderable(type, id, items_map, combos_map)
       return nil unless type.present? && id.present?
-      return nil unless %w[Item Combo].include?(type)
-      type.constantize.find_by(id: id)
+      return items_map[id]  if type == 'Item'
+      return combos_map[id] if type == 'Combo'
+      nil
     end
   end
 end

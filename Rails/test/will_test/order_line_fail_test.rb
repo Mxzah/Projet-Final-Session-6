@@ -13,15 +13,15 @@ class OrderLineFailTest < ActionDispatch::IntegrationTest
     # Créer une table et un item
     @table = Table.create!(number: 99, nb_seats: 10)
 
-    post "/api/items", params: {
-      item: {
-        name: "Item Test Fail",
-        price: 10.00,
-        category_id: @category.id,
-        image: fixture_file_upload("test.jpg", "image/jpeg")
-      }
-    }
-    @item = JSON.parse(response.body)["data"]
+    # Créer un item directement en DB (POST /api/items nécessite Administrator)
+    item_record = Item.new(name: "Item Test Fail", price: 10.00, category: @category)
+    item_record.image.attach(
+      io: File.open(Rails.root.join("test", "fixtures", "files", "test.jpg")),
+      filename: "test.jpg",
+      content_type: "image/jpeg"
+    )
+    item_record.save!
+    @item = item_record.as_json
 
     # Créer une commande
     post "/api/orders", params: {

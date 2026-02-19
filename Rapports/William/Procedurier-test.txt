@@ -125,8 +125,11 @@ MODULE 4 — Page /order — Section Détails (nouvelle commande)
      - Le bouton « Envoyer » devient désactivé
 
 4.6  Envoi de la commande
-     - Remplir une note valide (ex : « Table anniversaire »)
-       et un pourboire valide (ex : 5)
+     - Remplir une note valide (ex : « Table anniversaire », max 255 caractères)
+       et un pourboire valide (ex : 5, max 999,99 CA$)
+     - Une table doit avoir été scannée au préalable ;
+       si aucune table n'est en session, clic sur « Envoyer » redirige
+       vers la page de scan de table
      - Cliquer sur « Envoyer »
      - Les lignes « En attente de l'envoi » deviennent « Envoyée »
      - La section Détails passe en mode lecture seule (plus de formulaire)

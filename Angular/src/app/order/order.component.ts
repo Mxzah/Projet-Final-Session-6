@@ -53,7 +53,7 @@ export class OrderComponent implements OnInit {
   serverName = signal<string | null>(null);
   isSending = signal<boolean>(false);
 
-  // Existing order details (read-only display)
+  // Quand tu arrives sur /order et que tu as déjà une commande ouverte (envoyée avant), ces 4 variables gardent en mémoir
   existingNote = signal<string | null>(null);
   existingTip = signal<number>(0);
   existingVibeName = signal<string | null>(null);
@@ -93,7 +93,7 @@ export class OrderComponent implements OnInit {
     this.loadOpenOrder();
     this.loadAssignedWaiter();
   }
-
+ //transforme les données brutes de l'API en un format utilisable par l'affichage.
   private mapApiLine(line: OrderLineData): DisplayOrderLine {
     return {
       id: line.id,
@@ -150,6 +150,12 @@ export class OrderComponent implements OnInit {
         }
       }
     });
+  }
+
+  blockInvalidTipKeys(event: KeyboardEvent): void {
+    if (['e', 'E', '+', '-'].includes(event.key)) {
+      event.preventDefault();
+    }
   }
 
   isFormInvalid(): boolean {

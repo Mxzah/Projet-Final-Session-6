@@ -112,6 +112,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'cuisine.modify': { fr: 'Modifier', en: 'Edit' },
   'cuisine.delete': { fr: 'Supprimer', en: 'Delete' },
   'cuisine.tipDisplay': { fr: 'Pourboire : CA$', en: 'Tip: CA$' },
+  'cuisine.orderedAt': { fr: 'Commandé le', en: 'Ordered on' },
   'cuisine.status.sent': { fr: 'Envoyée', en: 'Sent' },
   'cuisine.status.inPreparation': { fr: 'En préparation', en: 'In preparation' },
   'cuisine.status.ready': { fr: 'Prête', en: 'Ready' },

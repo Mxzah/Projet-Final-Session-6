@@ -50,6 +50,10 @@
                 </span>
               }
             </div>
+            <div class="order-time">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ ts.t('cuisine.orderedAt') }} {{ formatOrderTime(order.created_at) }}</span>
+            </div>
           </mat-card-header>
 
           @if (order.note) {

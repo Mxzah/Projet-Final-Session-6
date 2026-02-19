@@ -72,6 +72,17 @@ export class CuisineComponent implements OnInit {
     return keys[status] ? this.ts.t(keys[status]) : status;
   }
 
+  formatOrderTime(dateStr: string): string {
+    const date = new Date(dateStr);
+    const locale = this.ts.lang() === 'en' ? 'en-CA' : 'fr-CA';
+    return date.toLocaleString(locale, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
   getStatusClass(status: string): string {
     const classes: Record<string, string> = {
       sent: 'status-sent',

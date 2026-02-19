@@ -11,7 +11,7 @@ class Order < ApplicationRecord
                    format: { without: /\A\s*\z/, message: "ne peut pas être composé uniquement d'espaces" }, allow_blank: true
   validates :tip, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 999.99 }, allow_nil: true
   validate :ended_at_after_created_at
-
+ 
   validate :client_has_no_other_open_order
 
   default_scope { where(deleted_at: nil) }
@@ -28,6 +28,8 @@ class Order < ApplicationRecord
   end
 
  
+
+
 
   def client_has_no_other_open_order  #un client ne peut avoir qu'une seule commande ouverte (ended_at IS NULL)
     return unless client_id.present?

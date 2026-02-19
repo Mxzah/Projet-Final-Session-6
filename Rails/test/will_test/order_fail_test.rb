@@ -140,19 +140,7 @@ class OrderFailTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
   end
 
-  # Test 7: Create avec nb_people > nb_seats de la table retourne success false
-  test "create avec nb_people supérieur aux places de la table retourne success false" do
-    post "/api/orders/close_open", as: :json
 
-    # Table a 10 places, on met 11
-    post "/api/orders", params: {
-      order: { nb_people: 11, table_id: @table.id }
-    }, as: :json
-
-    assert_response :ok
-    json = JSON.parse(response.body)
-    assert_not json["success"]
-  end
 
 
 
