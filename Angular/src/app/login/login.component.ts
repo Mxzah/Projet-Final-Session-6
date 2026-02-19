@@ -54,6 +54,11 @@ export class LoginComponent {
           return;
         }
 
+        if (this.authService.isAdmin()) {
+          this.router.navigate(['/admin']);
+          return;
+        }
+
         this.orderService.closeOpenOrders().subscribe(() => {
           if (this.tableService.getPendingToken()) {
             this.tableService.validateAndSavePendingToken().subscribe(() => {

@@ -98,30 +98,72 @@
 
     @for (table of tables; track table.id) {
       <section class="table-card">
-        <div class="table-top-row">
-          <div class="table-info">
-            <div class="table-number">Table #{{ table.number }}</div>
-            <div class="table-meta">
-              <span class="badge capacity">{{ table.capacity }} places</span>
-              <span class="badge" [class.available]="table.status === 'available'" [class.occupied]="table.status === 'occupied'">
-                {{ table.status === 'available' ? 'Disponible' : table.status === 'occupied' ? 'Occupée' : table.status }}
-              </span>
+        <!-- Confirm delete overlay -->
+        @if (confirmDeleteId === table.id) {
+          <div class="delete-confirm">
+            <p>Supprimer la table #{{ table.number }} ?</p>
+            <div class="delete-confirm-actions">
+              <button class="action-btn danger" (click)="confirmDelete(table)" [disabled]="deletingTableId === table.id">
+                {{ deletingTableId === table.id ? '...' : '🗑 Confirmer' }}
+              </button>
+              <button class="action-btn" (click)="cancelDelete()">Annuler</button>
             </div>
           </div>
-          <div class="qr-container" [id]="'qr-' + table.qr_token"></div>
-        </div>
+        }
 
-        <div class="table-url">
-          <code class="url-text">{{ getTableUrl(table) }}</code>
-        </div>
+        <!-- Edit mode -->
+        @if (editingTableId === table.id) {
+          <div class="edit-form">
+            <h4>Modifier la table #{{ table.number }}</h4>
+            <div class="form-row">
+              <div class="field">
+                <label>Numéro</label>
+                <input type="number" min="1" [(ngModel)]="editNumber" />
+              </div>
+              <div class="field">
+                <label>Capacité</label>
+                <input type="number" min="1" max="20" [(ngModel)]="editCapacity" />
+              </div>
+            </div>
+            @if (editErrorMessage) {
+              <div class="error-msg">{{ editErrorMessage }}</div>
+            }
+            <div class="edit-actions">
+              <button class="action-btn save-btn" (click)="saveEdit()" [disabled]="isUpdating || !editNumber || !editCapacity">
+                {{ isUpdating ? '...' : '💾 Sauvegarder' }}
+              </button>
+              <button class="action-btn" (click)="cancelEdit()">Annuler</button>
+            </div>
+          </div>
+        } @else {
+          <!-- Normal display -->
+          <div class="table-top-row">
+            <div class="table-info">
+              <div class="table-number">Table #{{ table.number }}</div>
+              <div class="table-meta">
+                <span class="badge capacity">{{ table.capacity }} places</span>
+                <span class="badge" [class.available]="table.status === 'available'" [class.occupied]="table.status === 'occupied'">
+                  {{ table.status === 'available' ? 'Disponible' : table.status === 'occupied' ? 'Occupée' : table.status }}
+                </span>
+              </div>
+            </div>
+            <div class="qr-container" [id]="'qr-' + table.qr_token"></div>
+          </div>
 
-        <div class="table-actions">
-          <button class="action-btn" (click)="copyUrl(table)">
-            {{ copiedToken === table.qr_token ? '✓ Copié!' : '📋 Copier' }}
-          </button>
-          <button class="action-btn" (click)="downloadQr(table, 'svg')">⬇ SVG</button>
-          <button class="action-btn" (click)="downloadQr(table, 'png')">⬇ PNG</button>
-        </div>
+          <div class="table-url">
+            <code class="url-text">{{ getTableUrl(table) }}</code>
+          </div>
+
+          <div class="table-actions">
+            <button class="action-btn" (click)="copyUrl(table)">
+              {{ copiedToken === table.qr_token ? '✓ Copié!' : '📋 Copier' }}
+            </button>
+            <button class="action-btn" (click)="downloadQr(table, 'svg')">⬇ SVG</button>
+            <button class="action-btn" (click)="downloadQr(table, 'png')">⬇ PNG</button>
+            <button class="action-btn edit-btn" (click)="startEdit(table)">✏️ Modifier</button>
+            <button class="action-btn danger" (click)="askDelete(table)">🗑 Supprimer</button>
+          </div>
+        }
       </section>
     }
   </div>

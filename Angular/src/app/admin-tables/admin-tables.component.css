@@ -284,6 +284,64 @@
     border-color: var(--rust);
 }
 
+.action-btn.edit-btn:hover {
+    background: #2980b9;
+    border-color: #2980b9;
+}
+
+.action-btn.danger {
+    color: #e74c3c;
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+.action-btn.danger:hover {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+/* Delete confirmation */
+.delete-confirm {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.delete-confirm p {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0 0 1rem;
+    color: #e74c3c;
+}
+
+.delete-confirm-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+/* Edit form */
+.edit-form {
+    padding: 0.5rem 0;
+}
+
+.edit-form h4 {
+    margin: 0 0 0.75rem;
+    font-family: "Fraunces", "Times New Roman", serif;
+    color: var(--rust);
+    font-size: 1rem;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.save-btn:hover {
+    background: #27ae60 !important;
+    border-color: #27ae60 !important;
+}
+
 .loading,
 .empty {
     text-align: center;

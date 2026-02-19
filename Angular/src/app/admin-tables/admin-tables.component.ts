@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
@@ -30,6 +30,17 @@ export class AdminTablesComponent implements OnInit {
     isCreating = false;
     errorMessage: string | null = null;
 
+    // Edit table
+    editingTableId: number | null = null;
+    editNumber: number | null = null;
+    editCapacity: number | null = null;
+    isUpdating = false;
+    editErrorMessage: string | null = null;
+
+    // Delete
+    deletingTableId: number | null = null;
+    confirmDeleteId: number | null = null;
+
     baseUrl: string = window.location.origin;
 
     // QR Style options
@@ -48,7 +59,9 @@ export class AdminTablesComponent implements OnInit {
     private qrInstances: Map<string, QRCodeStyling> = new Map();
 
     constructor(
-        private apiService: ApiService
+        private apiService: ApiService,
+        private cdr: ChangeDetectorRef,
+        private ngZone: NgZone
     ) { }
 
     ngOnInit(): void {
@@ -59,14 +72,26 @@ export class AdminTablesComponent implements OnInit {
         this.isLoading = true;
         this.apiService.get<TableInfo[]>('/api/tables').subscribe({
             next: (response) => {
-                if (response.success && response.data) {
-                    this.tables = response.data;
-                    setTimeout(() => this.generateAllQrCodes(), 100);
-                }
-                this.isLoading = false;
+                this.ngZone.run(() => {
+                    if (response.success && response.data) {
+                        this.tables = response.data;
+                        this.isLoading = false;
+                        this.cdr.detectChanges();
+                        setTimeout(() => {
+                            this.generateAllQrCodes();
+                            this.cdr.detectChanges();
+                        }, 100);
+                    } else {
+                        this.isLoading = false;
+                        this.cdr.detectChanges();
+                    }
+                });
             },
             error: () => {
-                this.isLoading = false;
+                this.ngZone.run(() => {
+                    this.isLoading = false;
+                    this.cdr.detectChanges();
+                });
             }
         });
     }
@@ -190,6 +215,73 @@ export class AdminTablesComponent implements OnInit {
             error: (error) => {
                 this.isCreating = false;
                 this.errorMessage = error?.errors?.[0] || 'Erreur lors de la création.';
+            }
+        });
+    }
+
+    // Edit
+    startEdit(table: TableInfo): void {
+        this.editingTableId = table.id;
+        this.editNumber = table.number;
+        this.editCapacity = table.capacity;
+        this.editErrorMessage = null;
+    }
+
+    cancelEdit(): void {
+        this.editingTableId = null;
+        this.editNumber = null;
+        this.editCapacity = null;
+        this.editErrorMessage = null;
+    }
+
+    saveEdit(): void {
+        if (!this.editingTableId || !this.editNumber || !this.editCapacity) return;
+
+        this.isUpdating = true;
+        this.editErrorMessage = null;
+
+        this.apiService.put<TableInfo>(`/api/tables/${this.editingTableId}`, {
+            table: {
+                number: this.editNumber,
+                nb_seats: this.editCapacity
+            }
+        }).subscribe({
+            next: (response) => {
+                this.isUpdating = false;
+                if (response.success) {
+                    this.cancelEdit();
+                    this.loadTables();
+                }
+            },
+            error: (error) => {
+                this.isUpdating = false;
+                this.editErrorMessage = error?.errors?.[0] || 'Erreur lors de la modification.';
+            }
+        });
+    }
+
+    // Delete
+    askDelete(table: TableInfo): void {
+        this.confirmDeleteId = table.id;
+    }
+
+    cancelDelete(): void {
+        this.confirmDeleteId = null;
+    }
+
+    confirmDelete(table: TableInfo): void {
+        this.deletingTableId = table.id;
+
+        this.apiService.delete<any>(`/api/tables/${table.id}`).subscribe({
+            next: () => {
+                this.deletingTableId = null;
+                this.confirmDeleteId = null;
+                this.loadTables();
+            },
+            error: (error) => {
+                this.deletingTableId = null;
+                this.confirmDeleteId = null;
+                alert(error?.errors?.[0] || 'Erreur lors de la suppression.');
             }
         });
     }

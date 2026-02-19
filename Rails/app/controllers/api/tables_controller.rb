@@ -48,6 +48,54 @@ module Api
       end
     end
 
+    def update
+      table = Table.find_by(id: params[:id])
+
+      if table.nil?
+        render json: {
+          success: false,
+          data: nil,
+          errors: ['Table introuvable.']
+        }, status: :not_found
+        return
+      end
+
+      if table.update(table_params)
+        render json: {
+          success: true,
+          data: table_json(table),
+          errors: []
+        }, status: :ok
+      else
+        render json: {
+          success: false,
+          data: nil,
+          errors: table.errors.full_messages
+        }, status: :unprocessable_entity
+      end
+    end
+
+    def destroy
+      table = Table.find_by(id: params[:id])
+
+      if table.nil?
+        render json: {
+          success: false,
+          data: nil,
+          errors: ['Table introuvable.']
+        }, status: :not_found
+        return
+      end
+
+      table.soft_delete
+
+      render json: {
+        success: true,
+        data: nil,
+        errors: []
+      }, status: :ok
+    end
+
     def qr_code
       table = Table.find_by(temporary_code: params[:qr_token])
 

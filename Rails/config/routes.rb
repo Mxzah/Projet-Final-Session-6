@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   root to: "angular#index"
 
   namespace :api, constraints: { format: 'json' } do
-    resources :tables, only: [:index, :create], param: :qr_token
+    resources :tables, only: [:index, :create, :update, :destroy]
     get 'tables/:qr_token', to: 'tables#show'
     get 'tables/:qr_token/qr_code', to: 'tables#qr_code'
 
