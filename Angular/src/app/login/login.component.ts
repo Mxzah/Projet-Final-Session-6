@@ -71,7 +71,7 @@ export class LoginComponent {
       },
       error: (error: any) => {
         this.isLoading = false;
-        this.errorMessage = error?.errors?.join(', ') || error?.error?.errors?.join(', ') || 'Une erreur est survenue lors de la connexion';
+        this.errorMessage = error?.errors?.join(', ') || 'Une erreur est survenue lors de la connexion';
         this.cdr.detectChanges();
       }
     });

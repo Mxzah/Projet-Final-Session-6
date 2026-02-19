@@ -101,8 +101,7 @@ export class AdminItemsComponent implements OnInit {
           this.categories.set(response.data);
         }
       },
-      error: (err) => {
-        console.error('[AdminItems] /api/categories failed:', err);
+      error: () => {
         // Fallback: extract from items if already loaded
         if (this.items().length > 0) {
           this.extractCategoriesFromItems(this.items());
