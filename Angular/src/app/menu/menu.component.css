@@ -380,6 +380,22 @@ img {
     user-select: none;
 }
 
+/* ── Admin button (header) ── */
+.admin-btn {
+    color: #fff !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+::ng-deep .admin-btn .mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-right: 0.35rem;
+    color: #fff !important;
+}
+
 /* ── Cart display (header) ── */
 .cart-header {
     display: flex;

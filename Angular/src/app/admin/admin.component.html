@@ -1,4 +1,10 @@
-<app-header (logoutClick)="logout()" />
+<app-header (logoutClick)="logout()">
+  <span class="header-separator">|</span>
+  <button mat-button class="quit-btn" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+    {{ ts.t('header.quit') }}
+  </button>
+</app-header>
 
 <div class="tabs-wrapper">
   <mat-tab-group class="admin-tabs" [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">

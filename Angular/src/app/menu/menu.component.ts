@@ -223,6 +223,10 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
+  goToAdmin(): void {
+    this.router.navigate(['/admin']);
+  }
+
   logout(): void {
     this.cartService.clear();
     this.authService.logout().subscribe({

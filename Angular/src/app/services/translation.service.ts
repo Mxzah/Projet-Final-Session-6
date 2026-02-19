@@ -6,6 +6,8 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   // Header
   'header.logout': { fr: 'Déconnexion', en: 'Logout' },
   'header.login': { fr: 'Connexion', en: 'Login' },
+  'header.quit': { fr: 'Quitter', en: 'Back' },
+  'header.admin': { fr: 'Admin', en: 'Admin' },
 
   // Menu page
   'menu.categories': { fr: 'Catégories', en: 'Categories' },
