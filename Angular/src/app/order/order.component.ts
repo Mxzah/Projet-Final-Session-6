@@ -9,6 +9,7 @@ import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
 import { OrderLineData, OrderService } from '../services/order.service';
 import { TableService } from '../services/table.service';
+import { TranslationService } from '../services/translation.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -81,6 +82,7 @@ export class OrderComponent implements OnInit {
 
   constructor(
     public cartService: CartService,
+    public ts: TranslationService,
     private authService: AuthService,
     private orderService: OrderService,
     private tableService: TableService,
@@ -158,14 +160,13 @@ export class OrderComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      pending: '',
-      sent: 'Envoyée',
-      in_preparation: 'En préparation',
-      ready: 'Prête',
-      served: 'Servie'
+    const keys: Record<string, string> = {
+      sent: 'order.status.sent',
+      in_preparation: 'order.status.inPreparation',
+      ready: 'order.status.ready',
+      served: 'order.status.served'
     };
-    return labels[status] || status;
+    return keys[status] ? this.ts.t(keys[status]) : '';
   }
 
   onSend(): void {

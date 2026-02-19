@@ -2,9 +2,9 @@
 
 <div class="page">
   <div class="page-header">
-    <p class="eyebrow">Tableau de bord</p>
-    <h1>Cuisine</h1>
-    <p class="subtitle">Commandes actives en temps réel</p>
+    <p class="eyebrow">{{ ts.t('cuisine.eyebrow') }}</p>
+    <h1>{{ ts.t('cuisine.title') }}</h1>
+    <p class="subtitle">{{ ts.t('cuisine.subtitle') }}</p>
   </div>
 
   @if (loading) {
@@ -16,15 +16,15 @@
   @if (error) {
     <div class="error-msg">
       <mat-icon>error_outline</mat-icon>
-      <span>{{ error }}</span>
-      <button mat-button (click)="loadOrders()">Réessayer</button>
+      <span>{{ ts.t('cuisine.loadError') }}</span>
+      <button mat-button (click)="loadOrders()">{{ ts.t('cuisine.retry') }}</button>
     </div>
   }
 
   @if (!loading && !error && orders.length === 0) {
     <div class="empty-state">
       <mat-icon>restaurant</mat-icon>
-      <p>Aucune commande active</p>
+      <p>{{ ts.t('cuisine.empty') }}</p>
     </div>
   }
 
@@ -34,14 +34,14 @@
         <mat-card class="order-card">
           <mat-card-header>
             <div class="card-title-row">
-              <span class="table-badge">Table {{ order.table_number }}</span>
+              <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
               <span class="people-badge">
-                <mat-icon>people</mat-icon>{{ order.nb_people }} personne(s)
+                <mat-icon>people</mat-icon>{{ order.nb_people }} {{ ts.t('cuisine.people') }}
               </span>
             </div>
             <div class="server-row">
               <mat-icon>person</mat-icon>
-              <span>{{ order.server_name ?? 'Aucun serveur assigné' }}</span>
+              <span>{{ order.server_name ?? ts.t('cuisine.noServer') }}</span>
               @if (order.vibe_name) {
                 <span class="vibe-badge"
                   [style.background-color]="order.vibe_color + '22'"
@@ -62,14 +62,14 @@
           @if (order.tip > 0) {
             <div class="order-tip">
               <mat-icon>payments</mat-icon>
-              <span>Pourboire : CA${{ order.tip.toFixed(2) }}</span>
+              <span>{{ ts.t('cuisine.tipDisplay') }}{{ order.tip.toFixed(2) }}</span>
             </div>
           }
 
           <mat-divider />
 
           <mat-card-content>
-            <p class="lines-label">Lignes de commande</p>
+            <p class="lines-label">{{ ts.t('cuisine.linesLabel') }}</p>
             <div class="lines-list">
               @for (line of order.order_lines; track line.id) {
                 <div class="line-row">
@@ -95,10 +95,10 @@
 
           <div class="card-actions">
             <button mat-stroked-button class="btn-edit">
-              <mat-icon>edit</mat-icon> Modifier
+              <mat-icon>edit</mat-icon> {{ ts.t('cuisine.modify') }}
             </button>
             <button mat-stroked-button class="btn-delete">
-              <mat-icon>delete</mat-icon> Supprimer
+              <mat-icon>delete</mat-icon> {{ ts.t('cuisine.delete') }}
             </button>
           </div>
         </mat-card>

@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CuisineService, CuisineOrder } from '../services/cuisine.service';
 import { AuthService } from '../services/auth.service';
 import { HeaderComponent } from '../header/header.component';
+import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-cuisine',
@@ -33,6 +34,7 @@ export class CuisineComponent implements OnInit {
   error: string | null = null;
 
   constructor(
+    public ts: TranslationService,
     private cuisineService: CuisineService,
     private authService: AuthService,
     private router: Router,
@@ -61,13 +63,13 @@ export class CuisineComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      sent: 'Envoyée',
-      in_preparation: 'En préparation',
-      ready: 'Prête',
-      served: 'Servie'
+    const keys: Record<string, string> = {
+      sent: 'cuisine.status.sent',
+      in_preparation: 'cuisine.status.inPreparation',
+      ready: 'cuisine.status.ready',
+      served: 'cuisine.status.served'
     };
-    return labels[status] ?? status;
+    return keys[status] ? this.ts.t(keys[status]) : status;
   }
 
   getStatusClass(status: string): string {
