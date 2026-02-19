@@ -27,6 +27,13 @@
         {{ ts.t('header.login') }}
       </button>
     }
+    @if (showLogout && authService.isAdmin()) {
+      <span class="header-divider">|</span>
+      <button mat-button class="admin-btn" (click)="goToAdmin()">
+        <mat-icon>admin_panel_settings</mat-icon>
+        {{ ts.t('header.admin') }}
+      </button>
+    }
     <ng-content />
   </div>
 </mat-toolbar>

@@ -85,6 +85,28 @@
     background: rgba(0, 0, 0, 0.05);
 }
 
+.header-divider {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 1.2rem;
+    font-weight: 300;
+    user-select: none;
+}
+
+.admin-btn {
+    color: #fff !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+::ng-deep .admin-btn .mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-right: 0.35rem;
+    color: #fff !important;
+}
+
 @media (max-width: 600px) {
     .site-header {
         padding: 0 1rem !important;

@@ -1,9 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { AuthService } from '../services/auth.service';
 import { TranslationService, Lang } from '../services/translation.service';
 
 @Component({
@@ -19,9 +21,17 @@ export class HeaderComponent {
   @Output() logoutClick = new EventEmitter<void>();
   @Output() loginClick = new EventEmitter<void>();
 
-  constructor(public ts: TranslationService) {}
+  constructor(
+    public ts: TranslationService,
+    public authService: AuthService,
+    private router: Router
+  ) {}
 
   setLang(lang: Lang): void {
     this.ts.setLang(lang);
+  }
+
+  goToAdmin(): void {
+    this.router.navigate(['/admin']);
   }
 }

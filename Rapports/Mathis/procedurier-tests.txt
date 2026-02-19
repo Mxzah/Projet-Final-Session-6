@@ -22,7 +22,37 @@ MODULE 1 — Header
      - Le bouton « Déconnexion » est visible
      - Clic sur « Déconnexion » : Redirection vers /login, session terminée
 
-1.3  Changement de langue
+1.3  Bouton Admin (utilisateur admin)
+     Avec admin@restoqr.ca : password123
+     - Se connecter, accéder à /menu
+     - Le bouton « Admin » est visible dans le header (après Déconnexion, séparé par « | »)
+     - Clic sur « Admin » : Redirection vers /admin
+     - Naviguer vers /order : Le bouton « Admin » est toujours visible dans le header
+     - Naviguer vers /cuisine : Le bouton « Admin » est toujours visible dans le header
+     - Naviguer vers /admin : Le bouton « Admin » est toujours visible dans le header
+
+1.4  Bouton Admin absent (utilisateur non-admin)
+     Avec client@restoqr.ca : password123
+     - Se connecter, accéder à /menu : Le bouton « Admin » n'est PAS visible
+     - Accéder à /order : Le bouton « Admin » n'est PAS visible
+     - Accéder à /cuisine : Le bouton « Admin » n'est PAS visible
+
+1.5  Bouton Admin absent (utilisateur non connecté)
+     - Ouvrir la page /menu sans être connecté
+     - Le bouton « Admin » n'est PAS visible dans le header
+
+1.6  Bouton Admin absent (pages login / signup)
+     - Accéder à /login : Le bouton « Admin » n'est PAS visible
+     - Accéder à /signup : Le bouton « Admin » n'est PAS visible
+
+1.7  Bouton Quitter (page admin)
+     Avec admin@restoqr.ca : password123
+     - Se connecter, accéder à /admin
+     - Le bouton « Quitter » est visible dans le header avec l'icône flèche
+     - Un séparateur « | » est affiché entre Déconnexion et Quitter
+     - Clic sur « Quitter » : Retour à la page précédente (ex: /menu)
+
+1.8  Changement de langue
      - Clic sur le bouton « FR » dans le header
      - Un menu déroulant apparaît avec « Français » et « English »
      - Clic sur « English » : L'interface passe en anglais (labels, boutons, textes)
