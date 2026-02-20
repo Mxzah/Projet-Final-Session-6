@@ -1,5 +1,8 @@
 module Api
   class TablesController < ApplicationController
+    before_action :authenticate_user!, except: [:index, :show, :qr_code]
+    before_action :require_admin!, only: [:create, :update, :destroy]
+
     def show
       table = Table.find_by(temporary_code: params[:qr_token])
 
@@ -19,8 +22,32 @@ module Api
       }, status: :ok
     end
 
+    # GET /api/tables?search=…&sort=asc|desc&capacity_min=…&capacity_max=…
     def index
-      tables = Table.all.order(:number)
+      tables = Table.all
+
+      # Search by number
+      if params[:search].present?
+        tables = tables.where("tables.number = ?", params[:search].to_i)
+      end
+
+      # Filter by capacity
+      if params[:capacity_min].present?
+        tables = tables.where("tables.nb_seats >= ?", params[:capacity_min].to_i)
+      end
+      if params[:capacity_max].present?
+        tables = tables.where("tables.nb_seats <= ?", params[:capacity_max].to_i)
+      end
+
+      # Sort
+      case params[:sort]
+      when "asc"
+        tables = tables.order(nb_seats: :asc)
+      when "desc"
+        tables = tables.order(nb_seats: :desc)
+      else
+        tables = tables.order(:number)
+      end
 
       render json: {
         success: true,
@@ -133,6 +160,16 @@ module Api
 
     def table_params
       params.require(:table).permit(:number, :nb_seats)
+    end
+
+    def require_admin!
+      return if current_user&.type == "Administrator"
+
+      render json: {
+        success: false,
+        data: nil,
+        errors: ["Accès réservé aux administrateurs"]
+      }, status: :ok
     end
 
     def table_json(table)
