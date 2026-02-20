@@ -3,58 +3,59 @@
 <main class="page-login">
   <div class="outer-container">
     <div class="welcome-header">
-      <h2 class="welcome-title">Bienvenue sur RestoQR</h2>
-      <p class="welcome-text">Votre solution de gestion de restaurant simplifiée.</p>
+      <h2 class="welcome-title">{{ ts.t('login.welcome') }}</h2>
+      <p class="welcome-text">{{ ts.t('login.welcomeText') }}</p>
     </div>
 
     <section class="inner-container">
       <header class="panel__header">
-        <h1>Connexion</h1>
-        <p class="subtitle">Entrer votre email et mot de passe.</p>
+        <h1>{{ ts.t('login.title') }}</h1>
+        <p class="subtitle">{{ ts.t('login.subtitle') }}</p>
       </header>
 
       <form class="form" autocomplete="off" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="field">
-          <label for="loginEmail">Email</label>
-          <input
-            id="loginEmail"
-            type="email"
-            placeholder="ex: admin@restoqr.ca"
-            formControlName="email"
-          />
-          <div class="field-error" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
-            <span *ngIf="loginForm.get('email')?.errors?.['required']">L'email est requis</span>
-            <span *ngIf="loginForm.get('email')?.errors?.['email']">Format d'email invalide</span>
-          </div>
-        </div>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>{{ ts.t('login.email') }}</mat-label>
+          <input matInput type="email" [placeholder]="ts.t('login.emailPlaceholder')" formControlName="email" />
+          @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+            <mat-error>
+              @if (loginForm.get('email')?.errors?.['required']) {
+                {{ ts.t('login.emailRequired') }}
+              } @else if (loginForm.get('email')?.errors?.['email']) {
+                {{ ts.t('login.emailInvalid') }}
+              }
+            </mat-error>
+          }
+        </mat-form-field>
 
-        <div class="field">
-          <label for="loginPassword">Mot de passe</label>
-          <input
-            id="loginPassword"
-            type="password"
-            placeholder="Votre mot de passe"
-            formControlName="password"
-          />
-          <div class="field-error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-            <span *ngIf="loginForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
-            <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Minimum 6 caractères</span>
-            <span *ngIf="loginForm.get('password')?.errors?.['maxlength']">Maximum 128 caractères</span>
-          </div>
-        </div>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>{{ ts.t('login.password') }}</mat-label>
+          <input matInput type="password" [placeholder]="ts.t('login.passwordPlaceholder')" formControlName="password" />
+          @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+            <mat-error>
+              @if (loginForm.get('password')?.errors?.['required']) {
+                {{ ts.t('login.passwordRequired') }}
+              } @else if (loginForm.get('password')?.errors?.['minlength']) {
+                {{ ts.t('login.passwordMinLength') }}
+              } @else if (loginForm.get('password')?.errors?.['maxlength']) {
+                {{ ts.t('login.passwordMaxLength') }}
+              }
+            </mat-error>
+          }
+        </mat-form-field>
 
-        <div *ngIf="errorMessage" class="error-message">
-          {{ errorMessage }}
-        </div>
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
 
         <div class="form__actions login-actions">
-          <button type="submit" class="primary" [disabled]="isLoading || loginForm.invalid">
-            {{ isLoading ? 'Connexion...' : 'Se connecter' }}
+          <button mat-flat-button type="submit" class="btn-primary" [disabled]="isLoading || loginForm.invalid">
+            {{ isLoading ? ts.t('login.loading') : ts.t('login.submit') }}
           </button>
         </div>
       </form>
     </section>
 
-    <p class="access-note"><a routerLink="/signup">Créer un compte</a></p>
+    <p class="access-note"><a routerLink="/signup">{{ ts.t('login.createAccount') }}</a></p>
   </div>
 </main>

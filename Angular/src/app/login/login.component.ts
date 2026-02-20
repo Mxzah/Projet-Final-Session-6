@@ -2,16 +2,21 @@ import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
 import { OrderService } from '../services/order.service';
 import { TableService } from '../services/table.service';
+import { TranslationService } from '../services/translation.service';
 import { HeaderComponent } from '../header/header.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, HeaderComponent],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, HeaderComponent, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -30,7 +35,8 @@ export class LoginComponent {
     private orderService: OrderService,
     private tableService: TableService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public ts: TranslationService
   ) { }
 
   onSubmit(): void {
@@ -71,7 +77,7 @@ export class LoginComponent {
       },
       error: (error: any) => {
         this.isLoading = false;
-        this.errorMessage = error?.errors?.join(', ') || 'Une erreur est survenue lors de la connexion';
+        this.errorMessage = error?.errors?.join(', ') || this.ts.t('login.defaultError');
         this.cdr.detectChanges();
       }
     });

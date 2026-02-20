@@ -82,12 +82,46 @@
     text-decoration: underline;
 }
 
+.form-field-full {
+    width: 100%;
+    margin-bottom: 0.25rem;
+}
+
+::ng-deep .inner-container .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+::ng-deep .inner-container .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+::ng-deep .inner-container .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+    border-color: rgba(27, 26, 23, 0.25) !important;
+    border-width: 1px !important;
+}
+
+::ng-deep .inner-container .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+    color: rgba(27, 26, 23, 0.6) !important;
+}
+
 .signup-actions {
     justify-content: center;
 }
 
 .signup-actions button {
     width: 100%;
+}
+
+.btn-primary {
+    border-radius: 10px !important;
+    background: var(--copper) !important;
+    color: #fff !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+    height: 44px;
+    font-size: 0.95rem !important;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed;
 }
 
 .error-message {

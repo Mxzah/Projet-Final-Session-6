@@ -2,14 +2,19 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../services/auth.service';
 import { TableService } from '../services/table.service';
+import { TranslationService } from '../services/translation.service';
 import { HeaderComponent } from '../header/header.component';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, HeaderComponent],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, HeaderComponent, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css'
 })
@@ -28,7 +33,8 @@ export class SignupComponent {
   constructor(
     private authService: AuthService,
     private tableService: TableService,
-    private router: Router
+    private router: Router,
+    public ts: TranslationService
   ) { }
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -52,17 +58,6 @@ export class SignupComponent {
 
     const { email, password, passwordConfirmation, firstName, lastName } = this.signupForm.value;
 
-    const requestBody = {
-      user: {
-        email,
-        password,
-        password_confirmation: passwordConfirmation,
-        first_name: firstName,
-        last_name: lastName,
-        type: 'Client'
-      }
-    };
-
     this.authService.signup(
       email!,
       password!,
@@ -81,7 +76,7 @@ export class SignupComponent {
           this.router.navigate(['/form']);
         }
       } else {
-        this.errorMessage = response.errors?.join(', ') || 'Échec de l\'inscription';
+        this.errorMessage = response.errors?.join(', ') || this.ts.t('signup.defaultError');
       }
     });
   }

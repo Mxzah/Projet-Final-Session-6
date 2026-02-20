@@ -3,104 +3,106 @@
 <main class="page-signup">
   <div class="outer-container">
     <div class="welcome-header">
-      <h2 class="welcome-title">Nouveau sur RestoQR?</h2>
-      <p class="welcome-text">Créez votre compte en quelques instants.</p>
+      <h2 class="welcome-title">{{ ts.t('signup.welcome') }}</h2>
+      <p class="welcome-text">{{ ts.t('signup.welcomeText') }}</p>
     </div>
 
     <section class="inner-container">
       <header class="panel__header">
-        <h1>Inscription</h1>
-        <p class="subtitle">Remplissez les informations ci-dessous.</p>
+        <h1>{{ ts.t('signup.title') }}</h1>
+        <p class="subtitle">{{ ts.t('signup.subtitle') }}</p>
       </header>
 
       <form class="form" autocomplete="off" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-        <div class="field">
-          <label for="signupFirstName">Prénom</label>
-          <input
-            id="signupFirstName"
-            type="text"
-            placeholder="Votre prénom"
-            formControlName="firstName"
-          />
-          <div class="field-error" *ngIf="signupForm.get('firstName')?.touched && signupForm.get('firstName')?.invalid">
-            <span *ngIf="signupForm.get('firstName')?.errors?.['required']">Le prénom est requis</span>
-            <span *ngIf="signupForm.get('firstName')?.errors?.['maxlength']">Maximum 50 caractères</span>
-          </div>
-        </div>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>{{ ts.t('signup.firstName') }}</mat-label>
+          <input matInput type="text" [placeholder]="ts.t('signup.firstNamePlaceholder')" formControlName="firstName" />
+          @if (signupForm.get('firstName')?.touched && signupForm.get('firstName')?.invalid) {
+            <mat-error>
+              @if (signupForm.get('firstName')?.errors?.['required']) {
+                {{ ts.t('signup.firstNameRequired') }}
+              } @else if (signupForm.get('firstName')?.errors?.['maxlength']) {
+                {{ ts.t('signup.firstNameMaxLength') }}
+              }
+            </mat-error>
+          }
+        </mat-form-field>
 
-        <div class="field">
-          <label for="signupLastName">Nom</label>
-          <input
-            id="signupLastName"
-            type="text"
-            placeholder="Votre nom"
-            formControlName="lastName"
-          />
-          <div class="field-error" *ngIf="signupForm.get('lastName')?.touched && signupForm.get('lastName')?.invalid">
-            <span *ngIf="signupForm.get('lastName')?.errors?.['required']">Le nom est requis</span>
-            <span *ngIf="signupForm.get('lastName')?.errors?.['maxlength']">Maximum 50 caractères</span>
-          </div>
-        </div>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>{{ ts.t('signup.lastName') }}</mat-label>
+          <input matInput type="text" [placeholder]="ts.t('signup.lastNamePlaceholder')" formControlName="lastName" />
+          @if (signupForm.get('lastName')?.touched && signupForm.get('lastName')?.invalid) {
+            <mat-error>
+              @if (signupForm.get('lastName')?.errors?.['required']) {
+                {{ ts.t('signup.lastNameRequired') }}
+              } @else if (signupForm.get('lastName')?.errors?.['maxlength']) {
+                {{ ts.t('signup.lastNameMaxLength') }}
+              }
+            </mat-error>
+          }
+        </mat-form-field>
 
-        <div class="field">
-          <label for="signupEmail">Email</label>
-          <input
-            id="signupEmail"
-            type="email"
-            placeholder="ex: admin@restoqr.ca"
-            formControlName="email"
-          />
-          <div class="field-error" *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.invalid">
-            <span *ngIf="signupForm.get('email')?.errors?.['required']">L'email est requis</span>
-            <span *ngIf="signupForm.get('email')?.errors?.['email']">Format d'email invalide</span>
-          </div>
-        </div>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>{{ ts.t('signup.email') }}</mat-label>
+          <input matInput type="email" [placeholder]="ts.t('signup.emailPlaceholder')" formControlName="email" />
+          @if (signupForm.get('email')?.touched && signupForm.get('email')?.invalid) {
+            <mat-error>
+              @if (signupForm.get('email')?.errors?.['required']) {
+                {{ ts.t('signup.emailRequired') }}
+              } @else if (signupForm.get('email')?.errors?.['email']) {
+                {{ ts.t('signup.emailInvalid') }}
+              }
+            </mat-error>
+          }
+        </mat-form-field>
 
-        <div class="field">
-          <label for="signupPassword">Mot de passe</label>
-          <input
-            id="signupPassword"
-            type="password"
-            placeholder="Minimum 6 caractères"
-            formControlName="password"
-          />
-          <div class="field-error" *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.invalid">
-            <span *ngIf="signupForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
-            <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Minimum 6 caractères</span>
-            <span *ngIf="signupForm.get('password')?.errors?.['maxlength']">Maximum 128 caractères</span>
-          </div>
-        </div>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>{{ ts.t('signup.password') }}</mat-label>
+          <input matInput type="password" [placeholder]="ts.t('signup.passwordPlaceholder')" formControlName="password" />
+          @if (signupForm.get('password')?.touched && signupForm.get('password')?.invalid) {
+            <mat-error>
+              @if (signupForm.get('password')?.errors?.['required']) {
+                {{ ts.t('signup.passwordRequired') }}
+              } @else if (signupForm.get('password')?.errors?.['minlength']) {
+                {{ ts.t('signup.passwordMinLength') }}
+              } @else if (signupForm.get('password')?.errors?.['maxlength']) {
+                {{ ts.t('signup.passwordMaxLength') }}
+              }
+            </mat-error>
+          }
+        </mat-form-field>
 
-        <div class="field">
-          <label for="signupPasswordConfirm">Confirmer le mot de passe</label>
-          <input
-            id="signupPasswordConfirm"
-            type="password"
-            placeholder="Confirmer le mot de passe"
-            formControlName="passwordConfirmation"
-          />
-          <div class="field-error" *ngIf="signupForm.get('passwordConfirmation')?.touched && signupForm.get('passwordConfirmation')?.invalid">
-            <span *ngIf="signupForm.get('passwordConfirmation')?.errors?.['required']">La confirmation est requise</span>
-            <span *ngIf="signupForm.get('passwordConfirmation')?.errors?.['minlength']">Minimum 6 caractères</span>
-            <span *ngIf="signupForm.get('passwordConfirmation')?.errors?.['maxlength']">Maximum 128 caractères</span>
-          </div>
-          <div class="field-error" *ngIf="signupForm.errors?.['passwordMismatch'] && signupForm.get('passwordConfirmation')?.touched">
-            Les mots de passe ne correspondent pas
-          </div>
-        </div>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>{{ ts.t('signup.passwordConfirmation') }}</mat-label>
+          <input matInput type="password" [placeholder]="ts.t('signup.passwordConfirmationPlaceholder')" formControlName="passwordConfirmation" />
+          @if (signupForm.get('passwordConfirmation')?.touched && signupForm.get('passwordConfirmation')?.invalid) {
+            <mat-error>
+              @if (signupForm.get('passwordConfirmation')?.errors?.['required']) {
+                {{ ts.t('signup.passwordConfirmationRequired') }}
+              } @else if (signupForm.get('passwordConfirmation')?.errors?.['minlength']) {
+                {{ ts.t('signup.passwordMinLength') }}
+              } @else if (signupForm.get('passwordConfirmation')?.errors?.['maxlength']) {
+                {{ ts.t('signup.passwordMaxLength') }}
+              }
+            </mat-error>
+          }
+          @if (signupForm.errors?.['passwordMismatch'] && signupForm.get('passwordConfirmation')?.touched) {
+            <mat-error>{{ ts.t('signup.passwordMismatch') }}</mat-error>
+          }
+        </mat-form-field>
 
-        <div *ngIf="errorMessage" class="error-message">
-          {{ errorMessage }}
-        </div>
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
 
         <div class="form__actions signup-actions">
-          <button type="submit" class="primary" [disabled]="isLoading || signupForm.invalid">
-            {{ isLoading ? 'Inscription...' : 'Créer le compte' }}
+          <button mat-flat-button type="submit" class="btn-primary" [disabled]="isLoading || signupForm.invalid">
+            {{ isLoading ? ts.t('signup.loading') : ts.t('signup.submit') }}
           </button>
         </div>
       </form>
     </section>
 
-    <p class="access-note"><a routerLink="/login">Déjà inscrit? Se connecter</a></p>
+    <p class="access-note"><a routerLink="/login">{{ ts.t('signup.loginLink') }}</a></p>
   </div>
 </main>
