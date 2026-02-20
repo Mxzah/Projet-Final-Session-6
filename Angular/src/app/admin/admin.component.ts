@@ -9,11 +9,12 @@ import { TranslationService } from '../services/translation.service';
 import { HeaderComponent } from '../header/header.component';
 import { AdminTablesComponent } from '../admin-tables/admin-tables.component';
 import { AdminItemsComponent } from '../admin-items/admin-items.component';
+import { AdminUsersComponent } from '../admin-users/admin-users.component';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, MatTabsModule, MatButtonModule, MatIconModule, HeaderComponent, AdminTablesComponent, AdminItemsComponent],
+  imports: [CommonModule, MatTabsModule, MatButtonModule, MatIconModule, HeaderComponent, AdminTablesComponent, AdminItemsComponent, AdminUsersComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css']
 })

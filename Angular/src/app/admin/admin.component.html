@@ -10,6 +10,7 @@
   <mat-tab-group class="admin-tabs" [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
     <mat-tab label="Tables"></mat-tab>
     <mat-tab label="Items"></mat-tab>
+    <mat-tab [label]="ts.t('admin.users.tab')"></mat-tab>
   </mat-tab-group>
 </div>
 
@@ -20,5 +21,9 @@
 
   @if (tabIndex === 1) {
     <app-admin-items />
+  }
+
+  @if (tabIndex === 2) {
+    <app-admin-users />
   }
 </div>
