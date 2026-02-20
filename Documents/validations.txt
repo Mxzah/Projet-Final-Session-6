@@ -1,0 +1,202 @@
+================================================================================
+          ACTIONS RÉFÉRENTIELLES ET VALIDATIONS — Par entité
+          Application de commande en restaurant par code QR
+================================================================================
+
+
+[CATEGORY]
+
+Actions référentielles:
+  - Aucune (Category ne possède aucune clé étrangère)
+
+Validations:
+  - name : présence obligatoire, longueur maximale 100 caractères, unique, ne peut pas être composé uniquement d'espaces
+  - position : présence obligatoire, unique, défaut 0, CHECK (position >= 0 AND position <= 100)
+
+Ne pas pouvoir la supprimer si elle possede des availability sauf si l'utilisateur decide de supprimer les availability (case a cocher)
+Ne pas pouvoir supprimer une categorie qui possede des items (meme si soft deleted et pas commander)
+--------------------------------------------------------------------------------
+
+
+[ITEM]
+
+Actions référentielles:
+  - Category : RESTRICT (empêcher la suppression de la catégorie si des items y sont liés)
+
+Validations:
+  - name : présence obligatoire, longueur maximale 100 caractères, ne peut pas être composé uniquement d'espaces
+  - description : optionnel, longueur maximale 255 caractères, ne peut pas être composé uniquement d'espaces
+  - price : présence obligatoire, decimal(6,2), CHECK (price >= 0 AND price <= 9999.99)
+  - category_id : présence obligatoire, doit exister dans Category
+  - image : présence obligatoire, type de fichier (jpg, png), CHECK (size <= 5 MB)
+  - deleted_at : Validation applicative, update doit être égal à NOW() lors du soft delete, a l'insertion = null
+
+Note: Pas de guard sur le menu (accessible à tout le monde)
+--------------------------------------------------------------------------------
+
+
+[ORDER]
+
+Actions référentielles:
+  - Table : SOFT DELETE (la table référencée utilise le soft delete)
+  - User (client) : SOFT DELETE (l'utilisateur référencé utilise le soft delete)
+  - User (server) : SOFT DELETE (l'utilisateur référencé utilise le soft delete)
+  - Vibe : SOFT DELETE (la vibe référencée utilise le soft delete)
+
+Validations:
+  - nb_people : présence obligatoire, CHECK (nb_people >= 1 AND nb_people <= 20), ne peut pas dépasser le nb_seats de la table associée
+  - note : optionnel, longueur maximale 255 caractères, ne peut pas être composé uniquement d'espaces
+  - tip : optionnel, decimal(5,2), CHECK (tip >= 0 AND tip <= 999.99)
+  - ended_at : optionnel, CHECK (ended_at >= created_at) si présent
+  - table_id : présence obligatoire, doit exister dans Table
+  - client_id : présence obligatoire, doit exister dans User, un client ne peut avoir qu'une seule commande ouverte (ended_at IS NULL) à la fois
+  - server_id : optionnel, doit exister dans User si présent
+  - vibe_id : optionnel, doit exister dans Vibe si présent
+  - deleted_at : Validation applicative, doit être égal à NOW() lors du soft delete
+
+
+--------------------------------------------------------------------------------
+
+
+[ORDER_LINE] (Polymorphique: Item, Combo)
+
+Actions référentielles:
+  - Order : SOFT DELETE (la commande référencée utilise le soft delete)
+
+Validations:
+  - quantity : présence obligatoire, CHECK (quantity >= 1 AND quantity <= 50)
+  - unit_price : présence obligatoire, decimal(6,2), CHECK (unit_price >= 0 AND unit_price <= 9999.99)
+  - note : optionnel, longueur maximale 255 caractères, ne peut pas être composé uniquement d'espaces
+  - status : présence obligatoire, inclusion dans [sent, in_preparation, ready, served], défaut 'sent'
+  - order_id : présence obligatoire, doit exister dans Order
+  - orderable_type : présence obligatoire, inclusion dans [Item, Combo]
+  - orderable_id : présence obligatoire, doit exister dans la table correspondante
+  - Validation applicative : le status doit suivre l'ordre séquentiel (sent → in_preparation → ready → served), aucune étape ne peut être sautée
+  - Validation applicative : l'item ou le combo référencé doit être disponible selon la table Availability
+  - Validation applicative : une ligne ne peut être supprimée/modifiée que si son status est 'sent' (hard delete)
+
+
+--------------------------------------------------------------------------------
+
+
+[TABLE]
+
+Actions référentielles:
+  - Aucune (Table ne possède aucune clé étrangère)
+
+Validations:
+  - number : présence obligatoire, unique, CHECK (number >= 1 AND number <= 999)
+  - nb_seats : présence obligatoire, CHECK (nb_seats >= 1 AND nb_seats <= 20)
+  - image : type de fichier (jpg, png), CHECK (size <= 5 MB)
+  - temporary_code : optionnel, unique, longueur maximale 50 caractères
+  - cleaned_at : optionnel, CHECK (cleaned_at >= created_at) si présent
+  - deleted_at : Validation applicative, doit être égal à NOW() lors du soft delete
+
+Note: Avoir un écran au milieu de la table qui génère un code QR different à chaque 10 secondes (et l'ancien doit expirer)
+--------------------------------------------------------------------------------
+
+
+[VIBE]
+
+Actions référentielles:
+  - Aucune (Vibe ne possède aucune clé étrangère)
+
+Validations:
+  - name : présence obligatoire, unique, longueur maximale 50 caractères, ne peut pas être composé uniquement d'espaces
+  - color : présence obligatoire, longueur maximale 7 caractères, ne peut pas être composé uniquement d'espaces
+  - image : type de fichier (jpg, png), CHECK (size <= 5 MB)
+  - deleted_at : Validation applicative, doit être égal à NOW() lors du soft delete
+
+Note: Possibilité de réactiver une vibe, si celle-ci à été soft delete et qu'on essaie d'en créer une nouvelle avec le même nom
+--------------------------------------------------------------------------------
+
+
+[COMBO]
+
+Actions référentielles:
+  - Aucune (Combo ne possède aucune clé étrangère)
+
+Validations:
+  - name : présence obligatoire, longueur maximale 100 caractères, ne peut pas être composé uniquement d'espaces
+  - description : optionnel, longueur maximale 255 caractères, ne peut pas être composé uniquement d'espaces
+  - price : présence obligatoire, decimal(6,2), CHECK (price >= 0 AND price <= 9999.99)
+  - image : type de fichier (jpg, png), CHECK (size <= 5 MB)
+  - deleted_at : Validation applicative, doit être égal à NOW() lors du soft delete
+
+
+--------------------------------------------------------------------------------
+
+
+[COMBO_ITEM]
+
+Actions référentielles:
+  - Combo : SOFT DELETE (le combo référencé utilise le soft delete)
+  - Item : SOFT DELETE (l'item référencé utilise le soft delete)
+
+Validations:
+  - combo_id : présence obligatoire, doit exister dans Combo
+  - item_id : présence obligatoire, doit exister dans Item
+  - quantity : présence obligatoire, CHECK (quantity >= 1 AND quantity <= 10)
+  - (combo_id, item_id) : index unique combiné (un item ne peut apparaître qu'une fois par combo)
+  - deleted_at : Validation applicative, doit être égal à NOW() lors du soft delete
+
+
+--------------------------------------------------------------------------------
+
+
+[USER] (STI: Administrator, Server, Client)
+
+Actions référentielles:
+  - Aucune (User ne possède aucune clé étrangère)
+
+Validations:
+  - type : présence obligatoire, inclusion dans [Administrator, Server, Client]
+  - first_name : présence obligatoire, longueur maximale 50 caractères, ne peut pas être composé uniquement d'espaces
+  - last_name : présence obligatoire, longueur maximale 50 caractères, ne peut pas être composé uniquement d'espaces
+  - email : présence obligatoire, unique, format courriel valide
+  - password : présence obligatoire à la création, longueur minimale 6 caractères
+  - status : présence obligatoire, inclusion dans [active, inactive, blocked], défaut 'active'
+  - deleted_at : Validation applicative, doit être égal à NOW() lors du soft delete
+
+
+--------------------------------------------------------------------------------
+
+
+[REVIEW] (Polymorphique: Item, Combo, User/Server)
+
+Actions référentielles:
+  - User : SOFT DELETE (l'utilisateur auteur de la review utilise le soft delete)
+
+Validations:
+  - rating : présence obligatoire, CHECK (rating >= 1 AND rating <= 5)
+  - comment : présence obligatoire, longueur maximale 500 caractères, ne peut pas être composé uniquement d'espaces
+  - user_id : présence obligatoire, doit exister dans User, l'utilisateur doit être de type Client
+  - reviewable_type : présence obligatoire, inclusion dans [Item, Combo, User]
+  - reviewable_id : présence obligatoire, doit exister dans la table correspondante
+  - images : type de fichier (jpg, png), CHECK (size <= 5 MB chacune)
+  - updated_at : optionnel
+  - Validation applicative : la review doit être liée à un item ou combo que le client a commandé
+  - deleted_at : Validation applicative, doit être égal à NOW() lors du soft delete
+
+--------------------------------------------------------------------------------
+
+
+[AVAILABILITY] (Polymorphique: Category, Item, Table, Combo)
+
+Actions référentielles:
+  - Aucune (Availability utilise des associations polymorphiques, pas de FK directes)
+
+Validations:
+  - start_at : présence obligatoire, CHECK (start_at >=  NOW())
+  - end_at : optionnel, CHECK (end_at >= start_at) si présent, durée minimale selon le type :
+      - Category : minimum 1 heure
+      - Item : minimum 1 h
+      - Combo : minimum 1 h
+      - Table : minimum 1 h
+  - description : optionnel, longueur maximale 255 caractères, ne peut pas être composé uniquement d'espaces
+  - available_type : présence obligatoire, inclusion dans [Category, Item, Table, Combo]
+  - available_id : présence obligatoire, doit exister dans la table correspondante
+
+Validation Applicative: Un meme item (available_id, available_type) ne peut pas avoir plusieurs periodes qui se chevauche
+Lorsque je supprime mon item, je veux que les availability future se supprimer et si une periode est en cours, tu lui assigne le temps de deleted_at de l'item
+Tu ne peux creer un availability sur un item qui est soft delete

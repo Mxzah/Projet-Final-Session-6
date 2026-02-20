@@ -1,0 +1,223 @@
+@startuml
+skinparam linetype ortho
+
+skinparam entity {
+    BorderColor #2C3E50
+    ArrowColor #2C3E50
+}
+
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #B0BEC5
+    FontSize 10
+}
+
+entity "Category" <<Mathis>> #A3D5FF {
+    * id : int (PK)
+    --
+    name : varchar(100) NOT NULL, UNIQUE
+    position : int NOT NULL, UNIQUE, DEFAULT 0, CHECK (position >= 0 AND position <= 100)
+    created_at : datetime NOT NULL
+}
+
+entity "Item *" <<Mathis>> #A3D5FF {
+    * id : int (PK)
+    --
+    name : varchar(100) NOT NULL
+    description : varchar(255)
+    price : decimal(6,2) NOT NULL, CHECK (price >= 0 AND price <= 9999.99)
+    image : Active Storage NOT NULL, CHECK (size <= 5MB)
+    category_id : int (FK) NOT NULL
+    created_at : datetime NOT NULL
+    deleted_at : datetime (SOFT DELETE)
+}
+
+entity "Order" <<Will>> #A8E6CF {
+    * id : int (PK)
+    --
+    nb_people : int NOT NULL, CHECK (nb_people >= 1 AND nb_people <= 20)
+    note : varchar(255)
+    tip : decimal(5,2), CHECK (tip >= 0 AND tip <= 999.99)
+    created_at : datetime NOT NULL
+    ended_at : datetime, CHECK (ended_at >= created_at)
+    table_id : int (FK) NOT NULL
+    client_id : int (FK) NOT NULL
+    server_id : int (FK)
+    vibe_id : int (FK)
+    deleted_at : datetime (SOFT DELETE)
+}
+
+entity "OrderLine" <<Will>> #A8E6CF {
+    * id : int (PK)
+    --
+    quantity : int NOT NULL, CHECK (quantity >= 1 AND quantity <= 50)
+    unit_price : decimal(6,2) NOT NULL, CHECK (unit_price >= 0 AND unit_price <= 9999.99)
+    note : varchar(255)
+    status : enum('sent','in_preparation','ready','served') NOT NULL, DEFAULT 'sent'
+    order_id : int (FK) NOT NULL
+    orderable_type : varchar(50) NOT NULL
+    orderable_id : int NOT NULL
+    created_at : datetime NOT NULL
+}
+
+entity "Table *" <<Alex>> #FFD6A5 {
+    * id : int (PK)
+    --
+    number : int NOT NULL, UNIQUE, CHECK (number >= 1 AND number <= 999)
+    nb_seats : int NOT NULL, CHECK (nb_seats >= 1 AND nb_seats <= 20)
+    image : Active Storage, CHECK (size <= 5MB)
+    temporary_code : varchar(50) UNIQUE
+    cleaned_at : datetime, CHECK (cleaned_at >= created_at)
+    created_at : datetime NOT NULL
+    deleted_at : datetime (SOFT DELETE)
+}
+
+entity "Vibe *" <<Will>> #A8E6CF {
+    * id : int (PK)
+    --
+    name : varchar(50) NOT NULL, UNIQUE
+    color : varchar(7) NOT NULL
+    image : Active Storage, CHECK (size <= 5MB)
+    created_at : datetime NOT NULL
+    deleted_at : datetime (SOFT DELETE)
+}
+
+entity "Combo *" <<Alex>> #FFD6A5 {
+    * id : int (PK)
+    --
+    name : varchar(100) NOT NULL
+    description : varchar(255)
+    price : decimal(6,2) NOT NULL, CHECK (price >= 0 AND price <= 9999.99)
+    image : Active Storage, CHECK (size <= 5MB)
+    created_at : datetime NOT NULL
+    deleted_at : datetime (SOFT DELETE)
+}
+
+entity "ComboItem" <<Alex>> #FFD6A5 {
+    * id : int (PK)
+    --
+    combo_id : int (FK) NOT NULL
+    item_id : int (FK) NOT NULL
+    quantity : int NOT NULL, CHECK (quantity >= 1 AND quantity <= 10)
+    (combo_id, item_id) : UNIQUE
+    deleted_at : datetime (SOFT DELETE)
+}
+
+entity "User" <<Samer>> #D5A6E6 {
+    * id : int (PK)
+    --
+    type : varchar(20) NOT NULL (STI)
+    first_name : varchar(50) NOT NULL
+    last_name : varchar(50) NOT NULL
+    email : varchar(255) NOT NULL, UNIQUE
+    password : varchar(255) NOT NULL
+    status : varchar(20) NOT NULL, CHECK (status IN ('active','inactive','blocked')), DEFAULT 'active'
+    created_at : datetime NOT NULL
+    deleted_at : datetime (SOFT DELETE)
+}
+
+
+entity "Review *" <<Samer>> #D5A6E6 {
+    * id : int (PK)
+    --
+    rating : int NOT NULL, CHECK (rating >= 1 AND rating <= 5)
+    comment : varchar(500) NOT NULL
+    images : Active Storage (many), CHECK (size <= 5MB each)
+    created_at : datetime NOT NULL
+    updated_at : datetime
+    user_id : int (FK) NOT NULL
+    reviewable_type : varchar(50) NOT NULL
+    reviewable_id : int NOT NULL
+    deleted_at : datetime (SOFT DELETE)
+}
+
+entity "Availability" <<Mathis>> #A3D5FF {
+    * id : int (PK)
+    --
+    start_at : datetime NOT NULL, CHECK (start_at >=  NOW())
+    end_at : datetime, CHECK (end_at >= start_at)
+    description : varchar(255)
+    available_type : varchar(50) NOT NULL
+    available_id : int NOT NULL
+    created_at : datetime NOT NULL
+}
+
+' === INDEX ===
+
+note as N1
+  **INDEX**
+  ----
+  **Foreign Keys (btree)**
+  idx_items_category_id ON Item(category_id)
+  idx_orders_table_id ON Order(table_id)
+  idx_orders_client_id ON Order(client_id)
+  idx_orders_server_id ON Order(server_id)
+  idx_orders_vibe_id ON Order(vibe_id)
+  idx_order_lines_order_id ON OrderLine(order_id)
+  idx_combo_items_combo_id ON ComboItem(combo_id)
+  idx_combo_items_item_id ON ComboItem(item_id)
+  idx_reviews_user_id ON Review(user_id)
+  ----
+  **Unique**
+  uniq_categories_name ON Category(name)
+  uniq_categories_position ON Category(position)
+  uniq_tables_number ON Table(number)
+  uniq_tables_temporary_code ON Table(temporary_code)
+  uniq_vibes_name ON Vibe(name)
+  uniq_users_email ON User(email)
+  uniq_combo_items ON ComboItem(combo_id, item_id)
+  ----
+  **Soft Delete**
+  idx_items_deleted_at ON Item(deleted_at)
+  idx_orders_deleted_at ON Order(deleted_at)
+  idx_combos_deleted_at ON Combo(deleted_at)
+  idx_users_deleted_at ON User(deleted_at)
+  idx_tables_deleted_at ON Table(deleted_at)
+  idx_vibes_deleted_at ON Vibe(deleted_at)
+  idx_combo_items_deleted_at ON ComboItem(deleted_at)
+  idx_reviews_deleted_at ON Review(deleted_at)
+  ----
+  **Polymorphique**
+  idx_order_lines_type_id ON OrderLine(orderable_type, orderable_id)
+  idx_reviews_type_id ON Review(reviewable_type, reviewable_id)
+  idx_availabilities_type_id ON Availability(available_type, available_id)
+  ----
+  **Recherche / Filtrage**
+  idx_orders_created_at ON Order(created_at)
+  idx_order_lines_status ON OrderLine(status)
+  idx_users_type ON User(type)
+  idx_users_status ON User(status)
+end note
+
+' === RELATIONS ===
+
+Category "1" -- "*" "Item *"
+"Item *" "1" .. "*" OrderLine
+"Item *" "1" .. "*" "Review *"
+"Order" "1" -- "1..*" OrderLine
+"Table *" "1" -- "*" "Order"
+"Vibe *" "0..1" -- "*" "Order"
+"User" "1" -- "*" "Order" : client
+"User" "0..1" -- "*" "Order" : server
+"User" "1" -- "*" "Review *"
+"Combo *" "1" -- "*" ComboItem
+"Item *" "1" -- "*" ComboItem
+"Combo *" "1" .. "*" OrderLine
+"Combo *" "1" .. "*" "Review *"
+"User" "1" .. "*" "Review *" : server
+Category "1" .. "*" Availability
+"Item *" "1" .. "*" Availability
+"Table *" "1" .. "*" Availability
+"Combo *" "1" .. "*" Availability
+
+
+legend right
+    | Color | Person | Module |
+    |<#A3D5FF>| Mathis | Module 1 - Menu |
+    |<#A8E6CF>| Will | Module 2 - Orders |
+    |<#FFD6A5>| Alex | Module 3 - Tables & Combos |
+    |<#D5A6E6>| Samer | Module 4 - Users & Reviews |
+
+    `*` = File management (Active Storage)
+endlegend
+@enduml
