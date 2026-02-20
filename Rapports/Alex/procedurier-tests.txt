@@ -1,0 +1,190 @@
+================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+                  Page : Administration des tables (admin-tables)
+================================================================================
+
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca   / password123
+  - Client   : client@restoqr.ca  / password123
+  - Serveur  : waiter@restoqr.ca  / password123
+
+================================================================================
+MODULE 1 — Accès à la page admin-tables
+================================================================================
+
+1.1  Accès sans être connecté
+     - Ouvrir directement l'URL /admin/tables sans être connecté
+     - Redirection automatique vers /login
+
+1.2  Accès avec un compte client
+     Avec client@restoqr.ca : password123
+     - Se connecter puis accéder à /admin/tables
+     - Redirection automatique vers /menu
+
+1.3  Accès avec un compte serveur
+     Avec waiter@restoqr.ca : password123
+     - Se connecter puis accéder à /admin/tables
+     - Redirection automatique vers /menu
+
+1.4  Accès avec un compte admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter puis accéder à /admin/tables
+     - La page d'administration des tables s'affiche correctement
+     - Le header affiche « Admin », « Déconnexion », « Quitter »
+     - Le bouton « Quitter » permet de revenir à la page précédente
+
+================================================================================
+MODULE 2 — Affichage de la liste des tables
+================================================================================
+
+2.1  Chargement initial
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/tables
+     - Un spinner de chargement (mat-spinner) s'affiche pendant le chargement
+     - Une fois chargé, les tables s'affichent en grille, triées par numéro
+
+2.2  Affichage des cartes
+     - Chaque carte affiche : numéro, capacité, statut (occupée/disponible), QR code
+     - Statut : chip « Disponible » (vert) ou « Occupée » (rouge)
+     - QR code généré dynamiquement, bouton pour télécharger SVG/PNG
+     - Bouton « Copier le lien » : copie l'URL de la table
+     - Boutons « modifier » (icône edit) et « supprimer » (icône delete)
+     - L'URL de la table est affichée sous le QR code
+
+2.3  État vide
+     - Si aucune table n'existe, le message « Aucune table trouvée » s'affiche
+
+================================================================================
+MODULE 3 — Création d'une table
+================================================================================
+
+3.1  Ouverture de la modal de création
+     Avec admin@restoqr.ca : password123
+     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
+     - Le titre de la modal est « Ajouter une table »
+     - Les champs sont vides (numéro, capacité)
+     - Bouton « Annuler » et « Ajouter »
+
+3.2  Validation — Numéro requis
+     - Laisser le champ « Numéro » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le numéro est requis »
+
+3.3  Validation — Numéro trop petit
+     - Entrer un numéro < 1
+     - Message d'erreur : « Le numéro doit être >= 1 »
+
+3.4  Validation — Numéro trop grand
+     - Entrer un numéro > 999
+     - Message d'erreur : « Le numéro doit être <= 999 »
+
+3.5  Validation — Numéro en doublon
+     - Entrer un numéro déjà utilisé
+     - Message d'erreur : « Ce numéro est déjà utilisé »
+
+3.6  Validation — Capacité requise
+     - Laisser le champ « Capacité » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « La capacité est requise »
+
+3.7  Validation — Capacité trop petite
+     - Entrer une capacité < 1
+     - Message d'erreur : « La capacité doit être >= 1 »
+
+3.8  Validation — Capacité trop grande
+     - Entrer une capacité > 20
+     - Message d'erreur : « La capacité doit être <= 20 »
+
+3.9  Création réussie
+     - Remplir tous les champs avec des valeurs valides (numéro, capacité)
+     - Clic sur « Ajouter »
+     - La modal se ferme
+     - La nouvelle table apparaît dans la liste
+
+3.10 Annulation
+     - Remplir des champs puis cliquer sur « Annuler »
+     - La modal se ferme, aucune table n'est créée
+
+================================================================================
+MODULE 4 — Modification d'une table
+================================================================================
+
+4.1  Ouverture de la modal de modification
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « edit » d'une table existante
+     - La modal s'ouvre avec le titre « Modifier la table »
+     - Les champs sont pré-remplis (numéro, capacité)
+     - Bouton « Annuler » et « Enregistrer »
+
+4.2  Validations
+     - Mêmes validations que la création (3.2 à 3.8)
+
+4.3  Modification réussie
+     - Modifier le numéro et/ou la capacité d'une table existante
+     - Clic sur « Enregistrer »
+     - La modal se ferme
+     - La table mise à jour s'affiche dans la liste avec les nouvelles valeurs
+
+4.4  Annulation
+     - Modifier des champs puis cliquer sur « Annuler »
+     - La modal se ferme, la table n'est pas modifiée
+
+================================================================================
+MODULE 5 — Suppression d'une table
+================================================================================
+
+5.1  Ouverture de la modal de confirmation
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « delete » d'une table
+     - Une modal de confirmation s'ouvre
+     - Le message affiche le numéro de la table à supprimer
+     - Bouton « Annuler » et « Supprimer »
+
+5.2  Annulation de la suppression
+     - Clic sur « Annuler » : La modal se ferme, la table est toujours dans la liste
+
+5.3  Fermeture par le bouton X
+     - Clic sur le bouton « X » : La modal se ferme, la table est toujours dans la liste
+
+5.4  Confirmation de la suppression
+     - Clic sur « Supprimer »
+     - La modal se ferme
+     - La table disparaît de la liste
+
+================================================================================
+MODULE 6 — QR code et copie de lien
+================================================================================
+
+6.1  Affichage du QR code
+     - Chaque carte de table affiche un QR code unique
+     - Le QR code correspond à l'URL de la table
+     - Le QR code est stylisé selon les paramètres (couleur, forme)
+
+6.2  Copie du lien
+     - Clic sur le bouton « Copier le lien » : L'URL de la table est copiée dans le presse-papier
+     - Un message « Copié ! » s'affiche
+
+6.3  Téléchargement du QR code
+     - Clic sur « Télécharger SVG » ou « Télécharger PNG » : Le QR code est téléchargé
+
+================================================================================
+MODULE 7 — Traduction (admin-tables)
+================================================================================
+
+7.1 Traduction en anglais
+     Avec admin@restoqr.ca : password123
+     - Changer la langue à « English » via le header
+     - Le titre passe à « Tables Management »
+     - Les boutons passent en anglais (Add, Save, Cancel, Delete)
+     - Les labels des champs passent en anglais (Number, Capacity)
+     - Les messages de validation passent en anglais
+     - Les messages de confirmation de suppression passent en anglais
+
+7.2 Traduction en français
+     - Changer la langue à « Français » via le header
+     - Tous les textes reviennent en français
+
+7.3 Persistance de la langue
+     - Changer la langue à « English »
+     - Rafraîchir la page
+     - L'interface reste en anglais
+
+================================================================================
