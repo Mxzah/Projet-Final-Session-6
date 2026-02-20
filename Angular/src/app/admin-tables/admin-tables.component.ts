@@ -1,7 +1,17 @@
 import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 import { ApiService } from '../services/api.service';
+import { TranslationService } from '../services/translation.service';
 import QRCodeStyling from 'styled-qr-code';
 
 interface TableInfo {
@@ -15,7 +25,12 @@ interface TableInfo {
 @Component({
     selector: 'app-admin-tables',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [
+        CommonModule, FormsModule,
+        MatCardModule, MatButtonModule, MatIconModule,
+        MatFormFieldModule, MatInputModule, MatSelectModule,
+        MatProgressSpinnerModule, MatTooltipModule, MatChipsModule
+    ],
     templateUrl: './admin-tables.component.html',
     styleUrls: ['./admin-tables.component.css']
 })
@@ -25,6 +40,7 @@ export class AdminTablesComponent implements OnInit {
     copiedToken: string | null = null;
 
     // New table form
+    isCreateModalOpen = false;
     newTableNumber: number | null = null;
     newTableCapacity: number = 4;
     isCreating = false;
@@ -61,7 +77,8 @@ export class AdminTablesComponent implements OnInit {
     constructor(
         private apiService: ApiService,
         private cdr: ChangeDetectorRef,
-        private ngZone: NgZone
+        private ngZone: NgZone,
+        public ts: TranslationService
     ) { }
 
     ngOnInit(): void {
@@ -207,16 +224,29 @@ export class AdminTablesComponent implements OnInit {
             next: (response) => {
                 this.isCreating = false;
                 if (response.success) {
-                    this.newTableNumber = null;
-                    this.newTableCapacity = 4;
+                    this.cancelCreate();
                     this.loadTables();
                 }
             },
             error: (error) => {
                 this.isCreating = false;
-                this.errorMessage = error?.errors?.[0] || 'Erreur lors de la création.';
+                this.errorMessage = error?.errors?.[0] || this.ts.t('tables.createError');
             }
         });
+    }
+
+    openCreate(): void {
+        this.isCreateModalOpen = true;
+        this.newTableNumber = null;
+        this.newTableCapacity = 4;
+        this.errorMessage = null;
+    }
+
+    cancelCreate(): void {
+        this.isCreateModalOpen = false;
+        this.newTableNumber = null;
+        this.newTableCapacity = 4;
+        this.errorMessage = null;
     }
 
     // Edit
@@ -255,7 +285,7 @@ export class AdminTablesComponent implements OnInit {
             },
             error: (error) => {
                 this.isUpdating = false;
-                this.editErrorMessage = error?.errors?.[0] || 'Erreur lors de la modification.';
+                this.editErrorMessage = error?.errors?.[0] || this.ts.t('tables.editError');
             }
         });
     }
@@ -281,9 +311,21 @@ export class AdminTablesComponent implements OnInit {
             error: (error) => {
                 this.deletingTableId = null;
                 this.confirmDeleteId = null;
-                alert(error?.errors?.[0] || 'Erreur lors de la suppression.');
+                alert(error?.errors?.[0] || this.ts.t('tables.deleteError'));
             }
         });
+    }
+
+    getTableNumberById(id: number): number {
+        const table = this.tables.find(t => t.id === id);
+        return table ? table.number : 0;
+    }
+
+    confirmDeleteAction(): void {
+        const table = this.tables.find(t => t.id === this.confirmDeleteId);
+        if (table) {
+            this.confirmDelete(table);
+        }
     }
 
 }

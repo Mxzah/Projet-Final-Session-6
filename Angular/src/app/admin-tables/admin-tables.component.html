@@ -1,170 +1,229 @@
 <main class="page-admin">
   <div class="outer-container">
     <div class="welcome-header">
-      <h2 class="welcome-title">Gestion des tables</h2>
-      <p class="welcome-text">Créez des tables, personnalisez et téléchargez vos QR codes.</p>
+      <h2 class="welcome-title">
+        {{ ts.t('tables.title') }}
+        <button mat-mini-fab class="btn-add" [title]="ts.t('tables.addTable')" (click)="openCreate()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </h2>
+      <p class="welcome-text">{{ ts.t('tables.subtitle') }}</p>
     </div>
 
     <!-- QR Style Customization -->
-    <section class="inner-container style-section">
-      <h3>🎨 Style des QR codes</h3>
+    <mat-card class="style-card">
+      <mat-card-header>
+        <mat-card-title class="section-title">
+          <mat-icon class="section-icon">palette</mat-icon>
+          {{ ts.t('tables.qrStyle') }}
+        </mat-card-title>
+      </mat-card-header>
 
-      <div class="base-url-field">
-        <label>🔗 URL de base (pour les QR codes)</label>
-        <input type="text" [(ngModel)]="baseUrl" (ngModelChange)="onBaseUrlChange()" placeholder="https://votre-url.ngrok-free.dev" />
-        <small>Utilise l'URL ngrok pour que les QR fonctionnent sur mobile</small>
-      </div>
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>{{ ts.t('tables.baseUrl') }}</mat-label>
+          <mat-icon matPrefix>link</mat-icon>
+          <input matInput [(ngModel)]="baseUrl" (ngModelChange)="onBaseUrlChange()" placeholder="https://votre-url.ngrok-free.dev" />
+        </mat-form-field>
 
-      <div class="style-grid">
-        <div class="style-field">
-          <label>Motif des points</label>
-          <select [(ngModel)]="qrDotType" (ngModelChange)="onStyleChange()">
-            @for (dt of dotTypes; track dt) {
-              <option [value]="dt">{{ dt }}</option>
-            }
-          </select>
-        </div>
-        <div class="style-field">
-          <label>Couleur des points</label>
-          <div class="color-row">
-            <input type="color" [(ngModel)]="qrDotColor" (ngModelChange)="onStyleChange()" />
-            <code>{{ qrDotColor }}</code>
-          </div>
-        </div>
-        <div class="style-field">
-          <label>Coins (carré)</label>
-          <select [(ngModel)]="qrCornerSquareType" (ngModelChange)="onStyleChange()">
-            @for (ct of cornerSquareTypes; track ct) {
-              <option [value]="ct">{{ ct }}</option>
-            }
-          </select>
-        </div>
-        <div class="style-field">
-          <label>Coins (point)</label>
-          <select [(ngModel)]="qrCornerDotType" (ngModelChange)="onStyleChange()">
-            @for (cdt of cornerDotTypes; track cdt) {
-              <option [value]="cdt">{{ cdt }}</option>
-            }
-          </select>
-        </div>
-        <div class="style-field">
-          <label>Couleur des coins</label>
-          <div class="color-row">
-            <input type="color" [(ngModel)]="qrCornerColor" (ngModelChange)="onStyleChange()" />
-            <code>{{ qrCornerColor }}</code>
-          </div>
-        </div>
-        <div class="style-field">
-          <label>Couleur du fond</label>
-          <div class="color-row">
-            <input type="color" [(ngModel)]="qrBgColor" (ngModelChange)="onStyleChange()" />
-            <code>{{ qrBgColor }}</code>
-          </div>
-        </div>
-      </div>
-    </section>
+        <div class="style-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ ts.t('tables.dotPattern') }}</mat-label>
+            <mat-select [(ngModel)]="qrDotType" (ngModelChange)="onStyleChange()">
+              @for (dt of dotTypes; track dt) {
+                <mat-option [value]="dt">{{ dt }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
 
-    <!-- Create new table -->
-    <section class="inner-container create-section">
-      <h3>+ Ajouter une table</h3>
-      <form class="create-form" (ngSubmit)="createTable()">
-        <div class="form-row">
-          <div class="field">
-            <label for="newNumber">Numéro</label>
-            <input id="newNumber" type="number" min="1" placeholder="Ex: 11" [(ngModel)]="newTableNumber" name="number" required />
+          <div class="color-field">
+            <label class="color-label">{{ ts.t('tables.dotColor') }}</label>
+            <div class="color-row">
+              <input type="color" [(ngModel)]="qrDotColor" (ngModelChange)="onStyleChange()" />
+              <code>{{ qrDotColor }}</code>
+            </div>
           </div>
-          <div class="field">
-            <label for="newCapacity">Capacité</label>
-            <input id="newCapacity" type="number" min="1" max="20" [(ngModel)]="newTableCapacity" name="capacity" required />
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ ts.t('tables.cornerSquare') }}</mat-label>
+            <mat-select [(ngModel)]="qrCornerSquareType" (ngModelChange)="onStyleChange()">
+              @for (ct of cornerSquareTypes; track ct) {
+                <mat-option [value]="ct">{{ ct }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ ts.t('tables.cornerDot') }}</mat-label>
+            <mat-select [(ngModel)]="qrCornerDotType" (ngModelChange)="onStyleChange()">
+              @for (cdt of cornerDotTypes; track cdt) {
+                <mat-option [value]="cdt">{{ cdt }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <div class="color-field">
+            <label class="color-label">{{ ts.t('tables.cornerColor') }}</label>
+            <div class="color-row">
+              <input type="color" [(ngModel)]="qrCornerColor" (ngModelChange)="onStyleChange()" />
+              <code>{{ qrCornerColor }}</code>
+            </div>
           </div>
-          <button type="submit" class="primary create-btn" [disabled]="isCreating || !newTableNumber">
-            {{ isCreating ? '...' : 'Créer' }}
-          </button>
+
+          <div class="color-field">
+            <label class="color-label">{{ ts.t('tables.bgColor') }}</label>
+            <div class="color-row">
+              <input type="color" [(ngModel)]="qrBgColor" (ngModelChange)="onStyleChange()" />
+              <code>{{ qrBgColor }}</code>
+            </div>
+          </div>
         </div>
-      </form>
-      @if (errorMessage) {
-        <div class="error-msg">{{ errorMessage }}</div>
-      }
-    </section>
+      </mat-card-content>
+    </mat-card>
 
     <!-- Tables list -->
     @if (isLoading) {
-      <div class="loading">Chargement...</div>
+      <div class="loading">
+        <mat-spinner diameter="48"></mat-spinner>
+      </div>
     }
 
     @if (!isLoading && tables.length === 0) {
-      <div class="empty">Aucune table créée.</div>
+      <div class="empty">{{ ts.t('tables.noTables') }}</div>
     }
 
     @for (table of tables; track table.id) {
-      <section class="table-card">
-        <!-- Confirm delete overlay -->
-        @if (confirmDeleteId === table.id) {
-          <div class="delete-confirm">
-            <p>Supprimer la table #{{ table.number }} ?</p>
-            <div class="delete-confirm-actions">
-              <button class="action-btn danger" (click)="confirmDelete(table)" [disabled]="deletingTableId === table.id">
-                {{ deletingTableId === table.id ? '...' : '🗑 Confirmer' }}
-              </button>
-              <button class="action-btn" (click)="cancelDelete()">Annuler</button>
+      <mat-card class="table-card">
+        <div class="table-top-row">
+          <div class="table-info">
+            <div class="table-number">Table #{{ table.number }}</div>
+            <div class="table-meta">
+              <mat-chip-set>
+                <mat-chip class="chip-capacity" highlighted>{{ table.capacity }} {{ ts.t('tables.seats') }}</mat-chip>
+                <mat-chip [class.chip-available]="table.status === 'available'"
+                          [class.chip-occupied]="table.status === 'occupied'">
+                  {{ table.status === 'available' ? ts.t('tables.available') : table.status === 'occupied' ? ts.t('tables.occupied') : table.status }}
+                </mat-chip>
+              </mat-chip-set>
             </div>
           </div>
-        }
+          <div class="qr-container" [id]="'qr-' + table.qr_token"></div>
+        </div>
 
-        <!-- Edit mode -->
-        @if (editingTableId === table.id) {
-          <div class="edit-form">
-            <h4>Modifier la table #{{ table.number }}</h4>
-            <div class="form-row">
-              <div class="field">
-                <label>Numéro</label>
-                <input type="number" min="1" [(ngModel)]="editNumber" />
-              </div>
-              <div class="field">
-                <label>Capacité</label>
-                <input type="number" min="1" max="20" [(ngModel)]="editCapacity" />
-              </div>
-            </div>
-            @if (editErrorMessage) {
-              <div class="error-msg">{{ editErrorMessage }}</div>
-            }
-            <div class="edit-actions">
-              <button class="action-btn save-btn" (click)="saveEdit()" [disabled]="isUpdating || !editNumber || !editCapacity">
-                {{ isUpdating ? '...' : '💾 Sauvegarder' }}
-              </button>
-              <button class="action-btn" (click)="cancelEdit()">Annuler</button>
-            </div>
-          </div>
-        } @else {
-          <!-- Normal display -->
-          <div class="table-top-row">
-            <div class="table-info">
-              <div class="table-number">Table #{{ table.number }}</div>
-              <div class="table-meta">
-                <span class="badge capacity">{{ table.capacity }} places</span>
-                <span class="badge" [class.available]="table.status === 'available'" [class.occupied]="table.status === 'occupied'">
-                  {{ table.status === 'available' ? 'Disponible' : table.status === 'occupied' ? 'Occupée' : table.status }}
-                </span>
-              </div>
-            </div>
-            <div class="qr-container" [id]="'qr-' + table.qr_token"></div>
-          </div>
+        <div class="table-url">
+          <code class="url-text">{{ getTableUrl(table) }}</code>
+        </div>
 
-          <div class="table-url">
-            <code class="url-text">{{ getTableUrl(table) }}</code>
-          </div>
-
-          <div class="table-actions">
-            <button class="action-btn" (click)="copyUrl(table)">
-              {{ copiedToken === table.qr_token ? '✓ Copié!' : '📋 Copier' }}
-            </button>
-            <button class="action-btn" (click)="downloadQr(table, 'svg')">⬇ SVG</button>
-            <button class="action-btn" (click)="downloadQr(table, 'png')">⬇ PNG</button>
-            <button class="action-btn edit-btn" (click)="startEdit(table)">✏️ Modifier</button>
-            <button class="action-btn danger" (click)="askDelete(table)">🗑 Supprimer</button>
-          </div>
-        }
-      </section>
+        <mat-card-actions class="table-actions">
+          <button mat-stroked-button [matTooltip]="ts.t('tables.copyLink')" (click)="copyUrl(table)">
+            <mat-icon>{{ copiedToken === table.qr_token ? 'check' : 'content_copy' }}</mat-icon>
+            {{ copiedToken === table.qr_token ? ts.t('tables.copied') : ts.t('tables.copy') }}
+          </button>
+          <button mat-stroked-button [matTooltip]="ts.t('tables.downloadSvg')" (click)="downloadQr(table, 'svg')">
+            <mat-icon>download</mat-icon> SVG
+          </button>
+          <button mat-stroked-button [matTooltip]="ts.t('tables.downloadPng')" (click)="downloadQr(table, 'png')">
+            <mat-icon>download</mat-icon> PNG
+          </button>
+          <button mat-icon-button class="action-edit" [matTooltip]="ts.t('tables.edit')" (click)="startEdit(table)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button class="action-delete" [matTooltip]="ts.t('tables.delete')" (click)="askDelete(table)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
     }
   </div>
 </main>
+
+<!-- Modal de confirmation de suppression -->
+@if (confirmDeleteId !== null) {
+  <div class="modal-overlay">
+    <mat-card class="modal">
+      <button mat-icon-button class="modal-close" (click)="cancelDelete()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('tables.deleteTitle') }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="modal-text">{{ ts.t('tables.deleteConfirm') }} <strong>#{{ getTableNumberById(confirmDeleteId) }}</strong> ?</p>
+      </mat-card-content>
+      <mat-card-actions class="modal-actions">
+        <button mat-stroked-button class="btn-cancel" (click)="cancelDelete()">{{ ts.t('tables.cancel') }}</button>
+        <button mat-flat-button class="btn-danger" (click)="confirmDeleteAction()" [disabled]="deletingTableId !== null">
+          {{ deletingTableId !== null ? ts.t('tables.deleting') : ts.t('tables.delete') }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+}
+
+<!-- Modal de modification -->
+@if (editingTableId !== null) {
+  <div class="modal-overlay">
+    <mat-card class="modal modal-edit">
+      <button mat-icon-button class="modal-close" (click)="cancelEdit()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('tables.editTitle') }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (editErrorMessage) {
+          <div class="modal-error">{{ editErrorMessage }}</div>
+        }
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>{{ ts.t('tables.number') }}</mat-label>
+          <input matInput type="number" min="1" [(ngModel)]="editNumber" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>{{ ts.t('tables.capacity') }}</mat-label>
+          <input matInput type="number" min="1" max="20" [(ngModel)]="editCapacity" />
+        </mat-form-field>
+      </mat-card-content>
+      <mat-card-actions class="modal-actions">
+        <button mat-stroked-button class="btn-cancel" (click)="cancelEdit()">{{ ts.t('tables.cancel') }}</button>
+        <button mat-flat-button class="btn-primary" (click)="saveEdit()" [disabled]="isUpdating || !editNumber || !editCapacity">
+          {{ isUpdating ? ts.t('tables.saving') : ts.t('tables.save') }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+}
+
+<!-- Modal de création -->
+@if (isCreateModalOpen) {
+  <div class="modal-overlay">
+    <mat-card class="modal modal-edit">
+      <button mat-icon-button class="modal-close" (click)="cancelCreate()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('tables.addTable') }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (errorMessage) {
+          <div class="modal-error">{{ errorMessage }}</div>
+        }
+        <form (ngSubmit)="createTable()">
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>{{ ts.t('tables.number') }}</mat-label>
+            <input matInput type="number" min="1" placeholder="Ex: 11" [(ngModel)]="newTableNumber" name="number" required />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>{{ ts.t('tables.capacity') }}</mat-label>
+            <input matInput type="number" min="1" max="20" [(ngModel)]="newTableCapacity" name="capacity" required />
+          </mat-form-field>
+          <mat-card-actions class="modal-actions">
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelCreate()">{{ ts.t('tables.cancel') }}</button>
+            <button mat-flat-button type="submit" class="btn-primary" [disabled]="isCreating || !newTableNumber">
+              {{ isCreating ? ts.t('tables.creating') : ts.t('tables.create') }}
+            </button>
+          </mat-card-actions>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

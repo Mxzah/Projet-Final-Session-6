@@ -25,6 +25,25 @@
     font-size: 1.5rem;
     margin: 0 0 0.5rem 0;
     color: var(--rust);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.btn-add {
+    background: var(--copper) !important;
+    color: #fff !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.btn-add:hover {
+    opacity: 0.85;
 }
 
 .welcome-text {
@@ -33,73 +52,68 @@
     color: rgba(27, 26, 23, 0.7);
 }
 
-/* Style section */
-.style-section {
-    background: var(--sand);
-    border-radius: 16px;
-    padding: 1.5rem;
+/* ── Section cards (mat-card) ── */
+.style-card {
+    background: var(--sand) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
     border: 1px solid rgba(27, 26, 23, 0.1);
     margin-bottom: 1rem;
+    box-shadow: none !important;
 }
 
-.style-section h3 {
-    margin: 0 0 1rem;
-    font-family: "Fraunces", "Times New Roman", serif;
+.style-card mat-card-header {
+    padding: 0 !important;
+    margin: 0 0 1rem 0 !important;
+}
+
+.section-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-family: "Fraunces", "Times New Roman", serif !important;
+    color: var(--rust) !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.section-icon {
+    font-size: 1.25rem !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
     color: var(--rust);
-    font-size: 1.1rem;
 }
 
-.base-url-field {
-    margin-bottom: 1rem;
+.style-card mat-card-content {
+    padding: 0 !important;
 }
 
-.base-url-field label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-    color: rgba(27, 26, 23, 0.7);
-}
-
-.base-url-field input {
+/* ── URL base field ── */
+.field-full {
     width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid rgba(27, 26, 23, 0.2);
-    border-radius: 8px;
-    font-size: 0.85rem;
-    background: white;
-    box-sizing: border-box;
-    font-family: monospace;
+    margin-bottom: 0.5rem;
 }
 
-.base-url-field small {
-    display: block;
-    margin-top: 0.3rem;
-    font-size: 0.7rem;
-    color: rgba(27, 26, 23, 0.5);
-}
-
+/* ── Style grid ── */
 .style-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 0.75rem;
+    align-items: start;
 }
 
-.style-field label {
+.color-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.color-label {
     display: block;
     font-size: 0.75rem;
     font-weight: 600;
     margin-bottom: 0.3rem;
     color: rgba(27, 26, 23, 0.6);
-}
-
-.style-field select {
-    width: 100%;
-    padding: 0.4rem 0.5rem;
-    border: 1px solid rgba(27, 26, 23, 0.2);
-    border-radius: 6px;
-    font-size: 0.8rem;
-    background: white;
 }
 
 .color-row {
@@ -123,70 +137,26 @@
     color: rgba(27, 26, 23, 0.6);
 }
 
-/* Create section */
-.create-section {
-    background: var(--sand);
-    border-radius: 16px;
-    padding: 1.5rem;
-    border: 1px solid rgba(27, 26, 23, 0.1);
-    margin-bottom: 1.5rem;
-}
-
-.create-section h3 {
-    margin: 0 0 1rem;
-    font-family: "Fraunces", "Times New Roman", serif;
-    color: var(--rust);
-    font-size: 1.1rem;
-}
-
-.form-row {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-end;
-}
-
-.form-row .field {
-    flex: 1;
-}
-
-.form-row .field label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-    color: rgba(27, 26, 23, 0.7);
-}
-
-.form-row .field input {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid rgba(27, 26, 23, 0.2);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    background: white;
-    box-sizing: border-box;
-}
-
-.create-btn {
-    white-space: nowrap;
-    padding: 0.5rem 1.25rem !important;
-    font-size: 0.9rem !important;
-    height: fit-content;
-}
-
+/* ── Create form (in modal) ── */
 .error-msg {
     margin-top: 0.75rem;
     color: #e74c3c;
     font-size: 0.85rem;
 }
 
-/* Table cards */
+/* ── Table cards (mat-card) ── */
 .table-card {
-    background: var(--sand);
-    border-radius: 16px;
-    padding: 1.25rem;
+    background: var(--sand) !important;
+    border-radius: 16px !important;
+    padding: 1.25rem !important;
     border: 1px solid rgba(27, 26, 23, 0.1);
     margin-bottom: 0.75rem;
+    box-shadow: none !important;
+    transition: box-shadow 0.2s ease;
+}
+
+.table-card:hover {
+    box-shadow: 0 4px 16px rgba(27, 26, 23, 0.08) !important;
 }
 
 .table-top-row {
@@ -214,27 +184,29 @@
     gap: 0.5rem;
 }
 
-.badge {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
+/* ── Chips ── */
+::ng-deep .chip-capacity {
+    background: rgba(200, 109, 63, 0.15) !important;
+    color: var(--rust) !important;
+    font-size: 0.75rem !important;
+    min-height: 26px !important;
+    padding: 0 10px !important;
 }
 
-.badge.capacity {
-    background: rgba(200, 109, 63, 0.15);
-    color: var(--rust);
+::ng-deep .chip-available {
+    background: rgba(39, 174, 96, 0.15) !important;
+    color: #27ae60 !important;
+    font-size: 0.75rem !important;
+    min-height: 26px !important;
+    padding: 0 10px !important;
 }
 
-.badge.available {
-    background: rgba(39, 174, 96, 0.15);
-    color: #27ae60;
-}
-
-.badge.occupied {
-    background: rgba(231, 76, 60, 0.15);
-    color: #e74c3c;
+::ng-deep .chip-occupied {
+    background: rgba(231, 76, 60, 0.15) !important;
+    color: #e74c3c !important;
+    font-size: 0.75rem !important;
+    min-height: 26px !important;
+    padding: 0 10px !important;
 }
 
 .qr-container {
@@ -261,94 +233,211 @@
     font-family: monospace;
 }
 
+/* ── Table actions (mat-card-actions) ── */
 .table-actions {
-    display: flex;
+    display: flex !important;
     gap: 0.5rem;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex-wrap: wrap;
 }
 
-.action-btn {
-    flex: 1;
-    padding: 0.45rem 0.6rem;
-    border-radius: 8px;
-    border: 1px solid rgba(27, 26, 23, 0.15);
-    background: white;
-    font-size: 0.78rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 500;
+.table-actions button[mat-stroked-button] {
+    border-radius: 8px !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    border-color: rgba(27, 26, 23, 0.15) !important;
+    color: var(--ink) !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
 }
 
-.action-btn:hover {
-    background: var(--rust);
-    color: white;
-    border-color: var(--rust);
+.table-actions button[mat-stroked-button]:hover {
+    background: var(--rust) !important;
+    color: #fff !important;
+    border-color: var(--rust) !important;
 }
 
-.action-btn.edit-btn:hover {
-    background: #2980b9;
-    border-color: #2980b9;
+.table-actions button[mat-stroked-button] mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin-right: 2px;
 }
 
-.action-btn.danger {
-    color: #e74c3c;
-    border-color: rgba(231, 76, 60, 0.3);
+.action-edit {
+    color: rgba(27, 26, 23, 0.45) !important;
 }
 
-.action-btn.danger:hover {
-    background: #e74c3c;
-    color: white;
-    border-color: #e74c3c;
+.action-edit:hover {
+    color: #2980b9 !important;
 }
 
-/* Delete confirmation */
-.delete-confirm {
-    text-align: center;
-    padding: 1rem 0;
+.action-delete {
+    color: rgba(27, 26, 23, 0.45) !important;
 }
 
-.delete-confirm p {
-    font-weight: 600;
-    font-size: 1rem;
-    margin: 0 0 1rem;
-    color: #e74c3c;
+.action-delete:hover {
+    color: #e74c3c !important;
 }
 
-.delete-confirm-actions {
+/* ── Loading / Empty ── */
+.loading {
     display: flex;
-    gap: 0.5rem;
     justify-content: center;
+    align-items: center;
+    padding: 3rem;
 }
 
-/* Edit form */
-.edit-form {
-    padding: 0.5rem 0;
-}
-
-.edit-form h4 {
-    margin: 0 0 0.75rem;
-    font-family: "Fraunces", "Times New Roman", serif;
-    color: var(--rust);
-    font-size: 1rem;
-}
-
-.edit-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-}
-
-.save-btn:hover {
-    background: #27ae60 !important;
-    border-color: #27ae60 !important;
-}
-
-.loading,
 .empty {
     text-align: center;
     padding: 2rem;
     color: rgba(27, 26, 23, 0.5);
 }
 
+/* ── Modal (mat-card) ── */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal {
+    position: relative;
+    background: var(--sand) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    position: sticky !important;
+    top: 0;
+    float: right;
+    margin-left: auto;
+    z-index: 10;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    border: 1px solid rgba(27, 26, 23, 0.1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--ink) !important;
+}
+
+.modal-close:hover {
+    background: var(--clay) !important;
+}
+
+.modal mat-card-header {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.modal-edit {
+    max-width: 420px;
+}
+
+.modal-title {
+    font-family: "Fraunces", "Times New Roman", serif !important;
+    font-size: 1.25rem !important;
+    margin: 0 0 0.75rem 0 !important;
+    color: var(--ink) !important;
+    padding: 0 !important;
+}
+
+.modal-text {
+    margin: 0 0 1.5rem 0;
+    font-size: 0.9rem;
+    color: rgba(27, 26, 23, 0.7);
+}
+
+.modal mat-card-content {
+    padding: 0 !important;
+}
+
+.modal-error {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+/* ── Form fields focus style ── */
+::ng-deep .modal-edit .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+::ng-deep .modal-edit .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+::ng-deep .modal-edit .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+    border-color: rgba(27, 26, 23, 0.25) !important;
+    border-width: 1px !important;
+}
+
+::ng-deep .modal-edit .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+    color: rgba(27, 26, 23, 0.6) !important;
+}
+
+/* ── Modal actions ── */
+.modal-actions {
+    display: flex !important;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin: 1rem 0 0 0 !important;
+    padding: 0 !important;
+}
+
+.btn-cancel {
+    border-radius: 10px !important;
+    color: var(--ink) !important;
+    border-color: rgba(27, 26, 23, 0.15) !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-cancel:hover {
+    background: rgba(27, 26, 23, 0.04) !important;
+}
+
+.btn-danger {
+    border-radius: 10px !important;
+    background: var(--rust) !important;
+    color: #fff !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
+
+.btn-primary {
+    border-radius: 10px !important;
+    background: var(--copper) !important;
+    color: #fff !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed;
+}
+
+/* ── Responsive ── */
 @media (max-width: 500px) {
     .style-grid {
         grid-template-columns: 1fr 1fr;
@@ -356,6 +445,11 @@
 
     .form-row {
         flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-create {
+        height: auto;
     }
 
     .table-top-row {
