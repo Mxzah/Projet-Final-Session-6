@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
     resources :categories, only: [:index, :show, :create, :update, :destroy]
     resources :items, only: [:index, :show, :create, :update, :destroy]
+    resources :users, only: [:index, :show, :create, :update, :destroy]
 
     resources :orders, only: [:index, :show, :create] do
       resources :order_lines, only: [:index, :create]

@@ -29,3 +29,33 @@ inactive_user:
   status: inactive
   created_at: <%= Time.current %>
   updated_at: <%= Time.current %>
+
+waiter_user:
+  email: waiter@restoqr.ca
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  first_name: Pierre
+  last_name: Lavoie
+  type: Waiter
+  status: active
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+cook_user:
+  email: cook@restoqr.ca
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  first_name: Sophie
+  last_name: Roy
+  type: Cook
+  status: active
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+blocked_user:
+  email: blocked@restoqr.ca
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  first_name: Marc
+  last_name: Dubois
+  type: Client
+  status: blocked
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
