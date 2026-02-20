@@ -121,7 +121,7 @@ label {
     font-weight: 500;
 }
 
-input,
+input:not([matInput]),
 select {
     border: 1px solid rgba(27, 26, 23, 0.2);
     border-radius: 12px;
@@ -131,7 +131,7 @@ select {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-input:focus,
+input:not([matInput]):focus,
 select:focus {
     outline: none;
     border-color: var(--copper);
@@ -217,7 +217,7 @@ button {
         font-size: 1.75rem;
     }
 
-    input,
+    input:not([matInput]),
     select {
         padding: 0.75rem 0.875rem;
         font-size: 0.95rem;
@@ -256,7 +256,7 @@ button {
         font-size: 0.875rem;
     }
 
-    input,
+    input:not([matInput]),
     select {
         border-radius: 10px;
         padding: 0.7rem 0.75rem;
