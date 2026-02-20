@@ -1,0 +1,1342 @@
+================================================================================
+================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+================================================================================
+================================================================================
+
+                     Application de gestion de restaurant
+              avec commande par QR code et gestion en cuisine
+
+  Équipe :
+    - Mathis   : Menu public + Administration des items
+    - Alex     : Administration des tables + QR codes
+    - Samer    : Connexion + Inscription + Administration des utilisateurs
+    - William  : Panier + Commande + Cuisine
+
+  Identifiants utilisés :
+    - Admin    : admin@restoqr.ca    / password123
+    - Client   : client@restoqr.ca   / password123
+    - Serveur  : waiter@restoqr.ca   / password123
+    - Cuisinier: cook@restoqr.ca     / password123
+    - Cuisine  : cuisine@restoqr.ca  / password123
+
+
+================================================================================
+================================================================================
+                    PARTIE A — Menu public + Admin Items
+                              (Mathis)
+================================================================================
+================================================================================
+
+
+================================================================================
+MODULE 1 — Header
+================================================================================
+
+1.1  Bouton Connexion (utilisateur non connecté)
+     - Ouvrir la page /menu sans être connecté
+     - Le bouton « Connexion » est visible
+     - Clic sur « Connexion » : Redirection vers /login
+
+1.2  Bouton Déconnexion (utilisateur connecté)
+     Avec client@restoqr.ca : password123
+     - Se connecter, accéder à /menu
+     - Le bouton « Déconnexion » est visible
+     - Clic sur « Déconnexion » : Redirection vers /login, session terminée
+
+1.3  Bouton Admin (utilisateur admin)
+     Avec admin@restoqr.ca : password123
+     - Se connecter, accéder à /menu
+     - Le bouton « Admin » est visible dans le header (après Déconnexion, séparé par « | »)
+     - Clic sur « Admin » : Redirection vers /admin
+     - Naviguer vers /order : Le bouton « Admin » est toujours visible dans le header
+     - Naviguer vers /cuisine : Le bouton « Admin » est toujours visible dans le header
+     - Naviguer vers /admin : Le bouton « Admin » est toujours visible dans le header
+
+1.4  Bouton Admin absent (utilisateur non-admin)
+     Avec client@restoqr.ca : password123
+     - Se connecter, accéder à /menu : Le bouton « Admin » n'est PAS visible
+     - Accéder à /order : Le bouton « Admin » n'est PAS visible
+     - Accéder à /cuisine : Le bouton « Admin » n'est PAS visible
+
+1.5  Bouton Admin absent (utilisateur non connecté)
+     - Ouvrir la page /menu sans être connecté
+     - Le bouton « Admin » n'est PAS visible dans le header
+
+1.6  Bouton Admin absent (pages login / signup)
+     - Accéder à /login : Le bouton « Admin » n'est PAS visible
+     - Accéder à /signup : Le bouton « Admin » n'est PAS visible
+
+1.7  Bouton Quitter (page admin)
+     Avec admin@restoqr.ca : password123
+     - Se connecter, accéder à /admin
+     - Le bouton « Quitter » est visible dans le header avec l'icône flèche
+     - Un séparateur « | » est affiché entre Déconnexion et Quitter
+     - Clic sur « Quitter » : Retour à la page précédente (ex: /menu)
+
+1.8  Changement de langue
+     - Clic sur le bouton « FR » dans le header
+     - Un menu déroulant apparaît avec « Français » et « English »
+     - Clic sur « English » : L'interface passe en anglais (labels, boutons, textes)
+     - Le bouton affiche maintenant « EN »
+     - Clic sur « EN » puis « Français » : L'interface revient en français
+     - Rafraîchir la page : La langue choisie est conservée (localStorage)
+
+
+================================================================================
+MODULE 2 — Navigation par catégories
+================================================================================
+
+2.1  Sidebar desktop (écran large >= 900px)
+     - Les catégories sont listées dans la sidebar de gauche
+     - La première catégorie est active par défaut (style surligné)
+     - Clic sur une autre catégorie : La page scrolle vers la section correspondante
+     - La catégorie cliquée devient active (style surligné)
+
+2.2  Dropdown mobile (écran < 900px)
+     - Réduire la fenêtre sous 900px de largeur
+     - La sidebar disparaît, un dropdown de catégories apparaît
+     - Le dropdown affiche la catégorie active
+     - Sélectionner une autre catégorie : La page scrolle vers la section correspondante
+
+================================================================================
+MODULE 3 — Recherche, tri et filtres (SSF)
+================================================================================
+
+3.1  Recherche par nom
+     - Taper un nom d'item existant dans la barre de recherche (ex: « Burger »)
+     - Après ~300ms, seuls les items correspondants s'affichent
+     - Effacer la recherche : Tous les items réapparaissent
+
+3.2  Recherche sans résultat
+     - Taper un texte qui ne correspond à aucun item (ex: « xyzzzz »)
+     - Le message « Aucun résultat trouvé » apparaît avec l'icône search_off
+
+3.3  Tri par prix ascendant
+     - Dans le dropdown « Trier par prix », sélectionner « Prix croissant »
+     - Les items sont réordonnés du moins cher au plus cher
+
+3.4  Tri par prix descendant
+     - Sélectionner « Prix décroissant »
+     - Les items sont réordonnés du plus cher au moins cher
+
+3.5  Filtre prix minimum
+     - Entrer une valeur dans le champ « Prix min » (ex: 10)
+     - Seuls les items avec un prix >= 10 s'affichent
+     - Entrer une valeur qui ne correspond à aucunu item (ex: 99999) : Aucun item ne s'affiche,
+       message « Aucun résultat trouvé »
+
+3.6  Filtre prix maximum
+     - Entrer une valeur dans le champ « Prix max » (ex: 15)
+     - Seuls les items avec un prix <= 15 s'affichent
+     - Entrer une valeur qui ne correspond à aucunu item : Aucun item ne s'affiche,
+       message « Aucun résultat trouvé »
+
+3.7  Combinaison de filtres
+     - Entrer prix min = 5, prix max = 20, et taper un terme de recherche
+     - Seuls les items correspondant aux 3 critères s'affichent
+     - Ajouter un tri par prix croissant : Les résultats filtrés sont triés
+
+================================================================================
+MODULE 4 — Affichage du menu
+================================================================================
+
+4.1  Chargement initial
+     - Accéder à /menu
+     - Un spinner de chargement (mat-spinner) s'affiche pendant le chargement
+     - Une fois chargé, le spinner disparaît et les items s'affichent
+
+4.2  Affichage des items par catégorie
+     - Les items sont regroupés par catégorie avec un titre de section (h1)
+     - Chaque carte affiche : nom, description, prix (CA$X.XX) et image
+     - Un bouton « + » est visible sur chaque carte
+
+4.3  Erreur de chargement
+     - Si le serveur est inaccessible, un message d'erreur s'affiche dans un bandeau
+
+================================================================================
+MODULE 5 — Modal d'item
+================================================================================
+
+5.1  Ouverture de la modal
+     - Clic sur une carte d'item : La modal s'ouvre
+     - La modal affiche : image, nom, description, prix
+
+5.2  Quantité — Incrémenter
+     - La quantité par défaut est 1
+     - Clic sur le bouton « + » : La quantité passe à 2
+     - Le total se met à jour (prix × quantité)
+     - Avec une quantité de 50, le bouton « + » est désactivé (grisé)
+
+5.3  Quantité — Décrémenter
+     - Avec une quantité de 2, clic sur « - » : La quantité passe à 1
+     - Avec une quantité de 1, le bouton « - » est désactivé (grisé)
+
+5.4  Note spéciale
+     - Taper un texte dans le champ « Instructions spéciales » (ex: « Sans oignon »)
+     - Le compteur de caractères s'affiche (ex: 11/255)
+     - Maximum 255 caractères autorisés
+
+5.5  Ajouter au panier
+     - Sélectionner quantité = 2 et ajouter une note
+     - Clic sur « Ajouter au panier — CA$XX.XX »
+     - La modal se ferme
+     - Le badge du panier dans le header se met à jour (+2)
+     - Le sous-total du header se met à jour
+
+5.6  Fermeture de la modal — Bouton X
+     - Clic sur le bouton « X » en haut à droite : La modal se ferme
+     - Aucun item n'est ajouté au panier
+
+5.7  Fermeture de la modal — Clic overlay
+     - Clic sur la zone grisée derrière la modal : La modal se ferme
+     - Aucun item n'est ajouté au panier
+
+
+================================================================================
+MODULE 6 — Accès à la page admin
+================================================================================
+
+6.1  Accès sans être connecté
+     - Ouvrir directement l'URL /admin dans le navigateur sans être connecté
+     - Redirection automatique vers /login
+
+6.2  Accès avec un compte client
+     Avec client@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+6.3  Accès avec un compte serveur
+     Avec waiter@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+6.4  Accès avec un compte admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - La page d'administration s'affiche correctement
+
+================================================================================
+MODULE 7 — Affichage de la liste des items
+================================================================================
+
+7.1  Chargement initial
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/items
+     - Un spinner de chargement s'affiche pendant le chargement
+     - Une fois chargé, les items s'affichent en grille, trié par catégorie
+
+7.2  Affichage des cartes
+     - Chaque carte affiche : image, nom, description,
+       catégorie, prix (X.XX $)
+     - Chaque carte a un bouton « modifier » (icône edit) et « supprimer »
+       (icône delete)
+
+7.3  État vide
+     - Si aucun item n'existe, le message « Aucun item trouvé » s'affiche
+
+================================================================================
+MODULE 8 — Création d'un item
+================================================================================
+
+8.1  Ouverture de la modal de création
+     Avec admin@restoqr.ca : password123
+     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
+     - Le titre de la modal est « Ajouter un item »
+     - Les champs sont vides (nom, description, prix à 0, catégorie par défaut)
+
+8.2  Validation — Nom requis
+     - Laisser le champ « Nom » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le nom est requis »
+
+8.3  Validation — Nom trop long
+     - Entrer un nom de plus de 100 caractères
+     - Message d'erreur : « Maximum 100 caractères »
+
+8.4  Validation — Nom espaces seulement
+     - Entrer uniquement des espaces dans le champ « Nom »
+     - Message d'erreur : « Ne peut pas contenir uniquement des espaces »
+
+8.5  Validation — Description trop longue
+     - Entrer une description de plus de 255 caractères
+     - Message d'erreur : « Maximum 255 caractères »
+
+8.6  Validation — Prix requis
+     - Vider le champ « Prix » et cliquer sur « Ajouter »
+     - Message d'erreur : « Le prix est requis »
+
+8.7  Validation — Prix négatif
+     - Entrer un prix négatif (ex: -5)
+     - Message d'erreur : « Le prix doit être >= 0 »
+
+8.8  Validation — Prix trop élevé
+     - Entrer un prix supérieur à 9999.99
+     - Message d'erreur : « Le prix doit être <= 9999.99 »
+
+8.9  Validation — Image format invalide
+     - Sélectionner un fichier non JPG/PNG (ex: .gif, .pdf)
+     - Message d'erreur : « L'image doit être un fichier JPG ou PNG. »
+
+8.10 Validation — Image trop lourde
+     - Sélectionner une image de plus de 5 MB
+     - Message d'erreur : « L'image doit être inférieure à 5 MB. »
+
+8.11 Validation — Image obligatoire
+     - Remplir tous les champs sauf l'image et cliquer sur « Ajouter »
+     - Message d'erreur : « L'image est obligatoire. »
+
+8.12 Création réussie
+     - Remplir tous les champs avec des valeurs valides (nom, description,
+       prix, catégorie) et sélectionner une image JPG/PNG valide
+     - Clic sur « Ajouter »
+     - La modal se ferme
+     - Le nouvel item apparaît dans la liste
+
+8.13 Annulation
+     - Remplir des champs puis cliquer sur « Annuler »
+     - La modal se ferme, aucun item n'est créé
+
+================================================================================
+MODULE 9 — Modification d'un item
+================================================================================
+
+9.1  Ouverture de la modal de modification
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « edit » d'un item existant
+     - La modal s'ouvre avec le titre « Modifier l'item »
+     - Les champs sont pré-remplis (nom, description, prix, catégorie)
+     - L'aperçu de l'image existante est affiché
+
+9.2  Validations
+     - Mêmes validations que la création (8.2 à 8.11)
+
+9.3  Modification réussie
+     - Modifier le nom et/ou le prix d'un item existant
+     - Clic sur « Enregistrer »
+     - La modal se ferme
+     - L'item mis à jour s'affiche dans la liste avec les nouvelles valeurs
+
+9.4  Remplacement d'image
+     - Ouvrir la modification d'un item avec une image existante
+     - Sélectionner une nouvelle image JPG/PNG valide
+     - L'aperçu se met à jour avec la nouvelle image
+     - Clic sur « Enregistrer » : L'image est remplacée
+
+9.5  Annulation
+     - Modifier des champs puis cliquer sur « Annuler »
+     - La modal se ferme, l'item n'est pas modifié
+
+================================================================================
+MODULE 10 — Suppression d'un item
+================================================================================
+
+10.1 Ouverture de la modal de confirmation
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « delete » d'un item
+     - Une modal de confirmation s'ouvre
+     - Le message affiche le nom de l'item à supprimer
+
+10.2 Annulation de la suppression
+     - Clic sur « Annuler » : La modal se ferme, l'item est toujours dans la liste
+
+10.3 Fermeture par le bouton X
+     - Clic sur le bouton « X » : La modal se ferme, l'item est toujours dans la liste
+
+10.4 Confirmation de la suppression
+     - Clic sur « Supprimer »
+     - La modal se ferme
+     - L'item disparaît de la liste et de la page du menu
+
+================================================================================
+MODULE 11 — Traduction (admin-items)
+================================================================================
+
+11.1 Traduction en anglais
+     Avec admin@restoqr.ca : password123
+     - Changer la langue à « English » via le header
+     - Le titre passe à « Items Management »
+     - Les boutons passent en anglais (Add, Save, Cancel, Delete)
+     - Les labels des champs passent en anglais (Name, Description, Price,
+       Category, Image)
+     - Les messages de validation passent en anglais
+     - Les messages de confirmation de suppression passent en anglais
+
+11.2 Traduction en français
+     - Changer la langue à « Français » via le header
+     - Tous les textes reviennent en français
+
+11.3 Persistance de la langue
+     - Changer la langue à « English »
+     - Rafraîchir la page
+     - L'interface reste en anglais
+
+
+================================================================================
+================================================================================
+                    PARTIE B — Administration des tables
+                              (Alex)
+================================================================================
+================================================================================
+
+
+================================================================================
+MODULE 12 — Accès à la page admin-tables
+================================================================================
+
+12.1 Accès sans être connecté
+     - Ouvrir directement l'URL /admin/tables sans être connecté
+     - Redirection automatique vers /login
+
+12.2 Accès avec un compte client
+     Avec client@restoqr.ca : password123
+     - Se connecter puis accéder à /admin/tables
+     - Redirection automatique vers /menu
+
+12.3 Accès avec un compte serveur
+     Avec waiter@restoqr.ca : password123
+     - Se connecter puis accéder à /admin/tables
+     - Redirection automatique vers /menu
+
+12.4 Accès avec un compte admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter puis accéder à /admin/tables
+     - La page d'administration des tables s'affiche correctement
+     - Le header affiche « Admin », « Déconnexion », « Quitter »
+     - Le bouton « Quitter » permet de revenir à la page précédente
+
+================================================================================
+MODULE 13 — Affichage de la liste des tables
+================================================================================
+
+13.1 Chargement initial
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/tables
+     - Un spinner de chargement (mat-spinner) s'affiche pendant le chargement
+     - Une fois chargé, les tables s'affichent en grille, triées par numéro
+
+13.2 Affichage des cartes
+     - Chaque carte affiche : numéro, capacité, statut (occupée/disponible), QR code
+     - Statut : chip « Disponible » (vert) ou « Occupée » (rouge)
+     - QR code généré dynamiquement, bouton pour télécharger SVG/PNG
+     - Bouton « Copier le lien » : copie l'URL de la table
+     - Boutons « modifier » (icône edit) et « supprimer » (icône delete)
+     - L'URL de la table est affichée sous le QR code
+
+13.3 État vide
+     - Si aucune table n'existe, le message « Aucune table trouvée » s'affiche
+
+================================================================================
+MODULE 14 — Création d'une table
+================================================================================
+
+14.1 Ouverture de la modal de création
+     Avec admin@restoqr.ca : password123
+     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
+     - Le titre de la modal est « Ajouter une table »
+     - Les champs sont vides (numéro, capacité)
+     - Bouton « Annuler » et « Ajouter »
+
+14.2 Validation — Numéro requis
+     - Laisser le champ « Numéro » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le numéro est requis »
+
+14.3 Validation — Numéro trop petit
+     - Entrer un numéro < 1
+     - Message d'erreur : « Le numéro doit être >= 1 »
+
+14.4 Validation — Numéro trop grand
+     - Entrer un numéro > 999
+     - Message d'erreur : « Le numéro doit être <= 999 »
+
+14.5 Validation — Numéro en doublon
+     - Entrer un numéro déjà utilisé
+     - Message d'erreur : « Ce numéro est déjà utilisé »
+
+14.6 Validation — Capacité requise
+     - Laisser le champ « Capacité » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « La capacité est requise »
+
+14.7 Validation — Capacité trop petite
+     - Entrer une capacité < 1
+     - Message d'erreur : « La capacité doit être >= 1 »
+
+14.8 Validation — Capacité trop grande
+     - Entrer une capacité > 20
+     - Message d'erreur : « La capacité doit être <= 20 »
+
+14.9 Création réussie
+     - Remplir tous les champs avec des valeurs valides (numéro, capacité)
+     - Clic sur « Ajouter »
+     - La modal se ferme
+     - La nouvelle table apparaît dans la liste
+
+14.10 Annulation
+     - Remplir des champs puis cliquer sur « Annuler »
+     - La modal se ferme, aucune table n'est créée
+
+================================================================================
+MODULE 15 — Modification d'une table
+================================================================================
+
+15.1 Ouverture de la modal de modification
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « edit » d'une table existante
+     - La modal s'ouvre avec le titre « Modifier la table »
+     - Les champs sont pré-remplis (numéro, capacité)
+     - Bouton « Annuler » et « Enregistrer »
+
+15.2 Validations
+     - Mêmes validations que la création (14.2 à 14.8)
+
+15.3 Modification réussie
+     - Modifier le numéro et/ou la capacité d'une table existante
+     - Clic sur « Enregistrer »
+     - La modal se ferme
+     - La table mise à jour s'affiche dans la liste avec les nouvelles valeurs
+
+15.4 Annulation
+     - Modifier des champs puis cliquer sur « Annuler »
+     - La modal se ferme, la table n'est pas modifiée
+
+================================================================================
+MODULE 16 — Suppression d'une table
+================================================================================
+
+16.1 Ouverture de la modal de confirmation
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « delete » d'une table
+     - Une modal de confirmation s'ouvre
+     - Le message affiche le numéro de la table à supprimer
+     - Bouton « Annuler » et « Supprimer »
+
+16.2 Annulation de la suppression
+     - Clic sur « Annuler » : La modal se ferme, la table est toujours dans la liste
+
+16.3 Fermeture par le bouton X
+     - Clic sur le bouton « X » : La modal se ferme, la table est toujours dans la liste
+
+16.4 Confirmation de la suppression
+     - Clic sur « Supprimer »
+     - La modal se ferme
+     - La table disparaît de la liste
+
+================================================================================
+MODULE 17 — QR code et copie de lien
+================================================================================
+
+17.1 Affichage du QR code
+     - Chaque carte de table affiche un QR code unique
+     - Le QR code correspond à l'URL de la table
+     - Le QR code est stylisé selon les paramètres (couleur, forme)
+
+17.2 Copie du lien
+     - Clic sur le bouton « Copier le lien » : L'URL de la table est copiée dans le presse-papier
+     - Un message « Copié ! » s'affiche
+
+17.3 Téléchargement du QR code
+     - Clic sur « Télécharger SVG » ou « Télécharger PNG » : Le QR code est téléchargé
+
+================================================================================
+MODULE 18 — Traduction (admin-tables)
+================================================================================
+
+18.1 Traduction en anglais
+     Avec admin@restoqr.ca : password123
+     - Changer la langue à « English » via le header
+     - Le titre passe à « Tables Management »
+     - Les boutons passent en anglais (Add, Save, Cancel, Delete)
+     - Les labels des champs passent en anglais (Number, Capacity)
+     - Les messages de validation passent en anglais
+     - Les messages de confirmation de suppression passent en anglais
+
+18.2 Traduction en français
+     - Changer la langue à « Français » via le header
+     - Tous les textes reviennent en français
+
+18.3 Persistance de la langue
+     - Changer la langue à « English »
+     - Rafraîchir la page
+     - L'interface reste en anglais
+
+
+================================================================================
+================================================================================
+              PARTIE C — Connexion + Inscription + Admin Users
+                              (Samer)
+================================================================================
+================================================================================
+
+
+================================================================================
+MODULE 19 — Écran de connexion (/login)
+================================================================================
+
+19.1 Chargement initial
+     - Accéder à /login
+     - Le header est visible (sans bouton Déconnexion)
+     - Le titre « Connexion » est affiché
+     - Le sous-titre « Entrez vos identifiants » est affiché
+     - Deux champs Material (mat-form-field outline) : « Courriel » et
+       « Mot de passe »
+     - Un bouton « Se connecter » est visible
+
+19.2 Validation — Courriel requis
+     - Laisser le champ « Courriel » vide, cliquer sur « Se connecter »
+     - Message d'erreur : « Le courriel est requis »
+
+19.3 Validation — Courriel format invalide
+     - Entrer « abc » dans le champ « Courriel »
+     - Soumettre le formulaire
+     - Message d'erreur : « Format de courriel invalide »
+
+19.4 Validation — Mot de passe requis
+     - Laisser le champ « Mot de passe » vide, cliquer sur « Se connecter »
+     - Message d'erreur : « Le mot de passe est requis »
+
+19.5 Validation — Mot de passe trop court
+     - Entrer un mot de passe de moins de 6 caractères (ex : « abc »)
+     - Message d'erreur : « Minimum 6 caractères »
+
+19.6 Validation — Mot de passe trop long
+     - Entrer un mot de passe de plus de 128 caractères
+     - Message d'erreur : « Maximum 128 caractères »
+
+19.7 Identifiants invalides
+     - Entrer un courriel et un mot de passe qui ne correspondent à aucun
+       compte (ex : fake@test.com / wrongpassword)
+     - Cliquer sur « Se connecter »
+     - Un message d'erreur serveur s'affiche en rouge sous les champs
+
+19.8 Connexion réussie — Admin
+     Avec admin@restoqr.ca : password123
+     - Entrer les identifiants et cliquer sur « Se connecter »
+     - Redirection automatique vers /admin
+
+19.9 Connexion réussie — Cuisinier
+     Avec cook@restoqr.ca : password123
+     - Entrer les identifiants et cliquer sur « Se connecter »
+     - Redirection automatique vers /cuisine
+
+19.10 Connexion réussie — Client
+     Avec client@restoqr.ca : password123
+     - Entrer les identifiants et cliquer sur « Se connecter »
+     - Redirection automatique vers /form
+
+19.11 Lien vers inscription
+     - Le lien « Créer un compte » est visible sous le formulaire
+     - Clic sur « Créer un compte » : Redirection vers /signup
+
+19.12 Bouton désactivé pendant le chargement
+     - Après soumission du formulaire, le bouton affiche « Connexion... »
+       et est désactivé pendant le traitement
+
+19.13 Bouton désactivé si formulaire invalide
+     - Le bouton « Se connecter » est grisé tant que le formulaire est invalide
+
+
+================================================================================
+MODULE 20 — Écran d'inscription (/signup)
+================================================================================
+
+20.1 Chargement initial
+     - Accéder à /signup
+     - Le header est visible (sans bouton Déconnexion)
+     - Le titre « Inscription » est affiché
+     - Cinq champs Material (mat-form-field outline) : Prénom, Nom,
+       Courriel, Mot de passe, Confirmation du mot de passe
+     - Un bouton « Créer mon compte » est visible
+
+20.2 Validation — Prénom requis
+     - Laisser le champ « Prénom » vide et soumettre
+     - Message d'erreur : « Le prénom est requis »
+
+20.3 Validation — Prénom trop long
+     - Entrer un prénom de plus de 50 caractères
+     - Message d'erreur : « Maximum 50 caractères »
+
+20.4 Validation — Nom requis
+     - Laisser le champ « Nom » vide et soumettre
+     - Message d'erreur : « Le nom est requis »
+
+20.5 Validation — Nom trop long
+     - Entrer un nom de plus de 50 caractères
+     - Message d'erreur : « Maximum 50 caractères »
+
+20.6 Validation — Courriel requis
+     - Laisser le champ « Courriel » vide et soumettre
+     - Message d'erreur : « Le courriel est requis »
+
+20.7 Validation — Courriel format invalide
+     - Entrer « abc » dans le champ « Courriel »
+     - Message d'erreur : « Format de courriel invalide »
+
+20.8 Validation — Mot de passe requis
+     - Laisser le champ « Mot de passe » vide et soumettre
+     - Message d'erreur : « Le mot de passe est requis »
+
+20.9 Validation — Mot de passe trop court
+     - Entrer un mot de passe de moins de 6 caractères
+     - Message d'erreur : « Minimum 6 caractères »
+
+20.10 Validation — Mot de passe trop long
+     - Entrer un mot de passe de plus de 128 caractères
+     - Message d'erreur : « Maximum 128 caractères »
+
+20.11 Validation — Confirmation requise
+     - Laisser le champ « Confirmation » vide et soumettre
+     - Message d'erreur : « La confirmation est requise »
+
+20.12 Validation — Mots de passe différents
+     - Entrer « password1 » et « password2 » dans les champs mot de passe
+       et confirmation
+     - Message d'erreur : « Les mots de passe ne correspondent pas »
+
+20.13 Courriel déjà utilisé
+     - Entrer un courriel déjà en base (ex : admin@restoqr.ca)
+     - Remplir tous les champs et soumettre
+     - Un message d'erreur serveur s'affiche en rouge
+
+20.14 Inscription réussie
+     - Remplir tous les champs avec des valeurs valides (prénom, nom,
+       courriel unique, mot de passe >= 6 chars, confirmation identique)
+     - Clic sur « Créer mon compte »
+     - Redirection automatique vers /form
+     - L'utilisateur est connecté (session créée)
+
+20.15 Lien vers connexion
+     - Le lien « Se connecter » est visible sous le formulaire
+     - Clic sur « Se connecter » : Redirection vers /login
+
+20.16 Bouton désactivé pendant le chargement
+     - Après soumission, le bouton affiche « Création... » et est désactivé
+
+20.17 Bouton désactivé si formulaire invalide
+     - Le bouton « Créer mon compte » est grisé tant que le formulaire
+       est invalide
+
+
+================================================================================
+MODULE 21 — Accès à la page admin (guards)
+================================================================================
+
+21.1 Accès sans être connecté
+     - Ouvrir directement l'URL /admin dans le navigateur sans être connecté
+     - Redirection automatique vers /login
+
+21.2 Accès avec un compte client
+     Avec client@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+21.3 Accès avec un compte serveur
+     Avec waiter@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+21.4 Accès avec un compte cuisinier
+     Avec cook@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+21.5 Accès avec un compte admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - La page d'administration s'affiche correctement
+     - Trois onglets visibles : Items, Tables, Utilisateurs
+
+
+================================================================================
+MODULE 22 — Affichage de la liste des utilisateurs
+================================================================================
+
+22.1 Chargement initial
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin, cliquer sur l'onglet « Utilisateurs »
+     - Un spinner de chargement (mat-spinner) s'affiche pendant le chargement
+     - Une fois chargé, les utilisateurs s'affichent en liste
+
+22.2 Affichage des cartes
+     - Chaque carte affiche : prénom et nom, courriel
+     - Un badge coloré pour le type (Administrateur, Serveur, Client, Cuisinier)
+     - Un badge coloré pour le statut (vert = Actif, orange = Inactif,
+       rouge = Bloqué)
+     - Trois boutons d'action : bloquer/activer, modifier (edit), supprimer
+       (delete)
+
+22.3 État vide
+     - Si aucun utilisateur n'existe, le message « Aucun utilisateur
+       trouvé » s'affiche
+
+
+================================================================================
+MODULE 23 — Recherche, tri et filtres (SSF) — Utilisateurs
+================================================================================
+
+23.1 Recherche par nom
+     - Taper un nom d'utilisateur dans la barre de recherche (ex : « admin »)
+     - La liste se met à jour pour afficher uniquement les utilisateurs
+       correspondants
+
+23.2 Recherche par courriel
+     - Taper une partie d'un courriel (ex : « cook »)
+     - Seuls les utilisateurs dont le courriel correspond s'affichent
+
+23.3 Recherche sans résultat
+     - Taper un texte qui ne correspond à aucun utilisateur (ex : « zzzzz »)
+     - Le message « Aucun utilisateur trouvé » s'affiche
+
+23.4 Effacer la recherche
+     - Effacer le champ de recherche
+     - Tous les utilisateurs réapparaissent
+
+23.5 Filtre par statut — Actif
+     - Sélectionner « Actif » dans le dropdown de filtre statut
+     - Seuls les utilisateurs avec le statut « Actif » s'affichent
+
+23.6 Filtre par statut — Bloqué
+     - Sélectionner « Bloqué » dans le dropdown de filtre statut
+     - Seuls les utilisateurs avec le statut « Bloqué » s'affichent
+
+23.7 Filtre par type — Administrateur
+     - Sélectionner « Administrateur » dans le dropdown de filtre type
+     - Seuls les administrateurs s'affichent
+
+23.8 Filtre par type — Serveur
+     - Sélectionner « Serveur » dans le dropdown de filtre type
+     - Seuls les serveurs s'affichent
+
+23.9 Filtre combiné
+     - Sélectionner statut « Actif » et type « Client »
+     - Seuls les clients actifs s'affichent
+
+23.10 Remettre les filtres à « Tous »
+     - Sélectionner « Tous » dans les deux dropdowns de filtre
+     - Tous les utilisateurs réapparaissent
+
+23.11 Tri A–Z
+     - Sélectionner « A–Z » dans le dropdown de tri
+     - Les utilisateurs sont triés par nom de famille croissant
+
+23.12 Tri Z–A
+     - Sélectionner « Z–A » dans le dropdown de tri
+     - Les utilisateurs sont triés par nom de famille décroissant
+
+23.13 Tri par défaut
+     - Sélectionner « Par défaut » dans le dropdown de tri
+     - Les utilisateurs reviennent à l'ordre initial
+
+
+================================================================================
+MODULE 24 — Création d'un utilisateur
+================================================================================
+
+24.1 Ouverture de la modal de création
+     Avec admin@restoqr.ca : password123
+     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
+     - Le titre de la modal est « Ajouter un utilisateur »
+     - Les champs sont vides (prénom, nom, courriel)
+     - Le type est pré-sélectionné sur « Client »
+     - Le statut est pré-sélectionné sur « Actif »
+     - Les champs mot de passe et confirmation sont vides et requis
+
+24.2 Validation — Prénom requis
+     - Laisser le champ « Prénom » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le prénom est requis »
+
+24.3 Validation — Prénom espaces seulement
+     - Entrer uniquement des espaces dans le champ « Prénom »
+     - Message d'erreur : « Ne peut pas contenir uniquement des espaces »
+
+24.4 Validation — Prénom trop long
+     - Entrer un prénom de plus de 50 caractères
+     - Message d'erreur : « Maximum 50 caractères »
+
+24.5 Validation — Nom requis
+     - Laisser le champ « Nom » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le nom est requis »
+
+24.6 Validation — Nom espaces seulement
+     - Entrer uniquement des espaces dans le champ « Nom »
+     - Message d'erreur : « Ne peut pas contenir uniquement des espaces »
+
+24.7 Validation — Nom trop long
+     - Entrer un nom de plus de 50 caractères
+     - Message d'erreur : « Maximum 50 caractères »
+
+24.8 Validation — Courriel requis
+     - Laisser le champ « Courriel » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le courriel est requis »
+
+24.9 Validation — Courriel format invalide
+     - Entrer « abc » dans le champ « Courriel »
+     - Message d'erreur : « Format de courriel invalide »
+
+24.10 Validation — Mot de passe requis (création)
+     - Laisser le champ « Mot de passe » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le mot de passe est requis »
+
+24.11 Validation — Mot de passe trop court
+     - Entrer un mot de passe de moins de 6 caractères
+     - Message d'erreur : « Minimum 6 caractères »
+
+24.12 Validation — Mot de passe trop long
+     - Entrer un mot de passe de plus de 128 caractères
+     - Message d'erreur : « Maximum 128 caractères »
+
+24.13 Courriel en doublon
+     - Entrer un courriel déjà utilisé (ex : admin@restoqr.ca)
+     - Remplir tous les autres champs et cliquer sur « Ajouter »
+     - Un message d'erreur serveur s'affiche en rouge dans la modal
+
+24.14 Création réussie
+     - Remplir tous les champs avec des valeurs valides (prénom, nom,
+       courriel unique, type, statut, mot de passe >= 6 chars)
+     - Clic sur « Ajouter »
+     - La modal se ferme
+     - Le nouvel utilisateur apparaît dans la liste
+
+24.15 Création avec type Administrateur
+     - Créer un utilisateur avec le type « Administrateur »
+     - Le badge « Administrateur » s'affiche correctement sur la carte
+
+24.16 Création avec type Serveur
+     - Créer un utilisateur avec le type « Serveur »
+     - Le badge « Serveur » s'affiche correctement
+
+24.17 Création avec type Cuisinier
+     - Créer un utilisateur avec le type « Cuisinier »
+     - Le badge « Cuisinier » s'affiche correctement
+
+24.18 Création avec statut Inactif
+     - Créer un utilisateur avec le statut « Inactif »
+     - Le badge orange « Inactif » s'affiche sur la carte
+
+24.19 Annulation
+     - Remplir des champs puis cliquer sur « Annuler »
+     - La modal se ferme, aucun utilisateur n'est créé
+
+24.20 Fermeture par le bouton X
+     - Remplir des champs puis cliquer sur le bouton « X » en haut à droite
+     - La modal se ferme, aucun utilisateur n'est créé
+
+
+================================================================================
+MODULE 25 — Modification d'un utilisateur
+================================================================================
+
+25.1 Ouverture de la modal de modification
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « edit » d'un utilisateur existant
+     - La modal s'ouvre avec le titre « Modifier l'utilisateur »
+     - Les champs sont pré-remplis (prénom, nom, courriel, type, statut)
+     - Les champs mot de passe et confirmation sont vides et optionnels
+
+25.2 Validations
+     - Mêmes validations que la création (24.2 à 24.12)
+     - Le mot de passe est optionnel en modification
+
+25.3 Modification réussie — Nom
+     - Modifier le prénom et/ou le nom d'un utilisateur existant
+     - Clic sur « Enregistrer »
+     - La modal se ferme
+     - L'utilisateur mis à jour s'affiche avec les nouvelles valeurs
+
+25.4 Modification réussie — Courriel
+     - Modifier le courriel d'un utilisateur
+     - Clic sur « Enregistrer »
+     - La modal se ferme, le courriel est mis à jour
+
+25.5 Modification réussie — Type
+     - Changer le type d'un utilisateur (ex : Client → Serveur)
+     - Clic sur « Enregistrer »
+     - Le badge type est mis à jour dans la liste
+
+25.6 Modification réussie — Statut
+     - Changer le statut d'un utilisateur (ex : actif → bloqué)
+     - Clic sur « Enregistrer »
+     - Le badge statut change de couleur dans la liste
+
+25.7 Modification sans changer le mot de passe
+     - Laisser les champs mot de passe vides et modifier le nom
+     - Clic sur « Enregistrer »
+     - La modification est sauvegardée sans changer le mot de passe
+
+25.8 Modification du mot de passe
+     - Entrer un nouveau mot de passe et sa confirmation
+     - Clic sur « Enregistrer »
+     - Vérifiable en se reconnectant avec le nouveau mot de passe
+
+25.9 Annulation
+     - Modifier des champs puis cliquer sur « Annuler »
+     - La modal se ferme, l'utilisateur n'est pas modifié
+
+25.10 Fermeture par le bouton X
+     - Modifier des champs puis cliquer sur le bouton « X »
+     - La modal se ferme, l'utilisateur n'est pas modifié
+
+
+================================================================================
+MODULE 26 — Suppression d'un utilisateur
+================================================================================
+
+26.1 Ouverture de la modal de confirmation
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « delete » d'un utilisateur
+     - Une modal de confirmation s'ouvre
+     - Le message affiche le nom complet de l'utilisateur à supprimer
+
+26.2 Annulation de la suppression
+     - Clic sur « Annuler » : La modal se ferme, l'utilisateur est
+       toujours dans la liste
+
+26.3 Fermeture par le bouton X
+     - Clic sur le bouton « X » : La modal se ferme, l'utilisateur est
+       toujours dans la liste
+
+26.4 Confirmation de la suppression
+     - Clic sur « Supprimer »
+     - La modal se ferme
+     - L'utilisateur disparaît de la liste (soft delete)
+
+26.5 L'utilisateur supprimé ne peut plus se connecter
+     - Tenter de se connecter avec les identifiants de l'utilisateur
+       supprimé
+     - Un message d'erreur s'affiche (compte non trouvé)
+
+
+================================================================================
+MODULE 27 — Actions rapides (toggle statut)
+================================================================================
+
+27.1 Bloquer un utilisateur actif
+     Avec admin@restoqr.ca : password123
+     - Sur un utilisateur avec le statut « Actif »
+     - Clic sur l'icône « block » (cercle barré)
+     - Le statut passe à « Bloqué », le badge devient rouge
+
+27.2 Activer un utilisateur bloqué
+     - Sur un utilisateur avec le statut « Bloqué »
+     - Clic sur l'icône « check_circle » (coche verte)
+     - Le statut passe à « Actif », le badge devient vert
+
+27.3 Activer un utilisateur inactif
+     - Sur un utilisateur avec le statut « Inactif »
+     - Clic sur l'icône « check_circle »
+     - Le statut passe à « Actif », le badge devient vert
+
+
+================================================================================
+MODULE 28 — Traduction (login + signup + admin-users)
+================================================================================
+
+28.1 Traduction en anglais — Login
+     - Accéder à /login et changer la langue à « English » via le header
+     - Les textes passent en anglais :
+       · « Connexion » → « Login »
+       · « Courriel » → « Email »
+       · « Mot de passe » → « Password »
+       · « Se connecter » → « Sign in »
+       · « Créer un compte » → « Create an account »
+       · Messages de validation en anglais
+
+28.2 Traduction en anglais — Signup
+     - Accéder à /signup et changer la langue à « English »
+     - Les textes passent en anglais :
+       · « Inscription » → « Sign up »
+       · « Prénom » → « First name »
+       · « Nom » → « Last name »
+       · « Créer mon compte » → « Create my account »
+       · « Se connecter » → « Sign in »
+       · Messages de validation en anglais
+
+28.3 Traduction en anglais — Admin Users
+     Avec admin@restoqr.ca : password123
+     - Accéder à /admin, onglet « Utilisateurs » et changer la langue
+       à « English »
+     - Le titre passe à « User management »
+     - Les badges de type passent en anglais (Administrator, Waiter,
+       Client, Cook)
+     - Les badges de statut passent en anglais (Active, Inactive, Blocked)
+     - Les labels des filtres et du formulaire passent en anglais
+     - Les messages de validation passent en anglais
+
+28.4 Retour en français
+     - Cliquer sur « Français » dans le header
+     - Tous les textes reviennent en français
+
+28.5 Persistance de la langue
+     - Changer la langue à « English »
+     - Rafraîchir la page
+     - L'interface reste en anglais
+
+
+================================================================================
+================================================================================
+                    PARTIE D — Panier + Commande + Cuisine
+                              (William)
+================================================================================
+================================================================================
+
+
+================================================================================
+MODULE 29 — Panier dans /menu (cart.service)
+================================================================================
+
+29.1 Ajout d'un item au panier
+     Avec client@restoqr.ca : password123
+     - Se connecter et accéder à /menu
+     - Cliquer sur un item (ex: « Tartare de Saumon »)
+     - La modal s'ouvre avec quantité = 1 par défaut
+     - Cliquer sur « Ajouter au panier »
+     - Le badge du panier dans le header se met à jour (+1)
+     - Le sous-total dans le panneau de droite affiche le bon montant
+
+
+29.4 Bouton Continuer
+     - Avec au moins 1 item dans le panier
+     - Cliquer sur « Continuer »
+     - Redirection vers /order
+
+29.5 Bouton Continuer désactivé si panier vide
+     - Panier vide
+     - Le bouton « Continuer » n'est pas visible ou est désactivé
+
+
+================================================================================
+MODULE 30 — Page /order — État vide
+================================================================================
+
+30.1 Page vide sans article dans le panier
+     Avec client@restoqr.ca : password123
+     - Accéder à /order sans avoir ajouté d'item au panier
+     - Un message « Aucune commande en cours. » s'affiche
+     - Un bouton « Ajouter + » est visible
+     - Clic sur « Ajouter + » : Redirection vers /menu
+
+30.2 Page avec des lignes de commande déjà envoyées (commande existante)
+     Avec client@restoqr.ca : password123
+     - Une commande est déjà ouverte sur le serveur avec des lignes envoyées
+     - Accéder à /order (sans items dans le panier local)
+     - La page affiche les lignes déjà enregistrées en base :
+       · Chaque ligne affiche : nom du plat, quantité × prix, total
+       · Un badge de statut s'affiche selon l'avancement :
+         « Envoyée », « En préparation », « Prête » ou « Servie »
+       · Si une ligne a une note, elle s'affiche sous le nom du plat
+     - Le sous-total reflète le total des lignes existantes
+     - La section « Détails » est en lecture seule (pas de formulaire)
+     - Le bouton « Envoyer » est désactivé (aucun nouvel item à envoyer)
+     - Le bouton « Ajouter + » permet d'aller ajouter de nouveaux items
+
+
+================================================================================
+MODULE 31 — Page /order — Affichage d'une nouvelle commande
+================================================================================
+
+31.1 En-tête de la commande
+     Avec client@restoqr.ca : password123
+     - Ajouter un item au panier et accéder à /order
+     - Le titre « Votre commande » est visible
+     - Le nom du serveur assigné à la table est affiché
+       (ex : « Serveur : Marie Dupont »)
+     - Le badge d'ambiance est visible à côté du serveur
+       (affiche « pas implémenté » si aucun vibe assigné)
+     - Un bouton « Ajouter + » est visible en haut à droite
+
+31.2 Lignes de commande
+     - Chaque item du panier apparaît comme une carte
+     - La carte affiche : nom de l'item, quantité × prix unitaire, total
+     - L'image de l'item est affichée si disponible
+     - Un badge « En attente de l'envoi » est affiché (couleur distincte)
+     - Si l'item a une note spéciale, elle apparaît avec une icône
+
+31.3 Note de ligne (instruction spéciale)
+     - Ajouter un item avec une note (ex : « Sans oignon »)
+     - Dans /order, la note s'affiche sous le nom de l'item
+
+31.4 Sous-total
+     - Sous le tableau des lignes, le sous-total est affiché
+     - Format : « Sous-total (N article(s)) CA$XX.XX »
+     - Le total est la somme correcte de toutes les lignes
+
+31.5 Boutons Modifier / Supprimer sur les lignes
+     - Chaque ligne affiche deux boutons : « Modifier » et « Supprimer »
+     - Ces boutons sont visibles mais non fonctionnels pour l'instant
+
+
+================================================================================
+MODULE 32 — Page /order — Section Détails (nouvelle commande)
+================================================================================
+
+32.1 Affichage du formulaire Détails
+     - Accéder à /order sans commande ouverte sur le serveur
+     - La section « Détails » affiche un formulaire avec :
+       · Un champ texte « Note générale (optionnelle) »
+       · Un champ nombre « Pourboire (CA$) »
+
+32.2 Validation — Note uniquement composée d'espaces
+     - Entrer uniquement des espaces dans le champ « Note générale »
+     - Message d'erreur : « La note ne peut pas être composée
+       uniquement d'espaces. »
+     - Le bouton « Envoyer » devient désactivé (grisé)
+
+32.3 Validation — Note trop longue
+     - Le champ « Note générale » est limité à 255 caractères
+       (attribut maxlength)
+     - Un compteur « N / 255 » s'affiche en bas à droite du champ
+
+32.4 Validation — Pourboire négatif
+     - Entrer -1 dans le champ « Pourboire »
+     - Message d'erreur : « Le pourboire ne peut pas être négatif. »
+     - Le bouton « Envoyer » devient désactivé
+
+32.5 Validation — Pourboire trop élevé
+     - Entrer 1000 dans le champ « Pourboire »
+     - Message d'erreur : « Le pourboire ne peut pas dépasser 999,99 CA$. »
+     - Le bouton « Envoyer » devient désactivé
+
+32.6 Envoi de la commande
+     - Remplir une note valide (ex : « Table anniversaire », max 255 caractères)
+       et un pourboire valide (ex : 5, max 999,99 CA$)
+     - Une table doit avoir été scannée au préalable ;
+       si aucune table n'est en session, clic sur « Envoyer » redirige
+       vers la page de scan de table
+     - Cliquer sur « Envoyer »
+     - Les lignes « En attente de l'envoi » deviennent « Envoyée »
+     - La section Détails passe en mode lecture seule (plus de formulaire)
+
+32.7 Bouton Envoyer désactivé si panier vide
+     - Si aucune ligne n'est « En attente de l'envoi »
+     - Le bouton « Envoyer » est désactivé (grisé)
+
+
+================================================================================
+MODULE 33 — Page /order — Section Détails (commande existante)
+================================================================================
+
+33.1 Affichage en lecture seule
+     - Une commande est déjà ouverte sur le serveur (avec note et pourboire)
+     - La section « Détails » affiche les valeurs en lecture seule :
+       · Note
+       · Pourboire avec icône payments (ex : « Pourboire : CA$5.00 »)
+     - Aucun formulaire n'est affiché
+
+33.2 Aucun détail
+     - Commande ouverte sans note ni pourboire
+     - Le message « Aucun détail ajouté. » s'affiche
+
+33.3 Vibe existant
+     - Si la commande a un vibe assigné (ex : « Date »)
+     - Le badge de vibe dans l'en-tête affiche le nom avec sa couleur
+       à côté du nom du serveur
+
+
+================================================================================
+MODULE 34 — Page /cuisine — Affichage général
+================================================================================
+
+34.1 Accès sans être connecté
+     - Accéder à /cuisine sans être connecté
+     - Redirection automatique vers /login
+
+34.2 Accès avec un compte sans rôle cuisine
+     Avec client@restoqr.ca : password123
+     - Accéder à /cuisine
+     - Redirection automatique vers /menu
+
+34.3 Accès avec un compte cuisine
+     Avec cuisine@restoqr.ca : password123
+     - Accéder à /cuisine
+     - Le tableau de bord s'affiche avec le titre « Cuisine »
+       et le sous-titre « Commandes actives en temps réel »
+
+34.4 État vide
+     - Aucune commande active en base
+     - Le message « Aucune commande active » s'affiche avec
+       l'icône restaurant
+
+
+================================================================================
+MODULE 35 — Page /cuisine — Cartes de commande
+================================================================================
+
+35.1 En-tête de la carte
+     Avec cuisine@restoqr.ca : password123
+     - Une commande active existe (Table 3, 3 personnes)
+     - La carte affiche : badge « Table 3 » et « 3 personne(s) »
+     - Le nom du serveur est affiché (ex : « Marie Dupont »)
+     - Si un vibe est assigné, le badge s'affiche à côté du serveur
+       avec sa couleur (ex : « ✦ Date » en rose)
+
+35.2 Note générale de la commande
+     - Si la commande a une note (ex : « Allergie aux arachides »)
+     - La note s'affiche sous l'en-tête
+       en couleur cuivre
+
+35.3 Pourboire
+     - Si la commande a un pourboire > 0
+     - Une section verte s'affiche : « Pourboire : CA$5.00 »
+
+35.4 Lignes de commande
+     - La section « Lignes de commande » liste chaque plat
+     - Chaque ligne affiche : nom du plat, quantité (x2), statut
+     - Les statuts affichés : Envoyée, En préparation, Prête, Servie
+       (chacun avec une couleur distincte)
+
+35.5 Note de ligne
+     - Si une ligne a une note (ex : « Sans sel »)
+     - La note s'affiche sous le nom du plat sur une nouvelle ligne
+
+35.6 Boutons Modifier / Supprimer
+     - Chaque carte a deux boutons en bas : « Modifier » et « Supprimer »
+     - Ces boutons sont visibles mais non fonctionnels pour l'instant
+
+
+================================================================================
+MODULE 36 — Traduction (/order et /cuisine)
+================================================================================
+
+36.1 Traduction en anglais — Header
+     - Sur n'importe quelle page, changer la langue à « English »
+     - Les textes du header passent en anglais :
+       · « Déconnexion » → « Logout »
+       · « Connexion » → « Login »
+     - Le bouton de langue affiche maintenant « EN »
+     - Retour en français : clic sur « EN » puis « Français »
+       les textes reviennent en français
+
+36.2 Traduction en anglais — /order
+     Avec client@restoqr.ca : password123
+     - Accéder à /order avec des items dans le panier
+     - Changer la langue à « English » via le header
+     - Les textes passent en anglais :
+       · « Votre commande » → « Your order »
+       · « Lignes de commande » → « Order lines »
+       · « En attente de l'envoi » → « Pending »
+       · « Sous-total » → « Subtotal »
+       · « Détails » → « Details »
+       · « Note générale (optionnelle) » → « General note (optional) »
+       · « Pourboire (CA$) » → « Tip (CA$) »
+       · « Envoyer » → « Send »
+
+36.3 Traduction en anglais — /cuisine
+     Avec cuisine@restoqr.ca : password123
+     - Accéder à /cuisine
+     - Changer la langue à « English » via le header
+     - Les textes passent en anglais :
+       · « Tableau de bord » → « Dashboard »
+       · « Cuisine » → « Kitchen »
+       · « Commandes actives en temps réel » → « Active orders in real time »
+       · « personne(s) » → « person(s) »
+       · « Aucun serveur assigné » → « No server assigned »
+       · Statuts : « Envoyée » → « Sent », « En préparation » → « In preparation »
+
+36.4 Retour en français
+     - Cliquer sur « Français » dans le header
+     - Tous les textes reviennent en français
+
+36.5 Persistance de la langue
+     - Changer la langue à « English »
+     - Rafraîchir la page
+     - L'interface reste en anglais
+
+================================================================================

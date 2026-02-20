@@ -1,0 +1,515 @@
+================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+               Pages : Connexion (login) · Inscription (signup) ·
+                       Administration des utilisateurs (admin-users)
+================================================================================
+
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca    / password123
+  - Client   : client@restoqr.ca   / password123
+  - Serveur  : waiter@restoqr.ca   / password123
+  - Cuisinier: cook@restoqr.ca     / password123
+
+================================================================================
+MODULE 1 — Écran de connexion (/login)
+================================================================================
+
+1.1  Chargement initial
+     - Accéder à /login
+     - Le header est visible (sans bouton Déconnexion)
+     - Le titre « Connexion » est affiché
+     - Le sous-titre « Entrez vos identifiants » est affiché
+     - Deux champs Material (mat-form-field outline) : « Courriel » et
+       « Mot de passe »
+     - Un bouton « Se connecter » est visible
+
+1.2  Validation — Courriel requis
+     - Laisser le champ « Courriel » vide, cliquer sur « Se connecter »
+     - Message d'erreur : « Le courriel est requis »
+
+1.3  Validation — Courriel format invalide
+     - Entrer « abc » dans le champ « Courriel »
+     - Soumettre le formulaire
+     - Message d'erreur : « Format de courriel invalide »
+
+1.4  Validation — Mot de passe requis
+     - Laisser le champ « Mot de passe » vide, cliquer sur « Se connecter »
+     - Message d'erreur : « Le mot de passe est requis »
+
+1.5  Validation — Mot de passe trop court
+     - Entrer un mot de passe de moins de 6 caractères (ex : « abc »)
+     - Message d'erreur : « Minimum 6 caractères »
+
+1.6  Validation — Mot de passe trop long
+     - Entrer un mot de passe de plus de 128 caractères
+     - Message d'erreur : « Maximum 128 caractères »
+
+1.7  Identifiants invalides
+     - Entrer un courriel et un mot de passe qui ne correspondent à aucun
+       compte (ex : fake@test.com / wrongpassword)
+     - Cliquer sur « Se connecter »
+     - Un message d'erreur serveur s'affiche en rouge sous les champs
+
+1.8  Connexion réussie — Admin
+     Avec admin@restoqr.ca : password123
+     - Entrer les identifiants et cliquer sur « Se connecter »
+     - Redirection automatique vers /admin
+
+1.9  Connexion réussie — Cuisinier
+     Avec cook@restoqr.ca : password123
+     - Entrer les identifiants et cliquer sur « Se connecter »
+     - Redirection automatique vers /cuisine
+
+1.10 Connexion réussie — Client
+     Avec client@restoqr.ca : password123
+     - Entrer les identifiants et cliquer sur « Se connecter »
+     - Redirection automatique vers /form
+
+1.11 Lien vers inscription
+     - Le lien « Créer un compte » est visible sous le formulaire
+     - Clic sur « Créer un compte » : Redirection vers /signup
+
+1.12 Bouton désactivé pendant le chargement
+     - Après soumission du formulaire, le bouton affiche « Connexion... »
+       et est désactivé pendant le traitement
+
+1.13 Bouton désactivé si formulaire invalide
+     - Le bouton « Se connecter » est grisé tant que le formulaire est invalide
+
+
+================================================================================
+MODULE 2 — Écran d'inscription (/signup)
+================================================================================
+
+2.1  Chargement initial
+     - Accéder à /signup
+     - Le header est visible (sans bouton Déconnexion)
+     - Le titre « Inscription » est affiché
+     - Cinq champs Material (mat-form-field outline) : Prénom, Nom,
+       Courriel, Mot de passe, Confirmation du mot de passe
+     - Un bouton « Créer mon compte » est visible
+
+2.2  Validation — Prénom requis
+     - Laisser le champ « Prénom » vide et soumettre
+     - Message d'erreur : « Le prénom est requis »
+
+2.3  Validation — Prénom trop long
+     - Entrer un prénom de plus de 50 caractères
+     - Message d'erreur : « Maximum 50 caractères »
+
+2.4  Validation — Nom requis
+     - Laisser le champ « Nom » vide et soumettre
+     - Message d'erreur : « Le nom est requis »
+
+2.5  Validation — Nom trop long
+     - Entrer un nom de plus de 50 caractères
+     - Message d'erreur : « Maximum 50 caractères »
+
+2.6  Validation — Courriel requis
+     - Laisser le champ « Courriel » vide et soumettre
+     - Message d'erreur : « Le courriel est requis »
+
+2.7  Validation — Courriel format invalide
+     - Entrer « abc » dans le champ « Courriel »
+     - Message d'erreur : « Format de courriel invalide »
+
+2.8  Validation — Mot de passe requis
+     - Laisser le champ « Mot de passe » vide et soumettre
+     - Message d'erreur : « Le mot de passe est requis »
+
+2.9  Validation — Mot de passe trop court
+     - Entrer un mot de passe de moins de 6 caractères
+     - Message d'erreur : « Minimum 6 caractères »
+
+2.10 Validation — Mot de passe trop long
+     - Entrer un mot de passe de plus de 128 caractères
+     - Message d'erreur : « Maximum 128 caractères »
+
+2.11 Validation — Confirmation requise
+     - Laisser le champ « Confirmation » vide et soumettre
+     - Message d'erreur : « La confirmation est requise »
+
+2.12 Validation — Mots de passe différents
+     - Entrer « password1 » et « password2 » dans les champs mot de passe
+       et confirmation
+     - Message d'erreur : « Les mots de passe ne correspondent pas »
+
+2.13 Courriel déjà utilisé
+     - Entrer un courriel déjà en base (ex : admin@restoqr.ca)
+     - Remplir tous les champs et soumettre
+     - Un message d'erreur serveur s'affiche en rouge
+
+2.14 Inscription réussie
+     - Remplir tous les champs avec des valeurs valides (prénom, nom,
+       courriel unique, mot de passe >= 6 chars, confirmation identique)
+     - Clic sur « Créer mon compte »
+     - Redirection automatique vers /form
+     - L'utilisateur est connecté (session créée)
+
+2.15 Lien vers connexion
+     - Le lien « Se connecter » est visible sous le formulaire
+     - Clic sur « Se connecter » : Redirection vers /login
+
+2.16 Bouton désactivé pendant le chargement
+     - Après soumission, le bouton affiche « Création... » et est désactivé
+
+2.17 Bouton désactivé si formulaire invalide
+     - Le bouton « Créer mon compte » est grisé tant que le formulaire
+       est invalide
+
+
+================================================================================
+MODULE 3 — Accès à la page admin (guards)
+================================================================================
+
+3.1  Accès sans être connecté
+     - Ouvrir directement l'URL /admin dans le navigateur sans être connecté
+     - Redirection automatique vers /login
+
+3.2  Accès avec un compte client
+     Avec client@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+3.3  Accès avec un compte serveur
+     Avec waiter@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+3.4  Accès avec un compte cuisinier
+     Avec cook@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - Redirection automatique vers /menu
+
+3.5  Accès avec un compte admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter puis accéder à /admin
+     - La page d'administration s'affiche correctement
+     - Trois onglets visibles : Items, Tables, Utilisateurs
+
+
+================================================================================
+MODULE 4 — Affichage de la liste des utilisateurs
+================================================================================
+
+4.1  Chargement initial
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin, cliquer sur l'onglet « Utilisateurs »
+     - Un spinner de chargement (mat-spinner) s'affiche pendant le chargement
+     - Une fois chargé, les utilisateurs s'affichent en liste
+
+4.2  Affichage des cartes
+     - Chaque carte affiche : prénom et nom, courriel
+     - Un badge coloré pour le type (Administrateur, Serveur, Client, Cuisinier)
+     - Un badge coloré pour le statut (vert = Actif, orange = Inactif,
+       rouge = Bloqué)
+     - Trois boutons d'action : bloquer/activer, modifier (edit), supprimer
+       (delete)
+
+4.3  État vide
+     - Si aucun utilisateur n'existe, le message « Aucun utilisateur
+       trouvé » s'affiche
+
+
+================================================================================
+MODULE 5 — Recherche, tri et filtres (SSF)
+================================================================================
+
+5.1  Recherche par nom
+     - Taper un nom d'utilisateur dans la barre de recherche (ex : « admin »)
+     - La liste se met à jour pour afficher uniquement les utilisateurs
+       correspondants
+
+5.2  Recherche par courriel
+     - Taper une partie d'un courriel (ex : « cook »)
+     - Seuls les utilisateurs dont le courriel correspond s'affichent
+
+5.3  Recherche sans résultat
+     - Taper un texte qui ne correspond à aucun utilisateur (ex : « zzzzz »)
+     - Le message « Aucun utilisateur trouvé » s'affiche
+
+5.4  Effacer la recherche
+     - Effacer le champ de recherche
+     - Tous les utilisateurs réapparaissent
+
+5.5  Filtre par statut — Actif
+     - Sélectionner « Actif » dans le dropdown de filtre statut
+     - Seuls les utilisateurs avec le statut « Actif » s'affichent
+
+5.6  Filtre par statut — Bloqué
+     - Sélectionner « Bloqué » dans le dropdown de filtre statut
+     - Seuls les utilisateurs avec le statut « Bloqué » s'affichent
+
+5.7  Filtre par type — Administrateur
+     - Sélectionner « Administrateur » dans le dropdown de filtre type
+     - Seuls les administrateurs s'affichent
+
+5.8  Filtre par type — Serveur
+     - Sélectionner « Serveur » dans le dropdown de filtre type
+     - Seuls les serveurs s'affichent
+
+5.9  Filtre combiné
+     - Sélectionner statut « Actif » et type « Client »
+     - Seuls les clients actifs s'affichent
+
+5.10 Remettre les filtres à « Tous »
+     - Sélectionner « Tous » dans les deux dropdowns de filtre
+     - Tous les utilisateurs réapparaissent
+
+5.11 Tri A–Z
+     - Sélectionner « A–Z » dans le dropdown de tri
+     - Les utilisateurs sont triés par nom de famille croissant
+
+5.12 Tri Z–A
+     - Sélectionner « Z–A » dans le dropdown de tri
+     - Les utilisateurs sont triés par nom de famille décroissant
+
+5.13 Tri par défaut
+     - Sélectionner « Par défaut » dans le dropdown de tri
+     - Les utilisateurs reviennent à l'ordre initial
+
+
+================================================================================
+MODULE 6 — Création d'un utilisateur
+================================================================================
+
+6.1  Ouverture de la modal de création
+     Avec admin@restoqr.ca : password123
+     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
+     - Le titre de la modal est « Ajouter un utilisateur »
+     - Les champs sont vides (prénom, nom, courriel)
+     - Le type est pré-sélectionné sur « Client »
+     - Le statut est pré-sélectionné sur « Actif »
+     - Les champs mot de passe et confirmation sont vides et requis
+
+6.2  Validation — Prénom requis
+     - Laisser le champ « Prénom » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le prénom est requis »
+
+6.3  Validation — Prénom espaces seulement
+     - Entrer uniquement des espaces dans le champ « Prénom »
+     - Message d'erreur : « Ne peut pas contenir uniquement des espaces »
+
+6.4  Validation — Prénom trop long
+     - Entrer un prénom de plus de 50 caractères
+     - Message d'erreur : « Maximum 50 caractères »
+
+6.5  Validation — Nom requis
+     - Laisser le champ « Nom » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le nom est requis »
+
+6.6  Validation — Nom espaces seulement
+     - Entrer uniquement des espaces dans le champ « Nom »
+     - Message d'erreur : « Ne peut pas contenir uniquement des espaces »
+
+6.7  Validation — Nom trop long
+     - Entrer un nom de plus de 50 caractères
+     - Message d'erreur : « Maximum 50 caractères »
+
+6.8  Validation — Courriel requis
+     - Laisser le champ « Courriel » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le courriel est requis »
+
+6.9  Validation — Courriel format invalide
+     - Entrer « abc » dans le champ « Courriel »
+     - Message d'erreur : « Format de courriel invalide »
+
+6.10 Validation — Mot de passe requis (création)
+     - Laisser le champ « Mot de passe » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le mot de passe est requis »
+
+6.11 Validation — Mot de passe trop court
+     - Entrer un mot de passe de moins de 6 caractères
+     - Message d'erreur : « Minimum 6 caractères »
+
+6.12 Validation — Mot de passe trop long
+     - Entrer un mot de passe de plus de 128 caractères
+     - Message d'erreur : « Maximum 128 caractères »
+
+6.13 Courriel en doublon
+     - Entrer un courriel déjà utilisé (ex : admin@restoqr.ca)
+     - Remplir tous les autres champs et cliquer sur « Ajouter »
+     - Un message d'erreur serveur s'affiche en rouge dans la modal
+
+6.14 Création réussie
+     - Remplir tous les champs avec des valeurs valides (prénom, nom,
+       courriel unique, type, statut, mot de passe >= 6 chars)
+     - Clic sur « Ajouter »
+     - La modal se ferme
+     - Le nouvel utilisateur apparaît dans la liste
+
+6.15 Création avec type Administrateur
+     - Créer un utilisateur avec le type « Administrateur »
+     - Le badge « Administrateur » s'affiche correctement sur la carte
+
+6.16 Création avec type Serveur
+     - Créer un utilisateur avec le type « Serveur »
+     - Le badge « Serveur » s'affiche correctement
+
+6.17 Création avec type Cuisinier
+     - Créer un utilisateur avec le type « Cuisinier »
+     - Le badge « Cuisinier » s'affiche correctement
+
+6.18 Création avec statut Inactif
+     - Créer un utilisateur avec le statut « Inactif »
+     - Le badge orange « Inactif » s'affiche sur la carte
+
+6.19 Annulation
+     - Remplir des champs puis cliquer sur « Annuler »
+     - La modal se ferme, aucun utilisateur n'est créé
+
+6.20 Fermeture par le bouton X
+     - Remplir des champs puis cliquer sur le bouton « X » en haut à droite
+     - La modal se ferme, aucun utilisateur n'est créé
+
+
+================================================================================
+MODULE 7 — Modification d'un utilisateur
+================================================================================
+
+7.1  Ouverture de la modal de modification
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « edit » d'un utilisateur existant
+     - La modal s'ouvre avec le titre « Modifier l'utilisateur »
+     - Les champs sont pré-remplis (prénom, nom, courriel, type, statut)
+     - Les champs mot de passe et confirmation sont vides et optionnels
+
+7.2  Validations
+     - Mêmes validations que la création (6.2 à 6.12)
+     - Le mot de passe est optionnel en modification
+
+7.3  Modification réussie — Nom
+     - Modifier le prénom et/ou le nom d'un utilisateur existant
+     - Clic sur « Enregistrer »
+     - La modal se ferme
+     - L'utilisateur mis à jour s'affiche avec les nouvelles valeurs
+
+7.4  Modification réussie — Courriel
+     - Modifier le courriel d'un utilisateur
+     - Clic sur « Enregistrer »
+     - La modal se ferme, le courriel est mis à jour
+
+7.5  Modification réussie — Type
+     - Changer le type d'un utilisateur (ex : Client → Serveur)
+     - Clic sur « Enregistrer »
+     - Le badge type est mis à jour dans la liste
+
+7.6  Modification réussie — Statut
+     - Changer le statut d'un utilisateur (ex : actif → bloqué)
+     - Clic sur « Enregistrer »
+     - Le badge statut change de couleur dans la liste
+
+7.7  Modification sans changer le mot de passe
+     - Laisser les champs mot de passe vides et modifier le nom
+     - Clic sur « Enregistrer »
+     - La modification est sauvegardée sans changer le mot de passe
+
+7.8  Modification du mot de passe
+     - Entrer un nouveau mot de passe et sa confirmation
+     - Clic sur « Enregistrer »
+     - Vérifiable en se reconnectant avec le nouveau mot de passe
+
+7.9  Annulation
+     - Modifier des champs puis cliquer sur « Annuler »
+     - La modal se ferme, l'utilisateur n'est pas modifié
+
+7.10 Fermeture par le bouton X
+     - Modifier des champs puis cliquer sur le bouton « X »
+     - La modal se ferme, l'utilisateur n'est pas modifié
+
+
+================================================================================
+MODULE 8 — Suppression d'un utilisateur
+================================================================================
+
+8.1  Ouverture de la modal de confirmation
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « delete » d'un utilisateur
+     - Une modal de confirmation s'ouvre
+     - Le message affiche le nom complet de l'utilisateur à supprimer
+
+8.2  Annulation de la suppression
+     - Clic sur « Annuler » : La modal se ferme, l'utilisateur est
+       toujours dans la liste
+
+8.3  Fermeture par le bouton X
+     - Clic sur le bouton « X » : La modal se ferme, l'utilisateur est
+       toujours dans la liste
+
+8.4  Confirmation de la suppression
+     - Clic sur « Supprimer »
+     - La modal se ferme
+     - L'utilisateur disparaît de la liste (soft delete)
+
+8.5  L'utilisateur supprimé ne peut plus se connecter
+     - Tenter de se connecter avec les identifiants de l'utilisateur
+       supprimé
+     - Un message d'erreur s'affiche (compte non trouvé)
+
+
+================================================================================
+MODULE 9 — Actions rapides (toggle statut)
+================================================================================
+
+9.1  Bloquer un utilisateur actif
+     Avec admin@restoqr.ca : password123
+     - Sur un utilisateur avec le statut « Actif »
+     - Clic sur l'icône « block » (cercle barré)
+     - Le statut passe à « Bloqué », le badge devient rouge
+
+9.2  Activer un utilisateur bloqué
+     - Sur un utilisateur avec le statut « Bloqué »
+     - Clic sur l'icône « check_circle » (coche verte)
+     - Le statut passe à « Actif », le badge devient vert
+
+9.3  Activer un utilisateur inactif
+     - Sur un utilisateur avec le statut « Inactif »
+     - Clic sur l'icône « check_circle »
+     - Le statut passe à « Actif », le badge devient vert
+
+
+================================================================================
+MODULE 10 — Traduction (login + signup + admin-users)
+================================================================================
+
+10.1 Traduction en anglais — Login
+     - Accéder à /login et changer la langue à « English » via le header
+     - Les textes passent en anglais :
+       · « Connexion » → « Login »
+       · « Courriel » → « Email »
+       · « Mot de passe » → « Password »
+       · « Se connecter » → « Sign in »
+       · « Créer un compte » → « Create an account »
+       · Messages de validation en anglais
+
+10.2 Traduction en anglais — Signup
+     - Accéder à /signup et changer la langue à « English »
+     - Les textes passent en anglais :
+       · « Inscription » → « Sign up »
+       · « Prénom » → « First name »
+       · « Nom » → « Last name »
+       · « Créer mon compte » → « Create my account »
+       · « Se connecter » → « Sign in »
+       · Messages de validation en anglais
+
+10.3 Traduction en anglais — Admin Users
+     Avec admin@restoqr.ca : password123
+     - Accéder à /admin, onglet « Utilisateurs » et changer la langue
+       à « English »
+     - Le titre passe à « User management »
+     - Les badges de type passent en anglais (Administrator, Waiter,
+       Client, Cook)
+     - Les badges de statut passent en anglais (Active, Inactive, Blocked)
+     - Les labels des filtres et du formulaire passent en anglais
+     - Les messages de validation passent en anglais
+
+10.4 Retour en français
+     - Cliquer sur « Français » dans le header
+     - Tous les textes reviennent en français
+
+10.5 Persistance de la langue
+     - Changer la langue à « English »
+     - Rafraîchir la page
+     - L'interface reste en anglais
+
+================================================================================

@@ -1,0 +1,4323 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R 23 0 R 25 0 R 27 0 R 29 0 R 31 0 R 33 0 R 35 0 R 37 0 R 39 0 R 41 0 R 43 0 R 45 0 R] /Count 21 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+4 0 obj
+<< /Length 5266 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(================================================================================) Tj
+-50 -792.0 Td
+50 781.0 Td
+(================================================================================) Tj
+-50 -781.0 Td
+50 770.0 Td
+(                        PROCÉDURIER DE TESTS ? RestoQR) Tj
+-50 -770.0 Td
+50 759.0 Td
+(================================================================================) Tj
+-50 -759.0 Td
+50 748.0 Td
+(================================================================================) Tj
+-50 -748.0 Td
+50 737.0 Td
+() Tj
+-50 -737.0 Td
+50 726.0 Td
+(                     Application de gestion de restaurant) Tj
+-50 -726.0 Td
+50 715.0 Td
+(              avec commande par QR code et gestion en cuisine) Tj
+-50 -715.0 Td
+50 704.0 Td
+() Tj
+-50 -704.0 Td
+50 693.0 Td
+(  Équipe :) Tj
+-50 -693.0 Td
+50 682.0 Td
+(    - Mathis   : Menu public + Administration des items) Tj
+-50 -682.0 Td
+50 671.0 Td
+(    - Alex     : Administration des tables + QR codes) Tj
+-50 -671.0 Td
+50 660.0 Td
+(    - Samer    : Connexion + Inscription + Administration des utilisateurs) Tj
+-50 -660.0 Td
+50 649.0 Td
+(    - William  : Panier + Commande + Cuisine) Tj
+-50 -649.0 Td
+50 638.0 Td
+() Tj
+-50 -638.0 Td
+50 627.0 Td
+(  Identifiants utilisés :) Tj
+-50 -627.0 Td
+50 616.0 Td
+(    - Admin    : admin@restoqr.ca    / password123) Tj
+-50 -616.0 Td
+50 605.0 Td
+(    - Client   : client@restoqr.ca   / password123) Tj
+-50 -605.0 Td
+50 594.0 Td
+(    - Serveur  : waiter@restoqr.ca   / password123) Tj
+-50 -594.0 Td
+50 583.0 Td
+(    - Cuisinier: cook@restoqr.ca     / password123) Tj
+-50 -583.0 Td
+50 572.0 Td
+(    - Cuisine  : cuisine@restoqr.ca  / password123) Tj
+-50 -572.0 Td
+50 561.0 Td
+() Tj
+-50 -561.0 Td
+50 550.0 Td
+() Tj
+-50 -550.0 Td
+50 539.0 Td
+(================================================================================) Tj
+-50 -539.0 Td
+50 528.0 Td
+(================================================================================) Tj
+-50 -528.0 Td
+50 517.0 Td
+(                    PARTIE A ? Menu public + Admin Items) Tj
+-50 -517.0 Td
+50 506.0 Td
+(                              \(Mathis\)) Tj
+-50 -506.0 Td
+50 495.0 Td
+(================================================================================) Tj
+-50 -495.0 Td
+50 484.0 Td
+(================================================================================) Tj
+-50 -484.0 Td
+50 473.0 Td
+() Tj
+-50 -473.0 Td
+50 462.0 Td
+() Tj
+-50 -462.0 Td
+50 451.0 Td
+(================================================================================) Tj
+-50 -451.0 Td
+50 440.0 Td
+(MODULE 1 ? Header) Tj
+-50 -440.0 Td
+50 429.0 Td
+(================================================================================) Tj
+-50 -429.0 Td
+50 418.0 Td
+() Tj
+-50 -418.0 Td
+50 407.0 Td
+(1.1  Bouton Connexion \(utilisateur non connecté\)) Tj
+-50 -407.0 Td
+50 396.0 Td
+(     - Ouvrir la page /menu sans être connecté) Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - Le bouton « Connexion » est visible) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Clic sur « Connexion » : Redirection vers /login) Tj
+-50 -374.0 Td
+50 363.0 Td
+() Tj
+-50 -363.0 Td
+50 352.0 Td
+(1.2  Bouton Déconnexion \(utilisateur connecté\)) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Se connecter, accéder à /menu) Tj
+-50 -330.0 Td
+50 319.0 Td
+(     - Le bouton « Déconnexion » est visible) Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Clic sur « Déconnexion » : Redirection vers /login, session terminée) Tj
+-50 -308.0 Td
+50 297.0 Td
+() Tj
+-50 -297.0 Td
+50 286.0 Td
+(1.3  Bouton Admin \(utilisateur admin\)) Tj
+-50 -286.0 Td
+50 275.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Se connecter, accéder à /menu) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Le bouton « Admin » est visible dans le header \(après Déconnexion, séparé par « | »\)) Tj
+-50 -253.0 Td
+50 242.0 Td
+(     - Clic sur « Admin » : Redirection vers /admin) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Naviguer vers /order : Le bouton « Admin » est toujours visible dans le header) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Naviguer vers /cuisine : Le bouton « Admin » est toujours visible dans le header) Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - Naviguer vers /admin : Le bouton « Admin » est toujours visible dans le header) Tj
+-50 -209.0 Td
+50 198.0 Td
+() Tj
+-50 -198.0 Td
+50 187.0 Td
+(1.4  Bouton Admin absent \(utilisateur non-admin\)) Tj
+-50 -187.0 Td
+50 176.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     - Se connecter, accéder à /menu : Le bouton « Admin » n'est PAS visible) Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Accéder à /order : Le bouton « Admin » n'est PAS visible) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Accéder à /cuisine : Le bouton « Admin » n'est PAS visible) Tj
+-50 -143.0 Td
+50 132.0 Td
+() Tj
+-50 -132.0 Td
+50 121.0 Td
+(1.5  Bouton Admin absent \(utilisateur non connecté\)) Tj
+-50 -121.0 Td
+50 110.0 Td
+(     - Ouvrir la page /menu sans être connecté) Tj
+-50 -110.0 Td
+50 99.0 Td
+(     - Le bouton « Admin » n'est PAS visible dans le header) Tj
+-50 -99.0 Td
+50 88.0 Td
+() Tj
+-50 -88.0 Td
+50 77.0 Td
+(1.6  Bouton Admin absent \(pages login / signup\)) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Accéder à /login : Le bouton « Admin » n'est PAS visible) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+6 0 obj
+<< /Length 5183 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - Accéder à /signup : Le bouton « Admin » n'est PAS visible) Tj
+-50 -792.0 Td
+50 781.0 Td
+() Tj
+-50 -781.0 Td
+50 770.0 Td
+(1.7  Bouton Quitter \(page admin\)) Tj
+-50 -770.0 Td
+50 759.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Se connecter, accéder à /admin) Tj
+-50 -748.0 Td
+50 737.0 Td
+(     - Le bouton « Quitter » est visible dans le header avec l'icône flèche) Tj
+-50 -737.0 Td
+50 726.0 Td
+(     - Un séparateur « | » est affiché entre Déconnexion et Quitter) Tj
+-50 -726.0 Td
+50 715.0 Td
+(     - Clic sur « Quitter » : Retour à la page précédente \(ex: /menu\)) Tj
+-50 -715.0 Td
+50 704.0 Td
+() Tj
+-50 -704.0 Td
+50 693.0 Td
+(1.8  Changement de langue) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Clic sur le bouton « FR » dans le header) Tj
+-50 -682.0 Td
+50 671.0 Td
+(     - Un menu déroulant apparaît avec « Français » et « English ») Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - Clic sur « English » : L'interface passe en anglais \(labels, boutons, textes\)) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Le bouton affiche maintenant « EN ») Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - Clic sur « EN » puis « Français » : L'interface revient en français) Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Rafraîchir la page : La langue choisie est conservée \(localStorage\)) Tj
+-50 -627.0 Td
+50 616.0 Td
+() Tj
+-50 -616.0 Td
+50 605.0 Td
+() Tj
+-50 -605.0 Td
+50 594.0 Td
+(================================================================================) Tj
+-50 -594.0 Td
+50 583.0 Td
+(MODULE 2 ? Navigation par catégories) Tj
+-50 -583.0 Td
+50 572.0 Td
+(================================================================================) Tj
+-50 -572.0 Td
+50 561.0 Td
+() Tj
+-50 -561.0 Td
+50 550.0 Td
+(2.1  Sidebar desktop \(écran large >= 900px\)) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Les catégories sont listées dans la sidebar de gauche) Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - La première catégorie est active par défaut \(style surligné\)) Tj
+-50 -528.0 Td
+50 517.0 Td
+(     - Clic sur une autre catégorie : La page scrolle vers la section correspondante) Tj
+-50 -517.0 Td
+50 506.0 Td
+(     - La catégorie cliquée devient active \(style surligné\)) Tj
+-50 -506.0 Td
+50 495.0 Td
+() Tj
+-50 -495.0 Td
+50 484.0 Td
+(2.2  Dropdown mobile \(écran < 900px\)) Tj
+-50 -484.0 Td
+50 473.0 Td
+(     - Réduire la fenêtre sous 900px de largeur) Tj
+-50 -473.0 Td
+50 462.0 Td
+(     - La sidebar disparaît, un dropdown de catégories apparaît) Tj
+-50 -462.0 Td
+50 451.0 Td
+(     - Le dropdown affiche la catégorie active) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Sélectionner une autre catégorie : La page scrolle vers la section correspondante) Tj
+-50 -440.0 Td
+50 429.0 Td
+() Tj
+-50 -429.0 Td
+50 418.0 Td
+(================================================================================) Tj
+-50 -418.0 Td
+50 407.0 Td
+(MODULE 3 ? Recherche, tri et filtres \(SSF\)) Tj
+-50 -407.0 Td
+50 396.0 Td
+(================================================================================) Tj
+-50 -396.0 Td
+50 385.0 Td
+() Tj
+-50 -385.0 Td
+50 374.0 Td
+(3.1  Recherche par nom) Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Taper un nom d'item existant dans la barre de recherche \(ex: « Burger »\)) Tj
+-50 -363.0 Td
+50 352.0 Td
+(     - Après ~300ms, seuls les items correspondants s'affichent) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Effacer la recherche : Tous les items réapparaissent) Tj
+-50 -341.0 Td
+50 330.0 Td
+() Tj
+-50 -330.0 Td
+50 319.0 Td
+(3.2  Recherche sans résultat) Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Taper un texte qui ne correspond à aucun item \(ex: « xyzzzz »\)) Tj
+-50 -308.0 Td
+50 297.0 Td
+(     - Le message « Aucun résultat trouvé » apparaît avec l'icône search_off) Tj
+-50 -297.0 Td
+50 286.0 Td
+() Tj
+-50 -286.0 Td
+50 275.0 Td
+(3.3  Tri par prix ascendant) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Dans le dropdown « Trier par prix », sélectionner « Prix croissant ») Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Les items sont réordonnés du moins cher au plus cher) Tj
+-50 -253.0 Td
+50 242.0 Td
+() Tj
+-50 -242.0 Td
+50 231.0 Td
+(3.4  Tri par prix descendant) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Sélectionner « Prix décroissant ») Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - Les items sont réordonnés du plus cher au moins cher) Tj
+-50 -209.0 Td
+50 198.0 Td
+() Tj
+-50 -198.0 Td
+50 187.0 Td
+(3.5  Filtre prix minimum) Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Entrer une valeur dans le champ « Prix min » \(ex: 10\)) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     - Seuls les items avec un prix >= 10 s'affichent) Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Entrer une valeur qui ne correspond à aucunu item \(ex: 99999\) : Aucun item ne s'affiche,) Tj
+-50 -154.0 Td
+50 143.0 Td
+(       message « Aucun résultat trouvé ») Tj
+-50 -143.0 Td
+50 132.0 Td
+() Tj
+-50 -132.0 Td
+50 121.0 Td
+(3.6  Filtre prix maximum) Tj
+-50 -121.0 Td
+50 110.0 Td
+(     - Entrer une valeur dans le champ « Prix max » \(ex: 15\)) Tj
+-50 -110.0 Td
+50 99.0 Td
+(     - Seuls les items avec un prix <= 15 s'affichent) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Entrer une valeur qui ne correspond à aucunu item : Aucun item ne s'affiche,) Tj
+-50 -88.0 Td
+50 77.0 Td
+(       message « Aucun résultat trouvé ») Tj
+-50 -77.0 Td
+50 66.0 Td
+() Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 6 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+8 0 obj
+<< /Length 4879 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(3.7  Combinaison de filtres) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Entrer prix min = 5, prix max = 20, et taper un terme de recherche) Tj
+-50 -781.0 Td
+50 770.0 Td
+(     - Seuls les items correspondant aux 3 critères s'affichent) Tj
+-50 -770.0 Td
+50 759.0 Td
+(     - Ajouter un tri par prix croissant : Les résultats filtrés sont triés) Tj
+-50 -759.0 Td
+50 748.0 Td
+() Tj
+-50 -748.0 Td
+50 737.0 Td
+(================================================================================) Tj
+-50 -737.0 Td
+50 726.0 Td
+(MODULE 4 ? Affichage du menu) Tj
+-50 -726.0 Td
+50 715.0 Td
+(================================================================================) Tj
+-50 -715.0 Td
+50 704.0 Td
+() Tj
+-50 -704.0 Td
+50 693.0 Td
+(4.1  Chargement initial) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Accéder à /menu) Tj
+-50 -682.0 Td
+50 671.0 Td
+(     - Un spinner de chargement \(mat-spinner\) s'affiche pendant le chargement) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - Une fois chargé, le spinner disparaît et les items s'affichent) Tj
+-50 -660.0 Td
+50 649.0 Td
+() Tj
+-50 -649.0 Td
+50 638.0 Td
+(4.2  Affichage des items par catégorie) Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Les items sont regroupés par catégorie avec un titre de section \(h1\)) Tj
+-50 -627.0 Td
+50 616.0 Td
+(     - Chaque carte affiche : nom, description, prix \(CA$X.XX\) et image) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Un bouton « + » est visible sur chaque carte) Tj
+-50 -605.0 Td
+50 594.0 Td
+() Tj
+-50 -594.0 Td
+50 583.0 Td
+(4.3  Erreur de chargement) Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - Si le serveur est inaccessible, un message d'erreur s'affiche dans un bandeau) Tj
+-50 -572.0 Td
+50 561.0 Td
+() Tj
+-50 -561.0 Td
+50 550.0 Td
+(================================================================================) Tj
+-50 -550.0 Td
+50 539.0 Td
+(MODULE 5 ? Modal d'item) Tj
+-50 -539.0 Td
+50 528.0 Td
+(================================================================================) Tj
+-50 -528.0 Td
+50 517.0 Td
+() Tj
+-50 -517.0 Td
+50 506.0 Td
+(5.1  Ouverture de la modal) Tj
+-50 -506.0 Td
+50 495.0 Td
+(     - Clic sur une carte d'item : La modal s'ouvre) Tj
+-50 -495.0 Td
+50 484.0 Td
+(     - La modal affiche : image, nom, description, prix) Tj
+-50 -484.0 Td
+50 473.0 Td
+() Tj
+-50 -473.0 Td
+50 462.0 Td
+(5.2  Quantité ? Incrémenter) Tj
+-50 -462.0 Td
+50 451.0 Td
+(     - La quantité par défaut est 1) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Clic sur le bouton « + » : La quantité passe à 2) Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - Le total se met à jour \(prix × quantité\)) Tj
+-50 -429.0 Td
+50 418.0 Td
+(     - Avec une quantité de 50, le bouton « + » est désactivé \(grisé\)) Tj
+-50 -418.0 Td
+50 407.0 Td
+() Tj
+-50 -407.0 Td
+50 396.0 Td
+(5.3  Quantité ? Décrémenter) Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - Avec une quantité de 2, clic sur « - » : La quantité passe à 1) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Avec une quantité de 1, le bouton « - » est désactivé \(grisé\)) Tj
+-50 -374.0 Td
+50 363.0 Td
+() Tj
+-50 -363.0 Td
+50 352.0 Td
+(5.4  Note spéciale) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Taper un texte dans le champ « Instructions spéciales » \(ex: « Sans oignon »\)) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Le compteur de caractères s'affiche \(ex: 11/255\)) Tj
+-50 -330.0 Td
+50 319.0 Td
+(     - Maximum 255 caractères autorisés) Tj
+-50 -319.0 Td
+50 308.0 Td
+() Tj
+-50 -308.0 Td
+50 297.0 Td
+(5.5  Ajouter au panier) Tj
+-50 -297.0 Td
+50 286.0 Td
+(     - Sélectionner quantité = 2 et ajouter une note) Tj
+-50 -286.0 Td
+50 275.0 Td
+(     - Clic sur « Ajouter au panier ? CA$XX.XX ») Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - La modal se ferme) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Le badge du panier dans le header se met à jour \(+2\)) Tj
+-50 -253.0 Td
+50 242.0 Td
+(     - Le sous-total du header se met à jour) Tj
+-50 -242.0 Td
+50 231.0 Td
+() Tj
+-50 -231.0 Td
+50 220.0 Td
+(5.6  Fermeture de la modal ? Bouton X) Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - Clic sur le bouton « X » en haut à droite : La modal se ferme) Tj
+-50 -209.0 Td
+50 198.0 Td
+(     - Aucun item n'est ajouté au panier) Tj
+-50 -198.0 Td
+50 187.0 Td
+() Tj
+-50 -187.0 Td
+50 176.0 Td
+(5.7  Fermeture de la modal ? Clic overlay) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     - Clic sur la zone grisée derrière la modal : La modal se ferme) Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Aucun item n'est ajouté au panier) Tj
+-50 -154.0 Td
+50 143.0 Td
+() Tj
+-50 -143.0 Td
+50 132.0 Td
+() Tj
+-50 -132.0 Td
+50 121.0 Td
+(================================================================================) Tj
+-50 -121.0 Td
+50 110.0 Td
+(MODULE 6 ? Accès à la page admin) Tj
+-50 -110.0 Td
+50 99.0 Td
+(================================================================================) Tj
+-50 -99.0 Td
+50 88.0 Td
+() Tj
+-50 -88.0 Td
+50 77.0 Td
+(6.1  Accès sans être connecté) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Ouvrir directement l'URL /admin dans le navigateur sans être connecté) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 8 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+10 0 obj
+<< /Length 4631 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - Redirection automatique vers /login) Tj
+-50 -792.0 Td
+50 781.0 Td
+() Tj
+-50 -781.0 Td
+50 770.0 Td
+(6.2  Accès avec un compte client) Tj
+-50 -770.0 Td
+50 759.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Se connecter puis accéder à /admin) Tj
+-50 -748.0 Td
+50 737.0 Td
+(     - Redirection automatique vers /menu) Tj
+-50 -737.0 Td
+50 726.0 Td
+() Tj
+-50 -726.0 Td
+50 715.0 Td
+(6.3  Accès avec un compte serveur) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     Avec waiter@restoqr.ca : password123) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Se connecter puis accéder à /admin) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Redirection automatique vers /menu) Tj
+-50 -682.0 Td
+50 671.0 Td
+() Tj
+-50 -671.0 Td
+50 660.0 Td
+(6.4  Accès avec un compte admin) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - Se connecter puis accéder à /admin) Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - La page d'administration s'affiche correctement) Tj
+-50 -627.0 Td
+50 616.0 Td
+() Tj
+-50 -616.0 Td
+50 605.0 Td
+(================================================================================) Tj
+-50 -605.0 Td
+50 594.0 Td
+(MODULE 7 ? Affichage de la liste des items) Tj
+-50 -594.0 Td
+50 583.0 Td
+(================================================================================) Tj
+-50 -583.0 Td
+50 572.0 Td
+() Tj
+-50 -572.0 Td
+50 561.0 Td
+(7.1  Chargement initial) Tj
+-50 -561.0 Td
+50 550.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Se connecter et accéder à /admin/items) Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - Un spinner de chargement s'affiche pendant le chargement) Tj
+-50 -528.0 Td
+50 517.0 Td
+(     - Une fois chargé, les items s'affichent en grille, trié par catégorie) Tj
+-50 -517.0 Td
+50 506.0 Td
+() Tj
+-50 -506.0 Td
+50 495.0 Td
+(7.2  Affichage des cartes) Tj
+-50 -495.0 Td
+50 484.0 Td
+(     - Chaque carte affiche : image, nom, description,) Tj
+-50 -484.0 Td
+50 473.0 Td
+(       catégorie, prix \(X.XX $\)) Tj
+-50 -473.0 Td
+50 462.0 Td
+(     - Chaque carte a un bouton « modifier » \(icône edit\) et « supprimer ») Tj
+-50 -462.0 Td
+50 451.0 Td
+(       \(icône delete\)) Tj
+-50 -451.0 Td
+50 440.0 Td
+() Tj
+-50 -440.0 Td
+50 429.0 Td
+(7.3  État vide) Tj
+-50 -429.0 Td
+50 418.0 Td
+(     - Si aucun item n'existe, le message « Aucun item trouvé » s'affiche) Tj
+-50 -418.0 Td
+50 407.0 Td
+() Tj
+-50 -407.0 Td
+50 396.0 Td
+(================================================================================) Tj
+-50 -396.0 Td
+50 385.0 Td
+(MODULE 8 ? Création d'un item) Tj
+-50 -385.0 Td
+50 374.0 Td
+(================================================================================) Tj
+-50 -374.0 Td
+50 363.0 Td
+() Tj
+-50 -363.0 Td
+50 352.0 Td
+(8.1  Ouverture de la modal de création) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre) Tj
+-50 -330.0 Td
+50 319.0 Td
+(     - Le titre de la modal est « Ajouter un item ») Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Les champs sont vides \(nom, description, prix à 0, catégorie par défaut\)) Tj
+-50 -308.0 Td
+50 297.0 Td
+() Tj
+-50 -297.0 Td
+50 286.0 Td
+(8.2  Validation ? Nom requis) Tj
+-50 -286.0 Td
+50 275.0 Td
+(     - Laisser le champ « Nom » vide et cliquer sur « Ajouter ») Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Message d'erreur : « Le nom est requis ») Tj
+-50 -264.0 Td
+50 253.0 Td
+() Tj
+-50 -253.0 Td
+50 242.0 Td
+(8.3  Validation ? Nom trop long) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Entrer un nom de plus de 100 caractères) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Message d'erreur : « Maximum 100 caractères ») Tj
+-50 -220.0 Td
+50 209.0 Td
+() Tj
+-50 -209.0 Td
+50 198.0 Td
+(8.4  Validation ? Nom espaces seulement) Tj
+-50 -198.0 Td
+50 187.0 Td
+(     - Entrer uniquement des espaces dans le champ « Nom ») Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Message d'erreur : « Ne peut pas contenir uniquement des espaces ») Tj
+-50 -176.0 Td
+50 165.0 Td
+() Tj
+-50 -165.0 Td
+50 154.0 Td
+(8.5  Validation ? Description trop longue) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Entrer une description de plus de 255 caractères) Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - Message d'erreur : « Maximum 255 caractères ») Tj
+-50 -132.0 Td
+50 121.0 Td
+() Tj
+-50 -121.0 Td
+50 110.0 Td
+(8.6  Validation ? Prix requis) Tj
+-50 -110.0 Td
+50 99.0 Td
+(     - Vider le champ « Prix » et cliquer sur « Ajouter ») Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Message d'erreur : « Le prix est requis ») Tj
+-50 -88.0 Td
+50 77.0 Td
+() Tj
+-50 -77.0 Td
+50 66.0 Td
+(8.7  Validation ? Prix négatif) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 10 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+12 0 obj
+<< /Length 4695 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - Entrer un prix négatif \(ex: -5\)) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Message d'erreur : « Le prix doit être >= 0 ») Tj
+-50 -781.0 Td
+50 770.0 Td
+() Tj
+-50 -770.0 Td
+50 759.0 Td
+(8.8  Validation ? Prix trop élevé) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Entrer un prix supérieur à 9999.99) Tj
+-50 -748.0 Td
+50 737.0 Td
+(     - Message d'erreur : « Le prix doit être <= 9999.99 ») Tj
+-50 -737.0 Td
+50 726.0 Td
+() Tj
+-50 -726.0 Td
+50 715.0 Td
+(8.9  Validation ? Image format invalide) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     - Sélectionner un fichier non JPG/PNG \(ex: .gif, .pdf\)) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Message d'erreur : « L'image doit être un fichier JPG ou PNG. ») Tj
+-50 -693.0 Td
+50 682.0 Td
+() Tj
+-50 -682.0 Td
+50 671.0 Td
+(8.10 Validation ? Image trop lourde) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - Sélectionner une image de plus de 5 MB) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Message d'erreur : « L'image doit être inférieure à 5 MB. ») Tj
+-50 -649.0 Td
+50 638.0 Td
+() Tj
+-50 -638.0 Td
+50 627.0 Td
+(8.11 Validation ? Image obligatoire) Tj
+-50 -627.0 Td
+50 616.0 Td
+(     - Remplir tous les champs sauf l'image et cliquer sur « Ajouter ») Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Message d'erreur : « L'image est obligatoire. ») Tj
+-50 -605.0 Td
+50 594.0 Td
+() Tj
+-50 -594.0 Td
+50 583.0 Td
+(8.12 Création réussie) Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - Remplir tous les champs avec des valeurs valides \(nom, description,) Tj
+-50 -572.0 Td
+50 561.0 Td
+(       prix, catégorie\) et sélectionner une image JPG/PNG valide) Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Clic sur « Ajouter ») Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - La modal se ferme) Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - Le nouvel item apparaît dans la liste) Tj
+-50 -528.0 Td
+50 517.0 Td
+() Tj
+-50 -517.0 Td
+50 506.0 Td
+(8.13 Annulation) Tj
+-50 -506.0 Td
+50 495.0 Td
+(     - Remplir des champs puis cliquer sur « Annuler ») Tj
+-50 -495.0 Td
+50 484.0 Td
+(     - La modal se ferme, aucun item n'est créé) Tj
+-50 -484.0 Td
+50 473.0 Td
+() Tj
+-50 -473.0 Td
+50 462.0 Td
+(================================================================================) Tj
+-50 -462.0 Td
+50 451.0 Td
+(MODULE 9 ? Modification d'un item) Tj
+-50 -451.0 Td
+50 440.0 Td
+(================================================================================) Tj
+-50 -440.0 Td
+50 429.0 Td
+() Tj
+-50 -429.0 Td
+50 418.0 Td
+(9.1  Ouverture de la modal de modification) Tj
+-50 -418.0 Td
+50 407.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -407.0 Td
+50 396.0 Td
+(     - Clic sur l'icône « edit » d'un item existant) Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - La modal s'ouvre avec le titre « Modifier l'item ») Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Les champs sont pré-remplis \(nom, description, prix, catégorie\)) Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - L'aperçu de l'image existante est affiché) Tj
+-50 -363.0 Td
+50 352.0 Td
+() Tj
+-50 -352.0 Td
+50 341.0 Td
+(9.2  Validations) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Mêmes validations que la création \(8.2 à 8.11\)) Tj
+-50 -330.0 Td
+50 319.0 Td
+() Tj
+-50 -319.0 Td
+50 308.0 Td
+(9.3  Modification réussie) Tj
+-50 -308.0 Td
+50 297.0 Td
+(     - Modifier le nom et/ou le prix d'un item existant) Tj
+-50 -297.0 Td
+50 286.0 Td
+(     - Clic sur « Enregistrer ») Tj
+-50 -286.0 Td
+50 275.0 Td
+(     - La modal se ferme) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - L'item mis à jour s'affiche dans la liste avec les nouvelles valeurs) Tj
+-50 -264.0 Td
+50 253.0 Td
+() Tj
+-50 -253.0 Td
+50 242.0 Td
+(9.4  Remplacement d'image) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Ouvrir la modification d'un item avec une image existante) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Sélectionner une nouvelle image JPG/PNG valide) Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - L'aperçu se met à jour avec la nouvelle image) Tj
+-50 -209.0 Td
+50 198.0 Td
+(     - Clic sur « Enregistrer » : L'image est remplacée) Tj
+-50 -198.0 Td
+50 187.0 Td
+() Tj
+-50 -187.0 Td
+50 176.0 Td
+(9.5  Annulation) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     - Modifier des champs puis cliquer sur « Annuler ») Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - La modal se ferme, l'item n'est pas modifié) Tj
+-50 -154.0 Td
+50 143.0 Td
+() Tj
+-50 -143.0 Td
+50 132.0 Td
+(================================================================================) Tj
+-50 -132.0 Td
+50 121.0 Td
+(MODULE 10 ? Suppression d'un item) Tj
+-50 -121.0 Td
+50 110.0 Td
+(================================================================================) Tj
+-50 -110.0 Td
+50 99.0 Td
+() Tj
+-50 -99.0 Td
+50 88.0 Td
+(10.1 Ouverture de la modal de confirmation) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Clic sur l'icône « delete » d'un item) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 12 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+14 0 obj
+<< /Length 4714 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - Une modal de confirmation s'ouvre) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Le message affiche le nom de l'item à supprimer) Tj
+-50 -781.0 Td
+50 770.0 Td
+() Tj
+-50 -770.0 Td
+50 759.0 Td
+(10.2 Annulation de la suppression) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Clic sur « Annuler » : La modal se ferme, l'item est toujours dans la liste) Tj
+-50 -748.0 Td
+50 737.0 Td
+() Tj
+-50 -737.0 Td
+50 726.0 Td
+(10.3 Fermeture par le bouton X) Tj
+-50 -726.0 Td
+50 715.0 Td
+(     - Clic sur le bouton « X » : La modal se ferme, l'item est toujours dans la liste) Tj
+-50 -715.0 Td
+50 704.0 Td
+() Tj
+-50 -704.0 Td
+50 693.0 Td
+(10.4 Confirmation de la suppression) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Clic sur « Supprimer ») Tj
+-50 -682.0 Td
+50 671.0 Td
+(     - La modal se ferme) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - L'item disparaît de la liste et de la page du menu) Tj
+-50 -660.0 Td
+50 649.0 Td
+() Tj
+-50 -649.0 Td
+50 638.0 Td
+(================================================================================) Tj
+-50 -638.0 Td
+50 627.0 Td
+(MODULE 11 ? Traduction \(admin-items\)) Tj
+-50 -627.0 Td
+50 616.0 Td
+(================================================================================) Tj
+-50 -616.0 Td
+50 605.0 Td
+() Tj
+-50 -605.0 Td
+50 594.0 Td
+(11.1 Traduction en anglais) Tj
+-50 -594.0 Td
+50 583.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - Changer la langue à « English » via le header) Tj
+-50 -572.0 Td
+50 561.0 Td
+(     - Le titre passe à « Items Management ») Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Les boutons passent en anglais \(Add, Save, Cancel, Delete\)) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Les labels des champs passent en anglais \(Name, Description, Price,) Tj
+-50 -539.0 Td
+50 528.0 Td
+(       Category, Image\)) Tj
+-50 -528.0 Td
+50 517.0 Td
+(     - Les messages de validation passent en anglais) Tj
+-50 -517.0 Td
+50 506.0 Td
+(     - Les messages de confirmation de suppression passent en anglais) Tj
+-50 -506.0 Td
+50 495.0 Td
+() Tj
+-50 -495.0 Td
+50 484.0 Td
+(11.2 Traduction en français) Tj
+-50 -484.0 Td
+50 473.0 Td
+(     - Changer la langue à « Français » via le header) Tj
+-50 -473.0 Td
+50 462.0 Td
+(     - Tous les textes reviennent en français) Tj
+-50 -462.0 Td
+50 451.0 Td
+() Tj
+-50 -451.0 Td
+50 440.0 Td
+(11.3 Persistance de la langue) Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - Changer la langue à « English ») Tj
+-50 -429.0 Td
+50 418.0 Td
+(     - Rafraîchir la page) Tj
+-50 -418.0 Td
+50 407.0 Td
+(     - L'interface reste en anglais) Tj
+-50 -407.0 Td
+50 396.0 Td
+() Tj
+-50 -396.0 Td
+50 385.0 Td
+() Tj
+-50 -385.0 Td
+50 374.0 Td
+(================================================================================) Tj
+-50 -374.0 Td
+50 363.0 Td
+(================================================================================) Tj
+-50 -363.0 Td
+50 352.0 Td
+(                    PARTIE B ? Administration des tables) Tj
+-50 -352.0 Td
+50 341.0 Td
+(                              \(Alex\)) Tj
+-50 -341.0 Td
+50 330.0 Td
+(================================================================================) Tj
+-50 -330.0 Td
+50 319.0 Td
+(================================================================================) Tj
+-50 -319.0 Td
+50 308.0 Td
+() Tj
+-50 -308.0 Td
+50 297.0 Td
+() Tj
+-50 -297.0 Td
+50 286.0 Td
+(================================================================================) Tj
+-50 -286.0 Td
+50 275.0 Td
+(MODULE 12 ? Accès à la page admin-tables) Tj
+-50 -275.0 Td
+50 264.0 Td
+(================================================================================) Tj
+-50 -264.0 Td
+50 253.0 Td
+() Tj
+-50 -253.0 Td
+50 242.0 Td
+(12.1 Accès sans être connecté) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Ouvrir directement l'URL /admin/tables sans être connecté) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Redirection automatique vers /login) Tj
+-50 -220.0 Td
+50 209.0 Td
+() Tj
+-50 -209.0 Td
+50 198.0 Td
+(12.2 Accès avec un compte client) Tj
+-50 -198.0 Td
+50 187.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Se connecter puis accéder à /admin/tables) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     - Redirection automatique vers /menu) Tj
+-50 -165.0 Td
+50 154.0 Td
+() Tj
+-50 -154.0 Td
+50 143.0 Td
+(12.3 Accès avec un compte serveur) Tj
+-50 -143.0 Td
+50 132.0 Td
+(     Avec waiter@restoqr.ca : password123) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - Se connecter puis accéder à /admin/tables) Tj
+-50 -121.0 Td
+50 110.0 Td
+(     - Redirection automatique vers /menu) Tj
+-50 -110.0 Td
+50 99.0 Td
+() Tj
+-50 -99.0 Td
+50 88.0 Td
+(12.4 Accès avec un compte admin) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Se connecter puis accéder à /admin/tables) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 14 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+16 0 obj
+<< /Length 4859 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - La page d'administration des tables s'affiche correctement) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Le header affiche « Admin », « Déconnexion », « Quitter ») Tj
+-50 -781.0 Td
+50 770.0 Td
+(     - Le bouton « Quitter » permet de revenir à la page précédente) Tj
+-50 -770.0 Td
+50 759.0 Td
+() Tj
+-50 -759.0 Td
+50 748.0 Td
+(================================================================================) Tj
+-50 -748.0 Td
+50 737.0 Td
+(MODULE 13 ? Affichage de la liste des tables) Tj
+-50 -737.0 Td
+50 726.0 Td
+(================================================================================) Tj
+-50 -726.0 Td
+50 715.0 Td
+() Tj
+-50 -715.0 Td
+50 704.0 Td
+(13.1 Chargement initial) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Se connecter et accéder à /admin/tables) Tj
+-50 -682.0 Td
+50 671.0 Td
+(     - Un spinner de chargement \(mat-spinner\) s'affiche pendant le chargement) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - Une fois chargé, les tables s'affichent en grille, triées par numéro) Tj
+-50 -660.0 Td
+50 649.0 Td
+() Tj
+-50 -649.0 Td
+50 638.0 Td
+(13.2 Affichage des cartes) Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Chaque carte affiche : numéro, capacité, statut \(occupée/disponible\), QR code) Tj
+-50 -627.0 Td
+50 616.0 Td
+(     - Statut : chip « Disponible » \(vert\) ou « Occupée » \(rouge\)) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - QR code généré dynamiquement, bouton pour télécharger SVG/PNG) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Bouton « Copier le lien » : copie l'URL de la table) Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Boutons « modifier » \(icône edit\) et « supprimer » \(icône delete\)) Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - L'URL de la table est affichée sous le QR code) Tj
+-50 -572.0 Td
+50 561.0 Td
+() Tj
+-50 -561.0 Td
+50 550.0 Td
+(13.3 État vide) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Si aucune table n'existe, le message « Aucune table trouvée » s'affiche) Tj
+-50 -539.0 Td
+50 528.0 Td
+() Tj
+-50 -528.0 Td
+50 517.0 Td
+(================================================================================) Tj
+-50 -517.0 Td
+50 506.0 Td
+(MODULE 14 ? Création d'une table) Tj
+-50 -506.0 Td
+50 495.0 Td
+(================================================================================) Tj
+-50 -495.0 Td
+50 484.0 Td
+() Tj
+-50 -484.0 Td
+50 473.0 Td
+(14.1 Ouverture de la modal de création) Tj
+-50 -473.0 Td
+50 462.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -462.0 Td
+50 451.0 Td
+(     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Le titre de la modal est « Ajouter une table ») Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - Les champs sont vides \(numéro, capacité\)) Tj
+-50 -429.0 Td
+50 418.0 Td
+(     - Bouton « Annuler » et « Ajouter ») Tj
+-50 -418.0 Td
+50 407.0 Td
+() Tj
+-50 -407.0 Td
+50 396.0 Td
+(14.2 Validation ? Numéro requis) Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - Laisser le champ « Numéro » vide et cliquer sur « Ajouter ») Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Message d'erreur : « Le numéro est requis ») Tj
+-50 -374.0 Td
+50 363.0 Td
+() Tj
+-50 -363.0 Td
+50 352.0 Td
+(14.3 Validation ? Numéro trop petit) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Entrer un numéro < 1) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Message d'erreur : « Le numéro doit être >= 1 ») Tj
+-50 -330.0 Td
+50 319.0 Td
+() Tj
+-50 -319.0 Td
+50 308.0 Td
+(14.4 Validation ? Numéro trop grand) Tj
+-50 -308.0 Td
+50 297.0 Td
+(     - Entrer un numéro > 999) Tj
+-50 -297.0 Td
+50 286.0 Td
+(     - Message d'erreur : « Le numéro doit être <= 999 ») Tj
+-50 -286.0 Td
+50 275.0 Td
+() Tj
+-50 -275.0 Td
+50 264.0 Td
+(14.5 Validation ? Numéro en doublon) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Entrer un numéro déjà utilisé) Tj
+-50 -253.0 Td
+50 242.0 Td
+(     - Message d'erreur : « Ce numéro est déjà utilisé ») Tj
+-50 -242.0 Td
+50 231.0 Td
+() Tj
+-50 -231.0 Td
+50 220.0 Td
+(14.6 Validation ? Capacité requise) Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - Laisser le champ « Capacité » vide et cliquer sur « Ajouter ») Tj
+-50 -209.0 Td
+50 198.0 Td
+(     - Message d'erreur : « La capacité est requise ») Tj
+-50 -198.0 Td
+50 187.0 Td
+() Tj
+-50 -187.0 Td
+50 176.0 Td
+(14.7 Validation ? Capacité trop petite) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     - Entrer une capacité < 1) Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Message d'erreur : « La capacité doit être >= 1 ») Tj
+-50 -154.0 Td
+50 143.0 Td
+() Tj
+-50 -143.0 Td
+50 132.0 Td
+(14.8 Validation ? Capacité trop grande) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - Entrer une capacité > 20) Tj
+-50 -121.0 Td
+50 110.0 Td
+(     - Message d'erreur : « La capacité doit être <= 20 ») Tj
+-50 -110.0 Td
+50 99.0 Td
+() Tj
+-50 -99.0 Td
+50 88.0 Td
+(14.9 Création réussie) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Remplir tous les champs avec des valeurs valides \(numéro, capacité\)) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Clic sur « Ajouter ») Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 16 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+18 0 obj
+<< /Length 4625 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - La modal se ferme) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - La nouvelle table apparaît dans la liste) Tj
+-50 -781.0 Td
+50 770.0 Td
+() Tj
+-50 -770.0 Td
+50 759.0 Td
+(14.10 Annulation) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Remplir des champs puis cliquer sur « Annuler ») Tj
+-50 -748.0 Td
+50 737.0 Td
+(     - La modal se ferme, aucune table n'est créée) Tj
+-50 -737.0 Td
+50 726.0 Td
+() Tj
+-50 -726.0 Td
+50 715.0 Td
+(================================================================================) Tj
+-50 -715.0 Td
+50 704.0 Td
+(MODULE 15 ? Modification d'une table) Tj
+-50 -704.0 Td
+50 693.0 Td
+(================================================================================) Tj
+-50 -693.0 Td
+50 682.0 Td
+() Tj
+-50 -682.0 Td
+50 671.0 Td
+(15.1 Ouverture de la modal de modification) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Clic sur l'icône « edit » d'une table existante) Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - La modal s'ouvre avec le titre « Modifier la table ») Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Les champs sont pré-remplis \(numéro, capacité\)) Tj
+-50 -627.0 Td
+50 616.0 Td
+(     - Bouton « Annuler » et « Enregistrer ») Tj
+-50 -616.0 Td
+50 605.0 Td
+() Tj
+-50 -605.0 Td
+50 594.0 Td
+(15.2 Validations) Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Mêmes validations que la création \(14.2 à 14.8\)) Tj
+-50 -583.0 Td
+50 572.0 Td
+() Tj
+-50 -572.0 Td
+50 561.0 Td
+(15.3 Modification réussie) Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Modifier le numéro et/ou la capacité d'une table existante) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Clic sur « Enregistrer ») Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - La modal se ferme) Tj
+-50 -528.0 Td
+50 517.0 Td
+(     - La table mise à jour s'affiche dans la liste avec les nouvelles valeurs) Tj
+-50 -517.0 Td
+50 506.0 Td
+() Tj
+-50 -506.0 Td
+50 495.0 Td
+(15.4 Annulation) Tj
+-50 -495.0 Td
+50 484.0 Td
+(     - Modifier des champs puis cliquer sur « Annuler ») Tj
+-50 -484.0 Td
+50 473.0 Td
+(     - La modal se ferme, la table n'est pas modifiée) Tj
+-50 -473.0 Td
+50 462.0 Td
+() Tj
+-50 -462.0 Td
+50 451.0 Td
+(================================================================================) Tj
+-50 -451.0 Td
+50 440.0 Td
+(MODULE 16 ? Suppression d'une table) Tj
+-50 -440.0 Td
+50 429.0 Td
+(================================================================================) Tj
+-50 -429.0 Td
+50 418.0 Td
+() Tj
+-50 -418.0 Td
+50 407.0 Td
+(16.1 Ouverture de la modal de confirmation) Tj
+-50 -407.0 Td
+50 396.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - Clic sur l'icône « delete » d'une table) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Une modal de confirmation s'ouvre) Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Le message affiche le numéro de la table à supprimer) Tj
+-50 -363.0 Td
+50 352.0 Td
+(     - Bouton « Annuler » et « Supprimer ») Tj
+-50 -352.0 Td
+50 341.0 Td
+() Tj
+-50 -341.0 Td
+50 330.0 Td
+(16.2 Annulation de la suppression) Tj
+-50 -330.0 Td
+50 319.0 Td
+(     - Clic sur « Annuler » : La modal se ferme, la table est toujours dans la liste) Tj
+-50 -319.0 Td
+50 308.0 Td
+() Tj
+-50 -308.0 Td
+50 297.0 Td
+(16.3 Fermeture par le bouton X) Tj
+-50 -297.0 Td
+50 286.0 Td
+(     - Clic sur le bouton « X » : La modal se ferme, la table est toujours dans la liste) Tj
+-50 -286.0 Td
+50 275.0 Td
+() Tj
+-50 -275.0 Td
+50 264.0 Td
+(16.4 Confirmation de la suppression) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Clic sur « Supprimer ») Tj
+-50 -253.0 Td
+50 242.0 Td
+(     - La modal se ferme) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - La table disparaît de la liste) Tj
+-50 -231.0 Td
+50 220.0 Td
+() Tj
+-50 -220.0 Td
+50 209.0 Td
+(================================================================================) Tj
+-50 -209.0 Td
+50 198.0 Td
+(MODULE 17 ? QR code et copie de lien) Tj
+-50 -198.0 Td
+50 187.0 Td
+(================================================================================) Tj
+-50 -187.0 Td
+50 176.0 Td
+() Tj
+-50 -176.0 Td
+50 165.0 Td
+(17.1 Affichage du QR code) Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Chaque carte de table affiche un QR code unique) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Le QR code correspond à l'URL de la table) Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - Le QR code est stylisé selon les paramètres \(couleur, forme\)) Tj
+-50 -132.0 Td
+50 121.0 Td
+() Tj
+-50 -121.0 Td
+50 110.0 Td
+(17.2 Copie du lien) Tj
+-50 -110.0 Td
+50 99.0 Td
+(     - Clic sur le bouton « Copier le lien » : L'URL de la table est copiée dans le) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     presse-papier) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Un message « Copié ! » s'affiche) Tj
+-50 -77.0 Td
+50 66.0 Td
+() Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 18 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+20 0 obj
+<< /Length 4913 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(17.3 Téléchargement du QR code) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Clic sur « Télécharger SVG » ou « Télécharger PNG » : Le QR code est téléchargé) Tj
+-50 -781.0 Td
+50 770.0 Td
+() Tj
+-50 -770.0 Td
+50 759.0 Td
+(================================================================================) Tj
+-50 -759.0 Td
+50 748.0 Td
+(MODULE 18 ? Traduction \(admin-tables\)) Tj
+-50 -748.0 Td
+50 737.0 Td
+(================================================================================) Tj
+-50 -737.0 Td
+50 726.0 Td
+() Tj
+-50 -726.0 Td
+50 715.0 Td
+(18.1 Traduction en anglais) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Changer la langue à « English » via le header) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Le titre passe à « Tables Management ») Tj
+-50 -682.0 Td
+50 671.0 Td
+(     - Les boutons passent en anglais \(Add, Save, Cancel, Delete\)) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - Les labels des champs passent en anglais \(Number, Capacity\)) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Les messages de validation passent en anglais) Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - Les messages de confirmation de suppression passent en anglais) Tj
+-50 -638.0 Td
+50 627.0 Td
+() Tj
+-50 -627.0 Td
+50 616.0 Td
+(18.2 Traduction en français) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Changer la langue à « Français » via le header) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Tous les textes reviennent en français) Tj
+-50 -594.0 Td
+50 583.0 Td
+() Tj
+-50 -583.0 Td
+50 572.0 Td
+(18.3 Persistance de la langue) Tj
+-50 -572.0 Td
+50 561.0 Td
+(     - Changer la langue à « English ») Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Rafraîchir la page) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - L'interface reste en anglais) Tj
+-50 -539.0 Td
+50 528.0 Td
+() Tj
+-50 -528.0 Td
+50 517.0 Td
+() Tj
+-50 -517.0 Td
+50 506.0 Td
+(================================================================================) Tj
+-50 -506.0 Td
+50 495.0 Td
+(================================================================================) Tj
+-50 -495.0 Td
+50 484.0 Td
+(              PARTIE C ? Connexion + Inscription + Admin Users) Tj
+-50 -484.0 Td
+50 473.0 Td
+(                              \(Samer\)) Tj
+-50 -473.0 Td
+50 462.0 Td
+(================================================================================) Tj
+-50 -462.0 Td
+50 451.0 Td
+(================================================================================) Tj
+-50 -451.0 Td
+50 440.0 Td
+() Tj
+-50 -440.0 Td
+50 429.0 Td
+() Tj
+-50 -429.0 Td
+50 418.0 Td
+(================================================================================) Tj
+-50 -418.0 Td
+50 407.0 Td
+(MODULE 19 ? Écran de connexion \(/login\)) Tj
+-50 -407.0 Td
+50 396.0 Td
+(================================================================================) Tj
+-50 -396.0 Td
+50 385.0 Td
+() Tj
+-50 -385.0 Td
+50 374.0 Td
+(19.1 Chargement initial) Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Accéder à /login) Tj
+-50 -363.0 Td
+50 352.0 Td
+(     - Le header est visible \(sans bouton Déconnexion\)) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Le titre « Connexion » est affiché) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Le sous-titre « Entrez vos identifiants » est affiché) Tj
+-50 -330.0 Td
+50 319.0 Td
+(     - Deux champs Material \(mat-form-field outline\) : « Courriel » et) Tj
+-50 -319.0 Td
+50 308.0 Td
+(       « Mot de passe ») Tj
+-50 -308.0 Td
+50 297.0 Td
+(     - Un bouton « Se connecter » est visible) Tj
+-50 -297.0 Td
+50 286.0 Td
+() Tj
+-50 -286.0 Td
+50 275.0 Td
+(19.2 Validation ? Courriel requis) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Laisser le champ « Courriel » vide, cliquer sur « Se connecter ») Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Message d'erreur : « Le courriel est requis ») Tj
+-50 -253.0 Td
+50 242.0 Td
+() Tj
+-50 -242.0 Td
+50 231.0 Td
+(19.3 Validation ? Courriel format invalide) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Entrer « abc » dans le champ « Courriel ») Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - Soumettre le formulaire) Tj
+-50 -209.0 Td
+50 198.0 Td
+(     - Message d'erreur : « Format de courriel invalide ») Tj
+-50 -198.0 Td
+50 187.0 Td
+() Tj
+-50 -187.0 Td
+50 176.0 Td
+(19.4 Validation ? Mot de passe requis) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     - Laisser le champ « Mot de passe » vide, cliquer sur « Se connecter ») Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Message d'erreur : « Le mot de passe est requis ») Tj
+-50 -154.0 Td
+50 143.0 Td
+() Tj
+-50 -143.0 Td
+50 132.0 Td
+(19.5 Validation ? Mot de passe trop court) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - Entrer un mot de passe de moins de 6 caractères \(ex : « abc »\)) Tj
+-50 -121.0 Td
+50 110.0 Td
+(     - Message d'erreur : « Minimum 6 caractères ») Tj
+-50 -110.0 Td
+50 99.0 Td
+() Tj
+-50 -99.0 Td
+50 88.0 Td
+(19.6 Validation ? Mot de passe trop long) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Entrer un mot de passe de plus de 128 caractères) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Message d'erreur : « Maximum 128 caractères ») Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 20 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+22 0 obj
+<< /Length 4601 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+() Tj
+-50 -792.0 Td
+50 781.0 Td
+(19.7 Identifiants invalides) Tj
+-50 -781.0 Td
+50 770.0 Td
+(     - Entrer un courriel et un mot de passe qui ne correspondent à aucun) Tj
+-50 -770.0 Td
+50 759.0 Td
+(       compte \(ex : fake@test.com / wrongpassword\)) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Cliquer sur « Se connecter ») Tj
+-50 -748.0 Td
+50 737.0 Td
+(     - Un message d'erreur serveur s'affiche en rouge sous les champs) Tj
+-50 -737.0 Td
+50 726.0 Td
+() Tj
+-50 -726.0 Td
+50 715.0 Td
+(19.8 Connexion réussie ? Admin) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Entrer les identifiants et cliquer sur « Se connecter ») Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Redirection automatique vers /admin) Tj
+-50 -682.0 Td
+50 671.0 Td
+() Tj
+-50 -671.0 Td
+50 660.0 Td
+(19.9 Connexion réussie ? Cuisinier) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     Avec cook@restoqr.ca : password123) Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - Entrer les identifiants et cliquer sur « Se connecter ») Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Redirection automatique vers /cuisine) Tj
+-50 -627.0 Td
+50 616.0 Td
+() Tj
+-50 -616.0 Td
+50 605.0 Td
+(19.10 Connexion réussie ? Client) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Entrer les identifiants et cliquer sur « Se connecter ») Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - Redirection automatique vers /form) Tj
+-50 -572.0 Td
+50 561.0 Td
+() Tj
+-50 -561.0 Td
+50 550.0 Td
+(19.11 Lien vers inscription) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Le lien « Créer un compte » est visible sous le formulaire) Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - Clic sur « Créer un compte » : Redirection vers /signup) Tj
+-50 -528.0 Td
+50 517.0 Td
+() Tj
+-50 -517.0 Td
+50 506.0 Td
+(19.12 Bouton désactivé pendant le chargement) Tj
+-50 -506.0 Td
+50 495.0 Td
+(     - Après soumission du formulaire, le bouton affiche « Connexion... ») Tj
+-50 -495.0 Td
+50 484.0 Td
+(       et est désactivé pendant le traitement) Tj
+-50 -484.0 Td
+50 473.0 Td
+() Tj
+-50 -473.0 Td
+50 462.0 Td
+(19.13 Bouton désactivé si formulaire invalide) Tj
+-50 -462.0 Td
+50 451.0 Td
+(     - Le bouton « Se connecter » est grisé tant que le formulaire est invalide) Tj
+-50 -451.0 Td
+50 440.0 Td
+() Tj
+-50 -440.0 Td
+50 429.0 Td
+() Tj
+-50 -429.0 Td
+50 418.0 Td
+(================================================================================) Tj
+-50 -418.0 Td
+50 407.0 Td
+(MODULE 20 ? Écran d'inscription \(/signup\)) Tj
+-50 -407.0 Td
+50 396.0 Td
+(================================================================================) Tj
+-50 -396.0 Td
+50 385.0 Td
+() Tj
+-50 -385.0 Td
+50 374.0 Td
+(20.1 Chargement initial) Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Accéder à /signup) Tj
+-50 -363.0 Td
+50 352.0 Td
+(     - Le header est visible \(sans bouton Déconnexion\)) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Le titre « Inscription » est affiché) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Cinq champs Material \(mat-form-field outline\) : Prénom, Nom,) Tj
+-50 -330.0 Td
+50 319.0 Td
+(       Courriel, Mot de passe, Confirmation du mot de passe) Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Un bouton « Créer mon compte » est visible) Tj
+-50 -308.0 Td
+50 297.0 Td
+() Tj
+-50 -297.0 Td
+50 286.0 Td
+(20.2 Validation ? Prénom requis) Tj
+-50 -286.0 Td
+50 275.0 Td
+(     - Laisser le champ « Prénom » vide et soumettre) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Message d'erreur : « Le prénom est requis ») Tj
+-50 -264.0 Td
+50 253.0 Td
+() Tj
+-50 -253.0 Td
+50 242.0 Td
+(20.3 Validation ? Prénom trop long) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Entrer un prénom de plus de 50 caractères) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Message d'erreur : « Maximum 50 caractères ») Tj
+-50 -220.0 Td
+50 209.0 Td
+() Tj
+-50 -209.0 Td
+50 198.0 Td
+(20.4 Validation ? Nom requis) Tj
+-50 -198.0 Td
+50 187.0 Td
+(     - Laisser le champ « Nom » vide et soumettre) Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Message d'erreur : « Le nom est requis ») Tj
+-50 -176.0 Td
+50 165.0 Td
+() Tj
+-50 -165.0 Td
+50 154.0 Td
+(20.5 Validation ? Nom trop long) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Entrer un nom de plus de 50 caractères) Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - Message d'erreur : « Maximum 50 caractères ») Tj
+-50 -132.0 Td
+50 121.0 Td
+() Tj
+-50 -121.0 Td
+50 110.0 Td
+(20.6 Validation ? Courriel requis) Tj
+-50 -110.0 Td
+50 99.0 Td
+(     - Laisser le champ « Courriel » vide et soumettre) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Message d'erreur : « Le courriel est requis ») Tj
+-50 -88.0 Td
+50 77.0 Td
+() Tj
+-50 -77.0 Td
+50 66.0 Td
+(20.7 Validation ? Courriel format invalide) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+23 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 22 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+24 0 obj
+<< /Length 4639 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - Entrer « abc » dans le champ « Courriel ») Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Message d'erreur : « Format de courriel invalide ») Tj
+-50 -781.0 Td
+50 770.0 Td
+() Tj
+-50 -770.0 Td
+50 759.0 Td
+(20.8 Validation ? Mot de passe requis) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Laisser le champ « Mot de passe » vide et soumettre) Tj
+-50 -748.0 Td
+50 737.0 Td
+(     - Message d'erreur : « Le mot de passe est requis ») Tj
+-50 -737.0 Td
+50 726.0 Td
+() Tj
+-50 -726.0 Td
+50 715.0 Td
+(20.9 Validation ? Mot de passe trop court) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     - Entrer un mot de passe de moins de 6 caractères) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Message d'erreur : « Minimum 6 caractères ») Tj
+-50 -693.0 Td
+50 682.0 Td
+() Tj
+-50 -682.0 Td
+50 671.0 Td
+(20.10 Validation ? Mot de passe trop long) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - Entrer un mot de passe de plus de 128 caractères) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Message d'erreur : « Maximum 128 caractères ») Tj
+-50 -649.0 Td
+50 638.0 Td
+() Tj
+-50 -638.0 Td
+50 627.0 Td
+(20.11 Validation ? Confirmation requise) Tj
+-50 -627.0 Td
+50 616.0 Td
+(     - Laisser le champ « Confirmation » vide et soumettre) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Message d'erreur : « La confirmation est requise ») Tj
+-50 -605.0 Td
+50 594.0 Td
+() Tj
+-50 -594.0 Td
+50 583.0 Td
+(20.12 Validation ? Mots de passe différents) Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - Entrer « password1 » et « password2 » dans les champs mot de passe) Tj
+-50 -572.0 Td
+50 561.0 Td
+(       et confirmation) Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Message d'erreur : « Les mots de passe ne correspondent pas ») Tj
+-50 -550.0 Td
+50 539.0 Td
+() Tj
+-50 -539.0 Td
+50 528.0 Td
+(20.13 Courriel déjà utilisé) Tj
+-50 -528.0 Td
+50 517.0 Td
+(     - Entrer un courriel déjà en base \(ex : admin@restoqr.ca\)) Tj
+-50 -517.0 Td
+50 506.0 Td
+(     - Remplir tous les champs et soumettre) Tj
+-50 -506.0 Td
+50 495.0 Td
+(     - Un message d'erreur serveur s'affiche en rouge) Tj
+-50 -495.0 Td
+50 484.0 Td
+() Tj
+-50 -484.0 Td
+50 473.0 Td
+(20.14 Inscription réussie) Tj
+-50 -473.0 Td
+50 462.0 Td
+(     - Remplir tous les champs avec des valeurs valides \(prénom, nom,) Tj
+-50 -462.0 Td
+50 451.0 Td
+(       courriel unique, mot de passe >= 6 chars, confirmation identique\)) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Clic sur « Créer mon compte ») Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - Redirection automatique vers /form) Tj
+-50 -429.0 Td
+50 418.0 Td
+(     - L'utilisateur est connecté \(session créée\)) Tj
+-50 -418.0 Td
+50 407.0 Td
+() Tj
+-50 -407.0 Td
+50 396.0 Td
+(20.15 Lien vers connexion) Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - Le lien « Se connecter » est visible sous le formulaire) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Clic sur « Se connecter » : Redirection vers /login) Tj
+-50 -374.0 Td
+50 363.0 Td
+() Tj
+-50 -363.0 Td
+50 352.0 Td
+(20.16 Bouton désactivé pendant le chargement) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Après soumission, le bouton affiche « Création... » et est désactivé) Tj
+-50 -341.0 Td
+50 330.0 Td
+() Tj
+-50 -330.0 Td
+50 319.0 Td
+(20.17 Bouton désactivé si formulaire invalide) Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Le bouton « Créer mon compte » est grisé tant que le formulaire) Tj
+-50 -308.0 Td
+50 297.0 Td
+(       est invalide) Tj
+-50 -297.0 Td
+50 286.0 Td
+() Tj
+-50 -286.0 Td
+50 275.0 Td
+() Tj
+-50 -275.0 Td
+50 264.0 Td
+(================================================================================) Tj
+-50 -264.0 Td
+50 253.0 Td
+(MODULE 21 ? Accès à la page admin \(guards\)) Tj
+-50 -253.0 Td
+50 242.0 Td
+(================================================================================) Tj
+-50 -242.0 Td
+50 231.0 Td
+() Tj
+-50 -231.0 Td
+50 220.0 Td
+(21.1 Accès sans être connecté) Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - Ouvrir directement l'URL /admin dans le navigateur sans être connecté) Tj
+-50 -209.0 Td
+50 198.0 Td
+(     - Redirection automatique vers /login) Tj
+-50 -198.0 Td
+50 187.0 Td
+() Tj
+-50 -187.0 Td
+50 176.0 Td
+(21.2 Accès avec un compte client) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Se connecter puis accéder à /admin) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Redirection automatique vers /menu) Tj
+-50 -143.0 Td
+50 132.0 Td
+() Tj
+-50 -132.0 Td
+50 121.0 Td
+(21.3 Accès avec un compte serveur) Tj
+-50 -121.0 Td
+50 110.0 Td
+(     Avec waiter@restoqr.ca : password123) Tj
+-50 -110.0 Td
+50 99.0 Td
+(     - Se connecter puis accéder à /admin) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Redirection automatique vers /menu) Tj
+-50 -88.0 Td
+50 77.0 Td
+() Tj
+-50 -77.0 Td
+50 66.0 Td
+(21.4 Accès avec un compte cuisinier) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+25 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 24 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+26 0 obj
+<< /Length 4746 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     Avec cook@restoqr.ca : password123) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Se connecter puis accéder à /admin) Tj
+-50 -781.0 Td
+50 770.0 Td
+(     - Redirection automatique vers /menu) Tj
+-50 -770.0 Td
+50 759.0 Td
+() Tj
+-50 -759.0 Td
+50 748.0 Td
+(21.5 Accès avec un compte admin) Tj
+-50 -748.0 Td
+50 737.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -737.0 Td
+50 726.0 Td
+(     - Se connecter puis accéder à /admin) Tj
+-50 -726.0 Td
+50 715.0 Td
+(     - La page d'administration s'affiche correctement) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     - Trois onglets visibles : Items, Tables, Utilisateurs) Tj
+-50 -704.0 Td
+50 693.0 Td
+() Tj
+-50 -693.0 Td
+50 682.0 Td
+() Tj
+-50 -682.0 Td
+50 671.0 Td
+(================================================================================) Tj
+-50 -671.0 Td
+50 660.0 Td
+(MODULE 22 ? Affichage de la liste des utilisateurs) Tj
+-50 -660.0 Td
+50 649.0 Td
+(================================================================================) Tj
+-50 -649.0 Td
+50 638.0 Td
+() Tj
+-50 -638.0 Td
+50 627.0 Td
+(22.1 Chargement initial) Tj
+-50 -627.0 Td
+50 616.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Se connecter et accéder à /admin, cliquer sur l'onglet « Utilisateurs ») Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Un spinner de chargement \(mat-spinner\) s'affiche pendant le chargement) Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Une fois chargé, les utilisateurs s'affichent en liste) Tj
+-50 -583.0 Td
+50 572.0 Td
+() Tj
+-50 -572.0 Td
+50 561.0 Td
+(22.2 Affichage des cartes) Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Chaque carte affiche : prénom et nom, courriel) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Un badge coloré pour le type \(Administrateur, Serveur, Client, Cuisinier\)) Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - Un badge coloré pour le statut \(vert = Actif, orange = Inactif,) Tj
+-50 -528.0 Td
+50 517.0 Td
+(       rouge = Bloqué\)) Tj
+-50 -517.0 Td
+50 506.0 Td
+(     - Trois boutons d'action : bloquer/activer, modifier \(edit\), supprimer) Tj
+-50 -506.0 Td
+50 495.0 Td
+(       \(delete\)) Tj
+-50 -495.0 Td
+50 484.0 Td
+() Tj
+-50 -484.0 Td
+50 473.0 Td
+(22.3 État vide) Tj
+-50 -473.0 Td
+50 462.0 Td
+(     - Si aucun utilisateur n'existe, le message « Aucun utilisateur) Tj
+-50 -462.0 Td
+50 451.0 Td
+(       trouvé » s'affiche) Tj
+-50 -451.0 Td
+50 440.0 Td
+() Tj
+-50 -440.0 Td
+50 429.0 Td
+() Tj
+-50 -429.0 Td
+50 418.0 Td
+(================================================================================) Tj
+-50 -418.0 Td
+50 407.0 Td
+(MODULE 23 ? Recherche, tri et filtres \(SSF\) ? Utilisateurs) Tj
+-50 -407.0 Td
+50 396.0 Td
+(================================================================================) Tj
+-50 -396.0 Td
+50 385.0 Td
+() Tj
+-50 -385.0 Td
+50 374.0 Td
+(23.1 Recherche par nom) Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Taper un nom d'utilisateur dans la barre de recherche \(ex : « admin »\)) Tj
+-50 -363.0 Td
+50 352.0 Td
+(     - La liste se met à jour pour afficher uniquement les utilisateurs) Tj
+-50 -352.0 Td
+50 341.0 Td
+(       correspondants) Tj
+-50 -341.0 Td
+50 330.0 Td
+() Tj
+-50 -330.0 Td
+50 319.0 Td
+(23.2 Recherche par courriel) Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Taper une partie d'un courriel \(ex : « cook »\)) Tj
+-50 -308.0 Td
+50 297.0 Td
+(     - Seuls les utilisateurs dont le courriel correspond s'affichent) Tj
+-50 -297.0 Td
+50 286.0 Td
+() Tj
+-50 -286.0 Td
+50 275.0 Td
+(23.3 Recherche sans résultat) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Taper un texte qui ne correspond à aucun utilisateur \(ex : « zzzzz »\)) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Le message « Aucun utilisateur trouvé » s'affiche) Tj
+-50 -253.0 Td
+50 242.0 Td
+() Tj
+-50 -242.0 Td
+50 231.0 Td
+(23.4 Effacer la recherche) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Effacer le champ de recherche) Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - Tous les utilisateurs réapparaissent) Tj
+-50 -209.0 Td
+50 198.0 Td
+() Tj
+-50 -198.0 Td
+50 187.0 Td
+(23.5 Filtre par statut ? Actif) Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Sélectionner « Actif » dans le dropdown de filtre statut) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     - Seuls les utilisateurs avec le statut « Actif » s'affichent) Tj
+-50 -165.0 Td
+50 154.0 Td
+() Tj
+-50 -154.0 Td
+50 143.0 Td
+(23.6 Filtre par statut ? Bloqué) Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - Sélectionner « Bloqué » dans le dropdown de filtre statut) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - Seuls les utilisateurs avec le statut « Bloqué » s'affichent) Tj
+-50 -121.0 Td
+50 110.0 Td
+() Tj
+-50 -110.0 Td
+50 99.0 Td
+(23.7 Filtre par type ? Administrateur) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Sélectionner « Administrateur » dans le dropdown de filtre type) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Seuls les administrateurs s'affichent) Tj
+-50 -77.0 Td
+50 66.0 Td
+() Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+27 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 26 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+28 0 obj
+<< /Length 4632 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(23.8 Filtre par type ? Serveur) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Sélectionner « Serveur » dans le dropdown de filtre type) Tj
+-50 -781.0 Td
+50 770.0 Td
+(     - Seuls les serveurs s'affichent) Tj
+-50 -770.0 Td
+50 759.0 Td
+() Tj
+-50 -759.0 Td
+50 748.0 Td
+(23.9 Filtre combiné) Tj
+-50 -748.0 Td
+50 737.0 Td
+(     - Sélectionner statut « Actif » et type « Client ») Tj
+-50 -737.0 Td
+50 726.0 Td
+(     - Seuls les clients actifs s'affichent) Tj
+-50 -726.0 Td
+50 715.0 Td
+() Tj
+-50 -715.0 Td
+50 704.0 Td
+(23.10 Remettre les filtres à « Tous ») Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Sélectionner « Tous » dans les deux dropdowns de filtre) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Tous les utilisateurs réapparaissent) Tj
+-50 -682.0 Td
+50 671.0 Td
+() Tj
+-50 -671.0 Td
+50 660.0 Td
+(23.11 Tri A?Z) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Sélectionner « A?Z » dans le dropdown de tri) Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - Les utilisateurs sont triés par nom de famille croissant) Tj
+-50 -638.0 Td
+50 627.0 Td
+() Tj
+-50 -627.0 Td
+50 616.0 Td
+(23.12 Tri Z?A) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Sélectionner « Z?A » dans le dropdown de tri) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Les utilisateurs sont triés par nom de famille décroissant) Tj
+-50 -594.0 Td
+50 583.0 Td
+() Tj
+-50 -583.0 Td
+50 572.0 Td
+(23.13 Tri par défaut) Tj
+-50 -572.0 Td
+50 561.0 Td
+(     - Sélectionner « Par défaut » dans le dropdown de tri) Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Les utilisateurs reviennent à l'ordre initial) Tj
+-50 -550.0 Td
+50 539.0 Td
+() Tj
+-50 -539.0 Td
+50 528.0 Td
+() Tj
+-50 -528.0 Td
+50 517.0 Td
+(================================================================================) Tj
+-50 -517.0 Td
+50 506.0 Td
+(MODULE 24 ? Création d'un utilisateur) Tj
+-50 -506.0 Td
+50 495.0 Td
+(================================================================================) Tj
+-50 -495.0 Td
+50 484.0 Td
+() Tj
+-50 -484.0 Td
+50 473.0 Td
+(24.1 Ouverture de la modal de création) Tj
+-50 -473.0 Td
+50 462.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -462.0 Td
+50 451.0 Td
+(     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Le titre de la modal est « Ajouter un utilisateur ») Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - Les champs sont vides \(prénom, nom, courriel\)) Tj
+-50 -429.0 Td
+50 418.0 Td
+(     - Le type est pré-sélectionné sur « Client ») Tj
+-50 -418.0 Td
+50 407.0 Td
+(     - Le statut est pré-sélectionné sur « Actif ») Tj
+-50 -407.0 Td
+50 396.0 Td
+(     - Les champs mot de passe et confirmation sont vides et requis) Tj
+-50 -396.0 Td
+50 385.0 Td
+() Tj
+-50 -385.0 Td
+50 374.0 Td
+(24.2 Validation ? Prénom requis) Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Laisser le champ « Prénom » vide et cliquer sur « Ajouter ») Tj
+-50 -363.0 Td
+50 352.0 Td
+(     - Message d'erreur : « Le prénom est requis ») Tj
+-50 -352.0 Td
+50 341.0 Td
+() Tj
+-50 -341.0 Td
+50 330.0 Td
+(24.3 Validation ? Prénom espaces seulement) Tj
+-50 -330.0 Td
+50 319.0 Td
+(     - Entrer uniquement des espaces dans le champ « Prénom ») Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Message d'erreur : « Ne peut pas contenir uniquement des espaces ») Tj
+-50 -308.0 Td
+50 297.0 Td
+() Tj
+-50 -297.0 Td
+50 286.0 Td
+(24.4 Validation ? Prénom trop long) Tj
+-50 -286.0 Td
+50 275.0 Td
+(     - Entrer un prénom de plus de 50 caractères) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Message d'erreur : « Maximum 50 caractères ») Tj
+-50 -264.0 Td
+50 253.0 Td
+() Tj
+-50 -253.0 Td
+50 242.0 Td
+(24.5 Validation ? Nom requis) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Laisser le champ « Nom » vide et cliquer sur « Ajouter ») Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Message d'erreur : « Le nom est requis ») Tj
+-50 -220.0 Td
+50 209.0 Td
+() Tj
+-50 -209.0 Td
+50 198.0 Td
+(24.6 Validation ? Nom espaces seulement) Tj
+-50 -198.0 Td
+50 187.0 Td
+(     - Entrer uniquement des espaces dans le champ « Nom ») Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Message d'erreur : « Ne peut pas contenir uniquement des espaces ») Tj
+-50 -176.0 Td
+50 165.0 Td
+() Tj
+-50 -165.0 Td
+50 154.0 Td
+(24.7 Validation ? Nom trop long) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Entrer un nom de plus de 50 caractères) Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - Message d'erreur : « Maximum 50 caractères ») Tj
+-50 -132.0 Td
+50 121.0 Td
+() Tj
+-50 -121.0 Td
+50 110.0 Td
+(24.8 Validation ? Courriel requis) Tj
+-50 -110.0 Td
+50 99.0 Td
+(     - Laisser le champ « Courriel » vide et cliquer sur « Ajouter ») Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Message d'erreur : « Le courriel est requis ») Tj
+-50 -88.0 Td
+50 77.0 Td
+() Tj
+-50 -77.0 Td
+50 66.0 Td
+(24.9 Validation ? Courriel format invalide) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+29 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 28 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+30 0 obj
+<< /Length 4753 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - Entrer « abc » dans le champ « Courriel ») Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Message d'erreur : « Format de courriel invalide ») Tj
+-50 -781.0 Td
+50 770.0 Td
+() Tj
+-50 -770.0 Td
+50 759.0 Td
+(24.10 Validation ? Mot de passe requis \(création\)) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Laisser le champ « Mot de passe » vide et cliquer sur « Ajouter ») Tj
+-50 -748.0 Td
+50 737.0 Td
+(     - Message d'erreur : « Le mot de passe est requis ») Tj
+-50 -737.0 Td
+50 726.0 Td
+() Tj
+-50 -726.0 Td
+50 715.0 Td
+(24.11 Validation ? Mot de passe trop court) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     - Entrer un mot de passe de moins de 6 caractères) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Message d'erreur : « Minimum 6 caractères ») Tj
+-50 -693.0 Td
+50 682.0 Td
+() Tj
+-50 -682.0 Td
+50 671.0 Td
+(24.12 Validation ? Mot de passe trop long) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - Entrer un mot de passe de plus de 128 caractères) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Message d'erreur : « Maximum 128 caractères ») Tj
+-50 -649.0 Td
+50 638.0 Td
+() Tj
+-50 -638.0 Td
+50 627.0 Td
+(24.13 Courriel en doublon) Tj
+-50 -627.0 Td
+50 616.0 Td
+(     - Entrer un courriel déjà utilisé \(ex : admin@restoqr.ca\)) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Remplir tous les autres champs et cliquer sur « Ajouter ») Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Un message d'erreur serveur s'affiche en rouge dans la modal) Tj
+-50 -594.0 Td
+50 583.0 Td
+() Tj
+-50 -583.0 Td
+50 572.0 Td
+(24.14 Création réussie) Tj
+-50 -572.0 Td
+50 561.0 Td
+(     - Remplir tous les champs avec des valeurs valides \(prénom, nom,) Tj
+-50 -561.0 Td
+50 550.0 Td
+(       courriel unique, type, statut, mot de passe >= 6 chars\)) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Clic sur « Ajouter ») Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - La modal se ferme) Tj
+-50 -528.0 Td
+50 517.0 Td
+(     - Le nouvel utilisateur apparaît dans la liste) Tj
+-50 -517.0 Td
+50 506.0 Td
+() Tj
+-50 -506.0 Td
+50 495.0 Td
+(24.15 Création avec type Administrateur) Tj
+-50 -495.0 Td
+50 484.0 Td
+(     - Créer un utilisateur avec le type « Administrateur ») Tj
+-50 -484.0 Td
+50 473.0 Td
+(     - Le badge « Administrateur » s'affiche correctement sur la carte) Tj
+-50 -473.0 Td
+50 462.0 Td
+() Tj
+-50 -462.0 Td
+50 451.0 Td
+(24.16 Création avec type Serveur) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Créer un utilisateur avec le type « Serveur ») Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - Le badge « Serveur » s'affiche correctement) Tj
+-50 -429.0 Td
+50 418.0 Td
+() Tj
+-50 -418.0 Td
+50 407.0 Td
+(24.17 Création avec type Cuisinier) Tj
+-50 -407.0 Td
+50 396.0 Td
+(     - Créer un utilisateur avec le type « Cuisinier ») Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - Le badge « Cuisinier » s'affiche correctement) Tj
+-50 -385.0 Td
+50 374.0 Td
+() Tj
+-50 -374.0 Td
+50 363.0 Td
+(24.18 Création avec statut Inactif) Tj
+-50 -363.0 Td
+50 352.0 Td
+(     - Créer un utilisateur avec le statut « Inactif ») Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Le badge orange « Inactif » s'affiche sur la carte) Tj
+-50 -341.0 Td
+50 330.0 Td
+() Tj
+-50 -330.0 Td
+50 319.0 Td
+(24.19 Annulation) Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Remplir des champs puis cliquer sur « Annuler ») Tj
+-50 -308.0 Td
+50 297.0 Td
+(     - La modal se ferme, aucun utilisateur n'est créé) Tj
+-50 -297.0 Td
+50 286.0 Td
+() Tj
+-50 -286.0 Td
+50 275.0 Td
+(24.20 Fermeture par le bouton X) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Remplir des champs puis cliquer sur le bouton « X » en haut à droite) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - La modal se ferme, aucun utilisateur n'est créé) Tj
+-50 -253.0 Td
+50 242.0 Td
+() Tj
+-50 -242.0 Td
+50 231.0 Td
+() Tj
+-50 -231.0 Td
+50 220.0 Td
+(================================================================================) Tj
+-50 -220.0 Td
+50 209.0 Td
+(MODULE 25 ? Modification d'un utilisateur) Tj
+-50 -209.0 Td
+50 198.0 Td
+(================================================================================) Tj
+-50 -198.0 Td
+50 187.0 Td
+() Tj
+-50 -187.0 Td
+50 176.0 Td
+(25.1 Ouverture de la modal de modification) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Clic sur l'icône « edit » d'un utilisateur existant) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - La modal s'ouvre avec le titre « Modifier l'utilisateur ») Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - Les champs sont pré-remplis \(prénom, nom, courriel, type, statut\)) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - Les champs mot de passe et confirmation sont vides et optionnels) Tj
+-50 -121.0 Td
+50 110.0 Td
+() Tj
+-50 -110.0 Td
+50 99.0 Td
+(25.2 Validations) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Mêmes validations que la création \(24.2 à 24.12\)) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Le mot de passe est optionnel en modification) Tj
+-50 -77.0 Td
+50 66.0 Td
+() Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+31 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 30 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+32 0 obj
+<< /Length 4599 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(25.3 Modification réussie ? Nom) Tj
+-50 -792.0 Td
+50 781.0 Td
+(     - Modifier le prénom et/ou le nom d'un utilisateur existant) Tj
+-50 -781.0 Td
+50 770.0 Td
+(     - Clic sur « Enregistrer ») Tj
+-50 -770.0 Td
+50 759.0 Td
+(     - La modal se ferme) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - L'utilisateur mis à jour s'affiche avec les nouvelles valeurs) Tj
+-50 -748.0 Td
+50 737.0 Td
+() Tj
+-50 -737.0 Td
+50 726.0 Td
+(25.4 Modification réussie ? Courriel) Tj
+-50 -726.0 Td
+50 715.0 Td
+(     - Modifier le courriel d'un utilisateur) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     - Clic sur « Enregistrer ») Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - La modal se ferme, le courriel est mis à jour) Tj
+-50 -693.0 Td
+50 682.0 Td
+() Tj
+-50 -682.0 Td
+50 671.0 Td
+(25.5 Modification réussie ? Type) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - Changer le type d'un utilisateur \(ex : Client ? Serveur\)) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Clic sur « Enregistrer ») Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - Le badge type est mis à jour dans la liste) Tj
+-50 -638.0 Td
+50 627.0 Td
+() Tj
+-50 -627.0 Td
+50 616.0 Td
+(25.6 Modification réussie ? Statut) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Changer le statut d'un utilisateur \(ex : actif ? bloqué\)) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Clic sur « Enregistrer ») Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Le badge statut change de couleur dans la liste) Tj
+-50 -583.0 Td
+50 572.0 Td
+() Tj
+-50 -572.0 Td
+50 561.0 Td
+(25.7 Modification sans changer le mot de passe) Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Laisser les champs mot de passe vides et modifier le nom) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Clic sur « Enregistrer ») Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - La modification est sauvegardée sans changer le mot de passe) Tj
+-50 -528.0 Td
+50 517.0 Td
+() Tj
+-50 -517.0 Td
+50 506.0 Td
+(25.8 Modification du mot de passe) Tj
+-50 -506.0 Td
+50 495.0 Td
+(     - Entrer un nouveau mot de passe et sa confirmation) Tj
+-50 -495.0 Td
+50 484.0 Td
+(     - Clic sur « Enregistrer ») Tj
+-50 -484.0 Td
+50 473.0 Td
+(     - Vérifiable en se reconnectant avec le nouveau mot de passe) Tj
+-50 -473.0 Td
+50 462.0 Td
+() Tj
+-50 -462.0 Td
+50 451.0 Td
+(25.9 Annulation) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Modifier des champs puis cliquer sur « Annuler ») Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - La modal se ferme, l'utilisateur n'est pas modifié) Tj
+-50 -429.0 Td
+50 418.0 Td
+() Tj
+-50 -418.0 Td
+50 407.0 Td
+(25.10 Fermeture par le bouton X) Tj
+-50 -407.0 Td
+50 396.0 Td
+(     - Modifier des champs puis cliquer sur le bouton « X ») Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - La modal se ferme, l'utilisateur n'est pas modifié) Tj
+-50 -385.0 Td
+50 374.0 Td
+() Tj
+-50 -374.0 Td
+50 363.0 Td
+() Tj
+-50 -363.0 Td
+50 352.0 Td
+(================================================================================) Tj
+-50 -352.0 Td
+50 341.0 Td
+(MODULE 26 ? Suppression d'un utilisateur) Tj
+-50 -341.0 Td
+50 330.0 Td
+(================================================================================) Tj
+-50 -330.0 Td
+50 319.0 Td
+() Tj
+-50 -319.0 Td
+50 308.0 Td
+(26.1 Ouverture de la modal de confirmation) Tj
+-50 -308.0 Td
+50 297.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -297.0 Td
+50 286.0 Td
+(     - Clic sur l'icône « delete » d'un utilisateur) Tj
+-50 -286.0 Td
+50 275.0 Td
+(     - Une modal de confirmation s'ouvre) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Le message affiche le nom complet de l'utilisateur à supprimer) Tj
+-50 -264.0 Td
+50 253.0 Td
+() Tj
+-50 -253.0 Td
+50 242.0 Td
+(26.2 Annulation de la suppression) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Clic sur « Annuler » : La modal se ferme, l'utilisateur est) Tj
+-50 -231.0 Td
+50 220.0 Td
+(       toujours dans la liste) Tj
+-50 -220.0 Td
+50 209.0 Td
+() Tj
+-50 -209.0 Td
+50 198.0 Td
+(26.3 Fermeture par le bouton X) Tj
+-50 -198.0 Td
+50 187.0 Td
+(     - Clic sur le bouton « X » : La modal se ferme, l'utilisateur est) Tj
+-50 -187.0 Td
+50 176.0 Td
+(       toujours dans la liste) Tj
+-50 -176.0 Td
+50 165.0 Td
+() Tj
+-50 -165.0 Td
+50 154.0 Td
+(26.4 Confirmation de la suppression) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Clic sur « Supprimer ») Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - La modal se ferme) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - L'utilisateur disparaît de la liste \(soft delete\)) Tj
+-50 -121.0 Td
+50 110.0 Td
+() Tj
+-50 -110.0 Td
+50 99.0 Td
+(26.5 L'utilisateur supprimé ne peut plus se connecter) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Tenter de se connecter avec les identifiants de l'utilisateur) Tj
+-50 -88.0 Td
+50 77.0 Td
+(       supprimé) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Un message d'erreur s'affiche \(compte non trouvé\)) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+33 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 32 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+34 0 obj
+<< /Length 4678 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+() Tj
+-50 -792.0 Td
+50 781.0 Td
+() Tj
+-50 -781.0 Td
+50 770.0 Td
+(================================================================================) Tj
+-50 -770.0 Td
+50 759.0 Td
+(MODULE 27 ? Actions rapides \(toggle statut\)) Tj
+-50 -759.0 Td
+50 748.0 Td
+(================================================================================) Tj
+-50 -748.0 Td
+50 737.0 Td
+() Tj
+-50 -737.0 Td
+50 726.0 Td
+(27.1 Bloquer un utilisateur actif) Tj
+-50 -726.0 Td
+50 715.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     - Sur un utilisateur avec le statut « Actif ») Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Clic sur l'icône « block » \(cercle barré\)) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Le statut passe à « Bloqué », le badge devient rouge) Tj
+-50 -682.0 Td
+50 671.0 Td
+() Tj
+-50 -671.0 Td
+50 660.0 Td
+(27.2 Activer un utilisateur bloqué) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Sur un utilisateur avec le statut « Bloqué ») Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - Clic sur l'icône « check_circle » \(coche verte\)) Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Le statut passe à « Actif », le badge devient vert) Tj
+-50 -627.0 Td
+50 616.0 Td
+() Tj
+-50 -616.0 Td
+50 605.0 Td
+(27.3 Activer un utilisateur inactif) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Sur un utilisateur avec le statut « Inactif ») Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Clic sur l'icône « check_circle ») Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - Le statut passe à « Actif », le badge devient vert) Tj
+-50 -572.0 Td
+50 561.0 Td
+() Tj
+-50 -561.0 Td
+50 550.0 Td
+() Tj
+-50 -550.0 Td
+50 539.0 Td
+(================================================================================) Tj
+-50 -539.0 Td
+50 528.0 Td
+(MODULE 28 ? Traduction \(login + signup + admin-users\)) Tj
+-50 -528.0 Td
+50 517.0 Td
+(================================================================================) Tj
+-50 -517.0 Td
+50 506.0 Td
+() Tj
+-50 -506.0 Td
+50 495.0 Td
+(28.1 Traduction en anglais ? Login) Tj
+-50 -495.0 Td
+50 484.0 Td
+(     - Accéder à /login et changer la langue à « English » via le header) Tj
+-50 -484.0 Td
+50 473.0 Td
+(     - Les textes passent en anglais :) Tj
+-50 -473.0 Td
+50 462.0 Td
+(       · « Connexion » ? « Login ») Tj
+-50 -462.0 Td
+50 451.0 Td
+(       · « Courriel » ? « Email ») Tj
+-50 -451.0 Td
+50 440.0 Td
+(       · « Mot de passe » ? « Password ») Tj
+-50 -440.0 Td
+50 429.0 Td
+(       · « Se connecter » ? « Sign in ») Tj
+-50 -429.0 Td
+50 418.0 Td
+(       · « Créer un compte » ? « Create an account ») Tj
+-50 -418.0 Td
+50 407.0 Td
+(       · Messages de validation en anglais) Tj
+-50 -407.0 Td
+50 396.0 Td
+() Tj
+-50 -396.0 Td
+50 385.0 Td
+(28.2 Traduction en anglais ? Signup) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Accéder à /signup et changer la langue à « English ») Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Les textes passent en anglais :) Tj
+-50 -363.0 Td
+50 352.0 Td
+(       · « Inscription » ? « Sign up ») Tj
+-50 -352.0 Td
+50 341.0 Td
+(       · « Prénom » ? « First name ») Tj
+-50 -341.0 Td
+50 330.0 Td
+(       · « Nom » ? « Last name ») Tj
+-50 -330.0 Td
+50 319.0 Td
+(       · « Créer mon compte » ? « Create my account ») Tj
+-50 -319.0 Td
+50 308.0 Td
+(       · « Se connecter » ? « Sign in ») Tj
+-50 -308.0 Td
+50 297.0 Td
+(       · Messages de validation en anglais) Tj
+-50 -297.0 Td
+50 286.0 Td
+() Tj
+-50 -286.0 Td
+50 275.0 Td
+(28.3 Traduction en anglais ? Admin Users) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     Avec admin@restoqr.ca : password123) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Accéder à /admin, onglet « Utilisateurs » et changer la langue) Tj
+-50 -253.0 Td
+50 242.0 Td
+(       à « English ») Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Le titre passe à « User management ») Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Les badges de type passent en anglais \(Administrator, Waiter,) Tj
+-50 -220.0 Td
+50 209.0 Td
+(       Client, Cook\)) Tj
+-50 -209.0 Td
+50 198.0 Td
+(     - Les badges de statut passent en anglais \(Active, Inactive, Blocked\)) Tj
+-50 -198.0 Td
+50 187.0 Td
+(     - Les labels des filtres et du formulaire passent en anglais) Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Les messages de validation passent en anglais) Tj
+-50 -176.0 Td
+50 165.0 Td
+() Tj
+-50 -165.0 Td
+50 154.0 Td
+(28.4 Retour en français) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Cliquer sur « Français » dans le header) Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - Tous les textes reviennent en français) Tj
+-50 -132.0 Td
+50 121.0 Td
+() Tj
+-50 -121.0 Td
+50 110.0 Td
+(28.5 Persistance de la langue) Tj
+-50 -110.0 Td
+50 99.0 Td
+(     - Changer la langue à « English ») Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Rafraîchir la page) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - L'interface reste en anglais) Tj
+-50 -77.0 Td
+50 66.0 Td
+() Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+35 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 34 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+36 0 obj
+<< /Length 5137 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+() Tj
+-50 -792.0 Td
+50 781.0 Td
+(================================================================================) Tj
+-50 -781.0 Td
+50 770.0 Td
+(================================================================================) Tj
+-50 -770.0 Td
+50 759.0 Td
+(                    PARTIE D ? Panier + Commande + Cuisine) Tj
+-50 -759.0 Td
+50 748.0 Td
+(                              \(William\)) Tj
+-50 -748.0 Td
+50 737.0 Td
+(================================================================================) Tj
+-50 -737.0 Td
+50 726.0 Td
+(================================================================================) Tj
+-50 -726.0 Td
+50 715.0 Td
+() Tj
+-50 -715.0 Td
+50 704.0 Td
+() Tj
+-50 -704.0 Td
+50 693.0 Td
+(================================================================================) Tj
+-50 -693.0 Td
+50 682.0 Td
+(MODULE 29 ? Panier dans /menu \(cart.service\)) Tj
+-50 -682.0 Td
+50 671.0 Td
+(================================================================================) Tj
+-50 -671.0 Td
+50 660.0 Td
+() Tj
+-50 -660.0 Td
+50 649.0 Td
+(29.1 Ajout d'un item au panier) Tj
+-50 -649.0 Td
+50 638.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Se connecter et accéder à /menu) Tj
+-50 -627.0 Td
+50 616.0 Td
+(     - Cliquer sur un item \(ex: « Tartare de Saumon »\)) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - La modal s'ouvre avec quantité = 1 par défaut) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Cliquer sur « Ajouter au panier ») Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Le badge du panier dans le header se met à jour \(+1\)) Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - Le sous-total dans le panneau de droite affiche le bon montant) Tj
+-50 -572.0 Td
+50 561.0 Td
+() Tj
+-50 -561.0 Td
+50 550.0 Td
+() Tj
+-50 -550.0 Td
+50 539.0 Td
+(29.4 Bouton Continuer) Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - Avec au moins 1 item dans le panier) Tj
+-50 -528.0 Td
+50 517.0 Td
+(     - Cliquer sur « Continuer ») Tj
+-50 -517.0 Td
+50 506.0 Td
+(     - Redirection vers /order) Tj
+-50 -506.0 Td
+50 495.0 Td
+() Tj
+-50 -495.0 Td
+50 484.0 Td
+(29.5 Bouton Continuer désactivé si panier vide) Tj
+-50 -484.0 Td
+50 473.0 Td
+(     - Panier vide) Tj
+-50 -473.0 Td
+50 462.0 Td
+(     - Le bouton « Continuer » n'est pas visible ou est désactivé) Tj
+-50 -462.0 Td
+50 451.0 Td
+() Tj
+-50 -451.0 Td
+50 440.0 Td
+() Tj
+-50 -440.0 Td
+50 429.0 Td
+(================================================================================) Tj
+-50 -429.0 Td
+50 418.0 Td
+(MODULE 30 ? Page /order ? État vide) Tj
+-50 -418.0 Td
+50 407.0 Td
+(================================================================================) Tj
+-50 -407.0 Td
+50 396.0 Td
+() Tj
+-50 -396.0 Td
+50 385.0 Td
+(30.1 Page vide sans article dans le panier) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Accéder à /order sans avoir ajouté d'item au panier) Tj
+-50 -363.0 Td
+50 352.0 Td
+(     - Un message « Aucune commande en cours. » s'affiche) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Un bouton « Ajouter + » est visible) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Clic sur « Ajouter + » : Redirection vers /menu) Tj
+-50 -330.0 Td
+50 319.0 Td
+() Tj
+-50 -319.0 Td
+50 308.0 Td
+(30.2 Page avec des lignes de commande déjà envoyées \(commande existante\)) Tj
+-50 -308.0 Td
+50 297.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -297.0 Td
+50 286.0 Td
+(     - Une commande est déjà ouverte sur le serveur avec des lignes envoyées) Tj
+-50 -286.0 Td
+50 275.0 Td
+(     - Accéder à /order \(sans items dans le panier local\)) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - La page affiche les lignes déjà enregistrées en base :) Tj
+-50 -264.0 Td
+50 253.0 Td
+(       · Chaque ligne affiche : nom du plat, quantité × prix, total) Tj
+-50 -253.0 Td
+50 242.0 Td
+(       · Un badge de statut s'affiche selon l'avancement :) Tj
+-50 -242.0 Td
+50 231.0 Td
+(         « Envoyée », « En préparation », « Prête » ou « Servie ») Tj
+-50 -231.0 Td
+50 220.0 Td
+(       · Si une ligne a une note, elle s'affiche sous le nom du plat) Tj
+-50 -220.0 Td
+50 209.0 Td
+(     - Le sous-total reflète le total des lignes existantes) Tj
+-50 -209.0 Td
+50 198.0 Td
+(     - La section « Détails » est en lecture seule \(pas de formulaire\)) Tj
+-50 -198.0 Td
+50 187.0 Td
+(     - Le bouton « Envoyer » est désactivé \(aucun nouvel item à envoyer\)) Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Le bouton « Ajouter + » permet d'aller ajouter de nouveaux items) Tj
+-50 -176.0 Td
+50 165.0 Td
+() Tj
+-50 -165.0 Td
+50 154.0 Td
+() Tj
+-50 -154.0 Td
+50 143.0 Td
+(================================================================================) Tj
+-50 -143.0 Td
+50 132.0 Td
+(MODULE 31 ? Page /order ? Affichage d'une nouvelle commande) Tj
+-50 -132.0 Td
+50 121.0 Td
+(================================================================================) Tj
+-50 -121.0 Td
+50 110.0 Td
+() Tj
+-50 -110.0 Td
+50 99.0 Td
+(31.1 En-tête de la commande) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Ajouter un item au panier et accéder à /order) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Le titre « Votre commande » est visible) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+37 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 36 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+38 0 obj
+<< /Length 5135 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - Le nom du serveur assigné à la table est affiché) Tj
+-50 -792.0 Td
+50 781.0 Td
+(       \(ex : « Serveur : Marie Dupont »\)) Tj
+-50 -781.0 Td
+50 770.0 Td
+(     - Le badge d'ambiance est visible à côté du serveur) Tj
+-50 -770.0 Td
+50 759.0 Td
+(       \(affiche « pas implémenté » si aucun vibe assigné\)) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Un bouton « Ajouter + » est visible en haut à droite) Tj
+-50 -748.0 Td
+50 737.0 Td
+() Tj
+-50 -737.0 Td
+50 726.0 Td
+(31.2 Lignes de commande) Tj
+-50 -726.0 Td
+50 715.0 Td
+(     - Chaque item du panier apparaît comme une carte) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     - La carte affiche : nom de l'item, quantité × prix unitaire, total) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - L'image de l'item est affichée si disponible) Tj
+-50 -693.0 Td
+50 682.0 Td
+(     - Un badge « En attente de l'envoi » est affiché \(couleur distincte\)) Tj
+-50 -682.0 Td
+50 671.0 Td
+(     - Si l'item a une note spéciale, elle apparaît avec une icône) Tj
+-50 -671.0 Td
+50 660.0 Td
+() Tj
+-50 -660.0 Td
+50 649.0 Td
+(31.3 Note de ligne \(instruction spéciale\)) Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - Ajouter un item avec une note \(ex : « Sans oignon »\)) Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Dans /order, la note s'affiche sous le nom de l'item) Tj
+-50 -627.0 Td
+50 616.0 Td
+() Tj
+-50 -616.0 Td
+50 605.0 Td
+(31.4 Sous-total) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Sous le tableau des lignes, le sous-total est affiché) Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Format : « Sous-total \(N article\(s\)\) CA$XX.XX ») Tj
+-50 -583.0 Td
+50 572.0 Td
+(     - Le total est la somme correcte de toutes les lignes) Tj
+-50 -572.0 Td
+50 561.0 Td
+() Tj
+-50 -561.0 Td
+50 550.0 Td
+(31.5 Boutons Modifier / Supprimer sur les lignes) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Chaque ligne affiche deux boutons : « Modifier » et « Supprimer ») Tj
+-50 -539.0 Td
+50 528.0 Td
+(     - Ces boutons sont visibles mais non fonctionnels pour l'instant) Tj
+-50 -528.0 Td
+50 517.0 Td
+() Tj
+-50 -517.0 Td
+50 506.0 Td
+() Tj
+-50 -506.0 Td
+50 495.0 Td
+(================================================================================) Tj
+-50 -495.0 Td
+50 484.0 Td
+(MODULE 32 ? Page /order ? Section Détails \(nouvelle commande\)) Tj
+-50 -484.0 Td
+50 473.0 Td
+(================================================================================) Tj
+-50 -473.0 Td
+50 462.0 Td
+() Tj
+-50 -462.0 Td
+50 451.0 Td
+(32.1 Affichage du formulaire Détails) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Accéder à /order sans commande ouverte sur le serveur) Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - La section « Détails » affiche un formulaire avec :) Tj
+-50 -429.0 Td
+50 418.0 Td
+(       · Un champ texte « Note générale \(optionnelle\) ») Tj
+-50 -418.0 Td
+50 407.0 Td
+(       · Un champ nombre « Pourboire \(CA$\) ») Tj
+-50 -407.0 Td
+50 396.0 Td
+() Tj
+-50 -396.0 Td
+50 385.0 Td
+(32.2 Validation ? Note uniquement composée d'espaces) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Entrer uniquement des espaces dans le champ « Note générale ») Tj
+-50 -374.0 Td
+50 363.0 Td
+(     - Message d'erreur : « La note ne peut pas être composée) Tj
+-50 -363.0 Td
+50 352.0 Td
+(       uniquement d'espaces. ») Tj
+-50 -352.0 Td
+50 341.0 Td
+(     - Le bouton « Envoyer » devient désactivé \(grisé\)) Tj
+-50 -341.0 Td
+50 330.0 Td
+() Tj
+-50 -330.0 Td
+50 319.0 Td
+(32.3 Validation ? Note trop longue) Tj
+-50 -319.0 Td
+50 308.0 Td
+(     - Le champ « Note générale » est limité à 255 caractères) Tj
+-50 -308.0 Td
+50 297.0 Td
+(       \(attribut maxlength\)) Tj
+-50 -297.0 Td
+50 286.0 Td
+(     - Un compteur « N / 255 » s'affiche en bas à droite du champ) Tj
+-50 -286.0 Td
+50 275.0 Td
+() Tj
+-50 -275.0 Td
+50 264.0 Td
+(32.4 Validation ? Pourboire négatif) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     - Entrer -1 dans le champ « Pourboire ») Tj
+-50 -253.0 Td
+50 242.0 Td
+(     - Message d'erreur : « Le pourboire ne peut pas être négatif. ») Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Le bouton « Envoyer » devient désactivé) Tj
+-50 -231.0 Td
+50 220.0 Td
+() Tj
+-50 -220.0 Td
+50 209.0 Td
+(32.5 Validation ? Pourboire trop élevé) Tj
+-50 -209.0 Td
+50 198.0 Td
+(     - Entrer 1000 dans le champ « Pourboire ») Tj
+-50 -198.0 Td
+50 187.0 Td
+(     - Message d'erreur : « Le pourboire ne peut pas dépasser 999,99 CA$. ») Tj
+-50 -187.0 Td
+50 176.0 Td
+(     - Le bouton « Envoyer » devient désactivé) Tj
+-50 -176.0 Td
+50 165.0 Td
+() Tj
+-50 -165.0 Td
+50 154.0 Td
+(32.6 Envoi de la commande) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - Remplir une note valide \(ex : « Table anniversaire », max 255 caractères\)) Tj
+-50 -143.0 Td
+50 132.0 Td
+(       et un pourboire valide \(ex : 5, max 999,99 CA$\)) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - Une table doit avoir été scannée au préalable ;) Tj
+-50 -121.0 Td
+50 110.0 Td
+(       si aucune table n'est en session, clic sur « Envoyer » redirige) Tj
+-50 -110.0 Td
+50 99.0 Td
+(       vers la page de scan de table) Tj
+-50 -99.0 Td
+50 88.0 Td
+(     - Cliquer sur « Envoyer ») Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Les lignes « En attente de l'envoi » deviennent « Envoyée ») Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - La section Détails passe en mode lecture seule \(plus de formulaire\)) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+39 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 38 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+40 0 obj
+<< /Length 4654 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+() Tj
+-50 -792.0 Td
+50 781.0 Td
+(32.7 Bouton Envoyer désactivé si panier vide) Tj
+-50 -781.0 Td
+50 770.0 Td
+(     - Si aucune ligne n'est « En attente de l'envoi ») Tj
+-50 -770.0 Td
+50 759.0 Td
+(     - Le bouton « Envoyer » est désactivé \(grisé\)) Tj
+-50 -759.0 Td
+50 748.0 Td
+() Tj
+-50 -748.0 Td
+50 737.0 Td
+() Tj
+-50 -737.0 Td
+50 726.0 Td
+(================================================================================) Tj
+-50 -726.0 Td
+50 715.0 Td
+(MODULE 33 ? Page /order ? Section Détails \(commande existante\)) Tj
+-50 -715.0 Td
+50 704.0 Td
+(================================================================================) Tj
+-50 -704.0 Td
+50 693.0 Td
+() Tj
+-50 -693.0 Td
+50 682.0 Td
+(33.1 Affichage en lecture seule) Tj
+-50 -682.0 Td
+50 671.0 Td
+(     - Une commande est déjà ouverte sur le serveur \(avec note et pourboire\)) Tj
+-50 -671.0 Td
+50 660.0 Td
+(     - La section « Détails » affiche les valeurs en lecture seule :) Tj
+-50 -660.0 Td
+50 649.0 Td
+(       · Note) Tj
+-50 -649.0 Td
+50 638.0 Td
+(       · Pourboire avec icône payments \(ex : « Pourboire : CA$5.00 »\)) Tj
+-50 -638.0 Td
+50 627.0 Td
+(     - Aucun formulaire n'est affiché) Tj
+-50 -627.0 Td
+50 616.0 Td
+() Tj
+-50 -616.0 Td
+50 605.0 Td
+(33.2 Aucun détail) Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Commande ouverte sans note ni pourboire) Tj
+-50 -594.0 Td
+50 583.0 Td
+(     - Le message « Aucun détail ajouté. » s'affiche) Tj
+-50 -583.0 Td
+50 572.0 Td
+() Tj
+-50 -572.0 Td
+50 561.0 Td
+(33.3 Vibe existant) Tj
+-50 -561.0 Td
+50 550.0 Td
+(     - Si la commande a un vibe assigné \(ex : « Date »\)) Tj
+-50 -550.0 Td
+50 539.0 Td
+(     - Le badge de vibe dans l'en-tête affiche le nom avec sa couleur) Tj
+-50 -539.0 Td
+50 528.0 Td
+(       à côté du nom du serveur) Tj
+-50 -528.0 Td
+50 517.0 Td
+() Tj
+-50 -517.0 Td
+50 506.0 Td
+() Tj
+-50 -506.0 Td
+50 495.0 Td
+(================================================================================) Tj
+-50 -495.0 Td
+50 484.0 Td
+(MODULE 34 ? Page /cuisine ? Affichage général) Tj
+-50 -484.0 Td
+50 473.0 Td
+(================================================================================) Tj
+-50 -473.0 Td
+50 462.0 Td
+() Tj
+-50 -462.0 Td
+50 451.0 Td
+(34.1 Accès sans être connecté) Tj
+-50 -451.0 Td
+50 440.0 Td
+(     - Accéder à /cuisine sans être connecté) Tj
+-50 -440.0 Td
+50 429.0 Td
+(     - Redirection automatique vers /login) Tj
+-50 -429.0 Td
+50 418.0 Td
+() Tj
+-50 -418.0 Td
+50 407.0 Td
+(34.2 Accès avec un compte sans rôle cuisine) Tj
+-50 -407.0 Td
+50 396.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - Accéder à /cuisine) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Redirection automatique vers /menu) Tj
+-50 -374.0 Td
+50 363.0 Td
+() Tj
+-50 -363.0 Td
+50 352.0 Td
+(34.3 Accès avec un compte cuisine) Tj
+-50 -352.0 Td
+50 341.0 Td
+(     Avec cuisine@restoqr.ca : password123) Tj
+-50 -341.0 Td
+50 330.0 Td
+(     - Accéder à /cuisine) Tj
+-50 -330.0 Td
+50 319.0 Td
+(     - Le tableau de bord s'affiche avec le titre « Cuisine ») Tj
+-50 -319.0 Td
+50 308.0 Td
+(       et le sous-titre « Commandes actives en temps réel ») Tj
+-50 -308.0 Td
+50 297.0 Td
+() Tj
+-50 -297.0 Td
+50 286.0 Td
+(34.4 État vide) Tj
+-50 -286.0 Td
+50 275.0 Td
+(     - Aucune commande active en base) Tj
+-50 -275.0 Td
+50 264.0 Td
+(     - Le message « Aucune commande active » s'affiche avec) Tj
+-50 -264.0 Td
+50 253.0 Td
+(       l'icône restaurant) Tj
+-50 -253.0 Td
+50 242.0 Td
+() Tj
+-50 -242.0 Td
+50 231.0 Td
+() Tj
+-50 -231.0 Td
+50 220.0 Td
+(================================================================================) Tj
+-50 -220.0 Td
+50 209.0 Td
+(MODULE 35 ? Page /cuisine ? Cartes de commande) Tj
+-50 -209.0 Td
+50 198.0 Td
+(================================================================================) Tj
+-50 -198.0 Td
+50 187.0 Td
+() Tj
+-50 -187.0 Td
+50 176.0 Td
+(35.1 En-tête de la carte) Tj
+-50 -176.0 Td
+50 165.0 Td
+(     Avec cuisine@restoqr.ca : password123) Tj
+-50 -165.0 Td
+50 154.0 Td
+(     - Une commande active existe \(Table 3, 3 personnes\)) Tj
+-50 -154.0 Td
+50 143.0 Td
+(     - La carte affiche : badge « Table 3 » et « 3 personne\(s\) ») Tj
+-50 -143.0 Td
+50 132.0 Td
+(     - Le nom du serveur est affiché \(ex : « Marie Dupont »\)) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - Si un vibe est assigné, le badge s'affiche à côté du serveur) Tj
+-50 -121.0 Td
+50 110.0 Td
+(       avec sa couleur \(ex : « ? Date » en rose\)) Tj
+-50 -110.0 Td
+50 99.0 Td
+() Tj
+-50 -99.0 Td
+50 88.0 Td
+(35.2 Note générale de la commande) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Si la commande a une note \(ex : « Allergie aux arachides »\)) Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - La note s'affiche sous l'en-tête) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+41 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 40 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+42 0 obj
+<< /Length 4763 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(       en couleur cuivre) Tj
+-50 -792.0 Td
+50 781.0 Td
+() Tj
+-50 -781.0 Td
+50 770.0 Td
+(35.3 Pourboire) Tj
+-50 -770.0 Td
+50 759.0 Td
+(     - Si la commande a un pourboire > 0) Tj
+-50 -759.0 Td
+50 748.0 Td
+(     - Une section verte s'affiche : « Pourboire : CA$5.00 ») Tj
+-50 -748.0 Td
+50 737.0 Td
+() Tj
+-50 -737.0 Td
+50 726.0 Td
+(35.4 Lignes de commande) Tj
+-50 -726.0 Td
+50 715.0 Td
+(     - La section « Lignes de commande » liste chaque plat) Tj
+-50 -715.0 Td
+50 704.0 Td
+(     - Chaque ligne affiche : nom du plat, quantité \(x2\), statut) Tj
+-50 -704.0 Td
+50 693.0 Td
+(     - Les statuts affichés : Envoyée, En préparation, Prête, Servie) Tj
+-50 -693.0 Td
+50 682.0 Td
+(       \(chacun avec une couleur distincte\)) Tj
+-50 -682.0 Td
+50 671.0 Td
+() Tj
+-50 -671.0 Td
+50 660.0 Td
+(35.5 Note de ligne) Tj
+-50 -660.0 Td
+50 649.0 Td
+(     - Si une ligne a une note \(ex : « Sans sel »\)) Tj
+-50 -649.0 Td
+50 638.0 Td
+(     - La note s'affiche sous le nom du plat sur une nouvelle ligne) Tj
+-50 -638.0 Td
+50 627.0 Td
+() Tj
+-50 -627.0 Td
+50 616.0 Td
+(35.6 Boutons Modifier / Supprimer) Tj
+-50 -616.0 Td
+50 605.0 Td
+(     - Chaque carte a deux boutons en bas : « Modifier » et « Supprimer ») Tj
+-50 -605.0 Td
+50 594.0 Td
+(     - Ces boutons sont visibles mais non fonctionnels pour l'instant) Tj
+-50 -594.0 Td
+50 583.0 Td
+() Tj
+-50 -583.0 Td
+50 572.0 Td
+() Tj
+-50 -572.0 Td
+50 561.0 Td
+(================================================================================) Tj
+-50 -561.0 Td
+50 550.0 Td
+(MODULE 36 ? Traduction \(/order et /cuisine\)) Tj
+-50 -550.0 Td
+50 539.0 Td
+(================================================================================) Tj
+-50 -539.0 Td
+50 528.0 Td
+() Tj
+-50 -528.0 Td
+50 517.0 Td
+(36.1 Traduction en anglais ? Header) Tj
+-50 -517.0 Td
+50 506.0 Td
+(     - Sur n'importe quelle page, changer la langue à « English ») Tj
+-50 -506.0 Td
+50 495.0 Td
+(     - Les textes du header passent en anglais :) Tj
+-50 -495.0 Td
+50 484.0 Td
+(       · « Déconnexion » ? « Logout ») Tj
+-50 -484.0 Td
+50 473.0 Td
+(       · « Connexion » ? « Login ») Tj
+-50 -473.0 Td
+50 462.0 Td
+(     - Le bouton de langue affiche maintenant « EN ») Tj
+-50 -462.0 Td
+50 451.0 Td
+(     - Retour en français : clic sur « EN » puis « Français ») Tj
+-50 -451.0 Td
+50 440.0 Td
+(       les textes reviennent en français) Tj
+-50 -440.0 Td
+50 429.0 Td
+() Tj
+-50 -429.0 Td
+50 418.0 Td
+(36.2 Traduction en anglais ? /order) Tj
+-50 -418.0 Td
+50 407.0 Td
+(     Avec client@restoqr.ca : password123) Tj
+-50 -407.0 Td
+50 396.0 Td
+(     - Accéder à /order avec des items dans le panier) Tj
+-50 -396.0 Td
+50 385.0 Td
+(     - Changer la langue à « English » via le header) Tj
+-50 -385.0 Td
+50 374.0 Td
+(     - Les textes passent en anglais :) Tj
+-50 -374.0 Td
+50 363.0 Td
+(       · « Votre commande » ? « Your order ») Tj
+-50 -363.0 Td
+50 352.0 Td
+(       · « Lignes de commande » ? « Order lines ») Tj
+-50 -352.0 Td
+50 341.0 Td
+(       · « En attente de l'envoi » ? « Pending ») Tj
+-50 -341.0 Td
+50 330.0 Td
+(       · « Sous-total » ? « Subtotal ») Tj
+-50 -330.0 Td
+50 319.0 Td
+(       · « Détails » ? « Details ») Tj
+-50 -319.0 Td
+50 308.0 Td
+(       · « Note générale \(optionnelle\) » ? « General note \(optional\) ») Tj
+-50 -308.0 Td
+50 297.0 Td
+(       · « Pourboire \(CA$\) » ? « Tip \(CA$\) ») Tj
+-50 -297.0 Td
+50 286.0 Td
+(       · « Envoyer » ? « Send ») Tj
+-50 -286.0 Td
+50 275.0 Td
+() Tj
+-50 -275.0 Td
+50 264.0 Td
+(36.3 Traduction en anglais ? /cuisine) Tj
+-50 -264.0 Td
+50 253.0 Td
+(     Avec cuisine@restoqr.ca : password123) Tj
+-50 -253.0 Td
+50 242.0 Td
+(     - Accéder à /cuisine) Tj
+-50 -242.0 Td
+50 231.0 Td
+(     - Changer la langue à « English » via le header) Tj
+-50 -231.0 Td
+50 220.0 Td
+(     - Les textes passent en anglais :) Tj
+-50 -220.0 Td
+50 209.0 Td
+(       · « Tableau de bord » ? « Dashboard ») Tj
+-50 -209.0 Td
+50 198.0 Td
+(       · « Cuisine » ? « Kitchen ») Tj
+-50 -198.0 Td
+50 187.0 Td
+(       · « Commandes actives en temps réel » ? « Active orders in real time ») Tj
+-50 -187.0 Td
+50 176.0 Td
+(       · « personne\(s\) » ? « person\(s\) ») Tj
+-50 -176.0 Td
+50 165.0 Td
+(       · « Aucun serveur assigné » ? « No server assigned ») Tj
+-50 -165.0 Td
+50 154.0 Td
+(       · Statuts : « Envoyée » ? « Sent », « En préparation » ? « In preparation ») Tj
+-50 -154.0 Td
+50 143.0 Td
+() Tj
+-50 -143.0 Td
+50 132.0 Td
+(36.4 Retour en français) Tj
+-50 -132.0 Td
+50 121.0 Td
+(     - Cliquer sur « Français » dans le header) Tj
+-50 -121.0 Td
+50 110.0 Td
+(     - Tous les textes reviennent en français) Tj
+-50 -110.0 Td
+50 99.0 Td
+() Tj
+-50 -99.0 Td
+50 88.0 Td
+(36.5 Persistance de la langue) Tj
+-50 -88.0 Td
+50 77.0 Td
+(     - Changer la langue à « English ») Tj
+-50 -77.0 Td
+50 66.0 Td
+(     - Rafraîchir la page) Tj
+-50 -66.0 Td
+ET
+endstream
+endobj
+43 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 42 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+44 0 obj
+<< /Length 227 >>
+stream
+BT
+/F1 8.5 Tf
+50 792.0 Td
+(     - L'interface reste en anglais) Tj
+-50 -792.0 Td
+50 781.0 Td
+() Tj
+-50 -781.0 Td
+50 770.0 Td
+(================================================================================) Tj
+-50 -770.0 Td
+ET
+endstream
+endobj
+45 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 44 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+xref
+0 46
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000254 00000 n 
+0000000322 00000 n 
+0000005640 00000 n 
+0000005766 00000 n 
+0000011001 00000 n 
+0000011127 00000 n 
+0000016058 00000 n 
+0000016184 00000 n 
+0000020868 00000 n 
+0000020996 00000 n 
+0000025744 00000 n 
+0000025872 00000 n 
+0000030639 00000 n 
+0000030767 00000 n 
+0000035679 00000 n 
+0000035807 00000 n 
+0000040485 00000 n 
+0000040613 00000 n 
+0000045579 00000 n 
+0000045707 00000 n 
+0000050361 00000 n 
+0000050489 00000 n 
+0000055181 00000 n 
+0000055309 00000 n 
+0000060108 00000 n 
+0000060236 00000 n 
+0000064921 00000 n 
+0000065049 00000 n 
+0000069855 00000 n 
+0000069983 00000 n 
+0000074635 00000 n 
+0000074763 00000 n 
+0000079494 00000 n 
+0000079622 00000 n 
+0000084812 00000 n 
+0000084940 00000 n 
+0000090128 00000 n 
+0000090256 00000 n 
+0000094963 00000 n 
+0000095091 00000 n 
+0000099907 00000 n 
+0000100035 00000 n 
+0000100314 00000 n 
+trailer
+<< /Size 46 /Root 1 0 R >>
+startxref
+100442
+%%EOF
