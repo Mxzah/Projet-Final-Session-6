@@ -57,18 +57,6 @@
             <mat-icon matPrefix>search</mat-icon>
           </mat-form-field>
 
-          <div class="ssf-filter">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ ts.t('menu.priceMin') }}</mat-label>
-              <input matInput type="number" min="0" step="0.01" (input)="onPriceMinChange($event)" />
-            </mat-form-field>
-            <span class="ssf-separator">—</span>
-            <mat-form-field appearance="outline">
-              <mat-label>{{ ts.t('menu.priceMax') }}</mat-label>
-              <input matInput type="number" min="0" step="0.01" (input)="onPriceMaxChange($event)" />
-            </mat-form-field>
-          </div>
-
           <mat-form-field class="ssf-sort" appearance="outline">
             <mat-label>{{ ts.t('menu.sortByPrice') }}</mat-label>
             <mat-select (selectionChange)="onSortChange($event.value)">
@@ -77,6 +65,14 @@
               <mat-option value="desc">{{ ts.t('menu.priceDesc') }}</mat-option>
             </mat-select>
           </mat-form-field>
+
+          <div class="ssf-filter">
+            <span class="ssf-price-label">CA${{ sliderMin() }} — CA${{ sliderMax() }}</span>
+            <mat-slider min="0" max="9999" step="1" class="ssf-slider">
+              <input matSliderStartThumb [value]="sliderMin()" (valueChange)="onSliderMinChange($event)" />
+              <input matSliderEndThumb [value]="sliderMax()" (valueChange)="onSliderMaxChange($event)" />
+            </mat-slider>
+          </div>
         </mat-toolbar>
 
         <div class="mobile-category-select">

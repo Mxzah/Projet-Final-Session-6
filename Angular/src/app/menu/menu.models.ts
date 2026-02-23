@@ -13,4 +13,5 @@ export interface Item {
   category_id: number;
   category_name?: string;
   deleted_at: string | null;
+  in_use: boolean;
 }

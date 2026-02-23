@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectorRef, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -40,6 +40,9 @@ export class AdminItemsComponent implements OnInit {
   // Suppression
   itemToDelete = signal<Item | null>(null);
 
+  // Désarchivage
+  itemToRestore = signal<Item | null>(null);
+
   // Création
   isCreating = signal(false);
 
@@ -65,7 +68,8 @@ export class AdminItemsComponent implements OnInit {
     private itemsService: ItemsService,
     private apiService: ApiService,
     public ts: TranslationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private renderer: Renderer2
   ) {}
 
   ngOnInit(): void {
@@ -138,13 +142,54 @@ export class AdminItemsComponent implements OnInit {
     const item = this.itemToDelete();
     if (!item) return;
 
-    this.itemsService.deleteItem(item.id).subscribe({
-      next: () => {
-        this.items.update(items => items.filter(i => i.id !== item.id));
-        this.itemToDelete.set(null);
+    if (item.in_use) {
+      this.itemsService.softDeleteItem(item.id).subscribe({
+        next: (response) => {
+          if (response.data) {
+            this.items.update(items => items.map(i => i.id === item.id ? response.data! : i));
+          }
+          this.itemToDelete.set(null);
+        },
+        error: () => {
+          this.itemToDelete.set(null);
+        }
+      });
+    } else {
+      this.itemsService.hardDeleteItem(item.id).subscribe({
+        next: () => {
+          this.items.update(items => items.filter(i => i.id !== item.id));
+          this.itemToDelete.set(null);
+        },
+        error: () => {
+          this.itemToDelete.set(null);
+        }
+      });
+    }
+  }
+
+  // ── Désarchivage ──
+
+  confirmRestore(item: Item): void {
+    this.itemToRestore.set(item);
+  }
+
+  cancelRestore(): void {
+    this.itemToRestore.set(null);
+  }
+
+  restoreItem(): void {
+    const item = this.itemToRestore();
+    if (!item) return;
+
+    this.itemsService.restoreItem(item.id).subscribe({
+      next: (response) => {
+        if (response.data) {
+          this.items.update(items => items.map(i => i.id === item.id ? response.data! : i));
+        }
+        this.itemToRestore.set(null);
       },
       error: () => {
-        this.itemToDelete.set(null);
+        this.itemToRestore.set(null);
       }
     });
   }
@@ -153,6 +198,7 @@ export class AdminItemsComponent implements OnInit {
 
   openCreate(): void {
     this.isCreating.set(true);
+    this.renderer.setStyle(document.documentElement, 'overflow', 'hidden');
     this.editForm.reset({ name: '', description: '', price: 0, category_id: this.categories()[0]?.id ?? 0 });
     this.editForm.markAsPristine();
     this.editForm.markAsUntouched();
@@ -188,6 +234,7 @@ export class AdminItemsComponent implements OnInit {
         this.items.update(items => [...items, created]);
         this.isCreating.set(false);
         this.editLoading.set(false);
+        this.renderer.removeStyle(document.documentElement, 'overflow');
       },
       error: (err: any) => {
         this.editError.set(err?.errors?.join(', ') || this.ts.t('admin.createError'));
@@ -201,6 +248,7 @@ export class AdminItemsComponent implements OnInit {
 
   openEdit(item: Item): void {
     this.editingItem.set(item);
+    this.renderer.setStyle(document.documentElement, 'overflow', 'hidden');
     this.editForm.patchValue({
       name: item.name,
       description: item.description,
@@ -246,6 +294,7 @@ export class AdminItemsComponent implements OnInit {
     this.editingItem.set(null);
     this.isCreating.set(false);
     this.editError.set('');
+    this.renderer.removeStyle(document.documentElement, 'overflow');
   }
 
   saveEdit(): void {
@@ -277,6 +326,7 @@ export class AdminItemsComponent implements OnInit {
         );
         this.editingItem.set(null);
         this.editLoading.set(false);
+        this.renderer.removeStyle(document.documentElement, 'overflow');
       },
       error: (err: any) => {
         this.editError.set(err?.errors?.join(', ') || this.ts.t('admin.editError'));

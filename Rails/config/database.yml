@@ -14,7 +14,7 @@ default: &default
   encoding: utf8mb4
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: root
-  password: ''
+  password: 'toor'
   socket: /var/run/mysqld/mysqld.sock
 
 development:
@@ -59,7 +59,7 @@ production:
     <<: *default
     database: restoqr_api_production
     username: restoqr_api
-    password: ''
+    password: 'toor'
   cache:
     <<: *primary_production
     database: restoqr_api_production_cache

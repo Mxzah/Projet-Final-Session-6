@@ -289,4 +289,29 @@ end
 order3.update_column(:created_at, 10.minutes.ago)
 puts "- Order ##{order3.id} (Table #{table7.number}, no server, tip: $5.50) — il y a 10min"
 
+# ── Demo combo (pour tester in_use via combo_items) ────────────────────────
+puts "\nCreating demo combo..."
+
+magret   = Item.find_by(name: 'Magret de Canard')
+linguine = Item.find_by(name: 'Linguine au Homard')
+
+if magret && linguine
+  combo = Combo.find_or_create_by!(name: 'Duo Terre & Mer') do |c|
+    c.description = 'Magret de canard et linguine au homard — le meilleur des deux mondes'
+    c.price       = 79.99
+  end
+
+  ComboItem.find_or_create_by!(combo: combo, item: magret) do |ci|
+    ci.quantity = 1
+  end
+
+  ComboItem.find_or_create_by!(combo: combo, item: linguine) do |ci|
+    ci.quantity = 1
+  end
+
+  puts "- Combo '#{combo.name}' créé avec Magret de Canard + Linguine au Homard"
+else
+  puts "- Skipping combo — items not found"
+end
+
 puts "\nAll seeds created!"

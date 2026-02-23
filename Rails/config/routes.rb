@@ -12,7 +12,12 @@ Rails.application.routes.draw do
     get 'tables/:qr_token/qr_code', to: 'tables#qr_code'
 
     resources :categories, only: [:index, :show, :create, :update, :destroy]
-    resources :items, only: [:index, :show, :create, :update, :destroy]
+    resources :items, only: [:index, :show, :create, :update, :destroy] do
+      member do
+        delete :hard, action: :hard_destroy
+        put :restore, action: :restore
+      end
+    end
     resources :users, only: [:index, :show, :create, :update, :destroy]
 
     resources :orders, only: [:index, :show, :create] do

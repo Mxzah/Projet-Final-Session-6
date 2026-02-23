@@ -5,7 +5,7 @@ import { adminGuard } from './guards/admin.guard';
 import { cuisineGuard } from './guards/cuisine.guard';
 
 export const routes: Routes = [
-    { path: '', loadComponent: () => import('./login/login.component').then(m => m.LoginComponent), canActivate: [guestGuard] },
+    { path: '', loadComponent: () => import('./menu/menu.component').then(m => m.MenuComponent) },
     { path: 'login', loadComponent: () => import('./login/login.component').then(m => m.LoginComponent), canActivate: [guestGuard] },
     { path: 'signup', loadComponent: () => import('./signup/signup.component').then(m => m.SignupComponent), canActivate: [guestGuard] },
     { path: 'table/:token', loadComponent: () => import('./table-scan/table-scan.component').then(m => m.TableScanComponent) },

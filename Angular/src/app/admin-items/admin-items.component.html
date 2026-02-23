@@ -23,12 +23,15 @@
     @if (!isLoading() && items().length > 0) {
       <div class="items-grid">
         @for (item of items(); track item.id) {
-          <mat-card class="item-card">
+          <mat-card class="item-card" [class.archived]="item.deleted_at">
             <div class="item-image">
               @if (item.image_url) {
                 <img [src]="item.image_url" [alt]="item.name" />
               } @else {
                 <div class="image-placeholder"></div>
+              }
+              @if (item.deleted_at) {
+                <div class="archived-badge">{{ ts.t('admin.archived') }}</div>
               }
             </div>
             <mat-card-content class="item-body">
@@ -38,12 +41,18 @@
               <span class="item-price">{{ item.price | number:'1.2-2' }} $</span>
             </mat-card-content>
             <mat-card-actions class="item-actions">
-              <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(item)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(item)">
-                <mat-icon>delete</mat-icon>
-              </button>
+              @if (item.deleted_at) {
+                <button mat-icon-button class="action-btn restore" [title]="ts.t('admin.restoreBtn')" (click)="confirmRestore(item)">
+                  <mat-icon>unarchive</mat-icon>
+                </button>
+              } @else {
+                <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(item)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(item)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
             </mat-card-actions>
           </mat-card>
         }
@@ -56,18 +65,46 @@
 @if (itemToDelete()) {
   <div class="modal-overlay">
     <mat-card class="modal">
-      <button mat-icon-button class="modal-close" (click)="cancelDelete()">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ ts.t('admin.deleteItem') }}</mat-card-title>
-      </mat-card-header>
+      <div class="modal-delete-header">
+        <span class="modal-title">{{ itemToDelete()!.in_use ? ts.t('admin.archiveItem') : ts.t('admin.deleteItem') }}</span>
+        <button mat-icon-button class="modal-close" (click)="cancelDelete()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
       <mat-card-content>
-        <p class="modal-text">{{ ts.t('admin.deleteConfirm') }} <strong>{{ itemToDelete()!.name }}</strong> ?</p>
+        @if (itemToDelete()!.in_use) {
+          <p class="modal-text">{{ ts.t('admin.archiveConfirm') }} <strong>{{ itemToDelete()!.name }}</strong> ?</p>
+          <p class="modal-warning">{{ ts.t('admin.archiveWarning') }}</p>
+        } @else {
+          <p class="modal-text">{{ ts.t('admin.deleteConfirm') }} <strong>{{ itemToDelete()!.name }}</strong> ?</p>
+        }
       </mat-card-content>
       <mat-card-actions class="modal-actions">
         <button mat-stroked-button class="btn-cancel" (click)="cancelDelete()">{{ ts.t('admin.cancel') }}</button>
-        <button mat-flat-button class="btn-danger" (click)="deleteItem()">{{ ts.t('admin.delete') }}</button>
+        <button mat-flat-button class="btn-danger" (click)="deleteItem()">
+          {{ itemToDelete()!.in_use ? ts.t('admin.archive') : ts.t('admin.delete') }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+}
+
+<!-- Modale de confirmation de désarchivage -->
+@if (itemToRestore()) {
+  <div class="modal-overlay">
+    <mat-card class="modal">
+      <div class="modal-delete-header">
+        <span class="modal-title">{{ ts.t('admin.restoreItem') }}</span>
+        <button mat-icon-button class="modal-close" (click)="cancelRestore()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <mat-card-content>
+        <p class="modal-text">{{ ts.t('admin.restoreConfirm') }} <strong>{{ itemToRestore()!.name }}</strong> ?</p>
+      </mat-card-content>
+      <mat-card-actions class="modal-actions">
+        <button mat-stroked-button class="btn-cancel" (click)="cancelRestore()">{{ ts.t('admin.cancel') }}</button>
+        <button mat-flat-button class="btn-restore" (click)="restoreItem()">{{ ts.t('admin.restoreBtn') }}</button>
       </mat-card-actions>
     </mat-card>
   </div>
@@ -77,19 +114,19 @@
 @if (editingItem() || isCreating()) {
   <div class="modal-overlay">
     <mat-card class="modal modal-edit">
-      <button mat-icon-button class="modal-close" (click)="cancelEdit()">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ isCreating() ? ts.t('admin.addItem') : ts.t('admin.editItem') }}</mat-card-title>
-      </mat-card-header>
+      <div class="modal-edit-header">
+        <span class="modal-title">{{ isCreating() ? ts.t('admin.addItem') : ts.t('admin.editItem') }}</span>
+        <button mat-icon-button class="modal-close" (click)="cancelEdit()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
 
-      <mat-card-content>
+      <div class="modal-edit-body">
         @if (editError()) {
           <div class="modal-error">{{ editError() }}</div>
         }
 
-        <form [formGroup]="editForm" (ngSubmit)="isCreating() ? saveCreate() : saveEdit()">
+        <form id="editForm" [formGroup]="editForm" (ngSubmit)="isCreating() ? saveCreate() : saveEdit()">
           <mat-form-field appearance="outline" class="modal-field-full">
             <mat-label>{{ ts.t('admin.name') }}</mat-label>
             <input matInput formControlName="name" />
@@ -161,14 +198,14 @@
             }
           </div>
 
-          <mat-card-actions class="modal-actions">
-            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEdit()">{{ ts.t('admin.cancel') }}</button>
-            <button mat-flat-button type="submit" class="btn-primary" [disabled]="editLoading() || editForm.invalid">
-              {{ editLoading() ? ts.t('admin.saving') : (isCreating() ? ts.t('admin.add') : ts.t('admin.save')) }}
-            </button>
-          </mat-card-actions>
         </form>
-      </mat-card-content>
+      </div>
+      <div class="modal-edit-footer">
+        <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEdit()">{{ ts.t('admin.cancel') }}</button>
+        <button mat-flat-button type="submit" form="editForm" class="btn-primary" [disabled]="editLoading() || editForm.invalid">
+          {{ editLoading() ? ts.t('admin.saving') : (isCreating() ? ts.t('admin.add') : ts.t('admin.save')) }}
+        </button>
+      </div>
     </mat-card>
   </div>
 }

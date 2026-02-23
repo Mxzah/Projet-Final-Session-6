@@ -143,18 +143,20 @@ img {
 
 .ssf-filter {
     display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 180px;
 }
 
-.ssf-filter mat-form-field {
-    width: 150px;
-}
-
-.ssf-separator {
-    color: rgba(27, 26, 23, 0.4);
+.ssf-price-label {
     font-size: 0.85rem;
-    margin-top: 0.5rem;
+    color: rgba(27, 26, 23, 0.7);
+    font-weight: 500;
+}
+
+.ssf-slider {
+    width: 100%;
 }
 
 /* ── Material form field overrides ── */
@@ -1005,18 +1007,7 @@ img {
 
     .ssf-filter {
         flex: 1 1 100%;
-        gap: 0.5rem;
         width: 100%;
-    }
-
-    .ssf-filter mat-form-field {
-        flex: 1;
-        min-width: 0;
-        width: auto;
-    }
-
-    .ssf-separator {
-        font-size: 0.7rem;
     }
 
     .items-grid {

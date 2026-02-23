@@ -1,12 +1,14 @@
 module Api
   class ItemsController < ApplicationController
     before_action :authenticate_user!, except: [:index]
-    before_action :require_admin!, only: [:create, :update, :destroy]
-    before_action :set_item, only: [:show, :update, :destroy]
+    before_action :require_admin!, only: [:create, :update, :destroy, :hard_destroy, :restore]
+    before_action :set_item, only: [:show, :update, :destroy, :hard_destroy]
+    before_action :set_item_unscoped, only: [:restore]
 
     # GET /api/items?search=…&sort=asc|desc&price_min=…&price_max=…
     def index
-      items = Item.includes(:category)
+      base = current_user&.type == "Administrator" ? Item.unscoped : Item
+      items = base.includes(:category, :order_lines, :combo_items)
 
       # Search
       if params[:search].present?
@@ -85,11 +87,43 @@ module Api
 
     # DELETE /api/items/:id (soft delete)
     def destroy
-      @item.soft_delete
+      archived_item = @item.soft_delete
 
       render json: {
         success: true,
-        data: nil,
+        data: item_json(archived_item),
+        errors: []
+      }, status: :ok
+    end
+
+    # DELETE /api/items/:id/hard (hard delete)
+    def hard_destroy
+      if @item.order_lines.any? || @item.combo_items.any?
+        render json: {
+          success: false,
+          data: nil,
+          errors: ["Impossible de supprimer définitivement un item utilisé dans des commandes ou des combos"]
+        }, status: :ok
+        return
+      end
+
+      item_data = item_json(@item)
+      @item.destroy
+
+      render json: {
+        success: true,
+        data: item_data,
+        errors: []
+      }, status: :ok
+    end
+
+    # PATCH /api/items/:id/restore
+    def restore
+      @item.update(deleted_at: nil)
+
+      render json: {
+        success: true,
+        data: item_json(@item),
         errors: []
       }, status: :ok
     end
@@ -98,6 +132,17 @@ module Api
 
     def set_item
       @item = Item.find_by(id: params[:id])
+      return if @item
+
+      render json: {
+        success: false,
+        data: nil,
+        errors: ["Item introuvable"]
+      }, status: :ok
+    end
+
+    def set_item_unscoped
+      @item = Item.unscoped.find_by(id: params[:id])
       return if @item
 
       render json: {
@@ -131,7 +176,8 @@ module Api
         category_name: item.category&.name,
         image_url: item.image.attached? ? url_for(item.image) : nil,
         deleted_at: item.deleted_at,
-        created_at: item.created_at
+        created_at: item.created_at,
+        in_use: item.order_lines.any? || item.combo_items.any?
       }
     end
   end

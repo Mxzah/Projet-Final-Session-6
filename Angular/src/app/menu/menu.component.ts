@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,6 +15,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSliderModule } from '@angular/material/slider';
 import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
@@ -30,7 +31,7 @@ import { Item, Category } from './menu.models';
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatButtonModule, MatIconModule, MatBadgeModule,
     MatProgressSpinnerModule, MatDividerModule,
-    MatCardModule, MatToolbarModule, MatListModule, MatChipsModule
+    MatCardModule, MatToolbarModule, MatListModule, MatChipsModule, MatSliderModule
   ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
@@ -46,6 +47,8 @@ export class MenuComponent implements OnInit, OnDestroy {
   sortOrder = signal<string>('none');
   priceMin = signal<number | null>(null);
   priceMax = signal<number | null>(null);
+  sliderMin = signal<number>(0);
+  sliderMax = signal<number>(9999);
 
   // Cart sidebar
   cartOpen = signal<boolean>(false);
@@ -75,7 +78,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     public cartService: CartService,
     public ts: TranslationService,
-    private router: Router
+    private router: Router,
+    private renderer: Renderer2
   ) {}
 
   ngOnInit(): void {
@@ -133,16 +137,16 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.loadItems();
   }
 
-  onPriceMinChange(event: Event): void {
-    const val = (event.target as HTMLInputElement).value;
-    this.priceMin.set(val ? parseFloat(val) : null);
+  onSliderMinChange(value: number): void {
+    this.sliderMin.set(value);
+    this.priceMin.set(value > 0 ? value : null);
     if (this.searchTimer) clearTimeout(this.searchTimer);
     this.searchTimer = setTimeout(() => this.loadItems(), 300);
   }
 
-  onPriceMaxChange(event: Event): void {
-    const val = (event.target as HTMLInputElement).value;
-    this.priceMax.set(val ? parseFloat(val) : null);
+  onSliderMaxChange(value: number): void {
+    this.sliderMax.set(value);
+    this.priceMax.set(value < 9999 ? value : null);
     if (this.searchTimer) clearTimeout(this.searchTimer);
     this.searchTimer = setTimeout(() => this.loadItems(), 300);
   }
@@ -163,10 +167,12 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.selectedItem.set(item);
     this.modalQuantity.set(1);
     this.modalNote.set('');
+    this.renderer.setStyle(document.documentElement, 'overflow', 'hidden');
   }
 
   closeModal(): void {
     this.selectedItem.set(null);
+    this.renderer.removeStyle(document.documentElement, 'overflow');
   }
 
   onOverlayClick(event: MouseEvent): void {

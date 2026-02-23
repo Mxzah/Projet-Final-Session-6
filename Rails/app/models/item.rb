@@ -23,6 +23,7 @@ class Item < ApplicationRecord
 
   def soft_delete
     update(deleted_at: Time.current)
+    self
   end
 
   private

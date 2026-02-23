@@ -41,8 +41,16 @@ export class ItemsService {
     );
   }
 
-  deleteItem(id: number): Observable<ApiResponse<null>> {
-    return this.apiService.delete<null>(`/api/items/${id}`);
+  softDeleteItem(id: number): Observable<ApiResponse<Item>> {
+    return this.apiService.delete<Item>(`/api/items/${id}`);
+  }
+
+  hardDeleteItem(id: number): Observable<ApiResponse<null>> {
+    return this.apiService.delete<null>(`/api/items/${id}/hard`);
+  }
+
+  restoreItem(id: number): Observable<ApiResponse<Item>> {
+    return this.apiService.put<Item>(`/api/items/${id}/restore`, {});
   }
 
   private buildFormData(data: Record<string, any>): FormData {

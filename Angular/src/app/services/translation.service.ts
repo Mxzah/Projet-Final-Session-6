@@ -6,7 +6,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   // Header
   'header.logout': { fr: 'Déconnexion', en: 'Logout' },
   'header.login': { fr: 'Connexion', en: 'Login' },
-  'header.quit': { fr: 'Quitter', en: 'Back' },
+  'header.quit': { fr: 'Menu', en: 'Menu' },
   'header.admin': { fr: 'Admin', en: 'Admin' },
 
   // Menu page
@@ -26,7 +26,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'menu.modify': { fr: 'Modifier', en: 'Edit' },
   'menu.remove': { fr: 'Retirer', en: 'Remove' },
   'menu.continue': { fr: 'Continuer', en: 'Continue' },
-  'menu.fromPrice': { fr: 'À PARTIR DE', en: 'STARTING AT' },
+  'menu.fromPrice': { fr: 'PRIX', en: 'PRICE' },
   'menu.priceNote': { fr: 'Le prix peut varier selon les options.', en: 'Price may vary depending on options.' },
   'menu.specialInstructions': { fr: 'Instructions spéciales (optionnel)', en: 'Special instructions (optional)' },
   'menu.specialPlaceholder': { fr: 'Ex: Sans oignon, extra sauce, bien cuit...', en: 'E.g.: No onion, extra sauce, well done...' },
@@ -45,6 +45,14 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.editItem': { fr: "Modifier l'item", en: 'Edit item' },
   'admin.deleteItem': { fr: "Supprimer l'item", en: 'Delete item' },
   'admin.deleteConfirm': { fr: 'Voulez-vous vraiment supprimer', en: 'Are you sure you want to delete' },
+  'admin.archiveItem': { fr: "Archiver l'item", en: 'Archive item' },
+  'admin.archiveConfirm': { fr: 'Voulez-vous vraiment archiver', en: 'Are you sure you want to archive' },
+  'admin.archiveWarning': { fr: "Cet item est utilisé dans des commandes ou des combos. Il sera archivé et ne sera plus visible dans le menu.", en: "This item is used in orders or combos. It will be archived and no longer visible in the menu." },
+  'admin.archive': { fr: 'Archiver', en: 'Archive' },
+  'admin.archived': { fr: 'Archivé', en: 'Archived' },
+  'admin.restoreBtn': { fr: 'Désarchiver', en: 'Restore' },
+  'admin.restoreItem': { fr: "Désarchiver l'item", en: 'Restore item' },
+  'admin.restoreConfirm': { fr: 'Voulez-vous vraiment désarchiver', en: 'Are you sure you want to restore' },
   'admin.cancel': { fr: 'Annuler', en: 'Cancel' },
   'admin.delete': { fr: 'Supprimer', en: 'Delete' },
   'admin.name': { fr: 'Nom', en: 'Name' },

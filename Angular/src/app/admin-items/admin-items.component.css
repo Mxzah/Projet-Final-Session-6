@@ -75,6 +75,7 @@
 
 /* ── Image ── */
 .item-image {
+    position: relative;
     width: 100%;
     aspect-ratio: 16 / 10;
     background: var(--clay);
@@ -165,6 +166,47 @@
     color: var(--rust) !important;
 }
 
+.action-btn.restore {
+    color: rgba(27, 26, 23, 0.45) !important;
+}
+
+.action-btn.restore:hover {
+    color: #2e7d32 !important;
+}
+
+/* ── Archived card ── */
+.item-card.archived {
+    background: #f5f5f5 !important;
+    border-color: rgba(27, 26, 23, 0.05) !important;
+    opacity: 0.75;
+}
+
+.item-card.archived .item-name,
+.item-card.archived .item-description,
+.item-card.archived .item-category,
+.item-card.archived .item-price {
+    color: rgba(27, 26, 23, 0.35) !important;
+}
+
+.item-card.archived .item-image img {
+    filter: grayscale(100%);
+}
+
+.archived-badge {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
 /* ── States ── */
 .loading {
     display: flex;
@@ -197,7 +239,7 @@
     position: relative;
     background: var(--sand) !important;
     border-radius: 16px !important;
-    padding: 1.5rem !important;
+    padding: 0 !important;
     max-width: 400px;
     width: 90%;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
@@ -206,11 +248,6 @@
 }
 
 .modal-close {
-    position: sticky !important;
-    top: 0;
-    float: right;
-    margin-left: auto;
-    z-index: 10;
     width: 36px !important;
     height: 36px !important;
     padding: 0 !important;
@@ -221,6 +258,7 @@
     align-items: center !important;
     justify-content: center !important;
     color: var(--ink) !important;
+    flex-shrink: 0;
 }
 
 .modal-close:hover {
@@ -234,6 +272,26 @@
 
 .modal-edit {
     max-width: 420px;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 90vh;
+    overflow: hidden !important;
+}
+
+.modal-delete-header,
+.modal-edit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem 1rem;
+    flex-shrink: 0;
+}
+
+.modal-edit-body {
+    overflow-y: auto !important;
+    flex: 1 1 auto !important;
+    padding: 0 1.5rem 1.5rem !important;
 }
 
 .modal-title {
@@ -245,14 +303,26 @@
 }
 
 .modal-text {
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 0.5rem 0;
     font-size: 0.9rem;
     color: rgba(27, 26, 23, 0.7);
 }
 
-.modal mat-card-content {
-    padding: 0 !important;
+.modal-warning {
+    margin: 0 0 1rem 0;
+    font-size: 0.82rem;
+    color: #b45309;
+    background: rgba(180, 83, 9, 0.08);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
 }
+
+.modal mat-card-content {
+    padding: 0 1.5rem !important;
+}
+
+/* ── Modal actions (modal suppression) ── */
+
 
 .modal-error {
     background: rgba(220, 53, 69, 0.1);
@@ -341,13 +411,22 @@
     background: none;
 }
 
-/* ── Modal actions ── */
 .modal-actions {
     display: flex !important;
+    justify-content: flex-end !important;
+    gap: 0.75rem;
+    margin: 0 !important;
+    padding: 1rem 1.5rem 1.5rem !important;
+}
+
+/* ── Modal footer (boutons fixes en bas) ── */
+.modal-edit-footer {
+    display: flex;
     justify-content: flex-end;
     gap: 0.75rem;
-    margin: 1rem 0 0 0 !important;
-    padding: 0 !important;
+    padding: 1rem 1.5rem;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(27, 26, 23, 0.08);
 }
 
 .btn-cancel {
@@ -369,6 +448,17 @@
 }
 
 .btn-danger:hover {
+    opacity: 0.9;
+}
+
+.btn-restore {
+    border-radius: 10px !important;
+    background: #2e7d32 !important;
+    color: #fff !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-restore:hover {
     opacity: 0.9;
 }
 

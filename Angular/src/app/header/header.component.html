@@ -1,5 +1,5 @@
 <mat-toolbar class="site-header">
-  <span class="brand">RestoQR</span>
+  <span class="brand" routerLink="/menu" style="cursor:pointer">RestoQR</span>
   <span class="spacer"></span>
   <div class="header-actions">
     <button mat-button class="lang-btn" [matMenuTriggerFor]="langMenu">
@@ -27,7 +27,7 @@
         {{ ts.t('header.login') }}
       </button>
     }
-    @if (showLogout && authService.isAdmin()) {
+    @if (showLogout && showAdmin && authService.isAdmin()) {
       <span class="header-divider">|</span>
       <button mat-button class="admin-btn" (click)="goToAdmin()">
         <mat-icon>admin_panel_settings</mat-icon>
