@@ -1,0 +1,78 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+}
+
+.modal-close {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  border: 1px solid rgba(27, 26, 23, 0.1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #1b1a17 !important;
+}
+
+.modal-close:hover {
+  background: #f3ede4 !important;
+}
+
+.modal-text {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: rgba(27, 26, 23, 0.7);
+}
+
+.modal-warning {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #b45309;
+  background: rgba(180, 83, 9, 0.08);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+mat-dialog-actions {
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
+}
+
+.btn-cancel {
+  border-radius: 10px !important;
+  color: #1b1a17 !important;
+  border-color: rgba(27, 26, 23, 0.15) !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-cancel:hover {
+  background: rgba(27, 26, 23, 0.04) !important;
+}
+
+.btn-danger {
+  border-radius: 10px !important;
+  background: #8a3f24 !important;
+  color: #fff !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+.btn-restore {
+  border-radius: 10px !important;
+  background: #2e7d32 !important;
+  color: #fff !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-restore:hover {
+  opacity: 0.9;
+}

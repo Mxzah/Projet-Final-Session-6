@@ -1,6 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
+
+
+.mat-mdc-dialog-surface {
+  overflow-x: hidden !important;
+  background: #fbf8f2 !important;
+}
+
+.mdc-dialog__title {
+  text-align: left !important;
+  padding-left: 24px !important;
+}
+
 html,
 body {
     min-height: 100%;

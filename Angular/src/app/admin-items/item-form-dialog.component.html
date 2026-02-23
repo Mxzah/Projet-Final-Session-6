@@ -1,0 +1,99 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>{{ isCreating ? ts.t('admin.addItem') : ts.t('admin.editItem') }}</span>
+  <button mat-icon-button mat-dialog-close class="modal-close">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  @if (error()) {
+    <div class="dialog-error">{{ error() }}</div>
+  }
+
+  <form id="itemForm" [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="field-full">
+      <mat-label>{{ ts.t('admin.name') }}</mat-label>
+      <input matInput formControlName="name" />
+      @if (form.controls.name.dirty && form.controls.name.errors) {
+        <mat-error>
+          @if (form.controls.name.errors['required']) {
+            {{ ts.t('admin.nameRequired') }}
+          } @else if (form.controls.name.errors['maxlength']) {
+            {{ ts.t('admin.nameMaxLength') }}
+          } @else if (form.controls.name.errors['whitespace']) {
+            {{ ts.t('admin.nameWhitespace') }}
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field-full">
+      <mat-label>{{ ts.t('admin.description') }}</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+      @if (form.controls.description.dirty && form.controls.description.errors) {
+        <mat-error>
+          @if (form.controls.description.errors['maxlength']) {
+            {{ ts.t('admin.descMaxLength') }}
+          } @else if (form.controls.description.errors['whitespace']) {
+            {{ ts.t('admin.descWhitespace') }}
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field-full">
+      <mat-label>{{ ts.t('admin.price') }}</mat-label>
+      <input matInput type="number" formControlName="price" step="0.01" />
+      @if (form.controls.price.dirty && form.controls.price.errors) {
+        <mat-error>
+          @if (form.controls.price.errors['required']) {
+            {{ ts.t('admin.priceRequired') }}
+          } @else if (form.controls.price.errors['min']) {
+            {{ ts.t('admin.priceMin') }}
+          } @else if (form.controls.price.errors['max']) {
+            {{ ts.t('admin.priceMax') }}
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field-full">
+      <mat-label>{{ ts.t('admin.category') }}</mat-label>
+      <mat-select formControlName="category_id">
+        @for (cat of categories; track cat.id) {
+          <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.category_id.dirty && form.controls.category_id.errors) {
+        <mat-error>{{ ts.t('admin.categoryRequired') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="image-field">
+      <label class="image-label">{{ ts.t('admin.image') }}</label>
+      @if (imagePreview()) {
+        <div class="image-preview">
+          <img [src]="imagePreview()" alt="Aperçu" />
+        </div>
+      }
+      <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" class="file-input-hidden" />
+      <button type="button" class="file-btn" (click)="fileInput.click()">
+        <mat-icon>upload</mat-icon>
+        {{ ts.t('admin.chooseFile') }}
+      </button>
+      @if (imageError()) {
+        <mat-error class="image-error">{{ imageError() }}</mat-error>
+      }
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close class="btn-cancel">{{ ts.t('admin.cancel') }}</button>
+  <button mat-flat-button type="submit" form="itemForm" class="btn-primary" [disabled]="loading() || form.invalid">
+    @if (loading()) {
+      <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+    }
+    {{ loading() ? ts.t('admin.saving') : (isCreating ? ts.t('admin.add') : ts.t('admin.save')) }}
+  </button>
+</mat-dialog-actions>
