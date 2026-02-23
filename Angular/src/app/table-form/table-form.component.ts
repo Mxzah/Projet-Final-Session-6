@@ -1,5 +1,5 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TableService, TableData } from '../services/table.service';
@@ -31,13 +31,10 @@ export class TableFormComponent implements OnInit {
     constructor(
         private tableService: TableService,
         private authService: AuthService,
-        private router: Router,
-        @Inject(PLATFORM_ID) private platformId: Object
+        private router: Router
     ) { }
 
     ngOnInit(): void {
-        if (!isPlatformBrowser(this.platformId)) return;
-
         this.table = this.tableService.getCurrentTable();
         if (!this.table) {
             this.noTable = true;

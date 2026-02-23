@@ -1,5 +1,5 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TableService } from '../services/table.service';
 import { AuthService } from '../services/auth.service';
@@ -17,15 +17,10 @@ export class TableScanComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private tableService: TableService,
-        private authService: AuthService,
-        @Inject(PLATFORM_ID) private platformId: Object
+        private authService: AuthService
     ) { }
 
     ngOnInit(): void {
-        if (!isPlatformBrowser(this.platformId)) {
-            return;
-        }
-
         const qrToken = this.route.snapshot.paramMap.get('token');
 
         if (!qrToken) {

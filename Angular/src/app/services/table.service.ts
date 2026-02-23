@@ -1,5 +1,4 @@
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService, ApiResponse } from './api.service';
 
@@ -18,20 +17,12 @@ export class TableService {
     private currentTable: TableData | null = null;
     private currentTableSubject = new BehaviorSubject<TableData | null>(null);
     public currentTable$ = this.currentTableSubject.asObservable();
-    private isBrowser: boolean;
 
-    constructor(
-        private apiService: ApiService,
-        @Inject(PLATFORM_ID) platformId: Object
-    ) {
-        this.isBrowser = isPlatformBrowser(platformId);
-        if (this.isBrowser) {
-            this.loadTableFromStorage();
-        }
+    constructor(private apiService: ApiService) {
+        this.loadTableFromStorage();
     }
 
     private loadTableFromStorage(): void {
-        if (!this.isBrowser) return;
         const tableData = sessionStorage.getItem('currentTable');
         if (tableData) {
             this.currentTable = JSON.parse(tableData);
@@ -40,7 +31,6 @@ export class TableService {
     }
 
     private saveTableToStorage(table: TableData): void {
-        if (!this.isBrowser) return;
         sessionStorage.setItem('currentTable', JSON.stringify(table));
     }
 
@@ -64,21 +54,20 @@ export class TableService {
 
     clearTable(): void {
         this.currentTable = null;
-        if (this.isBrowser) sessionStorage.removeItem('currentTable');
+        sessionStorage.removeItem('currentTable');
         this.currentTableSubject.next(null);
     }
 
     setPendingToken(token: string): void {
-        if (this.isBrowser) sessionStorage.setItem('pendingQrToken', token);
+        sessionStorage.setItem('pendingQrToken', token);
     }
 
     getPendingToken(): string | null {
-        if (!this.isBrowser) return null;
         return sessionStorage.getItem('pendingQrToken');
     }
 
     clearPendingToken(): void {
-        if (this.isBrowser) sessionStorage.removeItem('pendingQrToken');
+        sessionStorage.removeItem('pendingQrToken');
     }
 
     validateAndSavePendingToken(): Observable<boolean> {

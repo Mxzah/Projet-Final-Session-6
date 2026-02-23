@@ -1,6 +1,5 @@
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, of } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
@@ -16,36 +15,25 @@ export interface UserData {
 })
 export class AuthService {
   private currentUser: UserData | null = null;
-  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
-  public isLoggedIn$ = this.isLoggedInSubject.asObservable();
-  private isBrowser: boolean;
+  private isLoggedIn = false;
 
-  constructor(
-    private apiService: ApiService,
-    @Inject(PLATFORM_ID) platformId: Object
-  ) {
-    this.isBrowser = isPlatformBrowser(platformId);
-    if (this.isBrowser) {
-      this.loadUserFromStorage();
-    }
+  constructor(private apiService: ApiService) {
+    this.loadUserFromStorage();
   }
 
   private loadUserFromStorage(): void {
-    if (!this.isBrowser) return;
     const userData = localStorage.getItem('currentUser');
     if (userData) {
       this.currentUser = JSON.parse(userData);
-      this.isLoggedInSubject.next(true);
+      this.isLoggedIn = true;
     }
   }
 
   private saveUserToStorage(user: UserData): void {
-    if (!this.isBrowser) return;
     localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
   private clearUserFromStorage(): void {
-    if (!this.isBrowser) return;
     localStorage.removeItem('currentUser');
   }
 
@@ -56,7 +44,7 @@ export class AuthService {
         if (response.success && response.data) {
           this.currentUser = response.data;
           this.saveUserToStorage(response.data);
-          this.isLoggedInSubject.next(true);
+          this.isLoggedIn = true;
         }
       })
     );
@@ -78,7 +66,7 @@ export class AuthService {
         if (response.success && response.data) {
           this.currentUser = response.data;
           this.saveUserToStorage(response.data);
-          this.isLoggedInSubject.next(true);
+          this.isLoggedIn = true;
         }
       })
     );
@@ -89,19 +77,19 @@ export class AuthService {
       tap(() => {
         this.currentUser = null;
         this.clearUserFromStorage();
-        this.isLoggedInSubject.next(false);
+        this.isLoggedIn = false;
       }),
       catchError(() => {
         this.currentUser = null;
         this.clearUserFromStorage();
-        this.isLoggedInSubject.next(false);
+        this.isLoggedIn = false;
         return of(null);
       })
     );
   }
 
   isAuthenticated(): boolean {
-    return this.isLoggedInSubject.value;
+    return this.isLoggedIn;
   }
 
   isAdmin(): boolean {
