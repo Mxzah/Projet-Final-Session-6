@@ -313,7 +313,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.cartService.clear();
     this.authService.logout().subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response?.success) {
           this.router.navigate(['/login']);
         }
       },

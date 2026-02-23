@@ -370,7 +370,7 @@ export class OrderComponent implements OnInit {
     this.cartService.clear();
     this.authService.logout().subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response?.success) {
           this.router.navigate(['/login']);
         }
       },
