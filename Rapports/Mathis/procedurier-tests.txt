@@ -214,13 +214,21 @@ MODULE 7 — Affichage de la liste des items
      - Un spinner de chargement s'affiche pendant le chargement
      - Une fois chargé, les items s'affichent en grille, trié par catégorie
 
-7.2  Affichage des cartes
+7.2  Affichage des cartes (item actif)
      - Chaque carte affiche : image, nom, description,
        catégorie, prix (X.XX $)
      - Chaque carte a un bouton « modifier » (icône edit) et « supprimer »
        (icône delete)
 
-7.3  État vide
+7.3  Affichage des cartes (item archivé)
+     - Les items archivés apparaissent dans la liste avec un style grisé
+     - L'image est en niveaux de gris avec un badge « ARCHIVÉ » superposé
+     - Le nom, la description, la catégorie et le prix sont atténués
+     - La carte a uniquement un bouton « désarchiver » (icône unarchive)
+     - Les boutons « modifier » et « supprimer » ne sont PAS visibles
+
+7.4  État vide
+
      - Si aucun item n'existe, le message « Aucun item trouvé » s'affiche
 
 ================================================================================
@@ -315,45 +323,87 @@ MODULE 9 — Modification d'un item
      - La modal se ferme, l'item n'est pas modifié
 
 ================================================================================
-MODULE 10 — Suppression d'un item
+MODULE 10 — Suppression / Archivage d'un item
 ================================================================================
 
-10.1 Ouverture de la modal de confirmation
+10.1 Ouverture de la modal — Item non utilisé (hard delete)
      Avec admin@restoqr.ca : password123
-     - Clic sur l'icône « delete » d'un item
+     - Clic sur l'icône « delete » d'un item qui n'apparaît dans aucune commande
+       ni aucun combo (ex: Carpaccio de Bœuf, Filet de Bar Grillé)
      - Une modal de confirmation s'ouvre
-     - Le message affiche le nom de l'item à supprimer
+     - Le titre est « Supprimer l'item »
+     - Le message demande de confirmer la suppression définitive de l'item
 
-10.2 Annulation de la suppression
-     - Clic sur « Annuler » : La modal se ferme, l'item est toujours dans la liste
+10.2 Ouverture de la modal — Item utilisé (soft delete / archivage)
+     - Clic sur l'icône « delete » d'un item présent dans une commande
+       ou un combo (ex: Tartare de Saumon, Magret de Canard)
+     - Une modal de confirmation s'ouvre
+     - Le titre est « Archiver l'item »
+     - Le message demande de confirmer l'archivage
+     - Un avertissement indique que l'item sera archivé et ne sera plus visible
+       dans le menu
 
-10.3 Fermeture par le bouton X
-     - Clic sur le bouton « X » : La modal se ferme, l'item est toujours dans la liste
+10.3 Annulation
+     - Clic sur « Annuler » : La modal se ferme, l'item est inchangé
+     - Clic sur le bouton « X » : Même résultat
 
-10.4 Confirmation de la suppression
+10.4 Confirmation — Suppression définitive (item non utilisé)
      - Clic sur « Supprimer »
      - La modal se ferme
-     - L'item disparaît de la liste et de la page du menu
+     - L'item disparaît définitivement de la liste
+
+10.5 Confirmation — Archivage (item utilisé)
+     - Clic sur « Archiver »
+     - La modal se ferme
+     - La carte de l'item passe immédiatement au style grisé avec le badge
+       « ARCHIVÉ » sur l'image, sans rechargement de la page
+     - L'item n'est plus visible sur la page /menu (clients)
 
 ================================================================================
-MODULE 11 — Traduction (admin-items)
+MODULE 11 — Désarchivage d'un item
 ================================================================================
 
-11.1 Traduction en anglais
+11.1 Ouverture de la modal de désarchivage
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « unarchive » d'un item archivé (style grisé)
+     - Une modal de confirmation s'ouvre
+     - Le titre est « Désarchiver l'item »
+     - Le message demande de confirmer le désarchivage de l'item (avec son nom)
+
+11.2 Annulation du désarchivage
+     - Clic sur « Annuler » : La modal se ferme, l'item reste archivé
+     - Clic sur le bouton « X » : Même résultat
+
+11.3 Confirmation du désarchivage
+     - Clic sur « Désarchiver »
+     - La modal se ferme
+     - La carte de l'item revient immédiatement au style normal (image en couleur,
+       badge « ARCHIVÉ » disparu, textes normaux)
+     - Les boutons « modifier » et « supprimer » réapparaissent
+     - L'item est de nouveau visible sur la page /menu (clients)
+
+================================================================================
+MODULE 12 — Traduction (admin-items)
+================================================================================
+
+12.1 Traduction en anglais
      Avec admin@restoqr.ca : password123
      - Changer la langue à « English » via le header
      - Le titre passe à « Items Management »
-     - Les boutons passent en anglais (Add, Save, Cancel, Delete)
+     - Les boutons passent en anglais (Add, Save, Cancel, Delete, Archive,
+       Restore)
      - Les labels des champs passent en anglais (Name, Description, Price,
        Category, Image)
      - Les messages de validation passent en anglais
-     - Les messages de confirmation de suppression passent en anglais
+     - Les titres et messages des modals passent en anglais (Delete item,
+       Archive item, Restore item)
+     - Le badge « ARCHIVÉ » passe à « ARCHIVED »
 
-11.2 Traduction en français
+12.2 Traduction en français
      - Changer la langue à « Français » via le header
      - Tous les textes reviennent en français
 
-11.3 Persistance de la langue
+12.3 Persistance de la langue
      - Changer la langue à « English »
      - Rafraîchir la page
      - L'interface reste en anglais

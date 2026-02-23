@@ -1,7 +1,7 @@
 module Api
-  class ItemsController < ApplicationController
-    before_action :authenticate_user!, except: [:index]
-    before_action :require_admin!, only: [:create, :update, :destroy, :hard_destroy, :restore]
+  class ItemsController < AdminController
+    skip_before_action :authenticate_user!, only: [:index]
+    skip_before_action :require_admin!, only: [:index, :show]
     before_action :set_item, only: [:show, :update, :destroy, :hard_destroy]
     before_action :set_item_unscoped, only: [:restore]
 
@@ -131,35 +131,11 @@ module Api
     private
 
     def set_item
-      @item = Item.find_by(id: params[:id])
-      return if @item
-
-      render json: {
-        success: false,
-        data: nil,
-        errors: ["Item introuvable"]
-      }, status: :ok
+      @item = Item.find(params[:id])
     end
 
     def set_item_unscoped
-      @item = Item.unscoped.find_by(id: params[:id])
-      return if @item
-
-      render json: {
-        success: false,
-        data: nil,
-        errors: ["Item introuvable"]
-      }, status: :ok
-    end
-
-    def require_admin!
-      return if current_user&.type == "Administrator"
-
-      render json: {
-        success: false,
-        data: nil,
-        errors: ["Accès réservé aux administrateurs"]
-      }, status: :ok
+      @item = Item.unscoped.find(params[:id])
     end
 
     def item_params

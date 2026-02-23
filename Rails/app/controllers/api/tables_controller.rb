@@ -1,19 +1,10 @@
 module Api
-  class TablesController < ApplicationController
-    before_action :authenticate_user!, except: [:index, :show, :qr_code]
-    before_action :require_admin!, only: [:create, :update, :destroy]
+  class TablesController < AdminController
+    skip_before_action :authenticate_user!, only: [:index, :show, :qr_code]
+    skip_before_action :require_admin!, only: [:index, :show, :qr_code]
 
     def show
-      table = Table.find_by(temporary_code: params[:qr_token])
-
-      if table.nil?
-        render json: {
-          success: false,
-          data: nil,
-          errors: ['Table introuvable. QR code invalide.']
-        }, status: :not_found
-        return
-      end
+      table = Table.find_by!(temporary_code: params[:qr_token])
 
       render json: {
         success: true,
@@ -76,16 +67,7 @@ module Api
     end
 
     def update
-      table = Table.find_by(id: params[:id])
-
-      if table.nil?
-        render json: {
-          success: false,
-          data: nil,
-          errors: ['Table introuvable.']
-        }, status: :not_found
-        return
-      end
+      table = Table.find(params[:id])
 
       if table.update(table_params)
         render json: {
@@ -103,16 +85,7 @@ module Api
     end
 
     def destroy
-      table = Table.find_by(id: params[:id])
-
-      if table.nil?
-        render json: {
-          success: false,
-          data: nil,
-          errors: ['Table introuvable.']
-        }, status: :not_found
-        return
-      end
+      table = Table.find(params[:id])
 
       table.soft_delete
 
@@ -124,16 +97,7 @@ module Api
     end
 
     def qr_code
-      table = Table.find_by(temporary_code: params[:qr_token])
-
-      if table.nil?
-        render json: {
-          success: false,
-          data: nil,
-          errors: ['Table introuvable.']
-        }, status: :not_found
-        return
-      end
+      table = Table.find_by!(temporary_code: params[:qr_token])
 
       qr_url = "#{request.base_url}/table/#{table.temporary_code}"
       qrcode = RQRCode::QRCode.new(qr_url)
@@ -160,16 +124,6 @@ module Api
 
     def table_params
       params.require(:table).permit(:number, :nb_seats)
-    end
-
-    def require_admin!
-      return if current_user&.type == "Administrator"
-
-      render json: {
-        success: false,
-        data: nil,
-        errors: ["Accès réservé aux administrateurs"]
-      }, status: :ok
     end
 
     def table_json(table)

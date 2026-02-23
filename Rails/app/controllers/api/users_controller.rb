@@ -1,7 +1,5 @@
 module Api
-  class UsersController < ApplicationController
-    before_action :authenticate_user!
-    before_action :require_admin!
+  class UsersController < AdminController
     before_action :set_user, only: [ :show, :update, :destroy ]
 
     # GET /api/users?search=…&sort=asc|desc&sort_by=…&status=…&type=…
@@ -125,24 +123,7 @@ module Api
     private
 
     def set_user
-      @user = User.find_by(id: params[:id])
-      return if @user
-
-      render json: {
-        success: false,
-        data: nil,
-        errors: [ "Utilisateur introuvable" ]
-      }, status: :ok
-    end
-
-    def require_admin!
-      return if current_user&.type == "Administrator"
-
-      render json: {
-        success: false,
-        data: nil,
-        errors: [ "Accès réservé aux administrateurs" ]
-      }, status: :ok
+      @user = User.find(params[:id])
     end
 
     def user_params

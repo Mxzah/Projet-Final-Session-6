@@ -18,11 +18,7 @@ module Api
 
     # GET /api/orders/:id    Retourne les détails d'une commande spécifique de l'utilisateur connecté.
     def show
-      order = Order.includes(:table, :order_lines, :vibe, :server).find_by(id: params[:id], client_id: current_user.id)
-
-      unless order
-        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
-      end
+      order = Order.includes(:table, :order_lines, :vibe, :server).find_by!(id: params[:id], client_id: current_user.id)
 
       render json: {
         success: true,

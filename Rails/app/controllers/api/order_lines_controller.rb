@@ -4,11 +4,7 @@ module Api
 
     # GET /api/orders/:order_id/order_lines
     def index
-      order = Order.find_by(id: params[:order_id], client_id: current_user.id)
-
-      unless order
-        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
-      end
+      order = Order.find_by!(id: params[:order_id], client_id: current_user.id)
 
       lines = order.order_lines.order(created_at: :asc)
 
@@ -22,11 +18,7 @@ module Api
 
     # POST /api/orders/:order_id/order_lines
     def create
-      order = Order.find_by(id: params[:order_id], client_id: current_user.id)
-
-      unless order
-        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
-      end
+      order = Order.find_by!(id: params[:order_id], client_id: current_user.id)
 
       line = order.order_lines.build(line_params)
       line.status = "sent"

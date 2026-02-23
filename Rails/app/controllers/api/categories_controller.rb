@@ -1,6 +1,7 @@
 module Api
-  class CategoriesController < ApplicationController
-    before_action :authenticate_user!, except: [:index]
+  class CategoriesController < AdminController
+    skip_before_action :authenticate_user!, only: [:index]
+    skip_before_action :require_admin!, only: [:index]
 
     # GET /api/categories
     def index
@@ -12,7 +13,6 @@ module Api
         errors: []
       }, status: :ok
     end
-
 
     # POST /api/categories
     def create
@@ -34,17 +34,6 @@ module Api
     end
 
     private
-
-    def set_category
-      @category = Category.find_by(id: params[:id])
-      return if @category
-
-      render json: {
-        success: false,
-        data: nil,
-        errors: ["Catégorie introuvable"]
-      }, status: :not_found
-    end
 
     def category_params
       params.require(:category).permit(:name, :position)
