@@ -9,9 +9,9 @@ module Api
       lines = order.order_lines.order(created_at: :asc)
 
       render json: {
+        code: 200,
         success: true,
         data: lines.map { |l| line_json(l) },
-        error: [],
         errors: []
       }, status: :ok
     end
@@ -31,18 +31,18 @@ module Api
 
       if line.save
         render json: {
+          code: 200,
           success: true,
           data: [line_json(line)],
-          error: [],
           errors: []
         }, status: :ok
       else
         full_errors = line.errors.full_messages
 
         render json: {
+          code: 200,
           success: false,
           data: [],
-          error: full_errors,
           errors: full_errors
         }, status: :ok
       end
@@ -53,32 +53,32 @@ module Api
       order = Order.find_by(id: params[:order_id], client_id: current_user.id)
 
       unless order
-        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
       end
 
       line = order.order_lines.find_by(id: params[:id])
 
       unless line
-        return render json: { success: false, data: [], error: ["Order line not found"], errors: ["Order line not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: ["Order line not found"] }, status: :ok
       end
 
       unless %w[sent].include?(line.status)
-        return render json: { success: false, data: [], error: ["Cannot modify line with status: #{line.status}"], errors: ["Cannot modify line with status: #{line.status}"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: ["Cannot modify line with status: #{line.status}"] }, status: :ok
       end
 
       if line.update(line_update_params)
         render json: {
+          code: 200,
           success: true,
           data: [line_json(line.reload)],
-          error: [],
           errors: []
         }, status: :ok
       else
         full_errors = line.errors.full_messages
         render json: {
+          code: 200,
           success: false,
           data: [],
-          error: full_errors,
           errors: full_errors
         }, status: :ok
       end
@@ -89,25 +89,25 @@ module Api
       order = Order.find_by(id: params[:order_id], client_id: current_user.id)
 
       unless order
-        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
       end
 
       line = order.order_lines.find_by(id: params[:id])
 
       unless line
-        return render json: { success: false, data: [], error: ["Order line not found"], errors: ["Order line not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: ["Order line not found"] }, status: :ok
       end
 
       unless %w[sent].include?(line.status)
-        return render json: { success: false, data: [], error: ["Cannot delete line with status: #{line.status}"], errors: ["Cannot delete line with status: #{line.status}"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: ["Cannot delete line with status: #{line.status}"] }, status: :ok
       end
 
       line.destroy
 
       render json: {
+        code: 200,
         success: true,
         data: [],
-        error: [],
         errors: []
       }, status: :ok
     end
@@ -140,8 +140,8 @@ module Api
         orderable_type: line.orderable_type, #Le type de l'objet commandé (Item ou Combo)
         orderable_id: line.orderable_id, #L'id de cet objet dans sa table.
         orderable_name: orderable&.name,  #Le nom
-        orderable_description: orderable&.try(:description),     # la description 
-        image_url: orderable&.respond_to?(:image) && orderable.image.attached? ? url_for(orderable.image) : nil,     
+        orderable_description: orderable&.try(:description),     # la description
+        image_url: orderable&.respond_to?(:image) && orderable.image.attached? ? url_for(orderable.image) : nil,
         created_at: line.created_at
       }
     end

@@ -10,7 +10,7 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
-    path: 'cuisine',
+    path: 'kitchen',
     renderMode: RenderMode.Client
   },
   {

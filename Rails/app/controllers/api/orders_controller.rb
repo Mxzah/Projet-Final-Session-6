@@ -9,9 +9,9 @@ module Api
                     .order(created_at: :desc)
 
       render json: {
+        code: 200,
         success: true,
         data: orders.map { |o| order_json(o) },
-        error: [],
         errors: []
       }, status: :ok
     end
@@ -21,9 +21,9 @@ module Api
       order = Order.includes(:table, :order_lines, :vibe, :server).find_by!(id: params[:id], client_id: current_user.id)
 
       render json: {
+        code: 200,
         success: true,
         data: [order_json(order)],
-        error: [],
         errors: []
       }, status: :ok
     end
@@ -35,18 +35,18 @@ module Api
 
       if order.save
         render json: {
+          code: 200,
           success: true,
           data: [order_json(order)],
-          error: [],
           errors: []
         }, status: :ok
       else
         full_errors = order.errors.full_messages
 
         render json: {
+          code: 200,
           success: false,
           data: [],
-          error: full_errors,
           errors: full_errors
         }, status: :ok
       end
@@ -58,9 +58,9 @@ module Api
       open_orders.each { |o| o.update(ended_at: Time.current) }
 
       render json: {
+        code: 200,
         success: true,
         data: [],
-        error: [],
         errors: []
       }, status: :ok
     end
@@ -70,22 +70,22 @@ module Api
       order = Order.find_by(id: params[:id], client_id: current_user.id)
 
       unless order
-        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
       end
 
       if order.update(order_update_params)
         render json: {
+          code: 200,
           success: true,
           data: [order_json(order.reload)],
-          error: [],
           errors: []
         }, status: :ok
       else
         full_errors = order.errors.full_messages
         render json: {
+          code: 200,
           success: false,
           data: [],
-          error: full_errors,
           errors: full_errors
         }, status: :ok
       end
@@ -96,16 +96,16 @@ module Api
       order = Order.find_by(id: params[:id], client_id: current_user.id)
 
       unless order
-        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
       end
 
       order.order_lines.destroy_all
       order.destroy
 
       render json: {
+        code: 200,
         success: true,
         data: [],
-        error: [],
         errors: []
       }, status: :ok
     end

@@ -36,4 +36,22 @@ export class CuisineService {
   getActiveOrders(): Observable<ApiResponse<CuisineOrder[]>> {
     return this.api.get<CuisineOrder[]>('/api/kitchen/orders');
   }
+
+  // Advances the line to the next status (all kitchen staff)
+  nextStatus(lineId: number): Observable<ApiResponse<CuisineOrderLine[]>> {
+    return this.api.put<CuisineOrderLine[]>(`/api/kitchen/order_lines/${lineId}/next_status`, {});
+  }
+
+  // Edit quantity/note (waiter/admin only)
+  updateOrderLine(lineId: number, data: {
+    quantity?: number;
+    note?: string;
+  }): Observable<ApiResponse<CuisineOrderLine[]>> {
+    return this.api.put<CuisineOrderLine[]>(`/api/kitchen/order_lines/${lineId}`, { order_line: data });
+  }
+
+  // Delete line (waiter/admin only)
+  deleteOrderLine(lineId: number): Observable<ApiResponse<null>> {
+    return this.api.delete<null>(`/api/kitchen/order_lines/${lineId}`);
+  }
 }

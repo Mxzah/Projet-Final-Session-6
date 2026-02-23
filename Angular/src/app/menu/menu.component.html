@@ -153,8 +153,12 @@
                   <span class="cart-line-total-price">CA${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
                 </div>
                 <mat-card-actions class="cart-line-actions">
-                  <button mat-stroked-button class="btn-cart-edit" (click)="$event.stopPropagation()">{{ ts.t('menu.modify') }}</button>
-                  <button mat-stroked-button color="warn" class="btn-cart-remove" (click)="$event.stopPropagation()">{{ ts.t('menu.remove') }}</button>
+                  <button mat-icon-button class="action-btn edit" [title]="ts.t('menu.modify')" (click)="openEditCartLine($index); $event.stopPropagation()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button class="action-btn delete" [title]="ts.t('menu.remove')" (click)="openDeleteCartLine($index); $event.stopPropagation()">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </mat-card-actions>
               </mat-card-content>
             </mat-card>
@@ -177,7 +181,76 @@
   }
 </main>
 
-<!-- Modal -->
+<!-- Modal: Edit cart line -->
+@if (editingCartLine()) {
+  <div class="modal-overlay" (click)="$event.stopPropagation()">
+    <mat-card class="modal modal-edit">
+      <button mat-icon-button class="modal-close" (click)="cancelEditCartLine()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('order.editLine') }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (editCartError()) {
+          <div class="modal-error">{{ editCartError() }}</div>
+        }
+        <p class="modal-item-name">{{ editingCartLine()!.name }}</p>
+        <form [formGroup]="editCartForm" (ngSubmit)="saveEditCartLine()">
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('order.quantity') }}</mat-label>
+            <input matInput type="number" formControlName="quantity" min="1" max="50" />
+            @if (editCartForm.controls.quantity.dirty && editCartForm.controls.quantity.errors) {
+              <mat-error>
+                @if (editCartForm.controls.quantity.errors['required']) {
+                  {{ ts.t('order.quantityRequired') }}
+                } @else if (editCartForm.controls.quantity.errors['min']) {
+                  {{ ts.t('order.quantityMin') }}
+                } @else if (editCartForm.controls.quantity.errors['max']) {
+                  {{ ts.t('order.quantityMax') }}
+                }
+              </mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('order.noteField') }}</mat-label>
+            <textarea matInput formControlName="note" rows="2" maxlength="255"
+              [placeholder]="ts.t('order.notePlaceholderLine')"></textarea>
+          </mat-form-field>
+          <mat-card-actions class="modal-actions">
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEditCartLine()">{{ ts.t('admin.cancel') }}</button>
+            <button mat-flat-button type="submit" class="btn-primary" [disabled]="editCartForm.invalid">
+              {{ ts.t('admin.save') }}
+            </button>
+          </mat-card-actions>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}
+
+<!-- Modal: Delete cart line -->
+@if (deletingCartLine()) {
+  <div class="modal-overlay" (click)="$event.stopPropagation()">
+    <mat-card class="modal modal-edit">
+      <button mat-icon-button class="modal-close" (click)="cancelDeleteCartLine()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('order.deleteLine') }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="modal-text">{{ ts.t('order.deleteLineConfirm') }} <strong>{{ deletingCartLine()!.name }}</strong> ?</p>
+      </mat-card-content>
+      <mat-card-actions class="modal-actions">
+        <button mat-stroked-button class="btn-cancel" (click)="cancelDeleteCartLine()">{{ ts.t('admin.cancel') }}</button>
+        <button mat-flat-button class="btn-danger" (click)="confirmDeleteCartLine()">{{ ts.t('admin.delete') }}</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+}
+
+<!-- Modal: Add item -->
 @if (selectedItem()) {
   <div class="modal-overlay" (click)="onOverlayClick($event)">
     <mat-card class="modal">

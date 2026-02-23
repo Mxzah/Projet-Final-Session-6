@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, computed, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -18,7 +18,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSliderModule } from '@angular/material/slider';
 import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
-import { CartService } from '../services/cart.service';
+import { CartService, CartLine } from '../services/cart.service';
 import { TableService } from '../services/table.service';
 import { TranslationService } from '../services/translation.service';
 import { HeaderComponent } from '../header/header.component';
@@ -32,7 +32,8 @@ import { Item, Category } from './menu.models';
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatButtonModule, MatIconModule, MatBadgeModule,
     MatProgressSpinnerModule, MatDividerModule,
-    MatCardModule, MatToolbarModule, MatListModule, MatChipsModule, MatSliderModule
+    MatCardModule, MatToolbarModule, MatListModule, MatChipsModule, MatSliderModule,
+    ReactiveFormsModule
   ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
@@ -58,6 +59,19 @@ export class MenuComponent implements OnInit, OnDestroy {
   selectedItem = signal<Item | null>(null);
   modalQuantity = signal<number>(1);
   modalNote = signal<string>('');
+
+  // Edit cart line modal
+  editingCartIndex = signal<number | null>(null);
+  editingCartLine = signal<CartLine | null>(null);
+  editCartForm = new FormGroup({
+    quantity: new FormControl<number>(1, [Validators.required, Validators.min(1), Validators.max(50)]),
+    note: new FormControl('', [Validators.maxLength(255)])
+  });
+  editCartError = signal('');
+
+  // Delete cart line modal
+  deletingCartIndex = signal<number | null>(null);
+  deletingCartLine = signal<CartLine | null>(null);
 
   private searchTimer: any = null;
 
@@ -241,6 +255,58 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   goToLogin(): void {
     this.router.navigate(['/login']);
+  }
+
+  // ── Edit cart line ──
+
+  openEditCartLine(index: number): void {
+    const line = this.cartService.lines()[index];
+    if (!line) return;
+    this.editingCartIndex.set(index);
+    this.editingCartLine.set(line);
+    this.editCartForm.patchValue({ quantity: line.quantity, note: line.note || '' });
+    this.editCartForm.markAsPristine();
+    this.editCartForm.markAsUntouched();
+    this.editCartError.set('');
+  }
+
+  cancelEditCartLine(): void {
+    this.editingCartIndex.set(null);
+    this.editingCartLine.set(null);
+    this.editCartError.set('');
+  }
+
+  saveEditCartLine(): void {
+    const index = this.editingCartIndex();
+    if (index === null) return;
+    Object.values(this.editCartForm.controls).forEach(c => c.markAsDirty());
+    if (this.editCartForm.invalid) return;
+    const v = this.editCartForm.value;
+    this.cartService.updateLine(index, { quantity: v.quantity!, note: v.note ?? '' });
+    this.editingCartIndex.set(null);
+    this.editingCartLine.set(null);
+  }
+
+  // ── Delete cart line ──
+
+  openDeleteCartLine(index: number): void {
+    const line = this.cartService.lines()[index];
+    if (!line) return;
+    this.deletingCartIndex.set(index);
+    this.deletingCartLine.set(line);
+  }
+
+  cancelDeleteCartLine(): void {
+    this.deletingCartIndex.set(null);
+    this.deletingCartLine.set(null);
+  }
+
+  confirmDeleteCartLine(): void {
+    const index = this.deletingCartIndex();
+    if (index === null) return;
+    this.cartService.removeLine(index);
+    this.deletingCartIndex.set(null);
+    this.deletingCartLine.set(null);
   }
 
   logout(): void {

@@ -187,6 +187,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'cuisine.status.inPreparation': { fr: 'En préparation', en: 'In preparation' },
   'cuisine.status.ready': { fr: 'Prête', en: 'Ready' },
   'cuisine.status.served': { fr: 'Servie', en: 'Served' },
+  'cuisine.status.label': { fr: 'Statut', en: 'Status' },
 
   // Admin users
   'admin.users.tab': { fr: 'Utilisateurs', en: 'Users' },

@@ -31,6 +31,9 @@ Rails.application.routes.draw do
 
     resources :vibes, only: [:index]
     get 'kitchen/orders', to: 'cuisine#orders'
+    put 'kitchen/order_lines/:id/next_status', to: 'cuisine#next_status'
+    put 'kitchen/order_lines/:id', to: 'cuisine#update_line'
+    delete 'kitchen/order_lines/:id', to: 'cuisine#destroy_line'
   end
 
   match '*url', to: "angular#index", via: :get

@@ -90,24 +90,107 @@
                       </div>
                     }
                   </div>
-                  <span class="status-chip {{ getStatusClass(line.status) }}">
-                    {{ getStatusLabel(line.status) }}
-                  </span>
+
+                  <div class="line-right">
+                    <!-- Current status chip -->
+                    <span class="status-chip {{ getStatusClass(line.status) }}">
+                      {{ getStatusLabel(line.status) }}
+                    </span>
+
+                    <!-- Next-status button (all kitchen staff, one click) -->
+                    @if (getNextStatus(line.status)) {
+                      <button mat-flat-button class="btn-next-status"
+                        [disabled]="advancingLineIds.has(line.id)"
+                        (click)="advanceStatus(line)">
+                        <mat-icon>arrow_forward</mat-icon>
+                        {{ getStatusLabel(getNextStatus(line.status)!) }}
+                      </button>
+                    }
+
+                    <!-- Edit / Delete (waiter and admin only) -->
+                    @if (canManageLines()) {
+                      <div class="line-actions">
+                        <button mat-icon-button class="action-btn edit"
+                          [title]="ts.t('cuisine.modify')"
+                          (click)="openEditLine(line)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button class="action-btn delete"
+                          [title]="ts.t('cuisine.delete')"
+                          (click)="confirmDeleteLine(line)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
                 </div>
               }
             </div>
           </mat-card-content>
-
-          <div class="card-actions">
-            <button mat-stroked-button class="btn-edit">
-              <mat-icon>edit</mat-icon> {{ ts.t('cuisine.modify') }}
-            </button>
-            <button mat-stroked-button class="btn-delete">
-              <mat-icon>delete</mat-icon> {{ ts.t('cuisine.delete') }}
-            </button>
-          </div>
         </mat-card>
       }
     </div>
   }
 </div>
+
+<!-- Modal: Edit order line (waiter/admin only - quantity and note) -->
+@if (editingLine()) {
+  <div class="modal-overlay">
+    <mat-card class="modal modal-edit">
+      <button mat-icon-button class="modal-close" (click)="cancelEditLine()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('order.editLine') }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (editLineError()) {
+          <div class="modal-error">{{ editLineError() }}</div>
+        }
+        <p class="modal-item-name">{{ editingLine()!.orderable_name }}</p>
+        <form [formGroup]="editLineForm" (ngSubmit)="saveEditLine()">
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('order.quantity') }}</mat-label>
+            <input matInput type="number" formControlName="quantity" min="1" max="50" />
+            @if (editLineForm.controls.quantity.dirty && editLineForm.controls.quantity.errors) {
+              <mat-error>{{ ts.t('order.quantityMin') }}</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('order.noteField') }}</mat-label>
+            <textarea matInput formControlName="note" rows="2" maxlength="255"
+              [placeholder]="ts.t('order.notePlaceholderLine')"></textarea>
+          </mat-form-field>
+          <mat-card-actions class="modal-actions">
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEditLine()">{{ ts.t('admin.cancel') }}</button>
+            <button mat-flat-button type="submit" class="btn-primary" [disabled]="editLineLoading() || editLineForm.invalid">
+              {{ editLineLoading() ? ts.t('admin.saving') : ts.t('admin.save') }}
+            </button>
+          </mat-card-actions>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}
+
+<!-- Modal: Delete order line (waiter/admin only) -->
+@if (lineToDelete()) {
+  <div class="modal-overlay">
+    <mat-card class="modal modal-edit">
+      <button mat-icon-button class="modal-close" (click)="cancelDeleteLine()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('order.deleteLine') }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="modal-text">{{ ts.t('order.deleteLineConfirm') }} <strong>{{ lineToDelete()!.orderable_name }}</strong> ?</p>
+        <p class="modal-hard-delete">{{ ts.t('order.deleteLineHardDelete') }}</p>
+      </mat-card-content>
+      <mat-card-actions class="modal-actions">
+        <button mat-stroked-button class="btn-cancel" (click)="cancelDeleteLine()">{{ ts.t('admin.cancel') }}</button>
+        <button mat-flat-button class="btn-danger" (click)="deleteLine()">{{ ts.t('admin.delete') }}</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+}
