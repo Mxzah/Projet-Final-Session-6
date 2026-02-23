@@ -18,6 +18,11 @@
 .welcome-header {
     text-align: center;
     margin-bottom: 1.5rem;
+    position: sticky;
+    top: 7.5rem;
+    z-index: 30;
+    background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
+    padding: 0.75rem 0 0.5rem;
 }
 
 .welcome-title {
@@ -404,11 +409,35 @@
     display: block;
 }
 
-.modal-field input[type="file"] {
+.file-input-hidden {
+    display: none;
+}
+
+.file-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid rgba(27, 26, 23, 0.2);
+    border-radius: 10px;
+    background: var(--sand);
+    color: var(--ink);
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
     font-size: 0.85rem;
-    padding: 0.4rem 0;
-    border: none;
-    background: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.file-btn mat-icon {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.file-btn:hover {
+    background: var(--clay);
+    border-color: rgba(27, 26, 23, 0.35);
 }
 
 .modal-actions {
@@ -479,6 +508,12 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 500px) {
+    .welcome-header {
+        top: 6.25rem;
+    }
+}
+
 @media (max-width: 700px) {
     .items-grid {
         grid-template-columns: repeat(2, 1fr);

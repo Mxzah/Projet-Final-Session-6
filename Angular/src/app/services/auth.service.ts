@@ -1,7 +1,7 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
 export interface UserData {
@@ -86,17 +86,16 @@ export class AuthService {
 
   logout() {
     return this.apiService.delete<null>('/users/sign_out').pipe(
-      tap({
-        next: (response) => {
-          this.currentUser = null;
-          this.clearUserFromStorage();
-          this.isLoggedInSubject.next(false);
-        },
-        error: () => {
-          this.currentUser = null;
-          this.clearUserFromStorage();
-          this.isLoggedInSubject.next(false);
-        }
+      tap(() => {
+        this.currentUser = null;
+        this.clearUserFromStorage();
+        this.isLoggedInSubject.next(false);
+      }),
+      catchError(() => {
+        this.currentUser = null;
+        this.clearUserFromStorage();
+        this.isLoggedInSubject.next(false);
+        return of(null);
       })
     );
   }

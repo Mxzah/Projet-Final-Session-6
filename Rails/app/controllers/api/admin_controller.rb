@@ -11,7 +11,7 @@ module Api
       render json: {
         success: false,
         data: nil,
-        errors: ["Accès réservé aux administrateurs"]
+        errors: ["Access restricted to administrators"]
       }, status: :ok
     end
   end

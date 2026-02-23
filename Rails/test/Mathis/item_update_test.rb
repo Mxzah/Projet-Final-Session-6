@@ -169,9 +169,24 @@ class ItemUpdateTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
   end
 
+  # Test 14: Update d'un item archivé retourne success false
+  test "update d'un item archivé retourne success false" do
+    delete "/api/items/#{@item['id']}", as: :json
+    assert_response :ok
+
+    patch "/api/items/#{@item['id']}", params: {
+      item: { name: "Modification interdite" }
+    }, as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert_not json["success"]
+    assert_includes json["errors"], "Cannot update an archived item"
+  end
+
   # ── Autorisation ──
 
-  # Test 14: Update avec un compte client retourne success false
+  # Test 15: Update avec un compte client retourne success false
   test "update avec un compte client retourne success false" do
     delete "/users/sign_out", as: :json
 
@@ -186,6 +201,6 @@ class ItemUpdateTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Accès réservé aux administrateurs"
+    assert_includes json["errors"], "Access restricted to administrators"
   end
 end

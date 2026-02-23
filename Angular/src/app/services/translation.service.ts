@@ -62,6 +62,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.price': { fr: 'Prix ($)', en: 'Price ($)' },
   'admin.category': { fr: 'Catégorie', en: 'Category' },
   'admin.image': { fr: 'Image', en: 'Image' },
+  'admin.chooseFile': { fr: 'Choisir un fichier', en: 'Choose a file' },
   'admin.save': { fr: 'Enregistrer', en: 'Save' },
   'admin.saving': { fr: 'Enregistrement...', en: 'Saving...' },
   'admin.add': { fr: 'Ajouter', en: 'Add' },
@@ -294,8 +295,8 @@ export class TranslationService {
 
   t(key: string): string {
     const entry = TRANSLATIONS[key];
-    if (!entry) return key;
-    return entry[this.lang()] ?? entry['fr'] ?? key;
+    
+    return entry?.[this.lang()] ?? entry?.['fr'] ?? key;
   }
 
   setLang(lang: Lang): void {

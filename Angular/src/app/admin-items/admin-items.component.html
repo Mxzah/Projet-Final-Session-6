@@ -192,7 +192,11 @@
                 <img [src]="editImagePreview()" alt="Aperçu" />
               </div>
             }
-            <input type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" />
+            <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" class="file-input-hidden" />
+            <button type="button" class="file-btn" (click)="fileInput.click()">
+              <mat-icon>upload</mat-icon>
+              {{ ts.t('admin.chooseFile') }}
+            </button>
             @if (editImageError()) {
               <mat-error class="file-error">{{ editImageError() }}</mat-error>
             }

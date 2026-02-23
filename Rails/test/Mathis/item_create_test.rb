@@ -13,12 +13,12 @@ class ItemCreateTest < ActionDispatch::IntegrationTest
   # ── Tests positifs ──
 
   # Test 1: POST /api/items avec tous les champs valides (image JPG)
-  test "create avec champs valides et image JPG retourne 201" do
+  test "create avec champs valides et image JPG retourne 200" do
     post "/api/items", params: {
       item: { name: "Tartare de Saumon", description: "Saumon frais", price: 18.50, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
     }
 
-    assert_response :created
+    assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal "Tartare de Saumon", json["data"]["name"]
@@ -31,7 +31,7 @@ class ItemCreateTest < ActionDispatch::IntegrationTest
       item: { name: "Bruschetta", price: 11.00, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
     }
 
-    assert_response :created
+    assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal "Bruschetta", json["data"]["name"]
@@ -43,7 +43,7 @@ class ItemCreateTest < ActionDispatch::IntegrationTest
       item: { name: "Carpaccio", description: "Boeuf tranché fin", price: 16.00, category_id: @category.id, image: fixture_file_upload("test.png", "image/png") }
     }
 
-    assert_response :created
+    assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
     assert_not_nil json["data"]["image_url"]
@@ -178,6 +178,6 @@ class ItemCreateTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Accès réservé aux administrateurs"
+    assert_includes json["errors"], "Access restricted to administrators"
   end
 end

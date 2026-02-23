@@ -2,8 +2,9 @@ module Api
   class ItemsController < AdminController
     skip_before_action :authenticate_user!, only: [:index]
     skip_before_action :require_admin!, only: [:index, :show]
-    before_action :set_item, only: [:show, :update, :destroy, :hard_destroy]
-    before_action :set_item_unscoped, only: [:restore]
+    before_action :set_item, only: [:show, :destroy, :hard_destroy]
+    before_action :set_item_unscoped, only: [:update, :restore]
+    before_action :reject_if_archived, only: [:update]
 
     # GET /api/items?search=…&sort=asc|desc&price_min=…&price_max=…
     def index
@@ -58,7 +59,7 @@ module Api
           success: true,
           data: item_json(item),
           errors: []
-        }, status: :created
+        }, status: :ok
       else
         render json: {
           success: false,
@@ -102,7 +103,7 @@ module Api
         render json: {
           success: false,
           data: nil,
-          errors: ["Impossible de supprimer définitivement un item utilisé dans des commandes ou des combos"]
+          errors: ["Cannot permanently delete an item that is used in orders or combos"]
         }, status: :ok
         return
       end
@@ -132,6 +133,16 @@ module Api
 
     def set_item
       @item = Item.find(params[:id])
+    end
+
+    def reject_if_archived
+      if @item.deleted_at.present?
+        render json: {
+          success: false,
+          data: nil,
+          errors: ["Cannot update an archived item"]
+        }, status: :ok
+      end
     end
 
     def set_item_unscoped

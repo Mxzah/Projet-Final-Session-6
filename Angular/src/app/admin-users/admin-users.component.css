@@ -18,6 +18,11 @@
 .welcome-header {
     text-align: center;
     margin-bottom: 1.5rem;
+    position: sticky;
+    top: 7.5rem;
+    z-index: 30;
+    background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
+    padding: 0.75rem 0 0.5rem;
 }
 
 .welcome-title {
@@ -391,6 +396,12 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 500px) {
+    .welcome-header {
+        top: 6.25rem;
+    }
+}
+
 @media (max-width: 700px) {
     .filters-bar {
         flex-direction: column;
