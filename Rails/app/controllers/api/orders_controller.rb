@@ -65,10 +65,59 @@ module Api
       }, status: :ok
     end
 
+    # PUT /api/orders/:id
+    def update
+      order = Order.find_by(id: params[:id], client_id: current_user.id)
+
+      unless order
+        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
+      end
+
+      if order.update(order_update_params)
+        render json: {
+          success: true,
+          data: [order_json(order.reload)],
+          error: [],
+          errors: []
+        }, status: :ok
+      else
+        full_errors = order.errors.full_messages
+        render json: {
+          success: false,
+          data: [],
+          error: full_errors,
+          errors: full_errors
+        }, status: :ok
+      end
+    end
+
+    # DELETE /api/orders/:id  (hard delete)
+    def destroy
+      order = Order.find_by(id: params[:id], client_id: current_user.id)
+
+      unless order
+        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
+      end
+
+      order.order_lines.destroy_all
+      order.destroy
+
+      render json: {
+        success: true,
+        data: [],
+        error: [],
+        errors: []
+      }, status: :ok
+    end
+
     private
     #Filtre les paramètres
     def order_params
       params.require(:order).permit(:nb_people, :note, :table_id, :vibe_id, :tip)
+    end
+
+    def order_update_params
+      params.require(:order).permit(:note)
     end
 
     def order_json(order)

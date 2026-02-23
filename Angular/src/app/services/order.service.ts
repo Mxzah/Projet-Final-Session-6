@@ -79,6 +79,25 @@ export class OrderService {
     return this.api.post<OrderLineData[]>(`/api/orders/${orderId}/order_lines`, { order_line: data });
   }
 
+  updateOrderLine(orderId: number, lineId: number, data: {
+    quantity?: number;
+    note?: string;
+  }): Observable<ApiResponse<OrderLineData[]>> {
+    return this.api.put<OrderLineData[]>(`/api/orders/${orderId}/order_lines/${lineId}`, { order_line: data });
+  }
+
+  deleteOrderLine(orderId: number, lineId: number): Observable<ApiResponse<null>> {
+    return this.api.delete<null>(`/api/orders/${orderId}/order_lines/${lineId}`);
+  }
+
+  updateOrder(id: number, data: { note?: string }): Observable<ApiResponse<OrderData[]>> {
+    return this.api.put<OrderData[]>(`/api/orders/${id}`, { order: data });
+  }
+
+  deleteOrder(id: number): Observable<ApiResponse<null>> {
+    return this.api.delete<null>(`/api/orders/${id}`);
+  }
+
   closeOpenOrders(): Observable<ApiResponse<any>> {
     return this.api.post<any>('/api/orders/close_open', {});
   }

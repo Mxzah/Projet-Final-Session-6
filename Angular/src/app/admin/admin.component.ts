@@ -36,6 +36,10 @@ export class AdminComponent {
     this.location.back();
   }
 
+  goToKitchen(): void {
+    this.router.navigate(['/kitchen']);
+  }
+
   logout(): void {
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),

@@ -8,6 +8,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'header.login': { fr: 'Connexion', en: 'Login' },
   'header.quit': { fr: 'Menu', en: 'Menu' },
   'header.admin': { fr: 'Admin', en: 'Admin' },
+  'header.kitchen': { fr: 'Cuisine', en: 'Kitchen' },
 
   // Menu page
   'menu.categories': { fr: 'Catégories', en: 'Categories' },
@@ -36,6 +37,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'menu.portion': { fr: 'portion', en: 'portion' },
   'menu.portions': { fr: 'portions', en: 'portions' },
   'menu.loadError': { fr: 'Erreur lors du chargement du menu', en: 'Error loading the menu' },
+  'menu.goToOrder': { fr: 'Voir la commande', en: 'View order' },
 
   // Admin items
   'admin.itemsTitle': { fr: 'Gestion des items', en: 'Items management' },
@@ -145,6 +147,26 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'order.status.inPreparation': { fr: 'En préparation', en: 'In preparation' },
   'order.status.ready': { fr: 'Prête', en: 'Ready' },
   'order.status.served': { fr: 'Servie', en: 'Served' },
+
+  // Order CRUD
+  'order.editLine': { fr: "Modifier la ligne", en: 'Edit order line' },
+  'order.deleteLine': { fr: "Supprimer la ligne", en: 'Delete order line' },
+  'order.deleteLineConfirm': { fr: 'Voulez-vous vraiment supprimer', en: 'Are you sure you want to delete' },
+  'order.deleteLineHardDelete': { fr: '(hard delete)', en: '(hard delete)' },
+  'order.deleteOrder': { fr: "Supprimer la commande", en: 'Delete order' },
+  'order.deleteOrderConfirm': { fr: 'Voulez-vous vraiment supprimer cette commande', en: 'Are you sure you want to delete this order' },
+  'order.quantity': { fr: 'Quantité', en: 'Quantity' },
+  'order.noteField': { fr: 'Note', en: 'Note' },
+  'order.notePlaceholderLine': { fr: 'Ex: Sans oignon, bien cuit...', en: 'E.g.: No onion, well done...' },
+  'order.quantityRequired': { fr: 'La quantité est requise.', en: 'Quantity is required.' },
+  'order.quantityMin': { fr: 'Minimum 1.', en: 'Minimum 1.' },
+  'order.quantityMax': { fr: 'Maximum 50.', en: 'Maximum 50.' },
+  'order.editError': { fr: 'Erreur lors de la modification.', en: 'Error during modification.' },
+  'order.deleteError': { fr: 'Erreur lors de la suppression.', en: 'Error during deletion.' },
+  'order.serverNotImplemented': { fr: 'Serveur pas encore implémenté', en: 'Server not yet implemented' },
+  'order.editNote': { fr: 'Modifier la note', en: 'Edit note' },
+  'order.noteSaved': { fr: 'Note sauvegardée', en: 'Note saved' },
+  'order.saveNote': { fr: 'Sauvegarder la note', en: 'Save note' },
 
   // Cuisine page
   'cuisine.eyebrow': { fr: 'Tableau de bord', en: 'Dashboard' },

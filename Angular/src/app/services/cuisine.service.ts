@@ -34,6 +34,6 @@ export class CuisineService {
   constructor(private api: ApiService) {}
 
   getActiveOrders(): Observable<ApiResponse<CuisineOrder[]>> {
-    return this.api.get<CuisineOrder[]>('/api/cuisine/orders');
+    return this.api.get<CuisineOrder[]>('/api/kitchen/orders');
   }
 }

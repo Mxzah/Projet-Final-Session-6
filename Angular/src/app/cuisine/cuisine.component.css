@@ -6,6 +6,28 @@
   background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
 }
 
+/* ── Header projected buttons ── */
+.header-separator {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.2rem;
+  user-select: none;
+}
+
+.quit-btn {
+  color: #fff !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+::ng-deep .quit-btn .mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-right: 0.35rem;
+  color: #fff !important;
+}
+
 /* ── Page header ── */
 .page {
   max-width: 1200px;

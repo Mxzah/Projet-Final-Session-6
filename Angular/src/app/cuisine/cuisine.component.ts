@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -36,8 +36,9 @@ export class CuisineComponent implements OnInit {
   constructor(
     public ts: TranslationService,
     private cuisineService: CuisineService,
-    private authService: AuthService,
+    public authService: AuthService,
     private router: Router,
+    private location: Location,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -91,6 +92,10 @@ export class CuisineComponent implements OnInit {
       served: 'status-served'
     };
     return classes[status] ?? '';
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   logout(): void {

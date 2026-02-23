@@ -24,6 +24,14 @@ export class CartService {
     this.lines.set([...this.lines(), { ...line }]);
   }
 
+  removeLine(index: number): void {
+    this.lines.update(lines => lines.filter((_, i) => i !== index));
+  }
+
+  updateLine(index: number, data: { quantity: number; note: string }): void {
+    this.lines.update(lines => lines.map((l, i) => i === index ? { ...l, ...data } : l));
+  }
+
   clear(): void {
     this.lines.set([]);
   }

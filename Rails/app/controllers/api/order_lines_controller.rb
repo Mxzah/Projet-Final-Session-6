@@ -48,10 +48,78 @@ module Api
       end
     end
 
+    # PUT /api/orders/:order_id/order_lines/:id
+    def update
+      order = Order.find_by(id: params[:order_id], client_id: current_user.id)
+
+      unless order
+        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
+      end
+
+      line = order.order_lines.find_by(id: params[:id])
+
+      unless line
+        return render json: { success: false, data: [], error: ["Order line not found"], errors: ["Order line not found"] }, status: :ok
+      end
+
+      unless %w[sent].include?(line.status)
+        return render json: { success: false, data: [], error: ["Cannot modify line with status: #{line.status}"], errors: ["Cannot modify line with status: #{line.status}"] }, status: :ok
+      end
+
+      if line.update(line_update_params)
+        render json: {
+          success: true,
+          data: [line_json(line.reload)],
+          error: [],
+          errors: []
+        }, status: :ok
+      else
+        full_errors = line.errors.full_messages
+        render json: {
+          success: false,
+          data: [],
+          error: full_errors,
+          errors: full_errors
+        }, status: :ok
+      end
+    end
+
+    # DELETE /api/orders/:order_id/order_lines/:id  (hard delete)
+    def destroy
+      order = Order.find_by(id: params[:order_id], client_id: current_user.id)
+
+      unless order
+        return render json: { success: false, data: [], error: ["Order not found"], errors: ["Order not found"] }, status: :ok
+      end
+
+      line = order.order_lines.find_by(id: params[:id])
+
+      unless line
+        return render json: { success: false, data: [], error: ["Order line not found"], errors: ["Order line not found"] }, status: :ok
+      end
+
+      unless %w[sent].include?(line.status)
+        return render json: { success: false, data: [], error: ["Cannot delete line with status: #{line.status}"], errors: ["Cannot delete line with status: #{line.status}"] }, status: :ok
+      end
+
+      line.destroy
+
+      render json: {
+        success: true,
+        data: [],
+        error: [],
+        errors: []
+      }, status: :ok
+    end
+
     private
     #Filtre les paramètres autorisés venant du body de la requête. Seuls quantity, note, orderable_type, et orderable_id sont acceptés
     def line_params
       params.require(:order_line).permit(:quantity, :note, :orderable_type, :orderable_id)
+    end
+
+    def line_update_params
+      params.require(:order_line).permit(:quantity, :note)
     end
 
     # Va chercher le Item ou Combo pour assigner le prix unitaire

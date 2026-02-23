@@ -21,6 +21,13 @@
   <mat-icon>chevron_right</mat-icon>
 </mat-toolbar>
 
+@if (canOrder() && !cartOpen()) {
+  <button mat-fab extended class="fab-go-order" (click)="goToOrder()">
+    <mat-icon>receipt_long</mat-icon>
+    {{ ts.t('menu.goToOrder') }}
+  </button>
+}
+
 <main class="menu-page">
   @if (isLoading()) {
     <div class="loading">

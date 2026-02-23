@@ -453,6 +453,20 @@ img {
     flex: 1;
 }
 
+/* ── Floating "Go to order" button ── */
+.fab-go-order {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 70;
+    background: linear-gradient(120deg, var(--copper), var(--rust)) !important;
+    color: #fff !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+    font-weight: 600 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* ── States ── */
 .loading {
     display: flex;
@@ -896,6 +910,13 @@ img {
 
     .cart-bottom-bar {
         display: flex !important;
+    }
+
+    .fab-go-order {
+        bottom: 4.5rem;
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .menu-layout {

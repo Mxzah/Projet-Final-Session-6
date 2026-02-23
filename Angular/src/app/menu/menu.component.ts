@@ -19,6 +19,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
+import { TableService } from '../services/table.service';
 import { TranslationService } from '../services/translation.service';
 import { HeaderComponent } from '../header/header.component';
 import { Item, Category } from './menu.models';
@@ -77,6 +78,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     private itemsService: ItemsService,
     public authService: AuthService,
     public cartService: CartService,
+    private tableService: TableService,
     public ts: TranslationService,
     private router: Router,
     private renderer: Renderer2
@@ -164,6 +166,14 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   openItemModal(item: Item): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    if (!this.tableService.hasTable()) {
+      this.router.navigate(['/form']);
+      return;
+    }
     this.selectedItem.set(item);
     this.modalQuantity.set(1);
     this.modalNote.set('');
@@ -219,6 +229,10 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   goToOrder(): void {
     this.router.navigate(['/order']);
+  }
+
+  canOrder(): boolean {
+    return this.authService.isAuthenticated() && this.tableService.hasTable();
   }
 
   onAddToCart(item: Item): void {

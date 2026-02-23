@@ -20,8 +20,8 @@ Rails.application.routes.draw do
     end
     resources :users, only: [:index, :show, :create, :update, :destroy]
 
-    resources :orders, only: [:index, :show, :create] do
-      resources :order_lines, only: [:index, :create]
+    resources :orders, only: [:index, :show, :create, :update, :destroy] do
+      resources :order_lines, only: [:index, :create, :update, :destroy]
     end
     post 'orders/close_open', to: 'orders#close_open'
 
@@ -30,7 +30,7 @@ Rails.application.routes.draw do
     get 'current_user', to: 'sessions#current_user'
 
     resources :vibes, only: [:index]
-    get 'cuisine/orders', to: 'cuisine#orders'
+    get 'kitchen/orders', to: 'cuisine#orders'
   end
 
   match '*url', to: "angular#index", via: :get

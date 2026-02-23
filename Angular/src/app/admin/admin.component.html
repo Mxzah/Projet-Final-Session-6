@@ -1,5 +1,10 @@
 <app-header (logoutClick)="logout()" [showAdmin]="false">
   <span class="header-separator">|</span>
+  <button mat-button class="quit-btn" (click)="goToKitchen()">
+    <mat-icon>restaurant</mat-icon>
+    {{ ts.t('header.kitchen') }}
+  </button>
+  <span class="header-separator">|</span>
   <button mat-button class="quit-btn" (click)="goBack()">
     <mat-icon>restaurant_menu</mat-icon>
     {{ ts.t('header.quit') }}
