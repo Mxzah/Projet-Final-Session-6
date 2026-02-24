@@ -10,6 +10,14 @@
       <p class="welcome-text">{{ ts.t('admin.itemsSubtitle') }}</p>
     </div>
 
+    @if (loadError()) {
+      <div class="admin-error">{{ loadError() }}</div>
+    }
+
+    @if (actionError()) {
+      <div class="admin-error">{{ actionError() }}</div>
+    }
+
     @if (isLoading()) {
       <div class="loading">
         <mat-spinner diameter="48"></mat-spinner>

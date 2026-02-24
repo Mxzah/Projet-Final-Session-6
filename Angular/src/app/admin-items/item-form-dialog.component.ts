@@ -1,6 +1,6 @@
 import { Component, Inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ItemsService } from '../services/items.service';
 import { Item, Category } from '../menu/menu.models';
 import { TranslationService } from '../services/translation.service';
+import { ErrorService } from '../services/error.service';
 
 export interface ItemFormDialogData {
   item: Item | null;       // null = création, Item = modification
@@ -22,12 +23,6 @@ export interface ItemFormDialogResult {
   updated?: Item;
 }
 
-function notOnlyWhitespace(control: AbstractControl): ValidationErrors | null {
-  if (control.value && /^\s*$/.test(control.value)) {
-    return { whitespace: true };
-  }
-  return null;
-}
 
 @Component({
   selector: 'app-item-form-dialog',
@@ -51,8 +46,8 @@ export class ItemFormDialogComponent {
   categories: Category[];
 
   form = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(100), notOnlyWhitespace]),
-    description: new FormControl('', [Validators.maxLength(255), notOnlyWhitespace]),
+    name: new FormControl('', [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)]),
+    description: new FormControl('', [Validators.maxLength(255), Validators.pattern(/.*\S.*/)]),
     price: new FormControl<number>(0, [Validators.required, Validators.min(0), Validators.max(9999.99)]),
     category_id: new FormControl<number>(0, [Validators.required])
   });
@@ -67,7 +62,8 @@ export class ItemFormDialogComponent {
     private dialogRef: MatDialogRef<ItemFormDialogComponent, ItemFormDialogResult>,
     @Inject(MAT_DIALOG_DATA) public data: ItemFormDialogData,
     private itemsService: ItemsService,
-    public ts: TranslationService
+    public ts: TranslationService,
+    private errorService: ErrorService
   ) {
     this.isCreating = data.item === null;
     this.categories = data.categories;
@@ -97,14 +93,14 @@ export class ItemFormDialogComponent {
 
     const validTypes = ['image/jpeg', 'image/png'];
     if (!validTypes.includes(file.type)) {
-      this.imageError.set(this.ts.t('admin.imageFormat'));
+      this.imageError.set(this.errorService.format(this.errorService.imageError('format', this.ts)));
       input.value = '';
       return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      this.imageError.set(this.ts.t('admin.imageSize'));
+      this.imageError.set(this.errorService.format(this.errorService.imageError('size', this.ts)));
       input.value = '';
       return;
     }
@@ -121,7 +117,7 @@ export class ItemFormDialogComponent {
     Object.values(this.form.controls).forEach(c => c.markAsDirty());
 
     if (this.isCreating && !this.image && !this.imageError()) {
-      this.imageError.set(this.ts.t('admin.imageRequired'));
+      this.imageError.set(this.errorService.format(this.errorService.imageError('required', this.ts)));
     }
 
     if (this.form.invalid || this.imageError()) return;
@@ -146,7 +142,7 @@ export class ItemFormDialogComponent {
           this.dialogRef.close({ created });
         },
         error: (err: any) => {
-          this.error.set(err?.errors?.join(', ') || this.ts.t('admin.createError'));
+          this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
           this.loading.set(false);
         }
       });
@@ -165,7 +161,7 @@ export class ItemFormDialogComponent {
           this.dialogRef.close({ updated });
         },
         error: (err: any) => {
-          this.error.set(err?.errors?.join(', ') || this.ts.t('admin.editError'));
+          this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
           this.loading.set(false);
         }
       });

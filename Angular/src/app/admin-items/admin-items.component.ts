@@ -9,6 +9,7 @@ import { ItemsService } from '../services/items.service';
 import { Item, Category } from '../menu/menu.models';
 import { ApiService } from '../services/api.service';
 import { TranslationService } from '../services/translation.service';
+import { ErrorService } from '../services/error.service';
 import { ItemFormDialogComponent, ItemFormDialogData, ItemFormDialogResult } from './item-form-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog.component';
 
@@ -28,6 +29,8 @@ export class AdminItemsComponent implements OnInit {
   items = signal<Item[]>([]);
   isLoading = signal(true);
   categories = signal<Category[]>([]);
+  loadError = signal('');
+  actionError = signal('');
 
   categoryNames = computed(() =>
     [...new Set(this.items().map(i => i.category_name ?? '—'))]
@@ -37,7 +40,8 @@ export class AdminItemsComponent implements OnInit {
     private itemsService: ItemsService,
     private apiService: ApiService,
     public ts: TranslationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private errorService: ErrorService
   ) {}
 
   ngOnInit(): void {
@@ -47,19 +51,18 @@ export class AdminItemsComponent implements OnInit {
 
   loadData(): void {
     this.isLoading.set(true);
+    this.loadError.set('');
     this.itemsService.getItems().subscribe({
       next: (items) => {
-        const sorted = [...items].sort((a, b) =>
-          (a.category_name ?? '—').localeCompare(b.category_name ?? '—')
-        );
-        this.items.set(sorted);
+        this.items.set(items);
         this.isLoading.set(false);
 
         if (this.categories().length === 0) {
           this.extractCategoriesFromItems(items);
         }
       },
-      error: () => {
+      error: (err) => {
+        this.loadError.set(this.errorService.format(this.errorService.fromApiError(err)));
         this.isLoading.set(false);
       }
     });
@@ -102,9 +105,11 @@ export class AdminItemsComponent implements OnInit {
       ItemFormDialogComponent,
       { data, width: '460px', maxHeight: '90vh', disableClose: false }
     );
-    ref.afterClosed().subscribe(result => {
-      if (result?.created) {
-        this.items.update(items => [...items, result.created!]);
+    ref.afterClosed().subscribe({
+      next: (result) => {
+        if (result?.created) {
+          this.items.update(items => [...items, result.created!]);
+        }
       }
     });
   }
@@ -117,11 +122,13 @@ export class AdminItemsComponent implements OnInit {
       ItemFormDialogComponent,
       { data, width: '460px', maxHeight: '90vh', disableClose: false }
     );
-    ref.afterClosed().subscribe(result => {
-      if (result?.updated) {
-        this.items.update(items =>
-          items.map(i => i.id === item.id ? result.updated! : i)
-        );
+    ref.afterClosed().subscribe({
+      next: (result) => {
+        if (result?.updated) {
+          this.items.update(items =>
+            items.map(i => i.id === item.id ? result.updated! : i)
+          );
+        }
       }
     });
   }
@@ -151,22 +158,31 @@ export class AdminItemsComponent implements OnInit {
       { data, width: '400px', maxHeight: '90vh' }
     );
 
-    ref.afterClosed().subscribe(confirmed => {
-      if (!confirmed) return;
-      if (item.in_use) {
-        this.itemsService.softDeleteItem(item.id).subscribe({
-          next: (response) => {
-            if (response.data) {
-              this.items.update(items => items.map(i => i.id === item.id ? response.data! : i));
+    ref.afterClosed().subscribe({
+      next: (confirmed) => {
+        if (!confirmed) return;
+        this.actionError.set('');
+        if (item.in_use) {
+          this.itemsService.softDeleteItem(item.id).subscribe({
+            next: (response) => {
+              if (response.data) {
+                this.items.update(items => items.map(i => i.id === item.id ? response.data! : i));
+              }
+            },
+            error: (err) => {
+              this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
             }
-          }
-        });
-      } else {
-        this.itemsService.hardDeleteItem(item.id).subscribe({
-          next: () => {
-            this.items.update(items => items.filter(i => i.id !== item.id));
-          }
-        });
+          });
+        } else {
+          this.itemsService.hardDeleteItem(item.id).subscribe({
+            next: () => {
+              this.items.update(items => items.filter(i => i.id !== item.id));
+            },
+            error: (err) => {
+              this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+            }
+          });
+        }
       }
     });
   }
@@ -187,15 +203,21 @@ export class AdminItemsComponent implements OnInit {
       { data, width: '400px', maxHeight: '90vh' }
     );
 
-    ref.afterClosed().subscribe(confirmed => {
-      if (!confirmed) return;
-      this.itemsService.restoreItem(item.id).subscribe({
-        next: (response) => {
-          if (response.data) {
-            this.items.update(items => items.map(i => i.id === item.id ? response.data! : i));
+    ref.afterClosed().subscribe({
+      next: (confirmed) => {
+        if (!confirmed) return;
+        this.actionError.set('');
+        this.itemsService.restoreItem(item.id).subscribe({
+          next: (response) => {
+            if (response.data) {
+              this.items.update(items => items.map(i => i.id === item.id ? response.data! : i));
+            }
+          },
+          error: (err) => {
+            this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
           }
-        }
-      });
+        });
+      }
     });
   }
 
