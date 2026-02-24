@@ -31,7 +31,7 @@
     @if (!isLoading() && items().length > 0) {
       <div class="items-grid">
         @for (item of items(); track item.id) {
-          <mat-card class="item-card" [class.archived]="item.deleted_at">
+          <mat-card class="item-card" [class.archived]="item.deleted_at" [class.unavailable]="unavailableIds().has(item.id)">
             <div class="item-image">
               @if (item.image_url) {
                 <img [src]="item.image_url" [alt]="item.name" />
@@ -40,6 +40,8 @@
               }
               @if (item.deleted_at) {
                 <div class="archived-badge">{{ ts.t('admin.archived') }}</div>
+              } @else if (unavailableIds().has(item.id)) {
+                <div class="unavailable-badge">{{ ts.t('admin.unavailable') }}</div>
               }
             </div>
             <mat-card-content class="item-body">

@@ -1,0 +1,73 @@
+.avail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.avail-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface, #333);
+}
+
+.btn-add-avail {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    line-height: 32px;
+    background-color: var(--mat-sys-primary, #c86d3f);
+    color: var(--mat-sys-on-primary, #fff);
+}
+
+.btn-add-avail mat-icon {
+    font-size: 18px;
+    line-height: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.avail-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.avail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    background-color: var(--clay, #f3ede4);
+    border-radius: 8px;
+    padding: 0.75rem 0.75rem 0 0.75rem;
+}
+
+.avail-start,
+.avail-end {
+    flex: 1 1 220px;
+    min-width: 210px;
+}
+
+.avail-desc {
+    flex: 2 1 200px;
+    min-width: 160px;
+}
+
+.btn-remove-avail {
+    margin-top: 0.35rem;
+    flex-shrink: 0;
+    color: rgba(27, 26, 23, 0.45) !important;
+}
+
+.btn-remove-avail:hover {
+    color: var(--rust, #8a3f24) !important;
+}
+
+.avail-overlap-error {
+    width: 100%;
+    font-size: 0.75rem;
+    color: var(--mat-sys-error, #b00020);
+    padding: 0 0.25rem 0.5rem 0.25rem;
+}

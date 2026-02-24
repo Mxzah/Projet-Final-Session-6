@@ -20,7 +20,7 @@
             {{ ts.t('admin.nameRequired') }}
           } @else if (form.controls.name.errors['maxlength']) {
             {{ ts.t('admin.nameMaxLength') }}
-          } @else if (form.controls.name.errors['whitespace']) {
+          } @else if (form.controls.name.errors['pattern']) {
             {{ ts.t('admin.nameWhitespace') }}
           }
         </mat-error>
@@ -34,7 +34,7 @@
         <mat-error>
           @if (form.controls.description.errors['maxlength']) {
             {{ ts.t('admin.descMaxLength') }}
-          } @else if (form.controls.description.errors['whitespace']) {
+          } @else if (form.controls.description.errors['pattern']) {
             {{ ts.t('admin.descWhitespace') }}
           }
         </mat-error>
@@ -86,6 +86,12 @@
       }
     </div>
   </form>
+
+  <app-availability-list
+    [availabilities]="availabilities()"
+    [disabled]="loading()"
+    (availabilitiesChange)="availabilities.set($event)">
+  </app-availability-list>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

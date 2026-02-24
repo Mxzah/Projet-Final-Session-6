@@ -1,4 +1,4 @@
-import { Component, Inject, signal } from '@angular/core';
+import { Component, Inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -8,10 +8,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { forkJoin, Observable, of } from 'rxjs';
 import { ItemsService } from '../services/items.service';
-import { Item, Category } from '../menu/menu.models';
+import { Item, Category, AvailabilityEntry } from '../menu/menu.models';
 import { TranslationService } from '../services/translation.service';
 import { ErrorService } from '../services/error.service';
+import { AvailabilityService } from '../services/availability.service';
+import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 
 export interface ItemFormDialogData {
   item: Item | null;       // null = création, Item = modification
@@ -36,7 +39,8 @@ export interface ItemFormDialogResult {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    AvailabilityListComponent
   ],
   templateUrl: './item-form-dialog.component.html',
   styleUrls: ['./item-form-dialog.component.css']
@@ -58,12 +62,18 @@ export class ItemFormDialogComponent {
   error = signal('');
   loading = signal(false);
 
+  @ViewChild(AvailabilityListComponent) availabilityList?: AvailabilityListComponent;
+
+  availabilities = signal<AvailabilityEntry[]>([]);
+  private originalAvailabilities: AvailabilityEntry[] = [];
+
   constructor(
     private dialogRef: MatDialogRef<ItemFormDialogComponent, ItemFormDialogResult>,
     @Inject(MAT_DIALOG_DATA) public data: ItemFormDialogData,
     private itemsService: ItemsService,
     public ts: TranslationService,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private availabilityService: AvailabilityService
   ) {
     this.isCreating = data.item === null;
     this.categories = data.categories;
@@ -76,6 +86,13 @@ export class ItemFormDialogComponent {
         category_id: data.item.category_id
       });
       this.imagePreview.set(data.item.image_url || null);
+
+      this.availabilityService.getItemAvailabilities(data.item.id).subscribe({
+        next: (entries) => {
+          this.originalAvailabilities = entries;
+          this.availabilities.set(entries);
+        }
+      });
     } else {
       this.form.reset({
         name: '',
@@ -115,12 +132,13 @@ export class ItemFormDialogComponent {
 
   save(): void {
     Object.values(this.form.controls).forEach(c => c.markAsDirty());
+    this.availabilityList?.markAllDirty();
 
     if (this.isCreating && !this.image && !this.imageError()) {
       this.imageError.set(this.errorService.format(this.errorService.imageError('required', this.ts)));
     }
 
-    if (this.form.invalid || this.imageError()) return;
+    if (this.form.invalid || this.imageError() || !(this.availabilityList?.isValid ?? true)) return;
 
     this.loading.set(true);
     this.error.set('');
@@ -138,8 +156,16 @@ export class ItemFormDialogComponent {
 
       this.itemsService.createItem(createData).subscribe({
         next: (created) => {
-          this.loading.set(false);
-          this.dialogRef.close({ created });
+          this.syncAvailabilities(created.id).subscribe({
+            next: () => {
+              this.loading.set(false);
+              this.dialogRef.close({ created });
+            },
+            error: (err: any) => {
+              this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
+              this.loading.set(false);
+            }
+          });
         },
         error: (err: any) => {
           this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
@@ -157,8 +183,16 @@ export class ItemFormDialogComponent {
 
       this.itemsService.updateItem(this.data.item!.id, updateData).subscribe({
         next: (updated) => {
-          this.loading.set(false);
-          this.dialogRef.close({ updated });
+          this.syncAvailabilities(updated.id).subscribe({
+            next: () => {
+              this.loading.set(false);
+              this.dialogRef.close({ updated });
+            },
+            error: (err: any) => {
+              this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
+              this.loading.set(false);
+            }
+          });
         },
         error: (err: any) => {
           this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
@@ -166,5 +200,31 @@ export class ItemFormDialogComponent {
         }
       });
     }
+  }
+
+  private syncAvailabilities(itemId: number): Observable<unknown> {
+    const current = this.availabilities();
+    const original = this.originalAvailabilities;
+
+    const toCreate = current.filter(a => !a.id);
+    const toMs = (s?: string | null) => s ? new Date(s).getTime() : null;
+    const toUpdate = current.filter(a => {
+      if (!a.id) return false;
+      const orig = original.find(o => o.id === a.id);
+      if (!orig) return false;
+      return toMs(orig.start_at) !== toMs(a.start_at)
+          || toMs(orig.end_at) !== toMs(a.end_at)
+          || (orig.description ?? null) !== (a.description ?? null);
+    });
+    const currentIds = new Set(current.filter(a => a.id).map(a => a.id!));
+    const toDelete = original.filter(o => !currentIds.has(o.id!));
+
+    const ops: Observable<unknown>[] = [
+      ...toCreate.map(a => this.availabilityService.createAvailability(itemId, { start_at: a.start_at, end_at: a.end_at, description: a.description })),
+      ...toUpdate.map(a => this.availabilityService.updateAvailability(itemId, a.id!, { start_at: a.start_at, end_at: a.end_at, description: a.description })),
+      ...toDelete.map(a => this.availabilityService.deleteAvailability(itemId, a.id!))
+    ];
+
+    return ops.length > 0 ? forkJoin(ops) : of(null);
   }
 }

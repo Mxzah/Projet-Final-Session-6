@@ -1,0 +1,55 @@
+<div class="avail-header">
+  <span class="avail-label">{{ ts.t('admin.availabilities') }}</span>
+  <button type="button" mat-mini-fab class="btn-add-avail" (click)="addRow()" [disabled]="disabled">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+
+<div class="avail-rows">
+  @for (row of rows.controls; track $index; let i = $index) {
+    <div class="avail-row" [formGroup]="asGroup(row)">
+      <mat-form-field appearance="outline" class="avail-start">
+        <mat-label>{{ ts.t('admin.availStartAt') }}</mat-label>
+        <input matInput type="datetime-local" formControlName="start_at" [disabled]="disabled"
+               (change)="onStartChange(asGroup(row))" />
+        @if (asGroup(row).get('start_at')?.errors?.['required'] && asGroup(row).get('start_at')?.dirty) {
+          <mat-error>{{ ts.t('admin.availStartRequired') }}</mat-error>
+        } @else if (asGroup(row).get('start_at')?.errors?.['invalidDate'] && asGroup(row).get('start_at')?.dirty) {
+          <mat-error>{{ ts.t('admin.availStartInvalid') }}</mat-error>
+        } @else if (asGroup(row).get('start_at')?.errors?.['startInPast'] && asGroup(row).get('start_at')?.dirty) {
+          <mat-error>{{ ts.t('admin.availStartInPast') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="avail-end">
+        <mat-label>{{ ts.t('admin.availEndAt') }}</mat-label>
+        <input matInput type="datetime-local" formControlName="end_at" [disabled]="disabled"
+               (change)="onFieldChange()" />
+        @if (asGroup(row).get('end_at')?.errors?.['invalidDate'] && asGroup(row).get('end_at')?.dirty) {
+          <mat-error>{{ ts.t('admin.availEndInvalid') }}</mat-error>
+        } @else if (asGroup(row).get('end_at')?.errors?.['endBeforeStart'] && asGroup(row).get('end_at')?.dirty) {
+          <mat-error>{{ ts.t('admin.availEndAfterStart') }}</mat-error>
+        } @else if (asGroup(row).get('end_at')?.errors?.['minDuration'] && asGroup(row).get('end_at')?.dirty) {
+          <mat-error>{{ ts.t('admin.availMinDuration') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="avail-desc">
+        <mat-label>{{ ts.t('admin.availDesc') }}</mat-label>
+        <input matInput formControlName="description" maxlength="255" [disabled]="disabled"
+               (input)="onFieldChange()" />
+        @if (asGroup(row).get('description')?.errors?.['pattern'] && asGroup(row).get('description')?.dirty) {
+          <mat-error>{{ ts.t('admin.availDescWhitespace') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <button type="button" mat-icon-button class="btn-remove-avail"
+              (click)="removeRow(i)" [disabled]="disabled">
+        <mat-icon>delete</mat-icon>
+      </button>
+      @if (asGroup(row).errors?.['overlap'] && asGroup(row).dirty) {
+        <div class="avail-overlap-error">{{ ts.t('admin.availOverlap') }}</div>
+      }
+    </div>
+  }
+</div>

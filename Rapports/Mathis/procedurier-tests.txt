@@ -123,6 +123,8 @@ MODULE 4 — Affichage du menu
      - Accéder à /menu
      - Un spinner de chargement (mat-spinner) s'affiche pendant le chargement
      - Une fois chargé, le spinner disparaît et les items s'affichent
+     - Les items archivés ou indisponible ne sont PAS visible dans le menu (/menu) pour les clients ni les admins
+
 
 4.2  Affichage des items par catégorie
      - Les items sont regroupés par catégorie avec un titre de section (h1)
@@ -131,6 +133,16 @@ MODULE 4 — Affichage du menu
 
 4.3  Erreur de chargement
      - Si le serveur est inaccessible, un message d'erreur s'affiche dans un bandeau
+
+4.4  Filtrage par disponibilité (utilisateur non connecté ou client)
+     - Seuls les items ayant au moins une disponibilité actuellement active
+       (start_at <= maintenant ET (end_at IS NULL OU end_at > maintenant)) sont visibles
+     - Un item sans aucune disponibilité n'apparaît PAS dans le menu
+     - Un item dont toutes les disponibilités sont passées n'apparaît PAS dans le menu
+
+4.5  Filtrage par disponibilité (utilisateur admin — page /menu)
+     - Même comportement que pour un client : seuls les items disponibles
+       sont visibles dans le menu, même pour un admin connecté
 
 ================================================================================
 MODULE 5 — Modal d'item
@@ -214,7 +226,7 @@ MODULE 7 — Affichage de la liste des items
      - Un spinner de chargement s'affiche pendant le chargement
      - Une fois chargé, les items s'affichent en grille, trié par catégorie
 
-7.2  Affichage des cartes (item actif)
+7.2  Affichage des cartes (item actif et disponible)
      - Chaque carte affiche : image, nom, description,
        catégorie, prix (X.XX $)
      - Chaque carte a un bouton « modifier » (icône edit) et « supprimer »
@@ -227,8 +239,21 @@ MODULE 7 — Affichage de la liste des items
      - La carte a uniquement un bouton « désarchiver » (icône unarchive)
      - Les boutons « modifier » et « supprimer » ne sont PAS visibles
 
-7.4  État vide
+7.4  Affichage des cartes (item indisponible)
+     - Les items non archivés mais sans disponibilité active apparaissent
+       avec le même style grisé que les items archivés
+     - L'image est en niveaux de gris avec un badge « INDISPONIBLE » superposé
+     - Le nom, la description, la catégorie et le prix sont atténués
+     - Les boutons « modifier » et « supprimer » restent visibles (l'item n'est
+       pas archivé)
 
+7.5  Tous les items visibles dans le panneau admin
+     Avec admin@restoqr.ca : password123
+     - Les items actifs, archivés ET indisponibles apparaissent tous dans la
+       liste du panneau admin
+     - Aucun item n'est masqué, quelle que soit sa disponibilité
+
+7.6  État vide
      - Si aucun item n'existe, le message « Aucun item trouvé » s'affiche
 
 ================================================================================
@@ -240,6 +265,7 @@ MODULE 8 — Création d'un item
      - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
      - Le titre de la modal est « Ajouter un item »
      - Les champs sont vides (nom, description, prix à 0, catégorie par défaut)
+     - La section « Disponibilités » est visible avec un bouton « + »
 
 8.2  Validation — Nom requis
      - Laisser le champ « Nom » vide et cliquer sur « Ajouter »
@@ -281,14 +307,17 @@ MODULE 8 — Création d'un item
      - Remplir tous les champs sauf l'image et cliquer sur « Ajouter »
      - Message d'erreur : « L'image est obligatoire. »
 
-8.12 Création réussie
+8.12 Validation — Disponibilités
+     - Voir les validations du MODULE 12 (12.3 à 12.8)
+
+8.13 Création réussie
      - Remplir tous les champs avec des valeurs valides (nom, description,
        prix, catégorie) et sélectionner une image JPG/PNG valide
      - Clic sur « Ajouter »
      - La modal se ferme
      - Le nouvel item apparaît dans la liste
 
-8.13 Annulation
+8.14 Annulation
      - Remplir des champs puis cliquer sur « Annuler »
      - La modal se ferme, aucun item n'est créé
 
@@ -302,9 +331,11 @@ MODULE 9 — Modification d'un item
      - La modal s'ouvre avec le titre « Modifier l'item »
      - Les champs sont pré-remplis (nom, description, prix, catégorie)
      - L'aperçu de l'image existante est affiché
+     - La section « Disponibilités » est visible avec les disponibilités
+       existantes pré-chargées
 
 9.2  Validations
-     - Mêmes validations que la création (8.2 à 8.11)
+     - Mêmes validations que la création (8.2 à 8.12)
 
 9.3  Modification réussie
      - Modifier le nom et/ou le prix d'un item existant
@@ -380,13 +411,96 @@ MODULE 11 — Désarchivage d'un item
      - La carte de l'item revient immédiatement au style normal (image en couleur,
        badge « ARCHIVÉ » disparu, textes normaux)
      - Les boutons « modifier » et « supprimer » réapparaissent
-     - L'item est de nouveau visible sur la page /menu (clients)
+     - L'item est de nouveau visible sur la page /menu (clients) si au moins
+       une disponibilité est active
 
 ================================================================================
-MODULE 12 — Traduction (admin-items)
+MODULE 12 — Gestion des disponibilités
 ================================================================================
 
-12.1 Traduction en anglais
+12.1 Affichage de la section Disponibilités
+     Avec admin@restoqr.ca : password123
+     - Ouvrir la modal de création ou de modification d'un item
+     - La section « Disponibilités » est visible sous le formulaire principal
+     - Un bouton « + » (icône add) est présent à droite du titre « Disponibilités »
+
+12.2 Ajout d'une disponibilité
+     - Clic sur le bouton « + » : Une nouvelle ligne apparaît avec 3 champs :
+       « Début », « Fin (optionnel) », « Description »
+     - Les champs sont de type datetime-local (saisie manuelle ou calendrier natif)
+
+12.3 Validation — Date de début requise
+     - Laisser le champ « Début » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « La date de début est requise. »
+
+12.4 Validation — Date de début dans le passé
+     - Entrer une date de début antérieure à la minute courante
+     - Message d'erreur : « La date de début doit être dans le futur. »
+     - Note : une date égale à la minute courante est acceptée
+
+12.5 Validation — Date de fin invalide
+     - Entrer une date de fin antérieure ou égale à la date de début
+     - Message d'erreur : « La fin doit être après le début. »
+
+12.6 Validation — Durée minimale
+     - Entrer une date de fin moins d'une heure après la date de début
+     - Message d'erreur : « Durée d'écart minimale : 1 heure. »
+
+12.7 Validation — Description espaces seulement
+     - Entrer uniquement des espaces dans le champ « Description »
+     - Message d'erreur : « La description ne peut pas être composée uniquement
+       d'espaces. »
+
+12.8 Validation — Chevauchement de périodes
+     - Ajouter deux disponibilités dont les périodes se chevauchent
+     - Un message d'erreur « Cette période chevauche une autre disponibilité. »
+       apparaît sous chacune des lignes en conflit
+     - Le bouton « Ajouter » / « Enregistrer » reste désactivé tant que le
+       chevauchement existe
+
+12.9 Suppression d'une disponibilité
+     - Clic sur l'icône « delete » (poubelle) à droite d'une ligne :
+       La ligne disparaît immédiatement du formulaire
+
+12.10 Sauvegarde des disponibilités (création)
+     - Ajouter une ou plusieurs disponibilités valides dans la modal de création
+     - Clic sur « Ajouter »
+     - L'item est créé, puis les disponibilités sont enregistrées en base
+     - La modal se ferme
+
+12.11 Sauvegarde des disponibilités (modification)
+     - Ouvrir la modal d'un item existant ayant des disponibilités
+     - Les disponibilités existantes sont pré-chargées dans le formulaire
+     - Modifier une date, ajouter une nouvelle ligne, supprimer une ligne existante
+     - Clic sur « Enregistrer »
+     - Seules les changements sont envoyés (créations, modifications, suppressions)
+     - La modal se ferme
+
+12.12 Impact sur le menu — Item sans disponibilité
+     - Un item sans aucune disponibilité enregistrée apparaît avec le badge
+       « INDISPONIBLE » dans le panneau admin
+     - Ce même item n'est PAS visible sur la page /menu
+
+12.13 Impact sur le menu — Item avec disponibilité active
+     - Un item ayant au moins une disponibilité dont start_at <= maintenant
+       et end_at IS NULL ou end_at > maintenant apparaît normalement dans le menu
+     - Dans le panneau admin, sa carte n'affiche aucun badge
+
+12.14 Impact sur le menu — Item avec disponibilité future uniquement
+     - Un item dont toutes les disponibilités ont un start_at dans le futur
+       n'est PAS visible dans le menu
+     - Dans le panneau admin, sa carte affiche le badge « INDISPONIBLE »
+
+12.15 Fin optionnelle (disponibilité ouverte)
+     - Ajouter une disponibilité sans remplir le champ « Fin »
+     - Aucune erreur n'est affichée (la fin est optionnelle)
+     - L'item reste visible dans le menu indéfiniment à partir de la date de début
+
+================================================================================
+MODULE 13 — Traduction (admin-items)
+================================================================================
+
+13.1 Traduction en anglais
      Avec admin@restoqr.ca : password123
      - Changer la langue à « English » via le header
      - Le titre passe à « Items Management »
@@ -398,12 +512,16 @@ MODULE 12 — Traduction (admin-items)
      - Les titres et messages des modals passent en anglais (Delete item,
        Archive item, Restore item)
      - Le badge « ARCHIVÉ » passe à « ARCHIVED »
+     - Le badge « INDISPONIBLE » passe à « UNAVAILABLE »
+     - Les labels de disponibilités passent en anglais (Start, End (optional),
+       Description, Availabilities)
+     - Les messages de validation des disponibilités passent en anglais
 
-12.2 Traduction en français
+13.2 Traduction en français
      - Changer la langue à « Français » via le header
      - Tous les textes reviennent en français
 
-12.3 Persistance de la langue
+13.3 Persistance de la langue
      - Changer la langue à « English »
      - Rafraîchir la page
      - L'interface reste en anglais

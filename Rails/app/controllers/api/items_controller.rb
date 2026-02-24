@@ -9,7 +9,17 @@ module Api
     # GET /api/items?search=…&sort=asc|desc&price_min=…&price_max=…
     def index
       base = current_user&.type == "Administrator" ? Item.unscoped : Item
-      items = base.includes(:category, :order_lines, :combo_items)
+      items = base.includes(:category, :order_lines, :combo_items, :availabilities)
+
+      unless current_user&.type == "Administrator" && params[:admin] == "true"
+        now = Time.current
+        items = items.joins(:availabilities)
+                     .where(
+                       "availabilities.start_at <= ? AND (availabilities.end_at IS NULL OR availabilities.end_at > ?)",
+                       now, now
+                     )
+                     .distinct
+      end
 
       # Search
       if params[:search].present?
@@ -31,7 +41,7 @@ module Api
       when "desc"
         items = items.order(price: :desc)
       else
-        items = items.order(:category_id, :name)
+        items = items.joins(:category).order("categories.position ASC, items.name ASC")
       end
 
       render json: {
@@ -88,7 +98,7 @@ module Api
 
     # DELETE /api/items/:id (soft delete)
     def destroy
-      archived_item = @item.soft_delete
+      archived_item = @item.soft_delete!
 
       render json: {
         success: true,
@@ -164,7 +174,10 @@ module Api
         image_url: item.image.attached? ? url_for(item.image) : nil,
         deleted_at: item.deleted_at,
         created_at: item.created_at,
-        in_use: item.order_lines.any? || item.combo_items.any?
+        in_use: item.order_lines.any? || item.combo_items.any?,
+        availabilities: item.availabilities.map { |a|
+          { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
+        }
       }
     end
   end

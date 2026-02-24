@@ -17,6 +17,7 @@ Rails.application.routes.draw do
         delete :hard, action: :hard_destroy
         put :restore, action: :restore
       end
+      resources :availabilities, only: [:index, :create, :update, :destroy]
     end
     resources :users, only: [:index, :show, :create, :update, :destroy]
 

@@ -36,6 +36,23 @@ export class AdminItemsComponent implements OnInit {
     [...new Set(this.items().map(i => i.category_name ?? '—'))]
   );
 
+  unavailableIds = computed(() => {
+    const now = Date.now();
+    return new Set(
+      this.items()
+        .filter(item => {
+          if (item.deleted_at) return false;
+          if (!item.availabilities || item.availabilities.length === 0) return true;
+          return !item.availabilities.some(a => {
+            const start = new Date(a.start_at).getTime();
+            const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
+            return start <= now && now < end;
+          });
+        })
+        .map(item => item.id)
+    );
+  });
+
   constructor(
     private itemsService: ItemsService,
     private apiService: ApiService,
@@ -52,7 +69,7 @@ export class AdminItemsComponent implements OnInit {
   loadData(): void {
     this.isLoading.set(true);
     this.loadError.set('');
-    this.itemsService.getItems().subscribe({
+    this.itemsService.getItems({ admin: true }).subscribe({
       next: (items) => {
         this.items.set(items);
         this.isLoading.set(false);
@@ -224,4 +241,5 @@ export class AdminItemsComponent implements OnInit {
   getItemsByCategory(categoryName: string): Item[] {
     return this.items().filter(i => (i.category_name ?? '—') === categoryName);
   }
+
 }
