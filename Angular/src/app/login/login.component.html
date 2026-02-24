@@ -44,8 +44,8 @@
           }
         </mat-form-field>
 
-        @if (errorMessage) {
-          <div class="error-message">{{ errorMessage }}</div>
+        @if (errorMessage()) {
+          <div class="error-message">{{ errorMessage() }}</div>
         }
 
         <div class="form__actions login-actions">

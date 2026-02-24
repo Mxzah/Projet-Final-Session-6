@@ -16,7 +16,11 @@ class Table < ApplicationRecord
   default_scope { where(deleted_at: nil) }
 
   def soft_delete
-    update(deleted_at: Time.current)
+    now = Time.current
+    update(deleted_at: now)
+
+    availabilities.where("start_at > ?", now).delete_all
+    availabilities.where("start_at <= ? AND end_at > ?", now, now).update_all(end_at: now)
   end
 
   private

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -26,7 +26,7 @@ export class LoginComponent {
     password: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(128)])
   });
 
-  errorMessage: string = '';
+  errorMessage = signal('');
   isLoading: boolean = false;
 
   constructor(
@@ -35,7 +35,6 @@ export class LoginComponent {
     private orderService: OrderService,
     private tableService: TableService,
     private router: Router,
-    private cdr: ChangeDetectorRef,
     public ts: TranslationService
   ) { }
 
@@ -45,7 +44,7 @@ export class LoginComponent {
       return;
     }
 
-    this.errorMessage = '';
+    this.errorMessage.set('');
     this.isLoading = true;
 
     const { email, password } = this.loginForm.value;
@@ -56,7 +55,7 @@ export class LoginComponent {
         this.cartService.clear();
 
         if (this.authService.isCook()) {
-          this.router.navigate(['/kitchen']);
+          this.router.navigate(['/cuisine']);
           return;
         }
 
@@ -77,8 +76,7 @@ export class LoginComponent {
       },
       error: (error: any) => {
         this.isLoading = false;
-        this.errorMessage = error?.errors?.join(', ') || this.ts.t('login.defaultError');
-        this.cdr.detectChanges();
+        this.errorMessage.set(error?.errors?.join(', ') || this.ts.t('login.defaultError'));
       }
     });
   }

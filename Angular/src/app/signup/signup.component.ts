@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -27,7 +27,7 @@ export class SignupComponent {
     passwordConfirmation: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(128)])
   }, { validators: this.passwordMatchValidator });
 
-  errorMessage: string = '';
+  errorMessage = signal('');
   isLoading: boolean = false;
 
   constructor(
@@ -53,7 +53,7 @@ export class SignupComponent {
       return;
     }
 
-    this.errorMessage = '';
+    this.errorMessage.set('');
     this.isLoading = true;
 
     const { email, password, passwordConfirmation, firstName, lastName } = this.signupForm.value;
@@ -76,7 +76,7 @@ export class SignupComponent {
           this.router.navigate(['/form']);
         }
       } else {
-        this.errorMessage = response.errors?.join(', ') || this.ts.t('signup.defaultError');
+        this.errorMessage.set(response.errors?.join(', ') || this.ts.t('signup.defaultError'));
       }
     });
   }

@@ -74,11 +74,14 @@
           </mat-form-field>
 
           <div class="ssf-filter">
-            <span class="ssf-price-label">CA${{ sliderMin() }} — CA${{ sliderMax() }}</span>
-            <mat-slider min="0" max="9999" step="1" class="ssf-slider">
-              <input matSliderStartThumb [value]="sliderMin()" (valueChange)="onSliderMinChange($event)" />
-              <input matSliderEndThumb [value]="sliderMax()" (valueChange)="onSliderMaxChange($event)" />
-            </mat-slider>
+            <div class="ssf-slider-row">
+              <input #minInput type="number" class="ssf-price-input" min="0" max="9999" [value]="sliderMin()" (change)="onInputMinChange(+$any($event.target).value, minInput)" />
+              <mat-slider min="0" max="9999" step="1" class="ssf-slider">
+                <input matSliderStartThumb [value]="sliderMin()" (valueChange)="onSliderMinChange($event)" />
+                <input matSliderEndThumb [value]="sliderMax()" (valueChange)="onSliderMaxChange($event)" />
+              </mat-slider>
+              <input #maxInput type="number" class="ssf-price-input" min="0" max="9999" [value]="sliderMax()" (change)="onInputMaxChange(+$any($event.target).value, maxInput)" />
+            </div>
           </div>
         </mat-toolbar>
 

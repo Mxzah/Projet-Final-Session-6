@@ -126,10 +126,10 @@ export class MenuComponent implements OnInit, OnDestroy {
             });
           }
         }
-        const sorted = [...catMap.values()].sort((a, b) => a.position - b.position);
-        this.categories.set(sorted);
-        if (sorted.length > 0 && !sorted.find(c => c.id === this.activeCategory())) {
-          this.activeCategory.set(sorted[0].id);
+        const categories = [...catMap.values()];
+        this.categories.set(categories);
+        if (categories.length > 0 && !categories.find(c => c.id === this.activeCategory())) {
+          this.activeCategory.set(categories[0].id);
         }
         this.isLoading.set(false);
       },
@@ -165,6 +165,18 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.priceMax.set(value < 9999 ? value : null);
     if (this.searchTimer) clearTimeout(this.searchTimer);
     this.searchTimer = setTimeout(() => this.loadItems(), 300);
+  }
+
+  onInputMinChange(value: number, input: HTMLInputElement): void {
+    const clamped = Math.min(Math.max(value, 0), this.sliderMax());
+    input.value = String(clamped);
+    this.onSliderMinChange(clamped);
+  }
+
+  onInputMaxChange(value: number, input: HTMLInputElement): void {
+    const clamped = Math.min(Math.max(value, this.sliderMin()), 9999);
+    input.value = String(clamped);
+    this.onSliderMaxChange(clamped);
   }
 
   onMobileCategoryChange(value: number): void {

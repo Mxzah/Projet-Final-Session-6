@@ -146,17 +146,36 @@ img {
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    min-width: 180px;
+    min-width: 220px;
 }
 
-.ssf-price-label {
-    font-size: 0.85rem;
-    color: rgba(27, 26, 23, 0.7);
-    font-weight: 500;
+.ssf-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.ssf-price-input {
+    width: 68px;
+    border: 1px solid rgba(27, 26, 23, 0.15);
+    border-radius: 8px;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.8rem;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    color: #1b1a17;
+    background: #fff;
+    text-align: center;
+    -moz-appearance: textfield;
+}
+
+.ssf-price-input::-webkit-outer-spin-button,
+.ssf-price-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
 }
 
 .ssf-slider {
-    width: 100%;
+    flex: 1;
 }
 
 /* ── Material form field overrides ── */
