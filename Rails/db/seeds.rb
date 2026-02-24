@@ -349,6 +349,64 @@ else
   puts "- Skipping combo — items not found"
 end
 
+# ── Combos disponibles ──────────────────────────────────────────────────────
+puts "\nCreating available combos..."
+
+filet_mignon = Item.find_by(name: 'Filet Mignon AAA')
+petoncles    = Item.find_by(name: 'Pétoncles Poêlés')
+tartare      = Item.find_by(name: 'Tartare de Saumon')
+carpaccio    = Item.find_by(name: 'Carpaccio de Bœuf')
+bar_grille   = Item.find_by(name: 'Filet de Bar Grillé')
+risotto      = Item.find_by(name: 'Risotto aux Truffes')
+
+if filet_mignon && petoncles
+  surf_turf = Combo.find_or_create_by!(name: 'Surf & Turf Premium') do |c|
+    c.description = 'Filet mignon AAA et pétoncles poêlés — une alliance terre et mer d\'exception'
+    c.price       = 89.99
+  end
+  ComboItem.find_or_create_by!(combo: surf_turf, item: filet_mignon) { |ci| ci.quantity = 1 }
+  ComboItem.find_or_create_by!(combo: surf_turf, item: petoncles)    { |ci| ci.quantity = 1 }
+  unless Availability.exists?(available_type: 'Combo', available_id: surf_turf.id)
+    a = Availability.new(available_type: 'Combo', available_id: surf_turf.id,
+                         start_at: 1.day.ago, end_at: 6.months.from_now,
+                         description: 'Disponible tous les soirs')
+    a.save(validate: false)
+  end
+  puts "- Combo '#{surf_turf.name}' créé (disponible)"
+end
+
+if tartare && bar_grille
+  menu_mer = Combo.find_or_create_by!(name: 'Menu Fruits de Mer') do |c|
+    c.description = 'Tartare de saumon en entrée suivi d\'un filet de bar grillé — le meilleur de la mer'
+    c.price       = 64.99
+  end
+  ComboItem.find_or_create_by!(combo: menu_mer, item: tartare)   { |ci| ci.quantity = 1 }
+  ComboItem.find_or_create_by!(combo: menu_mer, item: bar_grille) { |ci| ci.quantity = 1 }
+  unless Availability.exists?(available_type: 'Combo', available_id: menu_mer.id)
+    a = Availability.new(available_type: 'Combo', available_id: menu_mer.id,
+                         start_at: 1.day.ago, end_at: 6.months.from_now,
+                         description: 'Disponible du mardi au dimanche')
+    a.save(validate: false)
+  end
+  puts "- Combo '#{menu_mer.name}' créé (disponible)"
+end
+
+if carpaccio && risotto
+  menu_prestige = Combo.find_or_create_by!(name: 'Menu Prestige') do |c|
+    c.description = 'Carpaccio de bœuf et risotto aux truffes — l\'élégance italienne dans votre assiette'
+    c.price       = 54.99
+  end
+  ComboItem.find_or_create_by!(combo: menu_prestige, item: carpaccio) { |ci| ci.quantity = 1 }
+  ComboItem.find_or_create_by!(combo: menu_prestige, item: risotto)   { |ci| ci.quantity = 1 }
+  unless Availability.exists?(available_type: 'Combo', available_id: menu_prestige.id)
+    a = Availability.new(available_type: 'Combo', available_id: menu_prestige.id,
+                         start_at: 1.day.ago, end_at: 6.months.from_now,
+                         description: 'Menu du chef — disponible tous les soirs')
+    a.save(validate: false)
+  end
+  puts "- Combo '#{menu_prestige.name}' créé (disponible)"
+end
+
 # ── Archivage et indisponibilité ───────────────────────────────────────────
 # Fait en dernier pour ne pas bloquer les validations des orders/combos
 
