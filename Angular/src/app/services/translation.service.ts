@@ -96,6 +96,35 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.availDescWhitespace': { fr: "La description ne peut pas être composée uniquement d'espaces.", en: 'Description cannot be only whitespace.' },
   'admin.availOverlap': { fr: 'Cette période chevauche une autre disponibilité.', en: 'This period overlaps another availability.' },
 
+  // Admin tabs + combos
+  'admin.tables.tab': { fr: 'Tables', en: 'Tables' },
+  'admin.items.tab': { fr: 'Items', en: 'Items' },
+  'admin.combos.tab': { fr: 'Combos', en: 'Combos' },
+  'admin.comboItems.tab': { fr: 'Combo items', en: 'Combo items' },
+  'admin.combos.title': { fr: 'Combos', en: 'Combos' },
+  'admin.combos.subtitle': { fr: 'Créer et consulter les combos.', en: 'Create and list combos.' },
+  'admin.combos.add': { fr: 'Ajouter un combo', en: 'Add combo' },
+  'admin.combos.empty': { fr: 'Aucun combo pour le moment.', en: 'No combo for now.' },
+  'admin.combos.createTitle': { fr: 'Créer un combo', en: 'Create combo' },
+  'admin.combos.nameMaxLength': { fr: 'Maximum 100 caractères.', en: 'Maximum 100 characters.' },
+  'admin.combos.nameWhitespace': { fr: 'Le nom ne peut pas être vide.', en: 'Name cannot be empty.' },
+  'admin.combos.descMaxLength': { fr: 'Maximum 500 caractères.', en: 'Maximum 500 characters.' },
+  'admin.combos.priceMin': { fr: 'Le prix doit être supérieur à 0.', en: 'Price must be greater than 0.' },
+  'admin.combos.creating': { fr: 'Création...', en: 'Creating...' },
+  'admin.comboItems.title': { fr: 'Combo items', en: 'Combo items' },
+  'admin.comboItems.subtitle': { fr: 'Créer et consulter les associations combo-item.', en: 'Create and list combo-item links.' },
+  'admin.comboItems.add': { fr: 'Ajouter un combo item', en: 'Add combo item' },
+  'admin.comboItems.empty': { fr: 'Aucun combo item pour le moment.', en: 'No combo item for now.' },
+  'admin.comboItems.createTitle': { fr: 'Créer un combo item', en: 'Create combo item' },
+  'admin.comboLabel': { fr: 'Combo', en: 'Combo' },
+  'admin.itemLabel': { fr: 'Item', en: 'Item' },
+  'admin.quantity': { fr: 'Quantité', en: 'Quantity' },
+  'admin.comboItems.comboRequired': { fr: 'Le combo est requis.', en: 'Combo is required.' },
+  'admin.comboItems.itemRequired': { fr: "L'item est requis.", en: 'Item is required.' },
+  'admin.comboItems.quantityRequired': { fr: 'La quantité est requise.', en: 'Quantity is required.' },
+  'admin.comboItems.quantityMin': { fr: 'La quantité doit être au moins 1.', en: 'Quantity must be at least 1.' },
+  'admin.comboItems.creating': { fr: 'Création...', en: 'Creating...' },
+
   // Admin tables
   'tables.title': { fr: 'Gestion des tables', en: 'Table management' },
   'tables.subtitle': { fr: 'Créez des tables, personnalisez et téléchargez vos QR codes.', en: 'Create tables, customize and download your QR codes.' },
@@ -346,7 +375,7 @@ export class TranslationService {
 
   t(key: string): string {
     const entry = TRANSLATIONS[key];
-    
+
     return entry?.[this.lang()] ?? entry?.['fr'] ?? key;
   }
 

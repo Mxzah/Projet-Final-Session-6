@@ -104,10 +104,11 @@ tables_data = [
 ]
 
 tables_data.each do |td|
-  Table.find_or_create_by!(number: td[:number]) do |t|
-    t.nb_seats = td[:nb_seats]
-    t.temporary_code = SecureRandom.hex(16)
-  end
+  table = Table.unscoped.find_or_initialize_by(number: td[:number])
+  table.nb_seats = td[:nb_seats]
+  table.deleted_at = nil
+  table.temporary_code ||= SecureRandom.hex(16)
+  table.save!
   puts "- Table ##{td[:number]} (#{td[:nb_seats]} places)"
 end
 

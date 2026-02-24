@@ -67,9 +67,25 @@
     box-shadow: none !important;
 }
 
-.style-card mat-card-header {
-    padding: 0 !important;
-    margin: 0 0 1rem 0 !important;
+.style-dropdown {
+    width: 100%;
+}
+
+.style-dropdown summary {
+    list-style: none;
+}
+
+.style-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.section-summary {
+    cursor: pointer;
+    margin-bottom: 0.5rem !important;
+}
+
+.style-content {
+    padding-top: 0.5rem;
 }
 
 .section-title {
@@ -92,6 +108,24 @@
 
 .style-card mat-card-content {
     padding: 0 !important;
+}
+
+.preview-panel {
+    margin-top: 1rem;
+    border-top: 1px solid rgba(27, 26, 23, 0.1);
+    padding-top: 1rem;
+}
+
+.preview-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(27, 26, 23, 0.6);
+    margin-bottom: 0.5rem;
+}
+
+.qr-preview {
+    width: fit-content;
+    margin-bottom: 0.75rem;
 }
 
 /* ── URL base field ── */

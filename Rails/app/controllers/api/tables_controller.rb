@@ -1,7 +1,8 @@
 module Api
   class TablesController < AdminController
     skip_before_action :authenticate_user!, only: [:index, :show, :qr_code]
-    skip_before_action :require_admin!, only: [:index, :show, :qr_code]
+    skip_before_action :require_admin!, only: [:index, :show, :qr_code, :mark_cleaned]
+    before_action :require_cleaning_staff!, only: [:mark_cleaned]
 
     def show
       table = Table.find_by!(temporary_code: params[:qr_token])
@@ -120,6 +121,39 @@ module Api
       }, status: :ok
     end
 
+    def mark_cleaned
+      table = Table.find(params[:id])
+
+      cleaned_time = begin
+        params[:cleaned_at].present? ? Time.zone.parse(params[:cleaned_at].to_s) : Time.current
+      rescue ArgumentError, TypeError
+        nil
+      end
+
+      if cleaned_time.nil?
+        render json: {
+          success: false,
+          data: nil,
+          errors: ["Invalid cleaned_at datetime"]
+        }, status: :unprocessable_entity
+        return
+      end
+
+      if table.mark_cleaned!(cleaned_time: cleaned_time)
+        render json: {
+          success: true,
+          data: table_json(table),
+          errors: []
+        }, status: :ok
+      else
+        render json: {
+          success: false,
+          data: nil,
+          errors: table.errors.full_messages
+        }, status: :unprocessable_entity
+      end
+    end
+
     private
 
     def table_params
@@ -134,6 +168,16 @@ module Api
         status: table.orders.where(ended_at: nil).any? ? 'occupied' : 'available',
         qr_token: table.temporary_code
       }
+    end
+
+    def require_cleaning_staff!
+      return if %w[Administrator Waiter].include?(current_user&.type)
+
+      render json: {
+        success: false,
+        data: nil,
+        errors: ["Access restricted to cleaning staff"]
+      }, status: :ok
     end
   end
 end

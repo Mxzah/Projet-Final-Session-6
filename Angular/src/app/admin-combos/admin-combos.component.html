@@ -1,0 +1,110 @@
+<main class="page-admin">
+  <div class="outer-container">
+    <div class="welcome-header">
+      <h2 class="welcome-title">
+        {{ ts.t('admin.combos.title') }}
+        <button mat-mini-fab class="btn-add" [title]="ts.t('admin.combos.add')" (click)="openCreate()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </h2>
+      <p class="welcome-text">{{ ts.t('admin.combos.subtitle') }}</p>
+    </div>
+
+    @if (loadError()) {
+      <div class="admin-error">{{ loadError() }}</div>
+    }
+
+    @if (actionError()) {
+      <div class="admin-error">{{ actionError() }}</div>
+    }
+
+    @if (isLoading()) {
+      <div class="loading">
+        <mat-spinner diameter="48"></mat-spinner>
+      </div>
+    }
+
+    @if (!isLoading() && combos().length === 0) {
+      <div class="empty">{{ ts.t('admin.combos.empty') }}</div>
+    }
+
+    @if (!isLoading() && combos().length > 0) {
+      <div class="combos-list">
+        @for (combo of combos(); track trackByComboId($index, combo)) {
+          <mat-card class="combo-card">
+            <mat-card-content class="combo-body">
+              <div class="combo-main">
+                <div class="combo-name">{{ combo.name }}</div>
+                <div class="combo-description">{{ combo.description || '—' }}</div>
+              </div>
+              <div class="combo-price">{{ combo.price | number:'1.2-2' }} $</div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    }
+  </div>
+</main>
+
+@if (isCreating()) {
+  <div class="modal-overlay">
+    <mat-card class="modal modal-create">
+      <button mat-icon-button class="modal-close" (click)="cancelCreate()">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('admin.combos.createTitle') }}</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="createForm" (ngSubmit)="saveCreate()">
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('admin.name') }}</mat-label>
+            <input matInput formControlName="name" />
+            @if (createForm.controls.name.dirty && createForm.controls.name.errors) {
+              <mat-error>
+                @if (createForm.controls.name.errors['required']) {
+                  {{ ts.t('admin.nameRequired') }}
+                } @else if (createForm.controls.name.errors['maxlength']) {
+                  {{ ts.t('admin.combos.nameMaxLength') }}
+                } @else if (createForm.controls.name.errors['whitespace']) {
+                  {{ ts.t('admin.combos.nameWhitespace') }}
+                }
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('admin.description') }}</mat-label>
+            <textarea matInput rows="3" formControlName="description"></textarea>
+            @if (createForm.controls.description.dirty && createForm.controls.description.errors?.['maxlength']) {
+              <mat-error>{{ ts.t('admin.combos.descMaxLength') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('admin.price') }}</mat-label>
+            <input matInput type="number" step="0.01" min="0.01" formControlName="price" />
+            @if (createForm.controls.price.dirty && createForm.controls.price.errors) {
+              <mat-error>
+                @if (createForm.controls.price.errors['required']) {
+                  {{ ts.t('admin.priceRequired') }}
+                } @else if (createForm.controls.price.errors['min']) {
+                  {{ ts.t('admin.combos.priceMin') }}
+                }
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-card-actions class="modal-actions">
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelCreate()">{{ ts.t('admin.cancel') }}</button>
+            <button mat-flat-button type="submit" class="btn-primary" [disabled]="createForm.invalid || isSaving()">
+              {{ isSaving() ? ts.t('admin.combos.creating') : ts.t('tables.create') }}
+            </button>
+          </mat-card-actions>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

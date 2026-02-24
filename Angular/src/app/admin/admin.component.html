@@ -13,8 +13,10 @@
 
 <div class="tabs-wrapper">
   <mat-tab-group class="admin-tabs" [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
-    <mat-tab label="Tables"></mat-tab>
-    <mat-tab label="Items"></mat-tab>
+    <mat-tab [label]="ts.t('admin.tables.tab')"></mat-tab>
+    <mat-tab [label]="ts.t('admin.items.tab')"></mat-tab>
+    <mat-tab [label]="ts.t('admin.combos.tab')"></mat-tab>
+    <mat-tab [label]="ts.t('admin.comboItems.tab')"></mat-tab>
     <mat-tab [label]="ts.t('admin.users.tab')"></mat-tab>
   </mat-tab-group>
 </div>
@@ -29,6 +31,14 @@
   }
 
   @if (tabIndex === 2) {
+    <app-admin-combos />
+  }
+
+  @if (tabIndex === 3) {
+    <app-admin-combo-items />
+  }
+
+  @if (tabIndex === 4) {
     <app-admin-users />
   }
 </div>

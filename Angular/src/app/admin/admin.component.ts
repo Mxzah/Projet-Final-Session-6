@@ -10,13 +10,15 @@ import { HeaderComponent } from '../header/header.component';
 import { AdminTablesComponent } from '../admin-tables/admin-tables.component';
 import { AdminItemsComponent } from '../admin-items/admin-items.component';
 import { AdminUsersComponent } from '../admin-users/admin-users.component';
+import { AdminCombosComponent } from '../admin-combos/admin-combos.component';
+import { AdminComboItemsComponent } from '../admin-combo-items/admin-combo-items.component';
 
-const TAB_NAMES = ['tables', 'items', 'users'];
+const TAB_NAMES = ['tables', 'items', 'combos', 'combo-items', 'users'];
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, MatTabsModule, MatButtonModule, MatIconModule, HeaderComponent, AdminTablesComponent, AdminItemsComponent, AdminUsersComponent],
+  imports: [CommonModule, MatTabsModule, MatButtonModule, MatIconModule, HeaderComponent, AdminTablesComponent, AdminItemsComponent, AdminCombosComponent, AdminComboItemsComponent, AdminUsersComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css']
 })
@@ -29,7 +31,7 @@ export class AdminComponent implements OnInit {
     private route: ActivatedRoute,
     private location: Location,
     public ts: TranslationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const tab = this.route.snapshot.queryParamMap.get('tab');

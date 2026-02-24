@@ -23,7 +23,38 @@ class Table < ApplicationRecord
     availabilities.where("start_at <= ? AND end_at > ?", now, now).update_all(end_at: now)
   end
 
+  def mark_cleaned!(cleaned_time: Time.current)
+    transaction do
+      update!(cleaned_at: cleaned_time)
+      rotate_qr_if_needed!
+    end
+
+    true
+  rescue ActiveRecord::RecordInvalid
+    false
+  end
+
+  def rotate_qr_if_needed!
+    return false unless qr_rotation_required?
+
+    update!(
+      temporary_code: SecureRandom.hex(16),
+      qr_rotated_at: cleaned_at || Time.current
+    )
+  end
+
   private
+
+  def qr_rotation_required?
+    return false if cleaned_at.blank?
+    return false if orders.where(ended_at: nil).exists?
+
+    last_closed_order_at = orders.where.not(ended_at: nil).maximum(:ended_at)
+    return false if last_closed_order_at.present? && cleaned_at <= last_closed_order_at
+    return false if qr_rotated_at.present? && cleaned_at <= qr_rotated_at
+
+    true
+  end
 
   def cleaned_at_after_created_at
     return unless cleaned_at.present? && created_at.present?

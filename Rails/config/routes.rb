@@ -7,7 +7,11 @@ Rails.application.routes.draw do
   root to: "angular#index"
 
   namespace :api, constraints: { format: 'json' } do
-    resources :tables, only: [:index, :create, :update, :destroy]
+    resources :tables, only: [:index, :create, :update, :destroy] do
+      member do
+        patch :mark_cleaned
+      end
+    end
     get 'tables/:qr_token', to: 'tables#show'
     get 'tables/:qr_token/qr_code', to: 'tables#qr_code'
 
@@ -19,6 +23,8 @@ Rails.application.routes.draw do
       end
       resources :availabilities, only: [:index, :create, :update, :destroy]
     end
+    resources :combos, only: [:index, :create]
+    resources :combo_items, only: [:index, :create]
     resources :users, only: [:index, :show, :create, :update, :destroy]
 
     resources :orders, only: [:index, :show, :create, :update, :destroy] do

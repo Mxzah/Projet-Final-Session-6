@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_16_171305) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_24_190000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -139,12 +139,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_171305) do
     t.datetime "cleaned_at"
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
-    t.integer "nb_seats", null: false
+    t.string "image"
+    t.integer "nb_seats", default: 4, null: false
     t.integer "number", null: false
+    t.datetime "qr_rotated_at"
     t.string "temporary_code", limit: 50
+    t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "idx_tables_deleted_at"
-    t.index ["number"], name: "uniq_tables_number", unique: true
-    t.index ["temporary_code"], name: "uniq_tables_temporary_code", unique: true
+    t.index ["number"], name: "index_tables_on_number", unique: true
+    t.index ["qr_rotated_at"], name: "idx_tables_qr_rotated_at"
+    t.index ["temporary_code"], name: "index_tables_on_temporary_code", unique: true
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
