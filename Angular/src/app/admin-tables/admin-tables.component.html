@@ -189,6 +189,12 @@
           <mat-label>{{ ts.t('tables.capacity') }}</mat-label>
           <input matInput type="number" min="1" max="20" [ngModel]="editCapacity()" (ngModelChange)="editCapacity.set($event === '' ? null : +$event)" />
         </mat-form-field>
+        <app-availability-list
+          #editAvailList
+          [availabilities]="editAvailabilities()"
+          [disabled]="isUpdating()"
+          (availabilitiesChange)="editAvailabilities.set($event)">
+        </app-availability-list>
       </mat-card-content>
       <mat-card-actions class="modal-actions">
         <button mat-stroked-button class="btn-cancel" (click)="cancelEdit()">{{ ts.t('tables.cancel') }}</button>
@@ -223,6 +229,12 @@
             <mat-label>{{ ts.t('tables.capacity') }}</mat-label>
             <input matInput type="number" min="1" max="20" [ngModel]="newTableCapacity()" (ngModelChange)="newTableCapacity.set($event === '' ? 4 : +$event)" name="capacity" required />
           </mat-form-field>
+          <app-availability-list
+            #createAvailList
+            [availabilities]="createAvailabilities()"
+            [disabled]="isCreating()"
+            (availabilitiesChange)="createAvailabilities.set($event)">
+          </app-availability-list>
           <mat-card-actions class="modal-actions">
             <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelCreate()">{{ ts.t('tables.cancel') }}</button>
             <button mat-flat-button type="submit" class="btn-primary" [disabled]="isCreating() || newTableNumber() === null">

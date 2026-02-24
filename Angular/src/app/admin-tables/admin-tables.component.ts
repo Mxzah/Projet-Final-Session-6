@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewChecked, ChangeDetectorRef, NgZone, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ChangeDetectorRef, NgZone, signal, computed, effect, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -12,6 +12,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { ApiService } from '../services/api.service';
 import { TranslationService } from '../services/translation.service';
+import { AvailabilityService } from '../services/availability.service';
+import { AvailabilityEntry } from '../menu/menu.models';
+import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 import QRCodeStyling from 'styled-qr-code';
 
 interface TableInfo {
@@ -29,12 +32,16 @@ interface TableInfo {
         CommonModule, FormsModule,
         MatCardModule, MatButtonModule, MatIconModule,
         MatFormFieldModule, MatInputModule, MatSelectModule,
-        MatProgressSpinnerModule, MatTooltipModule, MatChipsModule
+        MatProgressSpinnerModule, MatTooltipModule, MatChipsModule,
+        AvailabilityListComponent
     ],
     templateUrl: './admin-tables.component.html',
     styleUrls: ['./admin-tables.component.css']
 })
 export class AdminTablesComponent implements OnInit, AfterViewChecked {
+    @ViewChild('createAvailList') createAvailList?: AvailabilityListComponent;
+    @ViewChild('editAvailList')   editAvailList?: AvailabilityListComponent;
+
     tables = signal<TableInfo[]>([]);
     isLoading = signal(true);
     copiedToken = signal<string | null>(null);
@@ -45,6 +52,7 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
     newTableCapacity = signal(4);
     isCreating = signal(false);
     errorMessage = signal<string | null>(null);
+    createAvailabilities = signal<AvailabilityEntry[]>([]);
 
     // Edit table
     editingTableId = signal<number | null>(null);
@@ -52,6 +60,8 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
     editCapacity = signal<number | null>(null);
     isUpdating = signal(false);
     editErrorMessage = signal<string | null>(null);
+    editAvailabilities = signal<AvailabilityEntry[]>([]);
+    private originalEditAvailabilities: AvailabilityEntry[] = [];
 
     // Delete
     deletingTableId = signal<number | null>(null);
@@ -81,6 +91,7 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
 
     constructor(
         private apiService: ApiService,
+        private availabilityService: AvailabilityService,
         private cdr: ChangeDetectorRef,
         private ngZone: NgZone,
         public ts: TranslationService
@@ -246,6 +257,7 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
     createTable(): void {
         const newNumber = this.newTableNumber();
         if (newNumber == null) return;
+        if (!(this.createAvailList?.isValid ?? true)) return;
 
         this.isCreating.set(true);
         this.errorMessage.set(null);
@@ -257,10 +269,22 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
             }
         }).subscribe({
             next: (response) => {
-                this.isCreating.set(false);
-                if (response.success) {
-                    this.cancelCreate();
-                    this.loadTables();
+                if (response.success && response.data) {
+                    const created = response.data;
+                    this.syncTableAvailabilities(created.id, this.createAvailabilities(), []).subscribe({
+                        next: () => {
+                            this.isCreating.set(false);
+                            this.cancelCreate();
+                            this.loadTables();
+                        },
+                        error: () => {
+                            this.isCreating.set(false);
+                            this.cancelCreate();
+                            this.loadTables();
+                        }
+                    });
+                } else {
+                    this.isCreating.set(false);
                 }
             },
             error: (error) => {
@@ -275,6 +299,7 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
         this.newTableNumber.set(null);
         this.newTableCapacity.set(4);
         this.errorMessage.set(null);
+        this.createAvailabilities.set([]);
     }
 
     cancelCreate(): void {
@@ -282,6 +307,7 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
         this.newTableNumber.set(null);
         this.newTableCapacity.set(4);
         this.errorMessage.set(null);
+        this.createAvailabilities.set([]);
     }
 
     // Edit
@@ -290,6 +316,15 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
         this.editNumber.set(table.number);
         this.editCapacity.set(table.capacity);
         this.editErrorMessage.set(null);
+        this.editAvailabilities.set([]);
+        this.originalEditAvailabilities = [];
+
+        this.availabilityService.getAvailabilities('tables', table.id).subscribe({
+            next: (entries) => {
+                this.originalEditAvailabilities = entries;
+                this.editAvailabilities.set([...entries]);
+            }
+        });
     }
 
     cancelEdit(): void {
@@ -297,6 +332,8 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
         this.editNumber.set(null);
         this.editCapacity.set(null);
         this.editErrorMessage.set(null);
+        this.editAvailabilities.set([]);
+        this.originalEditAvailabilities = [];
     }
 
     saveEdit(): void {
@@ -304,6 +341,7 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
         const editNumber = this.editNumber();
         const editCapacity = this.editCapacity();
         if (editingId == null || editNumber == null || editCapacity == null) return;
+        if (!(this.editAvailList?.isValid ?? true)) return;
 
         this.isUpdating.set(true);
         this.editErrorMessage.set(null);
@@ -315,10 +353,21 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
             }
         }).subscribe({
             next: (response) => {
-                this.isUpdating.set(false);
                 if (response.success) {
-                    this.cancelEdit();
-                    this.loadTables();
+                    this.syncTableAvailabilities(editingId, this.editAvailabilities(), this.originalEditAvailabilities).subscribe({
+                        next: () => {
+                            this.isUpdating.set(false);
+                            this.cancelEdit();
+                            this.loadTables();
+                        },
+                        error: () => {
+                            this.isUpdating.set(false);
+                            this.cancelEdit();
+                            this.loadTables();
+                        }
+                    });
+                } else {
+                    this.isUpdating.set(false);
                 }
             },
             error: (error) => {
@@ -326,6 +375,15 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
                 this.editErrorMessage.set(error?.errors?.[0] || this.ts.t('tables.editError'));
             }
         });
+    }
+
+    private syncTableAvailabilities(tableId: number, current: AvailabilityEntry[], original: AvailabilityEntry[]) {
+        return this.availabilityService.syncAvailabilities(
+            current, original,
+            entry => this.availabilityService.createAvailability('tables', tableId, entry),
+            (id, entry) => this.availabilityService.updateAvailability('tables', tableId, id, entry),
+            id => this.availabilityService.deleteAvailability('tables', tableId, id)
+        );
     }
 
     // Delete

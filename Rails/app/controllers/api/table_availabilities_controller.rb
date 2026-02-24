@@ -1,14 +1,13 @@
-class Api::AvailabilitiesController < Api::AdminController
-  before_action :set_item
+class Api::TableAvailabilitiesController < Api::AdminController
+  before_action :set_table
   before_action :set_availability, only: [:update, :destroy]
 
   def index
-    availabilities = @item.availabilities.order(:start_at)
-    render json: { success: true, data: availabilities.map { |a| availability_json(a) } }
+    render json: { success: true, data: @table.availabilities.order(:start_at).map { |a| availability_json(a) } }
   end
 
   def create
-    availability = @item.availabilities.build(availability_params)
+    availability = @table.availabilities.build(availability_params)
     if availability.save
       render json: { success: true, data: availability_json(availability) }
     else
@@ -31,12 +30,12 @@ class Api::AvailabilitiesController < Api::AdminController
 
   private
 
-  def set_item
-    @item = Item.find(params[:item_id])
+  def set_table
+    @table = Table.find(params[:table_id])
   end
 
   def set_availability
-    @availability = @item.availabilities.find(params[:id])
+    @availability = @table.availabilities.find(params[:id])
   end
 
   def availability_params

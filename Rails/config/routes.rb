@@ -11,6 +11,8 @@ Rails.application.routes.draw do
       member do
         patch :mark_cleaned
       end
+      resources :availabilities, only: [:index, :create, :update, :destroy],
+                controller: 'table_availabilities'
     end
     get 'tables/:qr_token', to: 'tables#show'
     get 'tables/:qr_token/qr_code', to: 'tables#qr_code'

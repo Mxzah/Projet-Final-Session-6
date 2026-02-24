@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { forkJoin, Observable, of } from 'rxjs';
 import { ItemsService } from '../services/items.service';
 import { Item, Category, AvailabilityEntry } from '../menu/menu.models';
 import { TranslationService } from '../services/translation.service';
@@ -87,7 +86,7 @@ export class ItemFormDialogComponent {
       });
       this.imagePreview.set(data.item.image_url || null);
 
-      this.availabilityService.getItemAvailabilities(data.item.id).subscribe({
+      this.availabilityService.getAvailabilities('items', data.item.id).subscribe({
         next: (entries) => {
           this.originalAvailabilities = entries;
           this.availabilities.set(entries);
@@ -202,29 +201,12 @@ export class ItemFormDialogComponent {
     }
   }
 
-  private syncAvailabilities(itemId: number): Observable<unknown> {
-    const current = this.availabilities();
-    const original = this.originalAvailabilities;
-
-    const toCreate = current.filter(a => !a.id);
-    const toMs = (s?: string | null) => s ? new Date(s).getTime() : null;
-    const toUpdate = current.filter(a => {
-      if (!a.id) return false;
-      const orig = original.find(o => o.id === a.id);
-      if (!orig) return false;
-      return toMs(orig.start_at) !== toMs(a.start_at)
-          || toMs(orig.end_at) !== toMs(a.end_at)
-          || (orig.description ?? null) !== (a.description ?? null);
-    });
-    const currentIds = new Set(current.filter(a => a.id).map(a => a.id!));
-    const toDelete = original.filter(o => !currentIds.has(o.id!));
-
-    const ops: Observable<unknown>[] = [
-      ...toCreate.map(a => this.availabilityService.createAvailability(itemId, { start_at: a.start_at, end_at: a.end_at, description: a.description })),
-      ...toUpdate.map(a => this.availabilityService.updateAvailability(itemId, a.id!, { start_at: a.start_at, end_at: a.end_at, description: a.description })),
-      ...toDelete.map(a => this.availabilityService.deleteAvailability(itemId, a.id!))
-    ];
-
-    return ops.length > 0 ? forkJoin(ops) : of(null);
+  private syncAvailabilities(itemId: number) {
+    return this.availabilityService.syncAvailabilities(
+      this.availabilities(), this.originalAvailabilities,
+      entry => this.availabilityService.createAvailability('items', itemId, entry),
+      (id, entry) => this.availabilityService.updateAvailability('items', itemId, id, entry),
+      id => this.availabilityService.deleteAvailability('items', itemId, id)
+    );
   }
 }

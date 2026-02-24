@@ -154,6 +154,8 @@ items_data = [
   { name: 'Linguine au Homard', description: 'Linguine fraîches, chair de homard, tomates cerises, bisque légère et estragon', price: 44.99, category: 'Pâtes & Risottos', image: 'LinguineAuHomard.jpg' },
 ]
 
+created_items = []
+
 items_data.each do |id|
   item = Item.find_or_initialize_by(name: id[:name], category: categories[id[:category]])
   item.description = id[:description]
@@ -168,7 +170,26 @@ items_data.each do |id|
     )
   end
   item.save!
+  created_items << item
   puts "- #{id[:name]} (#{id[:category]}) — CA$#{id[:price]}"
+end
+
+# Tous les items reçoivent une availability permanente pour l'instant
+# (l'archivage et la suppression des availabilities se font à la fin,
+#  après la création des orders et du combo)
+puts "\nCreating default availabilities..."
+created_items.each do |item|
+  next unless item.id.present?
+  unless Availability.exists?(available_type: 'Item', available_id: item.id)
+    Availability.create!(
+      available_type: 'Item',
+      available_id:   item.id,
+      start_at:       Time.current.beginning_of_minute,
+      end_at:         nil,
+      description:    nil
+    )
+    puts "- Disponibilité ajoutée : #{item.name}"
+  end
 end
 
 # ── Vibes ──────────────────────────────────────────────────────────────────
@@ -313,6 +334,30 @@ if magret && linguine
   puts "- Combo '#{combo.name}' créé avec Magret de Canard + Linguine au Homard"
 else
   puts "- Skipping combo — items not found"
+end
+
+# ── Archivage et indisponibilité ───────────────────────────────────────────
+# Fait en dernier pour ne pas bloquer les validations des orders/combos
+
+puts "\nArchiving Linguine au Homard..."
+linguine_id = Item.unscoped.find_by(name: 'Linguine au Homard')&.id
+if linguine_id
+  now = Time.current
+  Item.unscoped.where(id: linguine_id).update_all(deleted_at: now)
+  Availability.where(available_type: 'Item', available_id: linguine_id)
+              .where("start_at > ?", now)
+              .delete_all
+  Availability.where(available_type: 'Item', available_id: linguine_id)
+              .where("start_at <= ? AND (end_at IS NULL OR end_at > ?)", now, now)
+              .update_all(end_at: now)
+  puts "- Archivé : Linguine au Homard"
+end
+
+puts "Removing availability from Risotto aux Truffes (indisponible)..."
+risotto_id = Item.unscoped.find_by(name: 'Risotto aux Truffes')&.id
+if risotto_id
+  Availability.where(available_type: 'Item', available_id: risotto_id).delete_all
+  puts "- Indisponible : Risotto aux Truffes"
 end
 
 puts "\nAll seeds created!"
