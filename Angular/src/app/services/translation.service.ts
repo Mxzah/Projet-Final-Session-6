@@ -175,6 +175,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'order.tipErrorNegative': { fr: 'Le pourboire ne peut pas être négatif.', en: 'Tip cannot be negative.' },
   'order.tipErrorMax': { fr: 'Le pourboire ne peut pas dépasser 999,99 CA$.', en: 'Tip cannot exceed CA$999.99.' },
   'order.send': { fr: 'Envoyer', en: 'Send' },
+  'order.pay': { fr: 'Payer', en: 'Pay' },
   'order.empty': { fr: 'Aucune commande en cours.', en: 'No current order.' },
   'order.status.sent': { fr: 'Envoyée', en: 'Sent' },
   'order.status.inPreparation': { fr: 'En préparation', en: 'In preparation' },
@@ -322,6 +323,21 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'signup.loading': { fr: 'Inscription...', en: 'Signing up...' },
   'signup.loginLink': { fr: 'Déjà inscrit? Se connecter', en: 'Already have an account? Log in' },
   'signup.defaultError': { fr: "Échec de l'inscription", en: 'Sign up failed' },
+
+  // Pay page
+  'pay.title': { fr: 'Paiement', en: 'Payment' },
+  'pay.subtitle': { fr: 'Finalisez votre commande', en: 'Finalize your order' },
+  'pay.table': { fr: 'Table', en: 'Table' },
+  'pay.items': { fr: 'Articles', en: 'Items' },
+  'pay.total': { fr: 'Sous-total', en: 'Subtotal' },
+  'pay.tipLabel': { fr: 'Pourboire (CA$)', en: 'Tip (CA$)' },
+  'pay.tipNegative': { fr: 'Le pourboire ne peut pas être négatif.', en: 'Tip cannot be negative.' },
+  'pay.tipMax': { fr: 'Le pourboire ne peut pas dépasser 999,99 CA$.', en: 'Tip cannot exceed CA$999.99.' },
+  'pay.grandTotal': { fr: 'Total', en: 'Grand Total' },
+  'pay.confirm': { fr: 'Payer et terminer', en: 'Pay and finish' },
+  'pay.processing': { fr: 'Traitement...', en: 'Processing...' },
+  'pay.error': { fr: 'Erreur lors du paiement. Veuillez réessayer.', en: 'Payment error. Please try again.' },
+  'pay.loading': { fr: 'Chargement...', en: 'Loading...' },
 };
 
 @Injectable({ providedIn: 'root' })

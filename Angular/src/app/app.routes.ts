@@ -13,6 +13,7 @@ export const routes: Routes = [
     { path: 'admin', loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent), canActivate: [adminGuard] },
     { path: 'menu', loadComponent: () => import('./menu/menu.component').then(m => m.MenuComponent) },
     { path: 'order', loadComponent: () => import('./order/order.component').then(m => m.OrderComponent), canActivate: [authGuard] },
+    { path: 'pay', loadComponent: () => import('./pay/pay.component').then(m => m.PayComponent), canActivate: [authGuard] },
     { path: 'kitchen', loadComponent: () => import('./cuisine/cuisine.component').then(m => m.CuisineComponent), canActivate: [cuisineGuard] },
     { path: '**', loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

@@ -102,6 +102,10 @@ export class OrderService {
     return this.api.post<any>('/api/orders/close_open', {});
   }
 
+  payOrder(orderId: number, tip: number): Observable<ApiResponse<OrderData[]>> {
+    return this.api.post<OrderData[]>(`/api/orders/${orderId}/pay`, { tip });
+  }
+
   getAssignedWaiter(): Observable<ApiResponse<{ id: number; name: string }[]>> {
     return this.api.get<{ id: number; name: string }[]>('/api/waiters/assigned');
   }

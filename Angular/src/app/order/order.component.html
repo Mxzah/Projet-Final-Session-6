@@ -114,10 +114,17 @@
       <mat-divider></mat-divider>
 
       <div class="order-actions">
-        <button mat-raised-button color="primary" [disabled]="pendingCount() === 0 || isSending()" (click)="onSend()">
-          <mat-icon aria-hidden="true">send</mat-icon>
-          {{ ts.t('order.send') }}
-        </button>
+        @if (allServed()) {
+          <button mat-raised-button color="primary" (click)="goToPay()">
+            <mat-icon aria-hidden="true">payment</mat-icon>
+            {{ ts.t('order.pay') }}
+          </button>
+        } @else {
+          <button mat-raised-button color="primary" [disabled]="pendingCount() === 0 || isSending()" (click)="onSend()">
+            <mat-icon aria-hidden="true">send</mat-icon>
+            {{ ts.t('order.send') }}
+          </button>
+        }
       </div>
     </div>
   }

@@ -1,0 +1,68 @@
+<app-header (logoutClick)="logout()"></app-header>
+
+<main class="pay-page">
+  @if (order(); as o) {
+    <mat-card class="pay-card" appearance="outlined">
+      <mat-card-content class="pay-content">
+
+        <div class="pay-header">
+          <mat-icon class="pay-icon">receipt_long</mat-icon>
+          <h1 class="pay-title">{{ ts.t('pay.title') }}</h1>
+          <p class="pay-subtitle">{{ ts.t('pay.subtitle') }}</p>
+        </div>
+
+        <div class="pay-summary">
+          <div class="summary-line">
+            <span>{{ ts.t('pay.table') }}</span>
+            <strong>#{{ o.table_number }}</strong>
+          </div>
+          <div class="summary-line">
+            <span>{{ ts.t('pay.items') }}</span>
+            <strong>{{ o.order_lines.length }}</strong>
+          </div>
+          <div class="summary-line total-line">
+            <span>{{ ts.t('pay.total') }}</span>
+            <strong class="total-price">CA${{ o.total.toFixed(2) }}</strong>
+          </div>
+        </div>
+
+        <div class="tip-section">
+          <mat-form-field class="tip-field" appearance="outline">
+            <mat-label>{{ ts.t('pay.tipLabel') }}</mat-label>
+            <input matInput
+                   type="number"
+                   [value]="tip()"
+                   (input)="onTipChange($event)"
+                   min="0"
+                   max="999.99"
+                   step="0.50"
+                   placeholder="0.00" />
+            <mat-icon matPrefix>volunteer_activism</mat-icon>
+            @if (tipError()) {
+              <mat-error>{{ tipError() }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="grand-total">
+          <span>{{ ts.t('pay.grandTotal') }}</span>
+          <strong class="grand-total-price">CA${{ (o.total + tip()).toFixed(2) }}</strong>
+        </div>
+
+        <button mat-raised-button
+                color="primary"
+                class="pay-btn"
+                [disabled]="isPaying() || tipError() !== ''"
+                (click)="onPay()">
+          <mat-icon>payment</mat-icon>
+          {{ isPaying() ? ts.t('pay.processing') : ts.t('pay.confirm') }}
+        </button>
+
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="loading">
+      <p>{{ ts.t('pay.loading') }}</p>
+    </div>
+  }
+</main>

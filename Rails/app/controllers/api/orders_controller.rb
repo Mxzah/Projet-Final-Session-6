@@ -91,6 +91,38 @@ module Api
       end
     end
 
+    # POST /api/orders/:id/pay
+    def pay
+      order = Order.find_by(id: params[:id], client_id: current_user.id)
+
+      unless order
+        return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
+      end
+
+      if order.ended_at.present?
+        return render json: { code: 200, success: false, data: [], errors: ["Order is already closed"] }, status: :ok
+      end
+
+      tip_value = params[:tip].to_f
+
+      if tip_value < 0
+        return render json: { code: 200, success: false, data: [], errors: ["Tip cannot be negative"] }, status: :ok
+      end
+
+      if tip_value > 999.99
+        return render json: { code: 200, success: false, data: [], errors: ["Tip cannot exceed 999.99"] }, status: :ok
+      end
+
+      order.tip = tip_value
+      order.ended_at = Time.current
+
+      if order.save(validate: false)
+        render json: { code: 200, success: true, data: [order_json(order.reload)], errors: [] }, status: :ok
+      else
+        render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
+      end
+    end
+
     # DELETE /api/orders/:id  (hard delete)
     def destroy
       order = Order.find_by(id: params[:id], client_id: current_user.id)

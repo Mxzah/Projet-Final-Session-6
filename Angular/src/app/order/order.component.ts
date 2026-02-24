@@ -67,6 +67,11 @@ export class OrderComponent implements OnInit {
   totalItems = computed(() => this.lines().reduce((sum, line) => sum + line.quantity, 0));
   pendingCount = computed(() => this.cartService.lines().length);
 
+  allServed = computed(() => {
+    const sLines = this.serverLines();
+    return sLines.length > 0 && sLines.every(l => l.status === 'served') && this.pendingCount() === 0;
+  });
+
   constructor(
     public cartService: CartService,
     public ts: TranslationService,
@@ -270,6 +275,10 @@ export class OrderComponent implements OnInit {
 
   onAddItems(): void {
     this.router.navigate(['/menu']);
+  }
+
+  goToPay(): void {
+    this.router.navigate(['/pay']);
   }
 
   goBack(): void {

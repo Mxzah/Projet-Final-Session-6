@@ -1,0 +1,138 @@
+@import url("../theme.css");
+
+.pay-page {
+  padding: 1.5rem clamp(1rem, 3vw, 3rem) 2.5rem;
+  min-height: calc(100vh - 60px);
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.pay-card {
+  width: 100%;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.pay-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 1.5rem !important;
+}
+
+.pay-header {
+  text-align: center;
+}
+
+.pay-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--copper);
+  margin-bottom: 0.5rem;
+}
+
+.pay-title {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  margin: 0 0 0.25rem;
+  color: var(--ink);
+}
+
+.pay-subtitle {
+  font-size: 0.9rem;
+  color: rgba(27, 26, 23, 0.55);
+  margin: 0;
+}
+
+.pay-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: rgba(27, 26, 23, 0.03);
+  border-radius: 12px;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.total-line {
+  border-top: 1px solid rgba(27, 26, 23, 0.1);
+  padding-top: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.total-price {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--copper);
+}
+
+.tip-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.tip-field {
+  width: 100%;
+}
+
+.grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(200, 109, 63, 0.08);
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.grand-total-price {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--copper);
+}
+
+.pay-btn {
+  width: 100%;
+  padding: 0.85rem 1.5rem !important;
+  font-size: 1.05rem !important;
+  border-radius: 12px !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+/* Bronze button style */
+button[mat-raised-button].mat-primary,
+button[mat-raised-button][color="primary"] {
+  background: linear-gradient(120deg, var(--copper), var(--rust)) !important;
+  color: white !important;
+}
+
+.loading {
+  text-align: center;
+  color: rgba(27, 26, 23, 0.5);
+  padding: 3rem 0;
+}
+
+@media (max-width: 600px) {
+  .pay-page {
+    padding: 1rem;
+  }
+
+  .pay-content {
+    padding: 1.25rem 1rem !important;
+  }
+}

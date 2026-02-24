@@ -23,6 +23,9 @@ Rails.application.routes.draw do
 
     resources :orders, only: [:index, :show, :create, :update, :destroy] do
       resources :order_lines, only: [:index, :create, :update, :destroy]
+      member do
+        post :pay
+      end
     end
     post 'orders/close_open', to: 'orders#close_open'
 
