@@ -16,7 +16,7 @@ module Api
 
     # GET /api/tables?search=…&sort=asc|desc&capacity_min=…&capacity_max=…
     def index
-      tables = Table.all
+      tables = Table.includes(:availabilities, orders: []).all
 
       # Search by number
       if params[:search].present?
@@ -166,7 +166,10 @@ module Api
         number: table.number,
         capacity: table.nb_seats,
         status: table.orders.where(ended_at: nil).any? ? 'occupied' : 'available',
-        qr_token: table.temporary_code
+        qr_token: table.temporary_code,
+        availabilities: table.availabilities.map { |a|
+          { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
+        }
       }
     end
 

@@ -89,7 +89,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.availDesc': { fr: 'Description', en: 'Description' },
   'admin.availStartRequired': { fr: 'La date de début est requise.', en: 'Start date is required.' },
   'admin.availStartInvalid': { fr: 'La date de début est invalide.', en: 'Start date is invalid.' },
-  'admin.availStartInPast': { fr: 'La date de début doit être dans le futur.', en: 'Start date must be in the future.' },
+  'admin.availStartInPast': { fr: 'La date de début doit être supérieure ou égale au moment présent.', en: 'Start date must be greater than or equal to the current time.' },
   'admin.availEndInvalid': { fr: 'La date de fin est invalide.', en: 'End date is invalid.' },
   'admin.availEndAfterStart': { fr: 'La fin doit être après le début.', en: 'End must be after start.' },
   'admin.availMinDuration': { fr: "Durée d'écart minimale : 1 heure.", en: 'Minimum gap duration: 1 hour.' },

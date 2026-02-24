@@ -97,10 +97,15 @@
     }
 
     @for (table of tables(); track table.id) {
-      <mat-card class="table-card">
+      <mat-card class="table-card" [class.unavailable]="unavailableIds().has(table.id)">
         <div class="table-top-row">
           <div class="table-info">
-            <div class="table-number">Table #{{ table.number }}</div>
+            <div class="table-number">
+              Table #{{ table.number }}
+              @if (unavailableIds().has(table.id)) {
+                <span class="unavailable-badge">{{ ts.t('admin.unavailable') }}</span>
+              }
+            </div>
             <div class="table-meta">
               <mat-chip-set>
                 <mat-chip class="chip-capacity" highlighted>{{ table.capacity }} {{ ts.t('tables.seats') }}</mat-chip>

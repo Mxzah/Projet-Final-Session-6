@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
@@ -25,19 +25,22 @@ import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog.comp
   templateUrl: './admin-items.component.html',
   styleUrls: ['./admin-items.component.css']
 })
-export class AdminItemsComponent implements OnInit {
+export class AdminItemsComponent implements OnInit, OnDestroy {
   items = signal<Item[]>([]);
   isLoading = signal(true);
   categories = signal<Category[]>([]);
   loadError = signal('');
   actionError = signal('');
 
+  private now = signal(Date.now());
+  private nowInterval?: ReturnType<typeof setInterval>;
+
   categoryNames = computed(() =>
     [...new Set(this.items().map(i => i.category_name ?? '—'))]
   );
 
   unavailableIds = computed(() => {
-    const now = Date.now();
+    const now = this.now();
     return new Set(
       this.items()
         .filter(item => {
@@ -53,13 +56,24 @@ export class AdminItemsComponent implements OnInit {
     );
   });
 
+  ngOnDestroy(): void {
+    clearInterval(this.nowInterval);
+  }
+
   constructor(
     private itemsService: ItemsService,
     private apiService: ApiService,
     public ts: TranslationService,
     private dialog: MatDialog,
-    private errorService: ErrorService
-  ) {}
+    private errorService: ErrorService,
+    private ngZone: NgZone
+  ) {
+    this.ngZone.runOutsideAngular(() => {
+      this.nowInterval = setInterval(() => {
+        this.ngZone.run(() => this.now.set(Date.now()));
+      }, 60_000);
+    });
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -71,16 +85,20 @@ export class AdminItemsComponent implements OnInit {
     this.loadError.set('');
     this.itemsService.getItems({ admin: true }).subscribe({
       next: (items) => {
-        this.items.set(items);
-        this.isLoading.set(false);
+        this.ngZone.run(() => {
+          this.items.set(items);
+          this.isLoading.set(false);
 
-        if (this.categories().length === 0) {
-          this.extractCategoriesFromItems(items);
-        }
+          if (this.categories().length === 0) {
+            this.extractCategoriesFromItems(items);
+          }
+        });
       },
       error: (err) => {
-        this.loadError.set(this.errorService.format(this.errorService.fromApiError(err)));
-        this.isLoading.set(false);
+        this.ngZone.run(() => {
+          this.loadError.set(this.errorService.format(this.errorService.fromApiError(err)));
+          this.isLoading.set(false);
+        });
       }
     });
   }
@@ -125,7 +143,7 @@ export class AdminItemsComponent implements OnInit {
     ref.afterClosed().subscribe({
       next: (result) => {
         if (result?.created) {
-          this.items.update(items => [...items, result.created!]);
+          this.ngZone.run(() => this.items.update(items => [...items, result.created!]));
         }
       }
     });
@@ -142,9 +160,9 @@ export class AdminItemsComponent implements OnInit {
     ref.afterClosed().subscribe({
       next: (result) => {
         if (result?.updated) {
-          this.items.update(items =>
+          this.ngZone.run(() => this.items.update(items =>
             items.map(i => i.id === item.id ? result.updated! : i)
-          );
+          ));
         }
       }
     });
@@ -183,20 +201,20 @@ export class AdminItemsComponent implements OnInit {
           this.itemsService.softDeleteItem(item.id).subscribe({
             next: (response) => {
               if (response.data) {
-                this.items.update(items => items.map(i => i.id === item.id ? response.data! : i));
+                this.ngZone.run(() => this.items.update(items => items.map(i => i.id === item.id ? response.data! : i)));
               }
             },
             error: (err) => {
-              this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+              this.ngZone.run(() => this.actionError.set(this.errorService.format(this.errorService.fromApiError(err))));
             }
           });
         } else {
           this.itemsService.hardDeleteItem(item.id).subscribe({
             next: () => {
-              this.items.update(items => items.filter(i => i.id !== item.id));
+              this.ngZone.run(() => this.items.update(items => items.filter(i => i.id !== item.id)));
             },
             error: (err) => {
-              this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+              this.ngZone.run(() => this.actionError.set(this.errorService.format(this.errorService.fromApiError(err))));
             }
           });
         }
@@ -227,11 +245,11 @@ export class AdminItemsComponent implements OnInit {
         this.itemsService.restoreItem(item.id).subscribe({
           next: (response) => {
             if (response.data) {
-              this.items.update(items => items.map(i => i.id === item.id ? response.data! : i));
+              this.ngZone.run(() => this.items.update(items => items.map(i => i.id === item.id ? response.data! : i)));
             }
           },
           error: (err) => {
-            this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+            this.ngZone.run(() => this.actionError.set(this.errorService.format(this.errorService.fromApiError(err))));
           }
         });
       }

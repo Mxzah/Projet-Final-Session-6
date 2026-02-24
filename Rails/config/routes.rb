@@ -25,7 +25,10 @@ Rails.application.routes.draw do
       end
       resources :availabilities, only: [:index, :create, :update, :destroy]
     end
-    resources :combos, only: [:index, :create]
+    resources :combos, only: [:index, :create] do
+      resources :availabilities, only: [:index, :create, :update, :destroy],
+                controller: 'combo_availabilities'
+    end
     resources :combo_items, only: [:index, :create]
     resources :users, only: [:index, :show, :create, :update, :destroy]
 

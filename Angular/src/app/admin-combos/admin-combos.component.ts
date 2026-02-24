@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ViewChild, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CombosService, Combo } from '../services/combos.service';
+import { AvailabilityService } from '../services/availability.service';
+import { AvailabilityEntry } from '../menu/menu.models';
+import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 import { ErrorService } from '../services/error.service';
 import { TranslationService } from '../services/translation.service';
 
@@ -29,13 +32,40 @@ function notOnlyWhitespace(control: AbstractControl): ValidationErrors | null {
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        AvailabilityListComponent
     ],
     templateUrl: './admin-combos.component.html',
     styleUrls: ['./admin-combos.component.css']
 })
-export class AdminCombosComponent implements OnInit {
+export class AdminCombosComponent implements OnInit, OnDestroy {
+    @ViewChild('createAvailList') createAvailList?: AvailabilityListComponent;
+
     combos = signal<Combo[]>([]);
+    createAvailabilities = signal<AvailabilityEntry[]>([]);
+
+    private now = signal(Date.now());
+    private nowInterval?: ReturnType<typeof setInterval>;
+
+    unavailableIds = computed(() => {
+        const now = this.now();
+        return new Set(
+            this.combos()
+                .filter(combo => {
+                    if (!combo.availabilities || combo.availabilities.length === 0) return false;
+                    return !combo.availabilities.some(a => {
+                        const start = new Date(a.start_at).getTime();
+                        const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
+                        return start <= now && now < end;
+                    });
+                })
+                .map(combo => combo.id)
+        );
+    });
+
+    ngOnDestroy(): void {
+        clearInterval(this.nowInterval);
+    }
     isLoading = signal(true);
     loadError = signal('');
     actionError = signal('');
@@ -51,9 +81,17 @@ export class AdminCombosComponent implements OnInit {
 
     constructor(
         private combosService: CombosService,
+        private availabilityService: AvailabilityService,
         private errorService: ErrorService,
+        private ngZone: NgZone,
         public ts: TranslationService
-    ) { }
+    ) {
+        this.ngZone.runOutsideAngular(() => {
+            this.nowInterval = setInterval(() => {
+                this.ngZone.run(() => this.now.set(Date.now()));
+            }, 60_000);
+        });
+    }
 
     ngOnInit(): void {
         this.loadCombos();
@@ -78,6 +116,7 @@ export class AdminCombosComponent implements OnInit {
     openCreate(): void {
         this.actionError.set('');
         this.isCreating.set(true);
+        this.createAvailabilities.set([]);
         this.createForm.reset({
             name: '',
             description: '',
@@ -91,6 +130,7 @@ export class AdminCombosComponent implements OnInit {
         this.isCreating.set(false);
         this.isSaving.set(false);
         this.actionError.set('');
+        this.createAvailabilities.set([]);
     }
 
     saveCreate(): void {
@@ -108,8 +148,15 @@ export class AdminCombosComponent implements OnInit {
         this.combosService.createCombo({ name, description, price }).subscribe({
             next: (created) => {
                 this.combos.update(list => [created, ...list]);
-                this.isSaving.set(false);
-                this.isCreating.set(false);
+                this.availabilityService.syncAvailabilities(
+                    this.createAvailabilities(), [],
+                    (e) => this.availabilityService.createAvailability('combos', created.id, e),
+                    (id, e) => this.availabilityService.updateAvailability('combos', created.id, id, e),
+                    (id) => this.availabilityService.deleteAvailability('combos', created.id, id)
+                ).subscribe({
+                    next: () => { this.isSaving.set(false); this.isCreating.set(false); },
+                    error: () => { this.isSaving.set(false); this.isCreating.set(false); }
+                });
             },
             error: (err) => {
                 this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));

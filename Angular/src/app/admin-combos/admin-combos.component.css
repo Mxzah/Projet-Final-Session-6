@@ -93,6 +93,34 @@
     white-space: nowrap;
 }
 
+/* ── Unavailable card ── */
+.combo-card.unavailable {
+    background: #f5f5f5 !important;
+    border-color: rgba(27, 26, 23, 0.05) !important;
+    opacity: 0.75;
+}
+
+.combo-card.unavailable .combo-name,
+.combo-card.unavailable .combo-description,
+.combo-card.unavailable .combo-price {
+    color: rgba(27, 26, 23, 0.35) !important;
+}
+
+.unavailable-badge {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
 .loading {
     display: flex;
     justify-content: center;

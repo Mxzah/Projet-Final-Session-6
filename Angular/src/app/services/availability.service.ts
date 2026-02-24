@@ -10,26 +10,26 @@ import { AvailabilityEntry } from '../menu/menu.models';
 export class AvailabilityService {
   constructor(private api: ApiService) {}
 
-  private base(resource: 'items' | 'tables', id: number) {
+  private base(resource: 'items' | 'tables' | 'combos', id: number) {
     return `/api/${resource}/${id}/availabilities`;
   }
 
-  getAvailabilities(resource: 'items' | 'tables', id: number): Observable<AvailabilityEntry[]> {
+  getAvailabilities(resource: 'items' | 'tables' | 'combos', id: number): Observable<AvailabilityEntry[]> {
     return this.api.get<AvailabilityEntry[]>(this.base(resource, id))
       .pipe(map(r => r.data!));
   }
 
-  createAvailability(resource: 'items' | 'tables', id: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
+  createAvailability(resource: 'items' | 'tables' | 'combos', id: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
     return this.api.post<AvailabilityEntry>(this.base(resource, id), { availability: entry })
       .pipe(map(r => r.data!));
   }
 
-  updateAvailability(resource: 'items' | 'tables', id: number, availId: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
+  updateAvailability(resource: 'items' | 'tables' | 'combos', id: number, availId: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
     return this.api.put<AvailabilityEntry>(`${this.base(resource, id)}/${availId}`, { availability: entry })
       .pipe(map(r => r.data!));
   }
 
-  deleteAvailability(resource: 'items' | 'tables', id: number, availId: number): Observable<void> {
+  deleteAvailability(resource: 'items' | 'tables' | 'combos', id: number, availId: number): Observable<void> {
     return this.api.delete<null>(`${this.base(resource, id)}/${availId}`)
       .pipe(map(() => void 0));
   }

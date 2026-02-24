@@ -3,7 +3,7 @@ module Api
     skip_before_action :require_admin!, only: [:index]
 
     def index
-      combos = Combo.order(created_at: :desc)
+      combos = Combo.includes(:availabilities).order(created_at: :desc)
 
       render json: {
         success: true,
@@ -42,7 +42,10 @@ module Api
         name: combo.name,
         description: combo.description,
         price: combo.price.to_f,
-        created_at: combo.created_at
+        created_at: combo.created_at,
+        availabilities: combo.availabilities.map { |a|
+          { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
+        }
       }
     end
   end

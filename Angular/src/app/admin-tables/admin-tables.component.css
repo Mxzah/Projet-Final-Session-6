@@ -319,6 +319,33 @@
     color: #e74c3c !important;
 }
 
+/* ── Unavailable card ── */
+.table-card.unavailable {
+    background: #f5f5f5 !important;
+    border-color: rgba(27, 26, 23, 0.05) !important;
+    opacity: 0.75;
+}
+
+.table-card.unavailable .table-number,
+.table-card.unavailable .url-text {
+    color: rgba(27, 26, 23, 0.35) !important;
+}
+
+.unavailable-badge {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
 /* ── Loading / Empty ── */
 .loading {
     display: flex;

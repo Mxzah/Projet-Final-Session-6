@@ -31,10 +31,15 @@
     @if (!isLoading() && combos().length > 0) {
       <div class="combos-list">
         @for (combo of combos(); track trackByComboId($index, combo)) {
-          <mat-card class="combo-card">
+          <mat-card class="combo-card" [class.unavailable]="unavailableIds().has(combo.id)">
             <mat-card-content class="combo-body">
               <div class="combo-main">
-                <div class="combo-name">{{ combo.name }}</div>
+                <div class="combo-name">
+                  {{ combo.name }}
+                  @if (unavailableIds().has(combo.id)) {
+                    <span class="unavailable-badge">{{ ts.t('admin.unavailable') }}</span>
+                  }
+                </div>
                 <div class="combo-description">{{ combo.description || '—' }}</div>
               </div>
               <div class="combo-price">{{ combo.price | number:'1.2-2' }} $</div>
@@ -96,6 +101,13 @@
               </mat-error>
             }
           </mat-form-field>
+
+          <app-availability-list
+            #createAvailList
+            [availabilities]="createAvailabilities()"
+            [disabled]="isSaving()"
+            (availabilitiesChange)="createAvailabilities.set($event)">
+          </app-availability-list>
 
           <mat-card-actions class="modal-actions">
             <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelCreate()">{{ ts.t('admin.cancel') }}</button>

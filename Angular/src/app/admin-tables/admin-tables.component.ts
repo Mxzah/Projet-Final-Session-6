@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewChecked, ChangeDetectorRef, NgZone, signal, computed, effect, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, ChangeDetectorRef, NgZone, signal, computed, effect, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -23,6 +23,7 @@ interface TableInfo {
     capacity: number;
     status: string;
     qr_token: string;
+    availabilities?: { id: number; start_at: string; end_at?: string | null; description?: string | null }[];
 }
 
 @Component({
@@ -38,13 +39,36 @@ interface TableInfo {
     templateUrl: './admin-tables.component.html',
     styleUrls: ['./admin-tables.component.css']
 })
-export class AdminTablesComponent implements OnInit, AfterViewChecked {
+export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked {
     @ViewChild('createAvailList') createAvailList?: AvailabilityListComponent;
     @ViewChild('editAvailList')   editAvailList?: AvailabilityListComponent;
 
     tables = signal<TableInfo[]>([]);
     isLoading = signal(true);
     copiedToken = signal<string | null>(null);
+
+    private now = signal(Date.now());
+    private nowInterval?: ReturnType<typeof setInterval>;
+
+    unavailableIds = computed(() => {
+        const now = this.now();
+        return new Set(
+            this.tables()
+                .filter(table => {
+                    if (!table.availabilities || table.availabilities.length === 0) return false;
+                    return !table.availabilities.some(a => {
+                        const start = new Date(a.start_at).getTime();
+                        const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
+                        return start <= now && now < end;
+                    });
+                })
+                .map(table => table.id)
+        );
+    });
+
+    ngOnDestroy(): void {
+        clearInterval(this.nowInterval);
+    }
 
     // New table form
     isCreateModalOpen = signal(false);
@@ -95,7 +119,13 @@ export class AdminTablesComponent implements OnInit, AfterViewChecked {
         private cdr: ChangeDetectorRef,
         private ngZone: NgZone,
         public ts: TranslationService
-    ) { }
+    ) {
+        this.ngZone.runOutsideAngular(() => {
+            this.nowInterval = setInterval(() => {
+                this.ngZone.run(() => this.now.set(Date.now()));
+            }, 60_000);
+        });
+    }
 
     private readonly previewEffect = effect(() => {
         this.previewUrl();

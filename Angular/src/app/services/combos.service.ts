@@ -8,6 +8,7 @@ export interface Combo {
     description: string | null;
     price: number;
     created_at: string;
+    availabilities?: { id: number; start_at: string; end_at?: string | null; description?: string | null }[];
 }
 
 export interface CreateComboPayload {

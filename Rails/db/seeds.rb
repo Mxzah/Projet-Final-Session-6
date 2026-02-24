@@ -331,6 +331,19 @@ if magret && linguine
     ci.quantity = 1
   end
 
+  # Availability expirée → combo unavailable (save validate: false pour contourner la validation start_at_not_in_past)
+  unless Availability.exists?(available_type: 'Combo', available_id: combo.id)
+    a = Availability.new(
+      available_type: 'Combo',
+      available_id:   combo.id,
+      start_at:       2.days.ago,
+      end_at:         1.day.ago,
+      description:    'Disponible le week-end seulement'
+    )
+    a.save(validate: false)
+    puts "- Availability expirée ajoutée au combo '#{combo.name}' (unavailable)"
+  end
+
   puts "- Combo '#{combo.name}' créé avec Magret de Canard + Linguine au Homard"
 else
   puts "- Skipping combo — items not found"
