@@ -392,6 +392,10 @@ mat-card-content {
   color: var(--rust) !important;
 }
 
+.action-btn.edit:hover {
+  color: var(--gold, #C87941) !important;
+}
+
 /* ── Modal overlay ── */
 .modal-overlay {
   position: fixed;

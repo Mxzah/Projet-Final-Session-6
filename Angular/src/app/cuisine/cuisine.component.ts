@@ -1,35 +1,32 @@
-import { Component, OnInit, ChangeDetectorRef, signal } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { CuisineService, CuisineOrder, CuisineOrderLine } from '../services/cuisine.service';
 import { AuthService } from '../services/auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { TranslationService } from '../services/translation.service';
+import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
 
 @Component({
   selector: 'app-cuisine',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    MatDialogModule,
     MatCardModule,
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
     MatProgressSpinnerModule,
-    MatFormFieldModule,
-    MatInputModule,
     HeaderComponent
   ],
   templateUrl: './cuisine.component.html',
@@ -42,20 +39,7 @@ export class CuisineComponent implements OnInit {
 
   readonly statuses = ['sent', 'in_preparation', 'ready', 'served'];
 
-  // Tracks which lines are currently advancing status (to show loading state)
   advancingLineIds = new Set<number>();
-
-  // Edit order line modal (waiter/admin only - quantity and note)
-  editingLine = signal<CuisineOrderLine | null>(null);
-  editLineForm = new FormGroup({
-    quantity: new FormControl<number>(1, [Validators.required, Validators.min(1), Validators.max(50)]),
-    note: new FormControl('', [Validators.maxLength(255)])
-  });
-  editLineError = signal('');
-  editLineLoading = signal(false);
-
-  // Delete order line modal (waiter/admin only)
-  lineToDelete = signal<CuisineOrderLine | null>(null);
 
   constructor(
     public ts: TranslationService,
@@ -63,7 +47,9 @@ export class CuisineComponent implements OnInit {
     public authService: AuthService,
     private router: Router,
     private location: Location,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -87,30 +73,33 @@ export class CuisineComponent implements OnInit {
     });
   }
 
-  // Returns true for waiter and admin (can edit/delete)
   canManageLines(): boolean {
     return this.authService.isAdmin() || this.authService.isWaiter();
   }
 
-  // Returns the next status, or null if already at the last
   getNextStatus(status: string): string | null {
     const idx = this.statuses.indexOf(status);
     if (idx === -1 || idx === this.statuses.length - 1) return null;
     return this.statuses[idx + 1];
   }
 
-  // One-click: advance line to next status
   advanceStatus(line: CuisineOrderLine): void {
     if (this.advancingLineIds.has(line.id)) return;
     this.advancingLineIds.add(line.id);
 
     this.cuisineService.nextStatus(line.id).subscribe({
-      next: () => {
+      next: (res) => {
         this.advancingLineIds.delete(line.id);
-        this.loadOrders();
+        if (res.success) {
+          this.loadOrders();
+        } else {
+          const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
+          this.snackBar.open(msg, 'OK', { duration: 5000 });
+        }
       },
       error: () => {
         this.advancingLineIds.delete(line.id);
+        this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
       }
     });
   }
@@ -146,77 +135,69 @@ export class CuisineComponent implements OnInit {
     return classes[status] ?? '';
   }
 
-  // ── Edit order line (waiter/admin) ──
+  // ── Edit order line (waiter/admin, via kitchen API) ──
 
   openEditLine(line: CuisineOrderLine): void {
-    this.editingLine.set(line);
-    this.editLineForm.patchValue({
+    const data: EditOrderLineDialogData = {
+      itemName: line.orderable_name,
       quantity: line.quantity,
       note: line.note || ''
-    });
-    this.editLineForm.markAsPristine();
-    this.editLineForm.markAsUntouched();
-    this.editLineError.set('');
-  }
-
-  cancelEditLine(): void {
-    this.editingLine.set(null);
-    this.editLineError.set('');
-  }
-
-  saveEditLine(): void {
-    const line = this.editingLine();
-    if (!line) return;
-
-    Object.values(this.editLineForm.controls).forEach(c => c.markAsDirty());
-    if (this.editLineForm.invalid) return;
-
-    const v = this.editLineForm.value;
-    this.editLineLoading.set(true);
-    this.editLineError.set('');
-
-    this.cuisineService.updateOrderLine(line.id, {
-      quantity: v.quantity!,
-      note: v.note ?? ''
-    }).subscribe({
-      next: (res) => {
-        this.editLineLoading.set(false);
-        if (res.success) {
-          this.editingLine.set(null);
-          this.loadOrders();
-        } else {
-          this.editLineError.set(res.errors?.[0] ?? 'Error');
+    };
+    const ref = this.dialog.open<EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult>(
+      EditOrderLineDialogComponent,
+      { data, width: '440px', maxHeight: '90vh' }
+    );
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.cuisineService.updateOrderLine(line.id, {
+        quantity: result.quantity,
+        note: result.note
+      }).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.loadOrders();
+          } else {
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
+          }
+        },
+        error: () => {
+          this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
         }
-      },
-      error: () => {
-        this.editLineLoading.set(false);
-        this.editLineError.set(this.ts.t('order.editError'));
-      }
+      });
     });
   }
 
-  // ── Delete order line (waiter/admin) ──
+  // ── Delete order line (waiter/admin, hard delete, status must be 'sent') ──
 
   confirmDeleteLine(line: CuisineOrderLine): void {
-    this.lineToDelete.set(line);
-  }
-
-  cancelDeleteLine(): void {
-    this.lineToDelete.set(null);
-  }
-
-  deleteLine(): void {
-    const line = this.lineToDelete();
-    if (!line) return;
-
-    this.cuisineService.deleteOrderLine(line.id).subscribe({
-      next: () => {
-        this.lineToDelete.set(null);
-        this.loadOrders();
-      },
-      error: () => {
-        this.lineToDelete.set(null);
-      }
+    const data: ConfirmDialogData = {
+      title: this.ts.t('order.deleteLine'),
+      message: this.ts.t('order.deleteLineConfirm'),
+      itemName: line.orderable_name,
+      warning: this.ts.t('order.hardDeleteWarning'),
+      confirmLabel: this.ts.t('admin.delete'),
+      confirmClass: 'btn-danger'
+    };
+    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
+      ConfirmDialogComponent,
+      { data, width: '440px', maxHeight: '90vh' }
+    );
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.cuisineService.deleteOrderLine(line.id).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            this.loadOrders();
+          } else {
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.deleteError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
+          }
+        },
+        error: () => {
+          this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
+        }
+      });
     });
   }
 

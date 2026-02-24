@@ -11,8 +11,8 @@ class Order < ApplicationRecord
                    format: { without: /\A\s*\z/, message: "ne peut pas être composé uniquement d'espaces" }, allow_blank: true
   validates :tip, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 999.99 }, allow_nil: true
   validate :ended_at_after_created_at
- 
   validate :client_has_no_other_open_order
+  validate :nb_people_within_table_capacity
 
   default_scope { where(deleted_at: nil) }
 
@@ -35,5 +35,11 @@ class Order < ApplicationRecord
     return unless client_id.present?
     existing = Order.unscoped.where(client_id: client_id, ended_at: nil, deleted_at: nil).where.not(id: id)
     errors.add(:client_id, "a déjà une commande ouverte") if existing.exists?
+  end
+
+  def nb_people_within_table_capacity
+    return unless table.present? && nb_people.present?
+    return if nb_people <= table.nb_seats
+    errors.add(:nb_people, "cannot exceed the table capacity (#{table.nb_seats} people max)")
   end
 end

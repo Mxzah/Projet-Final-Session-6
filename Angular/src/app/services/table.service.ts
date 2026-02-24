@@ -70,6 +70,20 @@ export class TableService {
         sessionStorage.removeItem('pendingQrToken');
     }
 
+    setOrderPreferences(nbPeople: number, vibeId: number | null): void {
+        sessionStorage.setItem('orderPreferences', JSON.stringify({ nb_people: nbPeople, vibe_id: vibeId }));
+    }
+
+    getOrderPreferences(): { nb_people: number; vibe_id: number | null } {
+        const data = sessionStorage.getItem('orderPreferences');
+        if (data) return JSON.parse(data);
+        return { nb_people: 1, vibe_id: null };
+    }
+
+    clearOrderPreferences(): void {
+        sessionStorage.removeItem('orderPreferences');
+    }
+
     validateAndSavePendingToken(): Observable<boolean> {
         const token = this.getPendingToken();
         if (!token) {

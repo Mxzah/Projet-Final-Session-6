@@ -1,0 +1,60 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.dialog-title span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.title-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.modal-close {
+  color: rgba(27, 26, 23, 0.5);
+}
+
+.item-name {
+  font-weight: 500;
+  font-size: 1.05rem;
+  margin-bottom: 16px;
+  color: var(--mat-sys-on-surface-variant, #555);
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 320px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.btn-cancel {
+  border-radius: 10px !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-primary {
+  border-radius: 10px !important;
+  background: #c86d3f !important;
+  color: #fff !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed;
+}

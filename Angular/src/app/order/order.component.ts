@@ -1,23 +1,19 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
 import { OrderLineData, OrderService } from '../services/order.service';
-import { TableService } from '../services/table.service';
 import { TranslationService } from '../services/translation.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
 
 interface DisplayOrderLine {
   id: number;
@@ -34,16 +30,12 @@ interface DisplayOrderLine {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    MatDialogModule,
     HeaderComponent,
     MatButtonModule,
     MatCardModule,
-    MatChipsModule,
     MatDividerModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
@@ -53,29 +45,10 @@ export class OrderComponent implements OnInit {
   private serverLines = signal<DisplayOrderLine[]>([]);
   isSending = signal<boolean>(false);
 
-  // Existing order data
   existingNote = signal<string | null>(null);
   existingVibeName = signal<string | null>(null);
   existingVibeColor = signal<string | null>(null);
-
-  // Form inputs for new order
-  noteInput = '';
-
-  // Edit order line dialog
-  editingLine = signal<DisplayOrderLine | null>(null);
-  editLineForm = new FormGroup({
-    quantity: new FormControl<number>(1, [Validators.required, Validators.min(1), Validators.max(50)]),
-    note: new FormControl('', [Validators.maxLength(255)])
-  });
-  editLineError = signal('');
-  editLineLoading = signal(false);
-
-  // Delete order line dialog
-  lineToDelete = signal<DisplayOrderLine | null>(null);
-
-  // Note editing
-  isEditingNote = signal(false);
-  noteEditInput = '';
+  existingNbPeople = signal<number | null>(null);
 
   private pendingLines = computed<DisplayOrderLine[]>(() =>
     this.cartService.lines().map((line, index) => ({
@@ -99,8 +72,9 @@ export class OrderComponent implements OnInit {
     public ts: TranslationService,
     private authService: AuthService,
     private orderService: OrderService,
-    private tableService: TableService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -131,6 +105,7 @@ export class OrderComponent implements OnInit {
           this.existingNote.set(null);
           this.existingVibeName.set(null);
           this.existingVibeColor.set(null);
+          this.existingNbPeople.set(null);
           return;
         }
 
@@ -138,7 +113,7 @@ export class OrderComponent implements OnInit {
         this.existingNote.set(openOrder.note || null);
         this.existingVibeName.set(openOrder.vibe_name ?? null);
         this.existingVibeColor.set(openOrder.vibe_color ?? null);
-
+        this.existingNbPeople.set(openOrder.nb_people ?? null);
         this.serverLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
       },
       error: () => {
@@ -148,10 +123,14 @@ export class OrderComponent implements OnInit {
     });
   }
 
-  isFormInvalid(): boolean {
-    if (this.openOrderId() !== null) return false;
-    const noteOnlySpaces = this.noteInput.length > 0 && this.noteInput.trim().length === 0;
-    return noteOnlySpaces;
+  getStatusClass(status: string): string {
+    const classes: Record<string, string> = {
+      sent: 'status-sent',
+      in_preparation: 'status-prep',
+      ready: 'status-ready',
+      served: 'status-served'
+    };
+    return classes[status] ?? '';
   }
 
   getStatusLabel(status: string): string {
@@ -164,7 +143,6 @@ export class OrderComponent implements OnInit {
     return keys[status] ? this.ts.t(keys[status]) : '';
   }
 
-  // Returns true if the line can be edited/deleted (sent on server OR pending in cart)
   canModifyLine(line: DisplayOrderLine): boolean {
     return line.status === 'sent' || line.status === 'pending';
   }
@@ -172,185 +150,117 @@ export class OrderComponent implements OnInit {
   // ── Edit order line ──
 
   openEditLine(line: DisplayOrderLine): void {
-    this.editingLine.set(line);
-    this.editLineForm.patchValue({
+    const isCart = line.id < 0;
+    const data: EditOrderLineDialogData = {
+      itemName: line.name,
       quantity: line.quantity,
-      note: line.note || ''
-    });
-    this.editLineForm.markAsPristine();
-    this.editLineForm.markAsUntouched();
-    this.editLineError.set('');
-  }
+      note: line.note
+    };
+    const ref = this.dialog.open<EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult>(
+      EditOrderLineDialogComponent,
+      { data, width: '440px', maxHeight: '90vh' }
+    );
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
 
-  cancelEditLine(): void {
-    this.editingLine.set(null);
-    this.editLineError.set('');
-  }
-
-  saveEditLine(): void {
-    const line = this.editingLine();
-    if (!line) return;
-
-    Object.values(this.editLineForm.controls).forEach(c => c.markAsDirty());
-    if (this.editLineForm.invalid) return;
-
-    const v = this.editLineForm.value;
-
-    // Pending cart line (not yet sent)
-    if (line.id < 0) {
-      const cartIndex = (-line.id) - 1;
-      this.cartService.updateLine(cartIndex, {
-        quantity: v.quantity!,
-        note: v.note ?? ''
-      });
-      this.editingLine.set(null);
-      return;
-    }
-
-    // Server line
-    const orderId = this.openOrderId();
-    if (!orderId) return;
-
-    this.editLineLoading.set(true);
-    this.editLineError.set('');
-
-    this.orderService.updateOrderLine(orderId, line.id, {
-      quantity: v.quantity!,
-      note: v.note ?? ''
-    }).subscribe({
-      next: () => {
-        this.editingLine.set(null);
-        this.editLineLoading.set(false);
-        this.loadOpenOrder();
-      },
-      error: () => {
-        this.editLineError.set(this.ts.t('order.editError'));
-        this.editLineLoading.set(false);
+      if (isCart) {
+        const cartIndex = (-line.id) - 1;
+        this.cartService.updateLine(cartIndex, { quantity: result.quantity, note: result.note });
+        return;
       }
+
+      const orderId = this.openOrderId();
+      if (!orderId) return;
+
+      this.orderService.updateOrderLine(orderId, line.id, {
+        quantity: result.quantity,
+        note: result.note
+      }).subscribe({
+        next: () => this.loadOpenOrder(),
+        error: () => {
+          this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
+        }
+      });
     });
   }
 
   // ── Delete order line ──
 
   confirmDeleteLine(line: DisplayOrderLine): void {
-    this.lineToDelete.set(line);
-  }
+    const isCart = line.id < 0;
+    const data: ConfirmDialogData = {
+      title: this.ts.t('order.deleteLine'),
+      message: this.ts.t('order.deleteLineConfirm'),
+      itemName: line.name,
+      warning: isCart ? this.ts.t('order.cartRemoveInfo') : this.ts.t('order.hardDeleteWarning'),
+      confirmLabel: this.ts.t('admin.delete'),
+      confirmClass: 'btn-danger'
+    };
+    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
+      ConfirmDialogComponent,
+      { data, width: '440px', maxHeight: '90vh' }
+    );
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
 
-  cancelDeleteLine(): void {
-    this.lineToDelete.set(null);
-  }
-
-  deleteLine(): void {
-    const line = this.lineToDelete();
-    if (!line) return;
-
-    // Pending cart line (not yet sent)
-    if (line.id < 0) {
-      const cartIndex = (-line.id) - 1;
-      this.cartService.removeLine(cartIndex);
-      this.lineToDelete.set(null);
-      return;
-    }
-
-    // Server line
-    const orderId = this.openOrderId();
-    if (!orderId) return;
-
-    this.orderService.deleteOrderLine(orderId, line.id).subscribe({
-      next: () => {
-        this.lineToDelete.set(null);
-        this.loadOpenOrder();
-      },
-      error: () => {
-        this.lineToDelete.set(null);
+      if (isCart) {
+        const cartIndex = (-line.id) - 1;
+        this.cartService.removeLine(cartIndex);
+        return;
       }
+
+      const orderId = this.openOrderId();
+      if (!orderId) return;
+
+      this.orderService.deleteOrderLine(orderId, line.id).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            this.loadOpenOrder();
+          } else {
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.deleteError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
+          }
+        },
+        error: () => {
+          this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
+        }
+      });
     });
   }
 
-  // ── Note editing (anytime) ──
-
-  openEditNote(): void {
-    this.isEditingNote.set(true);
-    this.noteEditInput = this.existingNote() || '';
-  }
-
-  cancelEditNote(): void {
-    this.isEditingNote.set(false);
-  }
-
-  saveNote(): void {
-    const orderId = this.openOrderId();
-    if (!orderId) return;
-
-    this.orderService.updateOrder(orderId, { note: this.noteEditInput }).subscribe({
-      next: () => {
-        this.existingNote.set(this.noteEditInput || null);
-        this.isEditingNote.set(false);
-      },
-      error: () => {
-        this.isEditingNote.set(false);
-      }
-    });
-  }
-
-  // ── Send order ──
+  // ── Send order lines ──
 
   onSend(): void {
     const linesToCreate = this.cartService.lines();
+    const orderId = this.openOrderId();
 
-    if (linesToCreate.length === 0 || this.isSending() || this.isFormInvalid()) {
+    if (linesToCreate.length === 0 || this.isSending()) return;
+
+    if (!orderId) {
+      this.snackBar.open(this.ts.t('order.noOrderRedirect'), 'OK', { duration: 4000 });
+      this.router.navigate(['/form']);
       return;
     }
 
-    const createLines = (orderId: number) => {
-      const requests = linesToCreate.map((line) =>
-        this.orderService.createOrderLine(orderId, {
-          quantity: line.quantity,
-          note: line.note,
-          orderable_type: line.orderable_type,
-          orderable_id: line.orderable_id
-        })
-      );
-      return forkJoin(requests);
-    };
-
-    const existingOrderId = this.openOrderId();
     this.isSending.set(true);
 
-    const send$ = existingOrderId
-      ? createLines(existingOrderId)
-      : (() => {
-          const table = this.tableService.getCurrentTable();
+    const requests = linesToCreate.map(line =>
+      this.orderService.createOrderLine(orderId, {
+        quantity: line.quantity,
+        note: line.note,
+        orderable_type: line.orderable_type,
+        orderable_id: line.orderable_id
+      })
+    );
 
-          if (!table) {
-            this.isSending.set(false);
-            alert('Please scan/select a table before sending the order.');
-            this.router.navigate(['/form']);
-            return of(null);
-          }
-
-          return this.orderService.createOrder({
-            nb_people: 1,
-            note: this.noteInput,
-            table_id: table.id
-          }).pipe(
-            switchMap((response) => {
-              const createdOrder = response.data?.[0];
-              if (!createdOrder) return of(null);
-              this.openOrderId.set(createdOrder.id);
-              return createLines(createdOrder.id);
-            })
-          );
-        })();
-
-    send$.subscribe({
-      next: (result) => {
-        if (!result) return;
+    forkJoin(requests).subscribe({
+      next: () => {
         this.cartService.clear();
         this.loadOpenOrder();
       },
       error: () => {
-        alert('Unable to send order lines. Please try again.');
+        this.snackBar.open(this.ts.t('order.sendError'), 'OK', { duration: 5000 });
+        this.isSending.set(false);
       },
       complete: () => {
         this.isSending.set(false);

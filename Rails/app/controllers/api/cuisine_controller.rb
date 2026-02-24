@@ -65,6 +65,10 @@ module Api
         return render json: { code: 200, success: false, data: [], errors: ["Order line not found"] }, status: :ok
       end
 
+      unless %w[sent].include?(line.status)
+        return render json: { code: 200, success: false, data: [], errors: ["Cannot modify line with status '#{line.status}'. Only 'sent' lines can be modified."] }, status: :ok
+      end
+
       if line.update(line_update_params)
         render json: {
           code: 200,
@@ -82,7 +86,7 @@ module Api
       end
     end
 
-    # DELETE /api/kitchen/order_lines/:id  (waiter/admin only)
+    # DELETE /api/kitchen/order_lines/:id  (waiter/admin only - hard delete, status must be 'sent')
     def destroy_line
       return render json: { code: 200, success: false, data: [], errors: ["Unauthorized"] }, status: :ok unless senior_staff?
 
@@ -90,6 +94,10 @@ module Api
 
       unless line
         return render json: { code: 200, success: false, data: [], errors: ["Order line not found"] }, status: :ok
+      end
+
+      unless %w[sent].include?(line.status)
+        return render json: { code: 200, success: false, data: [], errors: ["Cannot delete line with status '#{line.status}'. Only 'sent' lines can be deleted."] }, status: :ok
       end
 
       line.destroy

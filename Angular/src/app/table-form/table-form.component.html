@@ -1,68 +1,107 @@
 <app-header (logoutClick)="logout()" />
 
-<main class="page-form">
+<main class="form-page">
+
   <!-- No table scanned -->
   @if (noTable) {
-    <div class="outer-container">
-      <div class="no-table-state">
-        <div class="icon">📷</div>
-        <h2>Aucune table détectée</h2>
-        <p>Veuillez scanner le code QR sur votre table pour continuer.</p>
-      </div>
+    <div class="form-card no-table-card">
+      <mat-icon class="no-table-icon">qr_code_scanner</mat-icon>
+      <h2 class="form-title">{{ ts.t('form.noTable') }}</h2>
+      <p class="form-subtitle">{{ ts.t('form.noTableText') }}</p>
     </div>
   }
 
   <!-- Table found -->
   @if (table) {
-    <div class="outer-container">
-      <div class="welcome-header">
-        <h2 class="welcome-title">Infos de la table #{{ table.number }}</h2>
-        <p class="welcome-text">Complétez les informations pour votre expérience.</p>
+    <div class="form-card">
+      <div class="form-header">
+        <h2 class="form-title">{{ ts.t('form.title') }} #{{ table.number }}</h2>
+        <p class="form-subtitle">{{ ts.t('form.subtitle') }}</p>
       </div>
 
-      <section class="inner-container">
-        <form class="form" (ngSubmit)="goToMenu()">
-          <div class="field">
-            <label for="guestCount">Nombre de clients</label>
-            <input
-              id="guestCount"
-              type="number"
-              min="1"
-              [max]="table.capacity"
-              placeholder="Ex: 2"
-              [(ngModel)]="guestCount"
-              name="guestCount"
-              required
-            />
-            <span class="field-hint">Capacité maximale : {{ table.capacity }} personnes</span>
-          </div>
+      <form [formGroup]="form" (ngSubmit)="goToMenu()" class="form-body">
 
-          <div class="field">
-            <label for="vibe">Ambiance de la table</label>
-            <select
-              id="vibe"
-              [(ngModel)]="selectedVibe"
-              name="vibe"
-              required
-            >
-              <option value="" disabled>Choisir une ambiance...</option>
-              @for (vibe of vibes; track vibe) {
-                <option [value]="vibe">{{ vibe }}</option>
+        <!-- Number of guests -->
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>{{ ts.t('form.guests') }}</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="guestCount"
+            min="1"
+            [max]="table.capacity"
+            step="1"
+          />
+          <mat-icon matSuffix>people</mat-icon>
+          <mat-hint>{{ ts.t('form.guestsHint') }} {{ table.capacity }}</mat-hint>
+          @if (guestCtrl.touched) {
+            @if (guestCtrl.hasError('required')) {
+              <mat-error>{{ ts.t('form.guestsRequired') }}</mat-error>
+            } @else if (guestCtrl.hasError('min')) {
+              <mat-error>{{ ts.t('form.guestsMin') }}</mat-error>
+            } @else if (guestCtrl.hasError('max')) {
+              <mat-error>{{ ts.t('form.guestsMax') }} {{ table.capacity }}.</mat-error>
+            }
+          }
+        </mat-form-field>
+
+        <!-- Vibe selection -->
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>{{ ts.t('form.vibe') }}</mat-label>
+          <mat-select formControlName="vibeId">
+            <mat-select-trigger>
+              @if (getSelectedVibe(); as vibe) {
+                <span class="vibe-dot" [style.background]="vibe.color"></span>
+                {{ vibe.name }}
               }
-            </select>
-          </div>
+            </mat-select-trigger>
 
-          <div class="form__actions">
-            <button
-              type="submit"
-              class="primary"
-              [disabled]="!guestCount || !selectedVibe"
-            >
-              Accéder au menu test
-            </button>
+            @if (vibesLoading) {
+              <mat-option disabled>
+                <mat-spinner diameter="18" class="inline-spinner"></mat-spinner>
+                {{ ts.t('form.loading') }}
+              </mat-option>
+            } @else {
+              @for (vibe of vibes; track vibe.id) {
+                <mat-option [value]="vibe.id">
+                  <span class="vibe-dot" [style.background]="vibe.color"></span>
+                  {{ vibe.name }}
+                </mat-option>
+              }
+            }
+          </mat-select>
+          @if (vibeCtrl.invalid && vibeCtrl.touched) {
+            <mat-error>{{ ts.t('form.vibeRequired') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- API error -->
+        @if (apiError()) {
+          <div class="api-error">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ apiError() }}</span>
           </div>
-        </form>
-      </section>
+        }
+
+        <!-- Submit -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="submit-btn"
+          [disabled]="form.invalid || vibesLoading || isSubmitting()"
+        >
+          @if (!isSubmitting()) {
+            <mat-icon>restaurant_menu</mat-icon>
+          }
+          @if (isSubmitting()) {
+            <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+          }
+          {{ isSubmitting() ? ts.t('form.submitting') : ts.t('form.submit') }}
+        </button>
+
+      </form>
     </div>
   }
+
 </main>

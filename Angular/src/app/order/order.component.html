@@ -17,15 +17,23 @@
       <div class="order-header">
         <h1 class="order-title">{{ ts.t('order.title') }}</h1>
         <div class="server-vibe-row">
+          @if (existingNbPeople()) {
+            <span class="people-badge">
+              <mat-icon>people</mat-icon>
+              {{ existingNbPeople() }} {{ ts.t('order.people') }}
+            </span>
+          }
+          @if (existingVibeName()) {
+            <span class="vibe-badge-header"
+              [style.background-color]="(existingVibeColor() ?? '#C87941') + '22'"
+              [style.color]="existingVibeColor() ?? '#C87941'">
+              ✦ {{ existingVibeName() }}
+            </span>
+          }
           <div class="server-info">
             <mat-icon>person</mat-icon>
             <span>{{ ts.t('order.server') }}: <strong>{{ ts.t('order.serverNotImplemented') }}</strong></span>
           </div>
-          <span class="vibe-badge-header"
-            [style.background-color]="(existingVibeColor() || '#C87941') + '22'"
-            [style.color]="existingVibeColor() || '#C87941'">
-            ✦ {{ existingVibeName() || ts.t('order.vibeNotSet') }}
-          </span>
         </div>
         <button mat-raised-button color="primary" (click)="onAddItems()">
           <mat-icon aria-hidden="true"></mat-icon>
@@ -49,9 +57,7 @@
                   <div class="line-head">
                     <h3 class="line-name">{{ line.name }}</h3>
                     @if (line.status !== 'pending') {
-                      <mat-chip-set>
-                        <mat-chip selected color="primary">{{ getStatusLabel(line.status) }}</mat-chip>
-                      </mat-chip-set>
+                      <span class="status-chip {{ getStatusClass(line.status) }}">{{ getStatusLabel(line.status) }}</span>
                     } @else {
                       <span class="pending-badge">{{ ts.t('order.pendingBadge') }}</span>
                     }
@@ -94,45 +100,21 @@
         </div>
       </mat-card>
 
-      <mat-card class="order-details-card" appearance="outlined">
-        <mat-card-header>
-          <mat-card-title class="details-title">{{ ts.t('order.details') }}</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content class="details-content">
-
-          @if (openOrderId() !== null) {
-            @if (existingNote()) {
-              <div class="detail-item">
-                <mat-icon>sticky_note_2</mat-icon>
-                <span>{{ existingNote() }}</span>
-              </div>
-            }
-            @if (!existingNote()) {
-              <p class="no-details">{{ ts.t('order.noDetails') }}</p>
-            }
-            <button mat-stroked-button class="btn-edit-note" (click)="openEditNote()">
-              <mat-icon>edit</mat-icon> {{ ts.t('order.editNote') }}
-            </button>
-          } @else {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ ts.t('order.noteLabel') }}</mat-label>
-              <textarea matInput [(ngModel)]="noteInput" rows="2" maxlength="255"
-                [placeholder]="ts.t('order.notePlaceholder')"></textarea>
-              <mat-hint align="end">{{ noteInput.length }} / 255</mat-hint>
-              @if (noteInput.length > 0 && noteInput.trim().length === 0) {
-                <mat-error>{{ ts.t('order.noteErrorSpaces') }}</mat-error>
-              }
-            </mat-form-field>
-          }
-
-        </mat-card-content>
-      </mat-card>
+      @if (openOrderId() !== null && existingNote()) {
+        <mat-card class="order-details-card" appearance="outlined">
+          <mat-card-content class="details-content">
+            <div class="detail-item">
+              <mat-icon>sticky_note_2</mat-icon>
+              <span>{{ existingNote() }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
 
       <mat-divider></mat-divider>
 
       <div class="order-actions">
-        <button mat-raised-button color="primary" [disabled]="pendingCount() === 0 || isSending() || isFormInvalid()" (click)="onSend()">
+        <button mat-raised-button color="primary" [disabled]="pendingCount() === 0 || isSending()" (click)="onSend()">
           <mat-icon aria-hidden="true">send</mat-icon>
           {{ ts.t('order.send') }}
         </button>
@@ -140,106 +122,3 @@
     </div>
   }
 </main>
-
-<!-- Modal: Edit order line -->
-@if (editingLine()) {
-  <div class="modal-overlay">
-    <mat-card class="modal modal-edit">
-      <button mat-icon-button class="modal-close" (click)="cancelEditLine()">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ ts.t('order.editLine') }}</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        @if (editLineError()) {
-          <div class="modal-error">{{ editLineError() }}</div>
-        }
-
-        <p class="modal-item-name">{{ editingLine()!.name }}</p>
-
-        <form [formGroup]="editLineForm" (ngSubmit)="saveEditLine()">
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('order.quantity') }}</mat-label>
-            <input matInput type="number" formControlName="quantity" min="1" max="50" />
-            @if (editLineForm.controls.quantity.dirty && editLineForm.controls.quantity.errors) {
-              <mat-error>
-                @if (editLineForm.controls.quantity.errors['required']) {
-                  {{ ts.t('order.quantityRequired') }}
-                } @else if (editLineForm.controls.quantity.errors['min']) {
-                  {{ ts.t('order.quantityMin') }}
-                } @else if (editLineForm.controls.quantity.errors['max']) {
-                  {{ ts.t('order.quantityMax') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('order.noteField') }}</mat-label>
-            <textarea matInput formControlName="note" rows="2" maxlength="255"
-              [placeholder]="ts.t('order.notePlaceholderLine')"></textarea>
-          </mat-form-field>
-
-          <mat-card-actions class="modal-actions">
-            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEditLine()">{{ ts.t('admin.cancel') }}</button>
-            <button mat-flat-button type="submit" class="btn-primary" [disabled]="editLineLoading() || editLineForm.invalid">
-              {{ editLineLoading() ? ts.t('admin.saving') : ts.t('admin.save') }}
-            </button>
-          </mat-card-actions>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  </div>
-}
-
-<!-- Modal: Delete order line -->
-@if (lineToDelete()) {
-  <div class="modal-overlay">
-    <mat-card class="modal">
-      <button mat-icon-button class="modal-close" (click)="cancelDeleteLine()">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ ts.t('order.deleteLine') }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p class="modal-text">{{ ts.t('order.deleteLineConfirm') }} <strong>{{ lineToDelete()!.name }}</strong> ?</p>
-        <p class="modal-hard-delete">{{ ts.t('order.deleteLineHardDelete') }}</p>
-      </mat-card-content>
-      <mat-card-actions class="modal-actions">
-        <button mat-stroked-button class="btn-cancel" (click)="cancelDeleteLine()">{{ ts.t('admin.cancel') }}</button>
-        <button mat-flat-button class="btn-danger" (click)="deleteLine()">{{ ts.t('admin.delete') }}</button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-}
-
-<!-- Modal: Edit note -->
-@if (isEditingNote()) {
-  <div class="modal-overlay">
-    <mat-card class="modal modal-edit">
-      <button mat-icon-button class="modal-close" (click)="cancelEditNote()">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ ts.t('order.editNote') }}</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        <mat-form-field appearance="outline" class="modal-field-full">
-          <mat-label>{{ ts.t('order.noteField') }}</mat-label>
-          <textarea matInput [(ngModel)]="noteEditInput" rows="3" maxlength="255"
-            [placeholder]="ts.t('order.notePlaceholder')"></textarea>
-          <mat-hint align="end">{{ noteEditInput.length }} / 255</mat-hint>
-        </mat-form-field>
-
-        <mat-card-actions class="modal-actions">
-          <button mat-stroked-button class="btn-cancel" (click)="cancelEditNote()">{{ ts.t('admin.cancel') }}</button>
-          <button mat-flat-button class="btn-primary" (click)="saveNote()">{{ ts.t('order.saveNote') }}</button>
-        </mat-card-actions>
-      </mat-card-content>
-    </mat-card>
-  </div>
-}

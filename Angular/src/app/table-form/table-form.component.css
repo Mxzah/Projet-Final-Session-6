@@ -1,106 +1,170 @@
 @import url("../theme.css");
 
-.page-form {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 60px);
-    padding: 1rem;
+.form-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 60px);
+  padding: 1.5rem 1rem;
 }
 
-.outer-container {
-    background: rgba(200, 109, 63, 0.15);
-    border: 1px solid rgba(200, 109, 63, 0.2);
-    border-radius: 28px;
-    padding: 2.5rem;
-    max-width: 540px;
-    width: 100%;
-    box-shadow: 0 10px 40px rgba(27, 26, 23, 0.08);
+/* ── Card ── */
+.form-card {
+  background: var(--sand);
+  border: 1px solid rgba(200, 109, 63, 0.2);
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(27, 26, 23, 0.08);
 }
 
-.welcome-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
+/* ── Header ── */
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
-.welcome-title {
-    font-family: "Fraunces", "Times New Roman", serif;
-    font-size: 1.5rem;
-    margin: 0 0 0.5rem 0;
-    color: var(--rust);
+.form-title {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: 1.6rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--rust);
 }
 
-.welcome-text {
-    margin: 0;
-    font-size: 0.9rem;
-    color: rgba(27, 26, 23, 0.7);
+.form-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(27, 26, 23, 0.65);
 }
 
-.inner-container {
-    background: var(--sand);
-    border-radius: 20px;
-    padding: 2.5rem;
-    border: 1px solid rgba(27, 26, 23, 0.1);
+/* ── Form body ── */
+.form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.field-hint {
-    display: block;
-    font-size: 0.8rem;
-    color: rgba(27, 26, 23, 0.5);
-    margin-top: 0.25rem;
+.field-full {
+  width: 100%;
 }
 
-.form__actions {
-    margin-top: 1.5rem;
+/* ── Submit button ── */
+.submit-btn {
+  width: 100%;
+  margin-top: 0.75rem;
+  height: 48px;
+  font-size: 1rem !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+  border-radius: 12px !important;
+  background: linear-gradient(120deg, var(--copper), var(--rust)) !important;
+  color: #fff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.form__actions button {
-    width: 100%;
+.submit-btn:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed;
 }
 
-/* No table state */
-.no-table-state {
-    text-align: center;
-    padding: 2rem 1rem;
+/* ── Vibe color dot ── */
+.vibe-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+  vertical-align: middle;
+  border: 1px solid rgba(27, 26, 23, 0.12);
 }
 
-.no-table-state .icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+/* ── Inline spinner inside option ── */
+.inline-spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.4rem;
 }
 
-.no-table-state h2 {
-    font-family: "Fraunces", "Times New Roman", serif;
-    color: var(--rust);
-    margin: 0 0 0.5rem 0;
+/* ── No table state ── */
+.no-table-card {
+  text-align: center;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.no-table-state p {
-    color: rgba(27, 26, 23, 0.7);
-    margin: 0;
+.no-table-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  color: var(--copper);
+  margin-bottom: 0.5rem;
 }
 
-@media (max-width: 500px) {
-    .page-form {
-        padding: 0.5rem;
-        min-height: calc(100vh - 40px);
-    }
+/* ── API error ── */
+.api-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(138, 63, 36, 0.08);
+  border: 1px solid rgba(138, 63, 36, 0.25);
+  color: var(--rust);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.88rem;
+}
 
-    .outer-container {
-        padding: 1rem;
-        border-radius: 16px;
-        max-width: 100%;
-    }
+.api-error mat-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
 
-    .welcome-title {
-        font-size: 1.25rem;
-    }
+/* ── Button spinner ── */
+.btn-spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
 
-    .inner-container {
-        padding: 1.25rem;
-        border-radius: 12px;
-    }
+/* ── Material outline focus color override ── */
+::ng-deep .form-body .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+::ng-deep .form-body .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+::ng-deep .form-body .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: var(--copper) !important;
+}
+
+::ng-deep .form-body .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: var(--copper) !important;
+}
+
+::ng-deep .form-body .mdc-text-field--focused .mdc-notched-outline__leading,
+::ng-deep .form-body .mdc-text-field--focused .mdc-notched-outline__notch,
+::ng-deep .form-body .mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: var(--copper) !important;
+}
+
+@media (max-width: 560px) {
+  .form-page {
+    padding: 0.75rem 0.5rem;
+    justify-content: flex-start;
+    padding-top: 1.5rem;
+  }
+
+  .form-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .form-title {
+    font-size: 1.3rem;
+  }
 }

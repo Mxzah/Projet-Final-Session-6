@@ -874,6 +874,10 @@ img {
     color: var(--rust) !important;
 }
 
+.action-btn.edit:hover {
+    color: var(--gold, #C87941) !important;
+}
+
 .cart-empty {
     text-align: center;
     color: rgba(27, 26, 23, 0.45);

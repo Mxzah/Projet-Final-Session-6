@@ -1,0 +1,48 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>
+    <mat-icon class="title-icon">edit</mat-icon>
+    {{ ts.t('order.editLine') }}
+  </span>
+  <button mat-icon-button mat-dialog-close class="modal-close">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <p class="item-name">{{ data.itemName }}</p>
+
+  <form [formGroup]="form" class="edit-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ ts.t('order.quantity') }}</mat-label>
+      <input matInput type="number" formControlName="quantity" min="1" max="50" />
+      @if (form.controls['quantity'].hasError('required')) {
+        <mat-error>{{ ts.t('order.quantityRequired') }}</mat-error>
+      }
+      @if (form.controls['quantity'].hasError('min')) {
+        <mat-error>{{ ts.t('order.quantityMin') }}</mat-error>
+      }
+      @if (form.controls['quantity'].hasError('max')) {
+        <mat-error>{{ ts.t('order.quantityMax') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ ts.t('order.noteField') }}</mat-label>
+      <textarea matInput formControlName="note"
+        [placeholder]="ts.t('order.notePlaceholderLine')"
+        maxlength="255"
+        rows="3"></textarea>
+      <mat-hint align="end">{{ form.controls['note'].value?.length || 0 }}/255</mat-hint>
+      @if (form.controls['note'].hasError('maxlength')) {
+        <mat-error>{{ ts.t('order.noteMaxLength') }}</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close class="btn-cancel">{{ ts.t('admin.cancel') }}</button>
+  <button mat-flat-button class="btn-primary" [disabled]="form.invalid" (click)="save()">
+    {{ ts.t('admin.save') }}
+  </button>
+</mat-dialog-actions>

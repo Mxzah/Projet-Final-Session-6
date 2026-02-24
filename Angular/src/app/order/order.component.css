@@ -250,9 +250,20 @@ button[mat-raised-button][color="primary"] {
   color: white !important;
 }
 
-mat-chip {
-  font-size: 0.78rem;
+.status-chip {
+  flex-shrink: 0;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
 }
+
+.status-sent { background: #fff3e0; color: #e65100; }
+.status-prep { background: #e3f2fd; color: #1565c0; }
+.status-ready { background: #e8f5e9; color: #2e7d32; }
+.status-served { background: #f5f5f5; color: #757575; }
 
 /* ── Server + vibe row ── */
 .server-vibe-row {
@@ -275,6 +286,24 @@ mat-chip {
   width: 1.1rem;
   height: 1.1rem;
   color: var(--copper);
+}
+
+.people-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: rgba(27, 26, 23, 0.07);
+  color: var(--ink);
+}
+
+.people-badge mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
 }
 
 .vibe-badge-header {
@@ -326,6 +355,10 @@ mat-chip {
 
 .action-btn.delete:hover {
   color: var(--rust) !important;
+}
+
+.action-btn.edit:hover {
+  color: var(--gold, #C87941) !important;
 }
 
 /* ── Modal (same as admin-items) ── */

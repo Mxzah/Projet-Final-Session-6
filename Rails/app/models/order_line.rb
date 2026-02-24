@@ -38,10 +38,10 @@ class OrderLine < ApplicationRecord
     # The referenced item or combo must be available according to the Availability table
     return unless orderable_type.present? && orderable_id.present?
 
-    unavailable = Availability.where(available_type: orderable_type, available_id: orderable_id)
-                              .where("start_at <= ? AND (end_at IS NULL OR end_at >= ?)", Time.current, Time.current)
+    available = Availability.where(available_type: orderable_type, available_id: orderable_id)
+                            .where("start_at <= ? AND (end_at IS NULL OR end_at >= ?)", Time.current, Time.current)
 
-    errors.add(:orderable, "is not currently available") if unavailable.exists?
+    errors.add(:orderable, "is not currently available") unless available.exists?
   end
 
   def cannot_modify_unless_sent
