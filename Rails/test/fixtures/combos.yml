@@ -1,0 +1,17 @@
+combo_one:
+  name: "Duo Test"
+  description: "Combo de test"
+  price: 59.99
+  created_at: <%= Time.current %>
+
+combo_two:
+  name: "Trio Prestige"
+  description: "Combo prestige"
+  price: 89.99
+  created_at: <%= Time.current %>
+
+combo_three:
+  name: "Solo Découverte"
+  description: "Combo découverte"
+  price: 29.99
+  created_at: <%= Time.current %>

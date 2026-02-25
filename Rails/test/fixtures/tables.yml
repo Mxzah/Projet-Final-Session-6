@@ -1,0 +1,17 @@
+table_one:
+  number: 1
+  nb_seats: 4
+  temporary_code: "abc123"
+  created_at: <%= Time.current %>
+
+table_two:
+  number: 2
+  nb_seats: 6
+  temporary_code: "def456"
+  created_at: <%= Time.current %>
+
+table_three:
+  number: 3
+  nb_seats: 2
+  temporary_code: "ghi789"
+  created_at: <%= Time.current %>

@@ -17,13 +17,17 @@ Rails.application.routes.draw do
     get 'tables/:qr_token', to: 'tables#show'
     get 'tables/:qr_token/qr_code', to: 'tables#qr_code'
 
-    resources :categories, only: [:index, :create, :update, :destroy]
+    resources :categories, only: [:index, :create, :update, :destroy] do
+      resources :availabilities, only: [:index, :create, :update, :destroy],
+                controller: 'category_availabilities'
+    end
     resources :items, only: [:index, :show, :create, :update, :destroy] do
       member do
         delete :hard, action: :hard_destroy
         put :restore, action: :restore
       end
-      resources :availabilities, only: [:index, :create, :update, :destroy]
+      resources :availabilities, only: [:index, :create, :update, :destroy],
+                controller: 'item_availabilities'
     end
     resources :combos, only: [:index, :create] do
       resources :availabilities, only: [:index, :create, :update, :destroy],
