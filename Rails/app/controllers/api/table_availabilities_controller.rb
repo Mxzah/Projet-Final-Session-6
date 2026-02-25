@@ -43,6 +43,6 @@ class Api::TableAvailabilitiesController < Api::AdminController
   end
 
   def availability_json(a)
-    { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
+    a.as_json(only: [:id, :start_at, :end_at, :description])
   end
 end

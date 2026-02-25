@@ -40,12 +40,7 @@ module Api
     end
 
     def category_json(category)
-      {
-        id: category.id,
-        name: category.name,
-        position: category.position,
-        created_at: category.created_at
-      }
+      category.as_json(only: [:id, :name, :position, :created_at])
     end
   end
 end

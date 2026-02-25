@@ -55,7 +55,7 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         return new Set(
             this.tables()
                 .filter(table => {
-                    if (!table.availabilities || table.availabilities.length === 0) return false;
+                    if (!table.availabilities || table.availabilities.length === 0) return true;
                     return !table.availabilities.some(a => {
                         const start = new Date(a.start_at).getTime();
                         const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;

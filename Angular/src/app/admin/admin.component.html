@@ -1,44 +1,22 @@
-<app-header (logoutClick)="logout()" [showAdmin]="false">
-  <span class="header-separator">|</span>
-  <button mat-button class="quit-btn" (click)="goToKitchen()">
-    <mat-icon>restaurant</mat-icon>
-    {{ ts.t('header.kitchen') }}
-  </button>
-  <span class="header-separator">|</span>
-  <button mat-button class="quit-btn" (click)="goBack()">
-    <mat-icon>restaurant_menu</mat-icon>
-    {{ ts.t('header.quit') }}
-  </button>
+<app-header
+  (logoutClick)="logout()"
+  [showAdmin]="false"
+  [showKitchen]="true"
+  [showQuitMenu]="true"
+  (kitchenClick)="goToKitchen()"
+  (quitMenuClick)="goToMenu()">
 </app-header>
 
 <div class="tabs-wrapper">
-  <mat-tab-group class="admin-tabs" [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
-    <mat-tab [label]="ts.t('admin.tables.tab')"></mat-tab>
-    <mat-tab [label]="ts.t('admin.items.tab')"></mat-tab>
-    <mat-tab [label]="ts.t('admin.combos.tab')"></mat-tab>
-    <mat-tab [label]="ts.t('admin.comboItems.tab')"></mat-tab>
-    <mat-tab [label]="ts.t('admin.users.tab')"></mat-tab>
-  </mat-tab-group>
+  <nav class="admin-tabs">
+    @for (tab of tabs; track tab.path) {
+      <a class="admin-tab" [routerLink]="tab.path" routerLinkActive="active">
+        {{ ts.t(tab.label) }}
+      </a>
+    }
+  </nav>
 </div>
 
 <div class="tab-content">
-  @if (tabIndex === 0) {
-    <app-admin-tables />
-  }
-
-  @if (tabIndex === 1) {
-    <app-admin-items />
-  }
-
-  @if (tabIndex === 2) {
-    <app-admin-combos />
-  }
-
-  @if (tabIndex === 3) {
-    <app-admin-combo-items />
-  }
-
-  @if (tabIndex === 4) {
-    <app-admin-users />
-  }
+  <router-outlet />
 </div>

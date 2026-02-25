@@ -24,6 +24,8 @@ class ComboAvailabilityUpdateFailTest < ActionDispatch::IntegrationTest
   end
 
   test "update avec start_at dans le passé retourne success false" do
+    original_description = @availability.description
+
     put "/api/combos/#{@combo.id}/availabilities/#{@availability.id}", params: {
       availability: { start_at: 1.day.ago }
     }, as: :json
@@ -31,9 +33,14 @@ class ComboAvailabilityUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
+
+    @availability.reload
+    assert_equal original_description, @availability.description
   end
 
   test "update avec end_at avant start_at retourne success false" do
+    original_description = @availability.description
+
     put "/api/combos/#{@combo.id}/availabilities/#{@availability.id}", params: {
       availability: { start_at: 1.day.from_now, end_at: 2.hours.from_now }
     }, as: :json
@@ -41,10 +48,15 @@ class ComboAvailabilityUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
+
+    @availability.reload
+    assert_equal original_description, @availability.description
   end
 
   test "update avec durée inférieure à 1 heure retourne success false" do
+    original_description = @availability.description
     start = 1.day.from_now
+
     put "/api/combos/#{@combo.id}/availabilities/#{@availability.id}", params: {
       availability: { start_at: start, end_at: start + 30.minutes }
     }, as: :json
@@ -52,9 +64,14 @@ class ComboAvailabilityUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
+
+    @availability.reload
+    assert_equal original_description, @availability.description
   end
 
   test "update avec description trop longue retourne success false" do
+    original_description = @availability.description
+
     put "/api/combos/#{@combo.id}/availabilities/#{@availability.id}", params: {
       availability: { description: "A" * 256 }
     }, as: :json
@@ -62,9 +79,14 @@ class ComboAvailabilityUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
+
+    @availability.reload
+    assert_equal original_description, @availability.description
   end
 
   test "update avec périodes chevauchantes retourne success false" do
+    original_description = @availability_two.description
+
     put "/api/combos/#{@combo.id}/availabilities/#{@availability_two.id}", params: {
       availability: { start_at: 6.hours.from_now, end_at: 12.hours.from_now }
     }, as: :json
@@ -72,6 +94,9 @@ class ComboAvailabilityUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
+
+    @availability_two.reload
+    assert_equal original_description, @availability_two.description
   end
 
   test "update avec un compte client retourne success false" do

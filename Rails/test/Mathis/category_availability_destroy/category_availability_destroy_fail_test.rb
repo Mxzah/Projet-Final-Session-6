@@ -8,7 +8,9 @@ class CategoryAvailabilityDestroyFailTest < ActionDispatch::IntegrationTest
   end
 
   test "destroy availability inexistante retourne success false" do
-    delete "/api/categories/#{@category.id}/availabilities/999999", as: :json
+    assert_no_difference -> { Availability.where(available_type: "Category", available_id: @category.id).count } do
+      delete "/api/categories/#{@category.id}/availabilities/999999", as: :json
+    end
 
     assert_response :ok
     json = JSON.parse(response.body)

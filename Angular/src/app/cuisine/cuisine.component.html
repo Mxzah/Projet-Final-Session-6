@@ -1,11 +1,7 @@
-<app-header (logoutClick)="logout()">
-  @if (authService.isAdmin()) {
-    <span class="header-separator">|</span>
-    <button mat-button class="quit-btn" (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
-      {{ ts.t('header.quit') }}
-    </button>
-  }
+<app-header
+  (logoutClick)="logout()"
+  [showQuitMenu]="authService.isAdmin()"
+  (quitMenuClick)="goBack()">
 </app-header>
 
 <div class="page">

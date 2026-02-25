@@ -415,12 +415,16 @@ MODULE 11 — Désarchivage d'un item
        une disponibilité est active
 
 ================================================================================
-MODULE 12 — Gestion des disponibilités
+MODULE 12 — Gestion des disponibilités (items, tables, combos)
 ================================================================================
+
+Note : Les disponibilités fonctionnent de manière identique pour les items,
+les tables et les combos. Les tests ci-dessous s'appliquent aux trois types.
 
 12.1 Affichage de la section Disponibilités
      Avec admin@restoqr.ca : password123
-     - Ouvrir la modal de création ou de modification d'un item
+     - Ouvrir la modal de création ou de modification d'un item, d'une table
+       ou d'un combo
      - La section « Disponibilités » est visible sous le formulaire principal
      - Un bouton « + » (icône add) est présent à droite du titre « Disponibilités »
 
@@ -465,36 +469,40 @@ MODULE 12 — Gestion des disponibilités
 12.10 Sauvegarde des disponibilités (création)
      - Ajouter une ou plusieurs disponibilités valides dans la modal de création
      - Clic sur « Ajouter »
-     - L'item est créé, puis les disponibilités sont enregistrées en base
+     - L'item / la table / le combo est créé, puis les disponibilités sont
+       enregistrées en base
      - La modal se ferme
 
 12.11 Sauvegarde des disponibilités (modification)
-     - Ouvrir la modal d'un item existant ayant des disponibilités
+     - Ouvrir la modal d'un item, d'une table ou d'un combo existant ayant
+       des disponibilités
      - Les disponibilités existantes sont pré-chargées dans le formulaire
      - Modifier une date, ajouter une nouvelle ligne, supprimer une ligne existante
      - Clic sur « Enregistrer »
      - Seules les changements sont envoyés (créations, modifications, suppressions)
      - La modal se ferme
 
-12.12 Impact sur le menu — Item sans disponibilité
-     - Un item sans aucune disponibilité enregistrée apparaît avec le badge
-       « INDISPONIBLE » dans le panneau admin
-     - Ce même item n'est PAS visible sur la page /menu
+12.12 Impact sur le menu — Ressource sans disponibilité
+     - Un item / une table / un combo sans aucune disponibilité enregistrée
+       apparaît avec le badge « INDISPONIBLE » dans le panneau admin
+     - Cette ressource n'est PAS visible sur la page /menu
 
-12.13 Impact sur le menu — Item avec disponibilité active
-     - Un item ayant au moins une disponibilité dont start_at <= maintenant
-       et end_at IS NULL ou end_at > maintenant apparaît normalement dans le menu
+12.13 Impact sur le menu — Ressource avec disponibilité active
+     - Un item / une table / un combo ayant au moins une disponibilité dont
+       start_at <= maintenant et end_at IS NULL ou end_at > maintenant
+       apparaît normalement dans le menu
      - Dans le panneau admin, sa carte n'affiche aucun badge
 
-12.14 Impact sur le menu — Item avec disponibilité future uniquement
-     - Un item dont toutes les disponibilités ont un start_at dans le futur
-       n'est PAS visible dans le menu
+12.14 Impact sur le menu — Ressource avec disponibilité future uniquement
+     - Un item / une table / un combo dont toutes les disponibilités ont un
+       start_at dans le futur n'est PAS visible dans le menu
      - Dans le panneau admin, sa carte affiche le badge « INDISPONIBLE »
 
 12.15 Fin optionnelle (disponibilité ouverte)
      - Ajouter une disponibilité sans remplir le champ « Fin »
      - Aucune erreur n'est affichée (la fin est optionnelle)
-     - L'item reste visible dans le menu indéfiniment à partir de la date de début
+     - La ressource reste visible dans le menu indéfiniment à partir de la
+       date de début
 
 ================================================================================
 MODULE 13 — Traduction (admin-items)

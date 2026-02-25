@@ -103,6 +103,8 @@ tables_data = [
   { number: 10, nb_seats: 10 }
 ]
 
+unavailable_table_number = 5
+
 tables_data.each do |td|
   table = Table.unscoped.find_or_initialize_by(number: td[:number])
   table.nb_seats = td[:nb_seats]
@@ -110,7 +112,21 @@ tables_data.each do |td|
   table.temporary_code ||= SecureRandom.hex(16)
   table.save!
   puts "- Table ##{td[:number]} (#{td[:nb_seats]} places)"
+
+  next if td[:number] == unavailable_table_number
+  unless Availability.exists?(available_type: 'Table', available_id: table.id)
+    a = Availability.new(
+      available_type: 'Table',
+      available_id:   table.id,
+      start_at:       1.day.ago,
+      end_at:         6.months.from_now,
+      description:    "Table #{td[:number]} disponible"
+    )
+    a.save(validate: false)
+  end
 end
+
+puts "- Table ##{unavailable_table_number} laissée sans disponibilité (unavailable)"
 
 # Create categories
 puts "\nCreating categories..."

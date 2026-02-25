@@ -19,7 +19,7 @@ class Api::ComboAvailabilitiesController < Api::AdminController
     if @availability.update(availability_params)
       render json: { success: true, data: availability_json(@availability) }
     else
-      render json: { success: false, data: nil, errors: availability.errors.full_messages }
+      render json: { success: false, data: nil, errors: @availability.errors.full_messages }
     end
   end
 
@@ -43,6 +43,6 @@ class Api::ComboAvailabilitiesController < Api::AdminController
   end
 
   def availability_json(a)
-    { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
+    a.as_json(only: [:id, :start_at, :end_at, :description])
   end
 end

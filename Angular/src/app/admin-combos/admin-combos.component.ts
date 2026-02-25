@@ -52,7 +52,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         return new Set(
             this.combos()
                 .filter(combo => {
-                    if (!combo.availabilities || combo.availabilities.length === 0) return false;
+                    if (!combo.availabilities || combo.availabilities.length === 0) return true;
                     return !combo.availabilities.some(a => {
                         const start = new Date(a.start_at).getTime();
                         const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;

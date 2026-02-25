@@ -8,6 +8,24 @@ class Item < ApplicationRecord
 
   has_one_attached :image
 
+  include Rails.application.routes.url_helpers
+
+  def category_name
+    category&.name
+  end
+
+  def image_url
+    image.attached? ? url_for(image) : nil
+  end
+
+  def in_use
+    order_lines.any? || combo_items.any?
+  end
+
+  def as_json(options = {})
+    super(options).tap { |h| h['price'] = h['price'].to_f if h.key?('price') }
+  end
+
   validates :name, presence: true, length: { maximum: 100 },
                    format: { without: /\A\s*\z/, message: "cannot be only whitespace" }
   validates :description, length: { maximum: 255 },

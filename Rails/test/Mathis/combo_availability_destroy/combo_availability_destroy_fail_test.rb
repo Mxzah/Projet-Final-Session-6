@@ -8,7 +8,9 @@ class ComboAvailabilityDestroyFailTest < ActionDispatch::IntegrationTest
   end
 
   test "destroy availability inexistante retourne success false" do
-    delete "/api/combos/#{@combo.id}/availabilities/999999", as: :json
+    assert_no_difference -> { Availability.where(available_type: "Combo", available_id: @combo.id).count } do
+      delete "/api/combos/#{@combo.id}/availabilities/999999", as: :json
+    end
 
     assert_response :ok
     json = JSON.parse(response.body)

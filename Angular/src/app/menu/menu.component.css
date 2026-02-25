@@ -101,9 +101,9 @@ img {
 }
 
 ::ng-deep .ssf-bar .mat-mdc-form-field-infix {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    min-height: 36px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 48px !important;
     display: flex !important;
     align-items: center !important;
 }
@@ -122,13 +122,13 @@ img {
 }
 
 ::ng-deep .ssf-sort .mat-mdc-form-field-infix {
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
-    min-height: 39px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 48px !important;
 }
 
 ::ng-deep .ssf-sort .mat-mdc-floating-label {
-    top: 20px !important;
+    top: 18px !important;
 }
 
 .ssf-search {
@@ -176,6 +176,23 @@ img {
 
 .ssf-slider {
     flex: 1;
+}
+
+::ng-deep .ssf-slider .mdc-slider__track--active_fill {
+    border-color: #c86d3f !important;
+}
+
+::ng-deep .ssf-slider .mdc-slider__thumb-knob {
+    background-color: #c86d3f !important;
+    border-color: #c86d3f !important;
+}
+
+::ng-deep .ssf-slider .mdc-slider__track--inactive {
+    background-color: rgba(200, 109, 63, 0.3) !important;
+}
+
+::ng-deep .ssf-slider .mat-mdc-slider-visual-thumb .mat-ripple .mat-ripple-element {
+    background-color: rgba(200, 109, 63, 0.2) !important;
 }
 
 /* ── Material form field overrides ── */

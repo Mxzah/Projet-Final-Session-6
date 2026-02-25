@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -20,14 +20,24 @@ export class HeaderComponent {
   @Input() showLogout = true;
   @Input() showLogin = false;
   @Input() showAdmin = true;
+  @Input() showKitchen = false;
+  @Input() showQuitMenu = false;
   @Output() logoutClick = new EventEmitter<void>();
   @Output() loginClick = new EventEmitter<void>();
+  @Output() kitchenClick = new EventEmitter<void>();
+  @Output() quitMenuClick = new EventEmitter<void>();
+
+  mobileMenuOpen = signal(false);
 
   constructor(
     public ts: TranslationService,
     public authService: AuthService,
     private router: Router
   ) {}
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(v => !v);
+  }
 
   setLang(lang: Lang): void {
     this.ts.setLang(lang);

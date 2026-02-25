@@ -164,21 +164,11 @@ module Api
     end
 
     def item_json(item)
-      {
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.price.to_f,
-        category_id: item.category_id,
-        category_name: item.category&.name,
-        image_url: item.image.attached? ? url_for(item.image) : nil,
-        deleted_at: item.deleted_at,
-        created_at: item.created_at,
-        in_use: item.order_lines.any? || item.combo_items.any?,
-        availabilities: item.availabilities.map { |a|
-          { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
-        }
-      }
+      item.as_json(
+        only: [:id, :name, :description, :price, :category_id, :deleted_at, :created_at],
+        methods: [:category_name, :image_url, :in_use],
+        include: { availabilities: { only: [:id, :start_at, :end_at, :description] } }
+      )
     end
   end
 end

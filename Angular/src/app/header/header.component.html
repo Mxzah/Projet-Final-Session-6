@@ -1,7 +1,12 @@
 <mat-toolbar class="site-header">
   <span class="brand" routerLink="/menu" style="cursor:pointer">RestoQR</span>
   <span class="spacer"></span>
-  <div class="header-actions">
+
+  <button mat-icon-button class="hamburger-btn" (click)="toggleMobileMenu()">
+    <mat-icon>{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+  </button>
+
+  <div class="header-actions desktop-only">
     <button mat-button class="lang-btn" [matMenuTriggerFor]="langMenu">
       <mat-icon>language</mat-icon>
       {{ ts.lang() === 'fr' ? 'FR' : 'EN' }}
@@ -34,6 +39,68 @@
         {{ ts.t('header.admin') }}
       </button>
     }
+    @if (showKitchen) {
+      <span class="header-divider">|</span>
+      <button mat-button class="quit-btn" (click)="kitchenClick.emit()">
+        <mat-icon>restaurant</mat-icon>
+        {{ ts.t('header.kitchen') }}
+      </button>
+    }
+    @if (showQuitMenu) {
+      <span class="header-divider">|</span>
+      <button mat-button class="quit-btn" (click)="quitMenuClick.emit()">
+        <mat-icon>restaurant_menu</mat-icon>
+        {{ ts.t('header.quit') }}
+      </button>
+    }
     <ng-content />
   </div>
 </mat-toolbar>
+
+@if (mobileMenuOpen()) {
+  <div class="mobile-menu">
+    <button mat-button class="lang-btn" [matMenuTriggerFor]="langMenuMobile">
+      <mat-icon>language</mat-icon>
+      {{ ts.lang() === 'fr' ? 'FR' : 'EN' }}
+    </button>
+    <mat-menu #langMenuMobile="matMenu">
+      <button mat-menu-item (click)="setLang('fr')" [class.active-lang]="ts.lang() === 'fr'">
+        Français
+      </button>
+      <button mat-menu-item (click)="setLang('en')" [class.active-lang]="ts.lang() === 'en'">
+        English
+      </button>
+    </mat-menu>
+
+    @if (showLogout) {
+      <button mat-button class="logout-btn" (click)="logoutClick.emit(); toggleMobileMenu()">
+        <mat-icon>logout</mat-icon>
+        {{ ts.t('header.logout') }}
+      </button>
+    }
+    @if (showLogin) {
+      <button mat-button class="logout-btn" (click)="loginClick.emit(); toggleMobileMenu()">
+        <mat-icon>login</mat-icon>
+        {{ ts.t('header.login') }}
+      </button>
+    }
+    @if (showLogout && showAdmin && authService.isAdmin()) {
+      <button mat-button class="admin-btn" (click)="goToAdmin(); toggleMobileMenu()">
+        <mat-icon>admin_panel_settings</mat-icon>
+        {{ ts.t('header.admin') }}
+      </button>
+    }
+    @if (showKitchen) {
+      <button mat-button class="quit-btn" (click)="kitchenClick.emit(); toggleMobileMenu()">
+        <mat-icon>restaurant</mat-icon>
+        {{ ts.t('header.kitchen') }}
+      </button>
+    }
+    @if (showQuitMenu) {
+      <button mat-button class="quit-btn" (click)="quitMenuClick.emit(); toggleMobileMenu()">
+        <mat-icon>restaurant_menu</mat-icon>
+        {{ ts.t('header.quit') }}
+      </button>
+    }
+  </div>
+}
