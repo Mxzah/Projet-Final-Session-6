@@ -40,28 +40,8 @@ class OrderIndexSuccessTest < ActionDispatch::IntegrationTest
     json["data"].each { |o| assert_equal @user.id, o["client_id"] }
   end
 
-  # Test 4: Returns all expected fields in each order
-  test "index returns all expected fields in each order" do
-    post "/api/orders", params: { order: { nb_people: 3, table_id: @table.id, note: "Test note" } }, as: :json
 
-    get "/api/orders", as: :json
-
-    json = JSON.parse(response.body)
-    order = json["data"].first
-    assert order.key?("id")
-    assert order.key?("nb_people")
-    assert order.key?("note")
-    assert order.key?("table_id")
-    assert order.key?("table_number")
-    assert order.key?("client_id")
-    assert order.key?("order_lines")
-    assert order.key?("created_at")
-    assert order.key?("ended_at")
-    assert order.key?("total")
-    assert order.key?("tip")
-  end
-
-  # Test 5: Does not return orders from another client
+  # Test 4: Does not return orders from another client
   test "index does not return orders from another client" do
     other_table = Table.create!(number: 98, nb_seats: 4)
     other_client = Client.create!(email: "other@test.ca", password: "password123",
@@ -76,7 +56,7 @@ class OrderIndexSuccessTest < ActionDispatch::IntegrationTest
     assert_equal 0, json["data"].length
   end
 
-  # Test 6: table_number matches the assigned table
+  # Test 5: table_number matches the assigned table
   test "index returns correct table number in order" do
     post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
 

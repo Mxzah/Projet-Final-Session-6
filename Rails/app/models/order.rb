@@ -5,7 +5,7 @@ class Order < ApplicationRecord
   belongs_to :vibe, optional: true
   has_many :order_lines, dependent: :destroy
 
-  # Scope: open orders (not ended)
+  # Scope: voir si ouverte ou fermée (ended_at IS NULL ou NOT NULL)
   scope :open, -> { where(ended_at: nil) }
 
   validates :nb_people, presence: true,

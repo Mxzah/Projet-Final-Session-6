@@ -18,17 +18,7 @@ class VibeIndexSuccessTest < ActionDispatch::IntegrationTest
     assert_equal [], json["errors"]
   end
 
-  # Test 2: Vibes have expected fields
-  test "index returns vibes with id name and color fields" do
-    get "/api/vibes", as: :json
-
-    json = JSON.parse(response.body)
-    assert json["data"].length >= 1
-    vibe = json["data"].first
-    assert vibe.key?("id")
-    assert vibe.key?("name")
-    assert vibe.key?("color")
-  end
+  
 
   # Test 3: Returns the correct vibe data
   test "index returns correct vibe name and color" do

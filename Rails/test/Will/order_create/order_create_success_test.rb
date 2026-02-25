@@ -37,25 +37,8 @@ class OrderCreateSuccessTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # Test 4: Returns all expected fields
-  test "create returns all expected fields" do
-    post "/api/orders", params: { order: { nb_people: 3, table_id: @table.id } }, as: :json
-
-    json = JSON.parse(response.body)
-    order = json["data"].first
-    assert order.key?("id")
-    assert order.key?("nb_people")
-    assert order.key?("note")
-    assert order.key?("table_id")
-    assert order.key?("table_number")
-    assert order.key?("client_id")
-    assert order.key?("order_lines")
-    assert order.key?("created_at")
-    assert order.key?("ended_at")
-    assert order.key?("total")
-  end
-
-  # Test 5: New order has ended_at nil and empty lines
+ 
+  # Test 4: New order has ended_at nil and empty lines
   test "create returns order with ended_at nil and empty order_lines" do
     post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
 

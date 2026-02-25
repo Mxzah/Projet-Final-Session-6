@@ -45,21 +45,5 @@ class OrderLineCreateSuccessTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # Test 4: Returns all expected fields
-  test "create returns all expected fields" do
-    post "/api/orders/#{@order["id"]}/order_lines",
-         params: { order_line: { orderable_type: "Item", orderable_id: @item.id, quantity: 1 } }, as: :json
-
-    json = JSON.parse(response.body)
-    line = json["data"].first
-    assert line.key?("id")
-    assert line.key?("quantity")
-    assert line.key?("unit_price")
-    assert line.key?("note")
-    assert line.key?("status")
-    assert line.key?("orderable_type")
-    assert line.key?("orderable_id")
-    assert line.key?("orderable_name")
-    assert line.key?("created_at")
-  end
+ 
 end

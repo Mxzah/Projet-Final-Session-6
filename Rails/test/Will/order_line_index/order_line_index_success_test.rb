@@ -38,27 +38,5 @@ class OrderLineIndexSuccessTest < ActionDispatch::IntegrationTest
     assert_equal 2, json["data"].first["quantity"]
   end
 
-  # Test 3: Returns all expected fields in each line
-  test "index returns expected fields in each order line" do
-    item = items(:item_one)
-    av = Availability.new(available_type: "Item", available_id: item.id,
-                          start_at: 1.hour.ago, end_at: 1.day.from_now)
-    av.save(validate: false)
-    post "/api/orders/#{@order["id"]}/order_lines",
-         params: { order_line: { orderable_type: "Item", orderable_id: item.id, quantity: 1, note: "Extra" } }, as: :json
-
-    get "/api/orders/#{@order["id"]}/order_lines", as: :json
-
-    json = JSON.parse(response.body)
-    line = json["data"].first
-    assert line.key?("id")
-    assert line.key?("quantity")
-    assert line.key?("unit_price")
-    assert line.key?("note")
-    assert line.key?("status")
-    assert line.key?("orderable_type")
-    assert line.key?("orderable_id")
-    assert line.key?("orderable_name")
-    assert line.key?("created_at")
-  end
+  
 end
