@@ -1,8 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +12,7 @@ import { CuisineService, CuisineOrder, CuisineOrderLine } from '../services/cuis
 import { AuthService } from '../services/auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { TranslationService } from '../services/translation.service';
+import { ErrorService } from '../services/error.service';
 import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
 
 @Component({
@@ -32,10 +32,12 @@ import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent
   templateUrl: './cuisine.component.html',
   styleUrl: './cuisine.component.css'
 })
-export class CuisineComponent implements OnInit {
+export class CuisineComponent implements OnInit, OnDestroy {
+  private pollingInterval: ReturnType<typeof setInterval> | null = null;
   orders: CuisineOrder[] = [];
   loading = true;
   error: string | null = null;
+  actionError = '';
 
   readonly statuses = ['sent', 'in_preparation', 'ready', 'served'];
 
@@ -49,11 +51,19 @@ export class CuisineComponent implements OnInit {
     private location: Location,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private errorService: ErrorService
   ) {}
 
   ngOnInit(): void {
     this.loadOrders();
+    this.pollingInterval = setInterval(() => this.loadOrders(), 10000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
   }
 
   loadOrders(): void {
@@ -65,8 +75,8 @@ export class CuisineComponent implements OnInit {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.error = 'Impossible de charger les commandes.';
+      error: (err) => {
+        this.error = this.errorService.format(this.errorService.fromApiError(err));
         this.loading = false;
         this.cdr.detectChanges();
       }
@@ -86,6 +96,7 @@ export class CuisineComponent implements OnInit {
   advanceStatus(line: CuisineOrderLine): void {
     if (this.advancingLineIds.has(line.id)) return;
     this.advancingLineIds.add(line.id);
+    this.actionError = '';
 
     this.cuisineService.nextStatus(line.id).subscribe({
       next: (res) => {
@@ -93,13 +104,12 @@ export class CuisineComponent implements OnInit {
         if (res.success) {
           this.loadOrders();
         } else {
-          const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
-          this.snackBar.open(msg, 'OK', { duration: 5000 });
+          this.actionError = this.errorService.format(this.errorService.fromApiError(res));
         }
       },
-      error: () => {
+      error: (err) => {
         this.advancingLineIds.delete(line.id);
-        this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
+        this.actionError = this.errorService.format(this.errorService.fromApiError(err));
       }
     });
   }
@@ -149,6 +159,7 @@ export class CuisineComponent implements OnInit {
     );
     ref.afterClosed().subscribe(result => {
       if (!result) return;
+      this.actionError = '';
       this.cuisineService.updateOrderLine(line.id, {
         quantity: result.quantity,
         note: result.note
@@ -157,12 +168,11 @@ export class CuisineComponent implements OnInit {
           if (res.success) {
             this.loadOrders();
           } else {
-            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
-            this.snackBar.open(msg, 'OK', { duration: 5000 });
+            this.actionError = this.errorService.format(this.errorService.fromApiError(res));
           }
         },
-        error: () => {
-          this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
+        error: (err) => {
+          this.actionError = this.errorService.format(this.errorService.fromApiError(err));
         }
       });
     });
@@ -185,17 +195,17 @@ export class CuisineComponent implements OnInit {
     );
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
+      this.actionError = '';
       this.cuisineService.deleteOrderLine(line.id).subscribe({
         next: (res: any) => {
           if (res.success) {
             this.loadOrders();
           } else {
-            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.deleteError');
-            this.snackBar.open(msg, 'OK', { duration: 5000 });
+            this.actionError = this.errorService.format(this.errorService.fromApiError(res));
           }
         },
-        error: () => {
-          this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
+        error: (err) => {
+          this.actionError = this.errorService.format(this.errorService.fromApiError(err));
         }
       });
     });
@@ -203,6 +213,38 @@ export class CuisineComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  // ── Release table / close order (waiter/admin only) ──
+
+  confirmReleaseOrder(order: CuisineOrder): void {
+    const data: ConfirmDialogData = {
+      title: this.ts.t('cuisine.releaseTable'),
+      message: this.ts.t('cuisine.releaseConfirm'),
+      itemName: `${this.ts.t('cuisine.table')} ${order.table_number}`,
+      confirmLabel: this.ts.t('cuisine.releaseTable'),
+      confirmClass: 'btn-danger'
+    };
+    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
+      ConfirmDialogComponent,
+      { data, width: '440px', maxHeight: '90vh' }
+    );
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.actionError = '';
+      this.cuisineService.releaseOrder(order.id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.loadOrders();
+          } else {
+            this.actionError = this.errorService.format(this.errorService.fromApiError(res));
+          }
+        },
+        error: (err) => {
+          this.actionError = this.errorService.format(this.errorService.fromApiError(err));
+        }
+      });
+    });
   }
 
   logout(): void {

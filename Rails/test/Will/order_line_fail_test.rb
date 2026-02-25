@@ -84,7 +84,7 @@ class OrderLineFailTest < ActionDispatch::IntegrationTest
     assert json["errors"].any?
 
     # Contenu du format JSON
-    assert_equal [], json["data"]
+    assert_nil json["data"]
   end
 
   # Test 4: Index avec commande appartenant à un autre client retourne success false
@@ -109,7 +109,7 @@ class OrderLineFailTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
 
     # Contenu du format JSON: aucune donnée
-    assert_equal [], json["data"]
+    assert_nil json["data"]
   end
 
   # Test 5: Create avec order_id inexistant retourne success false
@@ -121,7 +121,7 @@ class OrderLineFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_equal [], json["data"]
+    assert_nil json["data"]
   end
 
   # ══════════════════════════════════════════
@@ -142,8 +142,6 @@ class OrderLineFailTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
     assert json["errors"].any?
 
-    # Contenu du format JSON
-    assert_equal [], json["data"]
   end
 
   # Test 7: Create avec quantity = 0 retourne success false

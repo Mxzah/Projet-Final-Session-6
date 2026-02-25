@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_24_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_25_120000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -115,6 +115,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_24_190000) do
     t.bigint "vibe_id"
     t.index ["client_id"], name: "idx_orders_client_id"
     t.index ["created_at"], name: "idx_orders_created_at"
+    t.index ["deleted_at", "ended_at"], name: "idx_orders_deleted_ended"
     t.index ["deleted_at"], name: "idx_orders_deleted_at"
     t.index ["server_id"], name: "idx_orders_server_id"
     t.index ["table_id"], name: "index_orders_on_table_id"

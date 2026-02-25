@@ -64,12 +64,35 @@ export class LoginComponent {
           return;
         }
 
-        this.orderService.closeOpenOrders().subscribe(() => {
-          if (this.tableService.getPendingToken()) {
-            this.tableService.validateAndSavePendingToken().subscribe(() => {
-              this.router.navigate(['/form']);
-            });
-          } else {
+        // Check if the user already has an open order
+        this.orderService.getOrders().subscribe({
+          next: (res) => {
+            const orders = (res.data || []) as any[];
+            const openOrder = orders.find((o: any) => !o.ended_at);
+
+            if (openOrder) {
+              // User already has an open order — restore table info and go to menu
+              this.tableService.setCurrentTable({
+                id: openOrder.table_id,
+                number: openOrder.table_number,
+                capacity: 20,
+                status: 'active',
+                qr_token: ''
+              });
+              this.router.navigate(['/menu']);
+            } else {
+              // No open order — proceed with the QR scan flow
+              if (this.tableService.getPendingToken()) {
+                this.tableService.validateAndSavePendingToken().subscribe(() => {
+                  this.router.navigate(['/form']);
+                });
+              } else {
+                this.router.navigate(['/form']);
+              }
+            }
+          },
+          error: () => {
+            // Fallback: go to /form
             this.router.navigate(['/form']);
           }
         });

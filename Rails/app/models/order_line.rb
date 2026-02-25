@@ -1,22 +1,45 @@
 class OrderLine < ApplicationRecord
+  # Enum for status — provides scopes (.sent, .served) and query methods (.sent?, .served?)
+  enum :status, { sent: "sent", in_preparation: "in_preparation", ready: "ready", served: "served" }, default: :sent, validate: true
+
+  # Constants for sequential status logic
   STATUSES = %w[sent in_preparation ready served].freeze
   STATUS_ORDER = STATUSES.each_with_index.to_h.freeze
 
   belongs_to :order
   belongs_to :orderable, polymorphic: true
 
+  # Scope: order lines belonging to open (not ended) orders
+  scope :open, -> { joins(:order).where(orders: { ended_at: nil, deleted_at: nil }) }
+
   validates :quantity, presence: true,
                        numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 50 }
   validates :unit_price, presence: true,
                          numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 9999.99 }
   validates :note, length: { maximum: 255 },
-                   format: { without: /\A\s*\z/, message: "ne peut pas être composé uniquement d'espaces" }, allow_blank: true
-  validates :status, presence: true, inclusion: { in: STATUSES }
+                   format: { without: /\A\s*\z/, message: "cannot consist only of spaces" }, allow_blank: true
+  # status validation is handled by enum (validate: true)
   validates :orderable_type, presence: true, inclusion: { in: %w[Item Combo] }
 
   validate :status_must_follow_sequence, if: :status_changed?
   validate :orderable_must_be_available
   validate :cannot_modify_unless_sent, on: :update
+
+  # JSON serialization for API responses
+  def as_json(options = {})
+    {
+      id: id,
+      quantity: quantity,
+      unit_price: unit_price.to_f,
+      note: note,
+      status: status,
+      orderable_type: orderable_type,
+      orderable_id: orderable_id,
+      orderable_name: orderable&.name,
+      orderable_description: orderable&.try(:description),
+      created_at: created_at
+    }
+  end
 
   private
 

@@ -23,6 +23,11 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
     item_record.save!
     @item = item_record.as_json
 
+    # Rendre l'item disponible (bypass validation start_at_not_in_past)
+    av = Availability.new(available_type: "Item", available_id: item_record.id,
+                          start_at: 1.hour.ago, end_at: 1.day.from_now)
+    av.save(validate: false)
+
     # Créer une commande
     post "/api/orders", params: {
       order: { nb_people: 2, table_id: @table.id }

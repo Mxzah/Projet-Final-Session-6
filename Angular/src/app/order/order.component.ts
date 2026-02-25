@@ -1,14 +1,14 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
 import { OrderLineData, OrderService } from '../services/order.service';
 import { TranslationService } from '../services/translation.service';
+import { ErrorService } from '../services/error.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -40,10 +40,13 @@ interface DisplayOrderLine {
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
 })
-export class OrderComponent implements OnInit {
+export class OrderComponent implements OnInit, OnDestroy {
+  private pollingInterval: ReturnType<typeof setInterval> | null = null;
   openOrderId = signal<number | null>(null);
   private serverLines = signal<DisplayOrderLine[]>([]);
   isSending = signal<boolean>(false);
+  loadError = signal('');
+  actionError = signal('');
 
   existingNote = signal<string | null>(null);
   existingVibeName = signal<string | null>(null);
@@ -67,6 +70,8 @@ export class OrderComponent implements OnInit {
   totalItems = computed(() => this.lines().reduce((sum, line) => sum + line.quantity, 0));
   pendingCount = computed(() => this.cartService.lines().length);
 
+
+  //regarder si toutes les lignes sont servies et qu'il n'y a aucune ligne en attente (panier vide)
   allServed = computed(() => {
     const sLines = this.serverLines();
     return sLines.length > 0 && sLines.every(l => l.status === 'served') && this.pendingCount() === 0;
@@ -79,11 +84,19 @@ export class OrderComponent implements OnInit {
     private orderService: OrderService,
     private router: Router,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private errorService: ErrorService
   ) {}
 
   ngOnInit(): void {
     this.loadOpenOrder();
+    this.pollingInterval = setInterval(() => this.loadOpenOrder(), 10000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
   }
 
   private mapApiLine(line: OrderLineData): DisplayOrderLine {
@@ -99,6 +112,7 @@ export class OrderComponent implements OnInit {
   }
 
   private loadOpenOrder(): void {
+    this.loadError.set('');
     this.orderService.getOrders().subscribe({
       next: (response) => {
         const orders = response.data || [];
@@ -121,7 +135,8 @@ export class OrderComponent implements OnInit {
         this.existingNbPeople.set(openOrder.nb_people ?? null);
         this.serverLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
       },
-      error: () => {
+      error: (err) => {
+        this.loadError.set(this.errorService.format(this.errorService.fromApiError(err)));
         this.openOrderId.set(null);
         this.serverLines.set([]);
       }
@@ -177,13 +192,14 @@ export class OrderComponent implements OnInit {
       const orderId = this.openOrderId();
       if (!orderId) return;
 
+      this.actionError.set('');
       this.orderService.updateOrderLine(orderId, line.id, {
         quantity: result.quantity,
         note: result.note
       }).subscribe({
         next: () => this.loadOpenOrder(),
-        error: () => {
-          this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
+        error: (err) => {
+          this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
         }
       });
     });
@@ -217,17 +233,17 @@ export class OrderComponent implements OnInit {
       const orderId = this.openOrderId();
       if (!orderId) return;
 
+      this.actionError.set('');
       this.orderService.deleteOrderLine(orderId, line.id).subscribe({
         next: (res: any) => {
           if (res.success) {
             this.loadOpenOrder();
           } else {
-            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.deleteError');
-            this.snackBar.open(msg, 'OK', { duration: 5000 });
+            this.actionError.set(this.errorService.format(this.errorService.fromApiError(res)));
           }
         },
-        error: () => {
-          this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
+        error: (err) => {
+          this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
         }
       });
     });
@@ -242,12 +258,13 @@ export class OrderComponent implements OnInit {
     if (linesToCreate.length === 0 || this.isSending()) return;
 
     if (!orderId) {
-      this.snackBar.open(this.ts.t('order.noOrderRedirect'), 'OK', { duration: 4000 });
+      this.actionError.set(this.ts.t('order.noOrderRedirect'));
       this.router.navigate(['/form']);
       return;
     }
 
     this.isSending.set(true);
+    this.actionError.set('');
 
     const requests = linesToCreate.map(line =>
       this.orderService.createOrderLine(orderId, {
@@ -263,8 +280,8 @@ export class OrderComponent implements OnInit {
         this.cartService.clear();
         this.loadOpenOrder();
       },
-      error: () => {
-        this.snackBar.open(this.ts.t('order.sendError'), 'OK', { duration: 5000 });
+      error: (err) => {
+        this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
         this.isSending.set(false);
       },
       complete: () => {

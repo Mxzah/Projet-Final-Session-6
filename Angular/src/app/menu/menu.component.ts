@@ -21,7 +21,9 @@ import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
 import { CartService, CartLine } from '../services/cart.service';
 import { TableService } from '../services/table.service';
+import { OrderService } from '../services/order.service';
 import { TranslationService } from '../services/translation.service';
+import { ErrorService } from '../services/error.service';
 import { HeaderComponent } from '../header/header.component';
 import { Item, Category } from './menu.models';
 import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
@@ -75,23 +77,53 @@ export class MenuComponent implements OnInit, OnDestroy {
     return item.price * this.modalQuantity();
   });
 
+  // Track if the user has an open order (even without a scanned table)
+  hasOpenOrder = signal<boolean>(false);
+
   constructor(
     private itemsService: ItemsService,
     public authService: AuthService,
     public cartService: CartService,
     private tableService: TableService,
+    private orderService: OrderService,
     public ts: TranslationService,
     private router: Router,
     private renderer: Renderer2,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private errorService: ErrorService
   ) {}
 
   ngOnInit(): void {
     this.loadItems(true);
+    this.checkOpenOrder();
   }
 
   ngOnDestroy(): void {
     if (this.searchTimer) clearTimeout(this.searchTimer);
+  }
+
+  // Check if the user already has an open order — if so, restore table info
+  private checkOpenOrder(): void {
+    if (!this.authService.isAuthenticated()) return;
+    this.orderService.getOrders().subscribe({
+      next: (res) => {
+        const orders = (res.data || []) as any[];
+        const openOrder = orders.find((o: any) => !o.ended_at);
+        if (openOrder) {
+          this.hasOpenOrder.set(true);
+          // Restore table info so the menu works without re-scanning
+          if (!this.tableService.hasTable()) {
+            this.tableService.setCurrentTable({
+              id: openOrder.table_id,
+              number: openOrder.table_number,
+              capacity: 20,
+              status: 'active',
+              qr_token: ''
+            });
+          }
+        }
+      }
+    });
   }
 
   loadItems(showLoading = false): void {
@@ -122,9 +154,7 @@ export class MenuComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
       },
       error: (err: any) => {
-        this.errorMessage.set(
-          err.errors?.join(', ') || this.ts.t('menu.loadError')
-        );
+        this.errorMessage.set(this.errorService.format(this.errorService.fromApiError(err)));
         this.isLoading.set(false);
       }
     });
@@ -184,7 +214,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login']);
       return;
     }
-    if (!this.tableService.hasTable()) {
+    if (!this.tableService.hasTable() && !this.hasOpenOrder()) {
       this.router.navigate(['/form']);
       return;
     }
@@ -246,7 +276,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   canOrder(): boolean {
-    return this.authService.isAuthenticated() && this.tableService.hasTable();
+    return this.authService.isAuthenticated() && (this.tableService.hasTable() || this.hasOpenOrder());
   }
 
   onAddToCart(item: Item): void {

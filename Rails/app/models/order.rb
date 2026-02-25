@@ -1,14 +1,17 @@
 class Order < ApplicationRecord
   belongs_to :table
-  belongs_to :client, class_name: "User"   #belongs_to est OBLIGATOIRE (
+  belongs_to :client, class_name: "User"
   belongs_to :server, class_name: "User", optional: true
   belongs_to :vibe, optional: true
-  has_many :order_lines
+  has_many :order_lines, dependent: :destroy
+
+  # Scope: open orders (not ended)
+  scope :open, -> { where(ended_at: nil) }
 
   validates :nb_people, presence: true,
                         numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 20 }
   validates :note, length: { maximum: 255 },
-                   format: { without: /\A\s*\z/, message: "ne peut pas être composé uniquement d'espaces" }, allow_blank: true
+                   format: { without: /\A\s*\z/, message: "cannot consist only of spaces" }, allow_blank: true
   validates :tip, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 999.99 }, allow_nil: true
   validate :ended_at_after_created_at
   validate :client_has_no_other_open_order
@@ -20,23 +23,47 @@ class Order < ApplicationRecord
     update(deleted_at: Time.current)
   end
 
+  # JSON serialization for API responses
+  def as_json(options = {})
+    lines_data = order_lines.map(&:as_json)
+    total = lines_data.sum { |l| l[:unit_price] * l[:quantity] }
+
+    {
+      id: id,
+      nb_people: nb_people,
+      note: note,
+      tip: tip.to_f,
+      table_id: table_id,
+      table_number: table&.number,
+      client_id: client_id,
+      server_id: server_id,
+      server_name: server ? "#{server.first_name} #{server.last_name}" : nil,
+      vibe_id: vibe_id,
+      vibe_name: vibe&.name,
+      vibe_color: vibe&.color,
+      created_at: created_at,
+      ended_at: ended_at,
+      order_lines: lines_data,
+      total: total
+    }
+  end
+
   private
 
-  def ended_at_after_created_at   #CHECK (ended_at >= created_at)
+  # ended_at must be >= created_at
+  def ended_at_after_created_at
     return unless ended_at.present? && created_at.present?
-    errors.add(:ended_at, "doit être après la date de création") if ended_at < created_at
+    errors.add(:ended_at, "must be after the creation date") if ended_at < created_at
   end
 
- 
-
-
-
-  def client_has_no_other_open_order  #un client ne peut avoir qu'une seule commande ouverte (ended_at IS NULL)
+  # A client can only have one open order at a time (ended_at IS NULL)
+  def client_has_no_other_open_order
     return unless client_id.present?
     existing = Order.unscoped.where(client_id: client_id, ended_at: nil, deleted_at: nil).where.not(id: id)
-    errors.add(:client_id, "a déjà une commande ouverte") if existing.exists?
+    errors.add(:client_id, "already has an open order") if existing.exists?
   end
 
+  # nb_people cannot exceed the table's nb_seats
   def nb_people_within_table_capacity
     return unless table.present? && nb_people.present?
     return if nb_people <= table.nb_seats

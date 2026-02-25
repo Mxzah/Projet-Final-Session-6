@@ -74,7 +74,7 @@ class OrderFailTest < ActionDispatch::IntegrationTest
     assert json["errors"].any?
 
     # Contenu du format JSON
-    assert_equal [], json["data"]
+    assert_nil json["data"]
   end
 
   # Test 4: Show avec commande appartenant à un autre client retourne success false
@@ -99,7 +99,7 @@ class OrderFailTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
 
     # Contenu du format JSON: aucune donnée retournée
-    assert_equal [], json["data"]
+    assert_nil json["data"]
   end
 
   # ══════════════════════════════════════════

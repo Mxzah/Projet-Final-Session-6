@@ -156,15 +156,44 @@
   .form-page {
     padding: 0.75rem 0.5rem;
     justify-content: flex-start;
-    padding-top: 1.5rem;
+    padding-top: 1.25rem;
   }
 
   .form-card {
-    padding: 1.5rem 1.25rem;
+    padding: 1.5rem 1.1rem;
     border-radius: 16px;
   }
 
   .form-title {
     font-size: 1.3rem;
+  }
+
+  .form-subtitle {
+    font-size: 0.82rem;
+  }
+
+  .form-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .submit-btn {
+    height: 44px;
+    font-size: 0.92rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .form-page {
+    padding: 0.5rem 0.35rem;
+    padding-top: 1rem;
+  }
+
+  .form-card {
+    padding: 1.25rem 0.9rem;
+    border-radius: 14px;
+  }
+
+  .form-title {
+    font-size: 1.15rem;
   }
 }

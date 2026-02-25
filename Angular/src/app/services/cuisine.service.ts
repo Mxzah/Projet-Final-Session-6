@@ -54,4 +54,9 @@ export class CuisineService {
   deleteOrderLine(lineId: number): Observable<ApiResponse<null>> {
     return this.api.delete<null>(`/api/kitchen/order_lines/${lineId}`);
   }
+
+  // Release/close an order (waiter/admin only — like paying, frees the table)
+  releaseOrder(orderId: number): Observable<ApiResponse<any>> {
+    return this.api.post<any>(`/api/kitchen/orders/${orderId}/release`, {});
+  }
 }

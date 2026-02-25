@@ -254,6 +254,8 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'cuisine.status.ready': { fr: 'Prête', en: 'Ready' },
   'cuisine.status.served': { fr: 'Servie', en: 'Served' },
   'cuisine.status.label': { fr: 'Statut', en: 'Status' },
+  'cuisine.releaseTable': { fr: 'Libérer la table', en: 'Release table' },
+  'cuisine.releaseConfirm': { fr: 'Voulez-vous fermer cette commande et libérer la table ?', en: 'Do you want to close this order and release the table?' },
 
   // Admin users
   'admin.users.tab': { fr: 'Utilisateurs', en: 'Users' },

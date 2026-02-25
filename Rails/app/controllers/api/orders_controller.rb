@@ -2,28 +2,29 @@ module Api
   class OrdersController < ApplicationController
     before_action :authenticate_user!
 
-    # GET /api/orders    Retourne toutes les commandes de l'utilisateur connecté.
+    # GET /api/orders — All orders for the current user
     def index
       orders = Order.where(client_id: current_user.id)
-                    .includes(:table, :order_lines, :vibe, :server)
+                    .includes(:table, :vibe, :server, order_lines: :orderable)
                     .order(created_at: :desc)
 
       render json: {
         code: 200,
         success: true,
-        data: orders.map { |o| order_json(o) },
+        data: orders.map { |o| order_with_images(o) },
         errors: []
       }, status: :ok
     end
 
-    # GET /api/orders/:id    Retourne les détails d'une commande spécifique de l'utilisateur connecté.
+    # GET /api/orders/:id — Show one order for the current user
     def show
-      order = Order.includes(:table, :order_lines, :vibe, :server).find_by!(id: params[:id], client_id: current_user.id)
+      order = Order.includes(:table, :vibe, :server, order_lines: :orderable)
+                   .find_by!(id: params[:id], client_id: current_user.id)
 
       render json: {
         code: 200,
         success: true,
-        data: [order_json(order)],
+        data: [order_with_images(order)],
         errors: []
       }, status: :ok
     end
@@ -34,35 +35,17 @@ module Api
       order.client_id = current_user.id
 
       if order.save
-        render json: {
-          code: 200,
-          success: true,
-          data: [order_json(order)],
-          errors: []
-        }, status: :ok
+        render json: { code: 200, success: true, data: [order.as_json], errors: [] }, status: :ok
       else
-        full_errors = order.errors.full_messages
-
-        render json: {
-          code: 200,
-          success: false,
-          data: [],
-          errors: full_errors
-        }, status: :ok
+        render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
       end
     end
 
-    # Ferme toutes les commandes ouvertes de l'utilisateur
+    # POST /api/orders/close_open — Close all open orders for the current user
     def close_open
-      open_orders = Order.where(client_id: current_user.id, ended_at: nil)
-      open_orders.each { |o| o.update(ended_at: Time.current) }
+      Order.open.where(client_id: current_user.id).each { |o| o.update(ended_at: Time.current) }
 
-      render json: {
-        code: 200,
-        success: true,
-        data: [],
-        errors: []
-      }, status: :ok
+      render json: { code: 200, success: true, data: [], errors: [] }, status: :ok
     end
 
     # PUT /api/orders/:id
@@ -74,20 +57,9 @@ module Api
       end
 
       if order.update(order_update_params)
-        render json: {
-          code: 200,
-          success: true,
-          data: [order_json(order.reload)],
-          errors: []
-        }, status: :ok
+        render json: { code: 200, success: true, data: [order.reload.as_json], errors: [] }, status: :ok
       else
-        full_errors = order.errors.full_messages
-        render json: {
-          code: 200,
-          success: false,
-          data: [],
-          errors: full_errors
-        }, status: :ok
+        render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
       end
     end
 
@@ -101,6 +73,11 @@ module Api
 
       if order.ended_at.present?
         return render json: { code: 200, success: false, data: [], errors: ["Order is already closed"] }, status: :ok
+      end
+
+      # All lines must be served before paying (uses enum query method)
+      unless order.order_lines.all?(&:served?)
+        return render json: { code: 200, success: false, data: [], errors: ["All items must be 'served' before paying"] }, status: :ok
       end
 
       tip_value = params[:tip].to_f
@@ -117,13 +94,13 @@ module Api
       order.ended_at = Time.current
 
       if order.save(validate: false)
-        render json: { code: 200, success: true, data: [order_json(order.reload)], errors: [] }, status: :ok
+        render json: { code: 200, success: true, data: [order.reload.as_json], errors: [] }, status: :ok
       else
         render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
       end
     end
 
-    # DELETE /api/orders/:id  (hard delete)
+    # DELETE /api/orders/:id (hard delete, dependent: :destroy handles order_lines)
     def destroy
       order = Order.find_by(id: params[:id], client_id: current_user.id)
 
@@ -131,19 +108,13 @@ module Api
         return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
       end
 
-      order.order_lines.destroy_all
       order.destroy
 
-      render json: {
-        code: 200,
-        success: true,
-        data: [],
-        errors: []
-      }, status: :ok
+      render json: { code: 200, success: true, data: [], errors: [] }, status: :ok
     end
 
     private
-    #Filtre les paramètres
+
     def order_params
       params.require(:order).permit(:nb_people, :note, :table_id, :vibe_id, :tip)
     end
@@ -152,49 +123,15 @@ module Api
       params.require(:order).permit(:note)
     end
 
-    def order_json(order)
-      lines = order.order_lines.map do |l|
-        orderable = find_orderable(l.orderable_type, l.orderable_id)
-        {
-          id: l.id,
-          quantity: l.quantity,
-          unit_price: l.unit_price.to_f,
-          note: l.note,
-          status: l.status,
-          orderable_type: l.orderable_type,
-          orderable_id: l.orderable_id,
-          orderable_name: orderable&.name,
-          orderable_description: orderable&.try(:description),
-          image_url: orderable&.respond_to?(:image) && orderable.image.attached? ? url_for(orderable.image) : nil
-        }
+    # Add image_url to each order line (needs controller context for url_for)
+    def order_with_images(order)
+      data = order.as_json
+      data[:order_lines] = order.order_lines.map do |line|
+        ld = line.as_json
+        ld[:image_url] = line.orderable&.respond_to?(:image) && line.orderable&.image&.attached? ? url_for(line.orderable.image) : nil
+        ld
       end
-
-      total = lines.sum { |l| l[:unit_price] * l[:quantity] }
-
-      {
-        id: order.id,
-        nb_people: order.nb_people,
-        note: order.note,
-        tip: order.tip.to_f,
-        table_id: order.table_id,
-        table_number: order.table&.number,
-        client_id: order.client_id,
-        server_id: order.server_id,
-        server_name: order.server ? "#{order.server.first_name} #{order.server.last_name}" : nil,
-        vibe_id: order.vibe_id,
-        vibe_name: order.vibe&.name,
-        vibe_color: order.vibe&.color,
-        created_at: order.created_at,
-        ended_at: order.ended_at,
-        order_lines: lines,
-        total: total
-      }
-    end
-    #trouve le Item ou Combo
-    def find_orderable(type, id)
-      return nil unless type.present? && id.present?
-      return nil unless %w[Item Combo].include?(type)
-      type.constantize.find_by(id: id)
+      data
     end
   end
 end

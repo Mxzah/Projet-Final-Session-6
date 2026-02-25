@@ -1,6 +1,6 @@
 ================================================================================
                        PROCÉDURIER DE TESTS — RestoQR
-                  Pages : /menu (panier) · /order · /cuisine
+         Pages : /form · /menu (panier) · /order · /cuisine
 ================================================================================
 
 Identifiants utilisés :
@@ -20,8 +20,25 @@ MODULE 1 — Panier dans /menu (cart.service)
      - Le badge du panier dans le header se met à jour (+1)
      - Le sous-total dans le panneau de droite affiche le bon montant
 
+1.2  Modifier une ligne du panier
+     - Ouvrir le panier (icône panier dans le header)
+     - Cliquer sur le bouton « Modifier » d'une ligne en attente
+     - Une fenêtre de dialogue s'ouvre avec la quantité actuelle et la note
+     - Modifier la quantité (ex : de 1 à 3) et/ou la note (ex : « Sans sel »)
+     - Cliquer sur « Sauvegarder »
+     - La ligne dans le panier est mise à jour (quantité, note, sous-total)
+     - Aucun appel API n'est fait : la modification est en mémoire uniquement
 
-1.4  Bouton Continuer
+1.3  Supprimer une ligne du panier
+     - Ouvrir le panier
+     - Cliquer sur le bouton « Supprimer » d'une ligne
+     - Une fenêtre de confirmation s'ouvre avec le nom de l'article
+       et un avertissement : « Cet article sera retiré du panier »
+     - Cliquer sur « Supprimer »
+     - La ligne disparaît du panier, le badge et le sous-total se mettent à jour
+     - Aucun appel API n'est fait : suppression en mémoire uniquement
+
+1.4  Bouton Continuer (Aller à la commande)
      - Avec au moins 1 item dans le panier
      - Cliquer sur « Continuer »
      - Redirection vers /order
@@ -32,17 +49,54 @@ MODULE 1 — Panier dans /menu (cart.service)
 
 
 ================================================================================
-MODULE 2 — Page /order — État vide
+MODULE 2 — Page /form — Sélection du vibe et création de la commande
 ================================================================================
 
-2.1  Page vide sans article dans le panier
+2.1  Accès à la page /form
      Avec client@restoqr.ca : password123
-     - Accéder à /order sans avoir ajouté d'item au panier
+     - Scanner un QR code ou accéder à /form
+     - Le formulaire affiche : « Nombre de personnes » et « Type d'ambiance (vibe) »
+     - La liste des vibes est chargée depuis l'API (/api/vibes)
+       ex : « Date », « Festive », « Romantique »
+
+2.2  Champ Nombre de personnes — validation
+     - Laisser le champ vide → le bouton « Aller au menu » est désactivé
+     - Entrer 0 → validation min(1) échoue, bouton désactivé
+     - Entrer une valeur supérieure à la capacité de la table → bouton désactivé
+     - Entrer une valeur valide (ex : 2) → validation passe
+
+2.3  Champ Vibe — obligatoire
+     - Le champ vibe est requis (Validators.required)
+     - Si aucun vibe n'est sélectionné → le bouton « Aller au menu » est désactivé
+     - Sélectionner un vibe dans la liste déroulante → bouton s'active
+
+2.4  Création de la commande au clic sur « Aller au menu »
+     - Remplir un nombre de personnes valide et sélectionner un vibe
+     - Cliquer sur « Aller au menu »
+     - L'application crée automatiquement une commande vide via l'API
+       POST /api/orders avec { nb_people, table_id, vibe_id }
+     - La commande peut être vide à ce stade (aucune ligne de commande requise)
+     - Redirection automatique vers /menu après la création
+
+2.5  Affichage du vibe sélectionné dans /order et /cuisine
+     - Une fois la commande créée avec un vibe
+     - Dans /order : un badge de couleur affiche le nom du vibe
+       à côté du nom du serveur (ex : « ✦ Date » en couleur du vibe)
+     - Dans /cuisine : le même badge apparaît sur la carte de commande
+
+
+================================================================================
+MODULE 3 — Page /order — État vide
+================================================================================
+
+3.1  Page vide sans commande active
+     Avec client@restoqr.ca : password123
+     - Accéder à /order sans commande ouverte côté serveur et panier vide
      - Un message « Aucune commande en cours. » s'affiche
      - Un bouton « Ajouter + » est visible
      - Clic sur « Ajouter + » : Redirection vers /menu
 
-2.2  Page avec des lignes de commande déjà envoyées (commande existante)
+3.2  Page avec des lignes de commande déjà envoyées (commande existante)
      Avec client@restoqr.ca : password123
      - Une commande est déjà ouverte sur le serveur avec des lignes envoyées
      - Accéder à /order (sans items dans le panier local)
@@ -52,146 +106,236 @@ MODULE 2 — Page /order — État vide
          « Envoyée », « En préparation », « Prête » ou « Servie »
        · Si une ligne a une note, elle s'affiche sous le nom du plat
      - Le sous-total reflète le total des lignes existantes
-     - La section « Détails » est en lecture seule (pas de formulaire)
      - Le bouton « Envoyer » est désactivé (aucun nouvel item à envoyer)
      - Le bouton « Ajouter + » permet d'aller ajouter de nouveaux items
 
 
 ================================================================================
-MODULE 3 — Page /order — Affichage d'une nouvelle commande
+MODULE 4 — Page /order — Affichage d'une nouvelle commande
 ================================================================================
 
-3.1  En-tête de la commande
+4.1  En-tête de la commande
      Avec client@restoqr.ca : password123
      - Ajouter un item au panier et accéder à /order
      - Le titre « Votre commande » est visible
      - Le nom du serveur assigné à la table est affiché
        (ex : « Serveur : Marie Dupont »)
-     - Le badge d'ambiance est visible à côté du serveur
-       (affiche « pas implémenté » si aucun vibe assigné)
+     - Le badge d'ambiance (vibe) est visible à côté du serveur
+       avec sa couleur définie dans /form (ex : « ✦ Festive » en orange)
      - Un bouton « Ajouter + » est visible en haut à droite
 
-3.2  Lignes de commande
+4.2  Lignes de commande
      - Chaque item du panier apparaît comme une carte
      - La carte affiche : nom de l'item, quantité × prix unitaire, total
      - L'image de l'item est affichée si disponible
      - Un badge « En attente de l'envoi » est affiché (couleur distincte)
-     - Si l'item a une note spéciale, elle apparaît avec une icône 📝
+     - Si l'item a une note spéciale, elle apparaît sous le nom
 
-3.3  Note de ligne (instruction spéciale)
+4.3  Note de ligne (instruction spéciale)
      - Ajouter un item avec une note (ex : « Sans oignon »)
      - Dans /order, la note s'affiche sous le nom de l'item
-      
 
-3.4  Sous-total
+4.4  Sous-total
      - Sous le tableau des lignes, le sous-total est affiché
      - Format : « Sous-total (N article(s)) CA$XX.XX »
      - Le total est la somme correcte de toutes les lignes
 
-3.5  Boutons Modifier / Supprimer sur les lignes
-     - Chaque ligne affiche deux boutons : « Modifier » et « Supprimer »
-     - Ces boutons sont visibles mais non fonctionnels pour l'instant
+4.5  Modifier une ligne en attente (panier)
+     - Cliquer sur « Modifier » sur une ligne avec le statut « En attente »
+     - La fenêtre de dialogue s'ouvre avec la quantité et la note actuelles
+     - Modifier la quantité et/ou la note, cliquer « Sauvegarder »
+     - La ligne est mise à jour en mémoire (aucun appel API)
+     - Le sous-total se recalcule automatiquement
+
+4.6  Modifier une ligne envoyée (status = 'sent')
+     - Cliquer sur « Modifier » sur une ligne avec le statut « Envoyée »
+     - La fenêtre de dialogue s'ouvre
+     - Modifier la quantité et/ou la note, cliquer « Sauvegarder »
+     - Un appel API est fait : PUT /api/orders/:id/order_lines/:line_id
+     - La ligne est mise à jour côté serveur, la page se recharge
+
+4.7  Bouton Modifier désactivé sur lignes avancées
+     - Les lignes avec statut « En préparation », « Prête » ou « Servie »
+       n'ont pas de bouton « Modifier » actif
+     - Seules les lignes « Envoyée » ou « En attente » sont modifiables
+
+4.8  Supprimer une ligne en attente (panier)
+     - Cliquer sur « Supprimer » sur une ligne « En attente de l'envoi »
+     - Fenêtre de confirmation avec avertissement :
+       « Cet article sera retiré du panier »
+     - Confirmer → la ligne disparaît du panier (suppression en mémoire)
+     - Aucun appel API (la ligne n'est pas encore en base de données)
+
+4.9  Supprimer une ligne envoyée (status = 'sent') — hard delete
+     - Cliquer sur « Supprimer » sur une ligne avec le statut « Envoyée »
+     - Fenêtre de confirmation avec avertissement :
+       « Cette suppression est permanente et irréversible »
+     - Confirmer → appel API DELETE /api/orders/:id/order_lines/:line_id
+     - La ligne est supprimée définitivement de la base de données
+     - La page se recharge pour refléter l'état actuel
 
 
 ================================================================================
-MODULE 4 — Page /order — Section Détails (nouvelle commande)
+MODULE 5 — Page /order — Envoi de la commande
 ================================================================================
 
-4.1  Affichage du formulaire Détails
-     - Accéder à /order sans commande ouverte sur le serveur
-     - La section « Détails » affiche un formulaire avec :
-       · Un champ texte « Note générale (optionnelle) »
-       · Un champ nombre « Pourboire (CA$) »
-
-4.2  Validation — Note uniquement composée d'espaces
-     - Entrer uniquement des espaces dans le champ « Note générale »
-     - Message d'erreur : « La note ne peut pas être composée
-       uniquement d'espaces. »
-     - Le bouton « Envoyer » devient désactivé (grisé)
-
-4.3  Validation — Note trop longue
-     - Le champ « Note générale » est limité à 255 caractères
-       (attribut maxlength)
-     - Un compteur « N / 255 » s'affiche en bas à droite du champ
-
-4.4  Validation — Pourboire négatif
-     - Entrer -1 dans le champ « Pourboire »
-     - Message d'erreur : « Le pourboire ne peut pas être négatif. »
-     - Le bouton « Envoyer » devient désactivé
-
-4.5  Validation — Pourboire trop élevé
-     - Entrer 1000 dans le champ « Pourboire »
-     - Message d'erreur : « Le pourboire ne peut pas dépasser 999,99 CA$. »
-     - Le bouton « Envoyer » devient désactivé
-
-4.6  Envoi de la commande
-     - Remplir une note valide (ex : « Table anniversaire », max 255 caractères)
-       et un pourboire valide (ex : 5, max 999,99 CA$)
-     - Une table doit avoir été scannée au préalable ;
-       si aucune table n'est en session, clic sur « Envoyer » redirige
-       vers la page de scan de table
-     - Cliquer sur « Envoyer »
-     - Les lignes « En attente de l'envoi » deviennent « Envoyée »
-     - La section Détails passe en mode lecture seule (plus de formulaire)
-
-4.7  Bouton Envoyer désactivé si panier vide
+5.1  Bouton Envoyer désactivé si panier vide
      - Si aucune ligne n'est « En attente de l'envoi »
      - Le bouton « Envoyer » est désactivé (grisé)
 
+5.2  Envoi des lignes au serveur
+     - Avec des lignes en attente dans le panier
+     - Cliquer sur « Envoyer »
+     - Pour chaque ligne du panier : appel API
+       POST /api/orders/:id/order_lines
+     - Les lignes passent du statut « En attente » à « Envoyée »
+     - Le panier local est vidé
+     - La section détails passe en mode lecture seule
+
+5.3  Bouton Envoyer réapparaît après ajout d'items
+     - Après avoir tout envoyé, cliquer sur « Ajouter + »
+     - Ajouter un ou plusieurs items au panier depuis /menu
+     - Revenir sur /order : les nouvelles lignes « En attente » s'affichent
+     - Le bouton « Envoyer » est de nouveau actif
+
 
 ================================================================================
-MODULE 5 — Page /order — Section Détails (commande existante)
+MODULE 6 — Page /order — Bouton Payer
 ================================================================================
 
-5.1  Affichage en lecture seule
+6.1  Bouton Payer visible quand toutes les lignes sont servies
+     Avec client@restoqr.ca : password123 ou admin ou n'impore qui
+     - Une commande active existe avec au moins une ligne
+     - Toutes les lignes ont le statut « Servie »
+     - Le panier local est vide (aucune ligne en attente)
+     - Le bouton « Payer » s'affiche à la place du bouton « Envoyer »
+
+6.2  Bouton Payer disparaît si on ajoute un item
+     - Depuis l'état où le bouton « Payer » est visible
+     - Cliquer sur « Ajouter + » → aller sur /menu → ajouter un item
+     - Revenir sur /order : le nouvel item est en attente
+     - Le bouton « Payer » a disparu, le bouton « Envoyer » est revenu
+     - Condition : pendingCount > 0 → allServed = false
+
+6.3  Bouton Payer absent si commande vide
+     - Commande ouverte sans aucune ligne (commande créée depuis /form)
+     - Le bouton « Payer » ne s'affiche pas
+     - Condition : serverLines.length === 0 → allServed = false
+
+6.4  Navigation vers /pay
+     - Cliquer sur « Payer »
+     - Redirection vers la page /pay
+
+
+================================================================================
+MODULE 7 — Page /pay — Paiement fictif et fermeture de commande
+================================================================================
+
+7.1  Accès à la page /pay
+     Avec client@restoqr.ca : password123
+     - Depuis /order, quand toutes les lignes sont « Servie »
+       et le panier est vide, cliquer sur « Payer »
+     - Redirection vers /pay
+     - La page affiche un résumé : numéro de table, nombre d'articles,
+       total de la commande (CA$)
+
+7.2  Champ pourboire — validation front-end
+     - Un champ « Pourboire (CA$) » est affiché avec valeur par défaut 0
+     - Entrer une valeur négative → erreur « Le pourboire ne peut pas
+       être négatif », le bouton « Payer et terminer » est désactivé
+     - Entrer une valeur supérieure à 999.99 → erreur « Le pourboire
+       ne peut pas dépasser 999,99 CA$ », bouton désactivé
+     - Entrer une valeur valide (ex : 5.00) → aucune erreur, bouton actif
+
+7.3  Champ pourboire — validation back-end
+     - Le contrôleur OrdersController#pay valide le pourboire :
+       · tip < 0 → retourne { success: false, errors: ["Tip cannot be negative"] }
+       · tip > 999.99 → retourne { success: false, errors: ["Tip cannot exceed 999.99"] }
+     - Le modèle Order valide aussi :
+       numericality { greater_than_or_equal_to: 0, less_than_or_equal_to: 999.99 }
+
+7.4  Grand total affiché
+     - Le total de la commande + le pourboire est affiché en temps réel
+     - Format : « Grand total CA$XX.XX » (ex : sous-total 45.00 + tip 5.00 = 50.00)
+
+7.5  Paiement fictif — clic sur « Payer et terminer »
+     - Cliquer sur le bouton « Payer et terminer »
+     - Appel API : POST /api/orders/:id/pay avec { tip: valeur }
+     - Côté serveur :
+       · Le pourboire est enregistré sur la commande (champ tip)
+       · La commande est fermée : ended_at = Time.current
+     - Côté client :
+       · Le panier local est vidé (cart.service.clear())
+       · L'utilisateur est déconnecté automatiquement (authService.logout())
+       · Redirection vers /login
+     - La table est libérée : la commande étant fermée (ended_at rempli),
+       un nouveau client peut scanner le QR code et créer une nouvelle commande
+     - Note : le paiement est fictif (aucune transaction bancaire réelle)
+
+7.6  Commande fermée non visible dans /cuisine
+     - Après le paiement, la commande n'apparaît plus dans /cuisine
+       car elle a un ended_at et n'est plus « active »
+     - Le cuisinier ne voit que les commandes avec ended_at = null
+
+7.7  Nouvelle commande après paiement
+     - Un autre client scanne le QR code de la même table
+     - Il se connecte ou crée un compte
+     - Il accède à /form, remplit le nombre de personnes et le vibe
+     - Une nouvelle commande est créée (la précédente est fermée)
+     - Le flux recommence normalement
+
+
+================================================================================
+MODULE 8 — Page /order — Section Détails (commande existante)
+================================================================================
+
+8.1  Affichage en lecture seule
      - Une commande est déjà ouverte sur le serveur (avec note et pourboire)
      - La section « Détails » affiche les valeurs en lecture seule :
-       · Note 
+       · Note
        · Pourboire avec icône payments (ex : « Pourboire : CA$5.00 »)
      - Aucun formulaire n'est affiché
 
-5.2  Aucun détail
+8.2  Aucun détail
      - Commande ouverte sans note ni pourboire
      - Le message « Aucun détail ajouté. » s'affiche
 
-5.3  Vibe existant
+8.3  Vibe existant
      - Si la commande a un vibe assigné (ex : « Date »)
      - Le badge de vibe dans l'en-tête affiche le nom avec sa couleur
        à côté du nom du serveur
 
 
 ================================================================================
-MODULE 6 — Page /cuisine — Affichage général
+MODULE 9 — Page /cuisine — Affichage général
 ================================================================================
 
-6.1  Accès sans être connecté
+9.1  Accès sans être connecté
      - Accéder à /cuisine sans être connecté
      - Redirection automatique vers /login
 
-6.2  Accès avec un compte sans rôle cuisine
+9.2  Accès avec un compte sans rôle cuisine
      Avec client@restoqr.ca : password123
      - Accéder à /cuisine
      - Redirection automatique vers /menu
 
-6.3  Accès avec un compte cuisine
+9.3  Accès avec un compte cuisine
      Avec cuisine@restoqr.ca : password123
      - Accéder à /cuisine
      - Le tableau de bord s'affiche avec le titre « Cuisine »
        et le sous-titre « Commandes actives en temps réel »
 
-6.4  État vide
+9.4  État vide
      - Aucune commande active en base
      - Le message « Aucune commande active » s'affiche avec
        l'icône restaurant
 
 
-
-
 ================================================================================
-MODULE 7 — Page /cuisine — Cartes de commande
+MODULE 10 — Page /cuisine — Cartes de commande et statuts
 ================================================================================
 
-7.1  En-tête de la carte
+10.1 En-tête de la carte
      Avec cuisine@restoqr.ca : password123
      - Une commande active existe (Table 3, 3 personnes)
      - La carte affiche : badge « Table 3 » et « 3 personne(s) »
@@ -199,77 +343,174 @@ MODULE 7 — Page /cuisine — Cartes de commande
      - Si un vibe est assigné, le badge s'affiche à côté du serveur
        avec sa couleur (ex : « ✦ Date » en rose)
 
-7.2  Note générale de la commande
+10.2 Note générale de la commande
      - Si la commande a une note (ex : « Allergie aux arachides »)
-     - La note s'affiche sous l'en-tête 
-       en couleur cuivre
+     - La note s'affiche sous l'en-tête en couleur cuivre
 
-7.3  Pourboire
+10.3 Pourboire
      - Si la commande a un pourboire > 0
      - Une section verte s'affiche : « Pourboire : CA$5.00 »
 
-7.4  Lignes de commande
+10.4 Lignes de commande avec statut
      - La section « Lignes de commande » liste chaque plat
-     - Chaque ligne affiche : nom du plat, quantité (x2), statut
-     - Les statuts affichés : Envoyée, En préparation, Prête, Servie
-       (chacun avec une couleur distincte)
+     - Chaque ligne affiche : nom du plat, quantité (x2), badge de statut
+     - Les statuts affichés avec une couleur distincte :
+       · « Envoyée » (bleu)
+       · « En préparation » (orange)
+       · « Prête » (vert)
+       · « Servie » (gris)
 
-7.5  Note de ligne
+10.5 Note de ligne
      - Si une ligne a une note (ex : « Sans sel »)
-     - La note s'affiche sous le nom du plat sur une nouvelle ligne
-        
+     - La note s'affiche sous le nom du plat
 
-7.6  Boutons Modifier / Supprimer
-     - Chaque carte a deux boutons en bas : « Modifier » et « Supprimer »
-     - Ces boutons sont visibles mais non fonctionnels pour l'instant
-
-
-================================================================================
-MODULE 8 — Traduction (/order et /cuisine)
-================================================================================
-
-8.1  Traduction en anglais — Header
-     - Sur n'importe quelle page, changer la langue à « English »
-     - Les textes du header passent en anglais :
-       · « Déconnexion » → « Logout »
-       · « Connexion » → « Login »
-     - Le bouton de langue affiche maintenant « EN »
-     - Retour en français : clic sur « EN » puis « Français »
-       les textes reviennent en français
-
-8.2  Traduction en anglais — /order
-     Avec client@restoqr.ca : password123
-     - Accéder à /order avec des items dans le panier
-     - Changer la langue à « English » via le header
-     - Les textes passent en anglais :
-       · « Votre commande » → « Your order »
-       · « Lignes de commande » → « Order lines »
-       · « En attente de l'envoi » → « Pending »
-       · « Sous-total » → « Subtotal »
-       · « Détails » → « Details »
-       · « Note générale (optionnelle) » → « General note (optional) »
-       · « Pourboire (CA$) » → « Tip (CA$) »
-       · « Envoyer » → « Send »
-
-8.3  Traduction en anglais — /cuisine
+10.6 Avancer le statut d'une ligne
      Avec cuisine@restoqr.ca : password123
-     - Accéder à /cuisine
-     - Changer la langue à « English » via le header
-     - Les textes passent en anglais :
-       · « Tableau de bord » → « Dashboard »
-       · « Cuisine » → « Kitchen »
-       · « Commandes actives en temps réel » → « Active orders in real time »
-       · « personne(s) » → « person(s) »
-       · « Aucun serveur assigné » → « No server assigned »
-       · Statuts : « Envoyée » → « Sent », « En préparation » → « In preparation »
+     - Chaque ligne a un bouton pour passer au statut suivant :
+       · « Envoyée » → bouton « En préparation »
+       · « En préparation » → bouton « Prête »
+       · « Prête » → bouton « Servie »
+       · « Servie » → aucun bouton (statut final)
+     - Cliquer sur le bouton d'avancement :
+       PUT /api/kitchen/order_lines/:id/next_status
+     - La ligne se met à jour avec le nouveau statut
+     - Le bouton d'avancement disparaît quand la ligne est « Servie »
 
-8.4  Retour en français
-     - Cliquer sur « Français » dans le header
-     - Tous les textes reviennent en français
+10.7 Modifier une ligne (serveur/admin uniquement)
+     Avec un compte serveur ou admin :
+     - Cliquer sur « Modifier » sur une ligne
+     - La fenêtre de dialogue s'ouvre avec quantité et note actuelles
+     - Modifier, cliquer « Sauvegarder »
+     - Appel API : PUT /api/kitchen/order_lines/:id
+     - La ligne est mise à jour, la page se recharge
+     - Note : seules les lignes avec statut « Envoyée » peuvent être modifiées
 
-8.5  Persistance de la langue
-     - Changer la langue à « English »
-     - Rafraîchir la page
-     - L'interface reste en anglais
+10.8 Supprimer une ligne (serveur/admin uniquement) — hard delete
+     Avec un compte serveur ou admin :
+     - Cliquer sur « Supprimer » sur une ligne (status = 'sent')
+     - Fenêtre de confirmation avec avertissement de suppression permanente
+     - Confirmer → appel API DELETE /api/kitchen/order_lines/:id
+     - La ligne est supprimée définitivement de la base de données
+     - La page se recharge
+
+
+================================================================================
+MODULE 11 — Hard delete vs Soft delete
+================================================================================
+
+11.1  Lignes de commande — Hard delete (suppression physique)
+      - Que ce soit dans /order ou /cuisine, supprimer une ligne de commande
+        entraîne une suppression définitive dans la base de données
+      - La ligne n'est plus récupérable une fois supprimée
+      - Condition : la ligne doit avoir le statut « Envoyée » (sent)
+        pour pouvoir être supprimée ; les lignes en préparation, prêtes
+        ou servies ne peuvent pas être supprimées
+      - Endpoint : DELETE /api/orders/:order_id/order_lines/:id
+                   DELETE /api/kitchen/order_lines/:id
+
+11.2  Lignes du panier (en attente) — Suppression en mémoire
+      - Supprimer une ligne dont le statut est « En attente de l'envoi »
+        (panier local, jamais envoyée au serveur) ne fait aucun appel API
+      - La suppression est faite uniquement en mémoire (cart.service)
+      - Si la page est rechargée avant l'envoi, les items du panier
+        sont perdus (le panier n'est pas persisté côté serveur)
+
+11.3  Commandes (orders) — Soft delete (fermeture logique)
+      - La suppression ou la fermeture d'une commande ne supprime pas
+        l'enregistrement de la base de données
+      - La commande est marquée comme terminée en remplissant
+        le champ ended_at avec la date et heure actuelles
+      - La commande reste visible dans l'historique mais n'apparaît
+        plus parmi les commandes actives
+      - Endpoints concernés : POST /api/orders/close_open
+                               POST /api/orders/:id/pay
+
+
+================================================================================
+MODULE 12 — Traduction (/order, /cuisine et /pay)
+================================================================================
+
+12.1  Traduction en anglais — Header
+      - Sur n'importe quelle page, changer la langue à « English »
+      - Les textes du header passent en anglais :
+        · « Déconnexion » → « Logout »
+        · « Connexion » → « Login »
+      - Le bouton de langue affiche maintenant « EN »
+      - Retour en français : clic sur « EN » puis « Français »
+        les textes reviennent en français
+
+12.2  Traduction en anglais — /order
+      Avec client@restoqr.ca : password123
+      - Accéder à /order avec des items dans le panier
+      - Changer la langue à « English » via le header
+      - Les textes passent en anglais :
+        · « Votre commande » → « Your order »
+        · « Lignes de commande » → « Order lines »
+        · « En attente de l'envoi » → « Pending »
+        · « Sous-total » → « Subtotal »
+        · « Détails » → « Details »
+        · « Note générale (optionnelle) » → « General note (optional) »
+        · « Pourboire (CA$) » → « Tip (CA$) »
+        · « Envoyer » → « Send »
+
+12.3  Traduction en anglais — /cuisine
+      Avec cuisine@restoqr.ca : password123
+      - Accéder à /cuisine
+      - Changer la langue à « English » via le header
+      - Les textes passent en anglais :
+        · « Tableau de bord » → « Dashboard »
+        · « Cuisine » → « Kitchen »
+        · « Commandes actives en temps réel » → « Active orders in real time »
+        · « personne(s) » → « person(s) »
+        · « Aucun serveur assigné » → « No server assigned »
+        · Statuts : « Envoyée » → « Sent », « En préparation » → « In preparation »
+
+12.4  Traduction en anglais — /pay
+      Avec client@restoqr.ca : password123
+      - Accéder à /pay (toutes les lignes servies)
+      - Changer la langue à « English » via le header
+      - Les textes passent en anglais :
+        · « Paiement » → « Payment »
+        · « Pourboire (CA$) » → « Tip (CA$) »
+        · « Total » → « Total »
+        · « Grand total » → « Grand total »
+        · « Payer et terminer » → « Pay and finish »
+
+12.5  Retour en français
+      - Cliquer sur « Français » dans le header
+      - Tous les textes reviennent en français
+
+12.6  Persistance de la langue
+      - Changer la langue à « English »
+      - Rafraîchir la page
+      - L'interface reste en anglais
+
+
+================================================================================
+MODULE 13 — Rechargement automatique (/order et /cuisine)
+================================================================================
+
+13.1  Mise à jour automatique dans /order
+      Avec client@restoqr.ca : password123
+      - Accéder à /order avec une commande active contenant des lignes
+      - Depuis /cuisine, avancer le statut d'une ligne (ex : « Envoyée » → « En préparation »)
+      - Sans rafraîchir la page /order, le badge de statut se met à jour
+        automatiquement après quelques secondes (polling toutes les 10 secondes)
+      - Le bouton « Payer » apparaît automatiquement quand toutes les lignes
+        passent à « Servie », sans besoin de refresh
+
+13.2  Mise à jour automatique dans /cuisine
+      Avec cuisine@restoqr.ca : password123
+      - Accéder à /cuisine
+      - Depuis /order, un client envoie une nouvelle commande ou de nouvelles lignes
+      - Sans rafraîchir la page /cuisine, la nouvelle commande ou les nouvelles
+        lignes apparaissent automatiquement après quelques secondes (polling 10s)
+      - Les commandes fermées (payées) disparaissent aussi automatiquement
+
+13.3  Nettoyage du polling
+      - Le polling est nettoyé automatiquement quand l'utilisateur quitte
+        la page (ngOnDestroy) pour éviter les fuites de mémoire
+      - Naviguer vers une autre page arrête le polling
+      - Revenir sur /order ou /cuisine redémarre le polling
 
 ================================================================================

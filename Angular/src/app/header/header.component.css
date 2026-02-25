@@ -109,14 +109,80 @@
 
 @media (max-width: 600px) {
     .site-header {
-        padding: 0 1rem !important;
+        padding: 0 0.75rem !important;
         min-height: 48px !important;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .brand {
+        font-size: 0.95rem;
+        letter-spacing: 0.15rem;
+    }
+
+    .header-actions {
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
     .logout-btn {
-        padding: 0 0.75rem !important;
-        font-size: 0.8rem !important;
-        height: 34px !important;
-        line-height: 34px !important;
+        padding: 0 0.6rem !important;
+        font-size: 0.75rem !important;
+        height: 32px !important;
+        line-height: 32px !important;
+    }
+
+    ::ng-deep .logout-btn .mat-icon {
+        font-size: 16px !important;
+        width: 16px !important;
+        height: 16px !important;
+        margin-right: 0.2rem;
+    }
+
+    .lang-btn {
+        padding: 0 0.5rem !important;
+        font-size: 0.75rem !important;
+        height: 30px !important;
+        line-height: 30px !important;
+    }
+
+    ::ng-deep .lang-btn .mat-icon {
+        font-size: 15px !important;
+        width: 15px !important;
+        height: 15px !important;
+        margin-right: 0.15rem;
+    }
+
+    .admin-btn {
+        font-size: 0.75rem !important;
+        padding: 0 0.4rem !important;
+    }
+
+    ::ng-deep .admin-btn .mat-icon {
+        font-size: 16px !important;
+        width: 16px !important;
+        height: 16px !important;
+        margin-right: 0.2rem;
+    }
+
+    .header-divider {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .site-header {
+        padding: 0 0.5rem !important;
+    }
+
+    .brand {
+        font-size: 0.85rem;
+        letter-spacing: 0.1rem;
+    }
+
+    .logout-btn {
+        padding: 0 0.5rem !important;
+        font-size: 0.7rem !important;
     }
 }

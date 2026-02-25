@@ -1,6 +1,12 @@
 <app-header (logoutClick)="logout()"></app-header>
 
 <main class="order-page">
+  @if (loadError()) {
+    <div class="order-error">{{ loadError() }}</div>
+  }
+  @if (actionError()) {
+    <div class="order-error">{{ actionError() }}</div>
+  }
   @if (lines().length === 0) {
     <mat-card class="empty-state" appearance="outlined">
       <mat-card-content>
