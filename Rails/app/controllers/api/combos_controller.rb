@@ -11,8 +11,8 @@ module Api
                  Combo.includes(:availabilities)
                end
 
-      # Filtrer par disponibilité active (sauf admin)
-      unless current_user&.type == "Administrator" && params[:admin] == "true"
+      # Filtrer par disponibilité active (sauf admin avec include_deleted ou admin=true)
+      unless current_user&.is_a?(Administrator) && (params[:admin] == "true" || params[:include_deleted] == "true")
         now = Time.current
         combos = combos.joins(:availabilities)
                        .where(
