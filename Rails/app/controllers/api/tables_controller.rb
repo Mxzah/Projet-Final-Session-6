@@ -88,7 +88,7 @@ module Api
     def destroy
       table = Table.find(params[:id])
 
-      table.soft_delete
+      table.soft_delete!
 
       render json: {
         success: true,

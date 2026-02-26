@@ -137,7 +137,7 @@
                   {{ ts.t('admin.users.firstNameRequired') }}
                 } @else if (editForm.controls.first_name.errors['maxlength']) {
                   {{ ts.t('admin.users.firstNameMaxLength') }}
-                } @else if (editForm.controls.first_name.errors['whitespace']) {
+                } @else if (editForm.controls.first_name.errors['pattern']) {
                   {{ ts.t('admin.users.firstNameWhitespace') }}
                 }
               </mat-error>
@@ -153,7 +153,7 @@
                   {{ ts.t('admin.users.lastNameRequired') }}
                 } @else if (editForm.controls.last_name.errors['maxlength']) {
                   {{ ts.t('admin.users.lastNameMaxLength') }}
-                } @else if (editForm.controls.last_name.errors['whitespace']) {
+                } @else if (editForm.controls.last_name.errors['pattern']) {
                   {{ ts.t('admin.users.lastNameWhitespace') }}
                 }
               </mat-error>

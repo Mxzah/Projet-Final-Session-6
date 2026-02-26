@@ -38,7 +38,7 @@ module Api
 
     def destroy
       combo_item = ComboItem.find(params[:id])
-      combo_item.destroy
+      combo_item.soft_delete!
 
       render json: {
         success: true,

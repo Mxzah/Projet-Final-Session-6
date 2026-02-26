@@ -50,7 +50,7 @@
                 }
                 <div class="combo-main">
                   <div class="combo-name">
-                    {{ combo.name }}
+                    <span class="combo-name-text">{{ combo.name }}</span>
                     @if (unavailableIds().has(combo.id)) {
                       <span class="unavailable-badge">{{ ts.t('admin.unavailable') }}</span>
                     }
@@ -78,6 +78,9 @@
           </button>
         </h2>
         <p class="welcome-text">{{ ts.t('admin.comboItems.detailSubtitle') }}</p>
+        <div class="show-deleted-toggle">
+          <mat-slide-toggle [checked]="showDeleted()" (change)="toggleShowDeletedDetail()">{{ ts.t('admin.comboItems.showDeleted') }}</mat-slide-toggle>
+        </div>
       </div>
 
       <!-- Price comparison section -->
@@ -173,7 +176,7 @@
                   {{ ts.t('admin.nameRequired') }}
                 } @else if (createForm.controls.name.errors['maxlength']) {
                   {{ ts.t('admin.combos.nameMaxLength') }}
-                } @else if (createForm.controls.name.errors['whitespace']) {
+                } @else if (createForm.controls.name.errors['pattern']) {
                   {{ ts.t('admin.combos.nameWhitespace') }}
                 }
               </mat-error>

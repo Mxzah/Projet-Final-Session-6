@@ -88,6 +88,37 @@ export class MenuComponent implements OnInit, OnDestroy {
   isLoading = signal<boolean>(true);
   errorMessage = signal<string>('');
 
+    // Compute normal total price for selected combo
+    comboNormalTotal = computed(() => {
+      const combo = this.selectedCombo();
+      if (!combo) return 0;
+      // Get combo items for this combo
+      const comboItems = this.comboItems().filter(ci => ci.combo_id === combo.id);
+      // Sum up normal price: quantity * item price
+      let total = 0;
+      for (const ci of comboItems) {
+        // Find item price from allItems
+        const item = this.allItems().find(i => i.id === ci.item_id);
+        if (item) {
+          total += ci.quantity * item.price;
+        }
+      }
+      return total;
+    });
+
+    // Compute normal total price for any combo (for menu card display)
+    comboNormalTotalFor(combo: Combo): number {
+      const comboItems = this.comboItems().filter(ci => ci.combo_id === combo.id);
+      let total = 0;
+      for (const ci of comboItems) {
+        const item = this.allItems().find(i => i.id === ci.item_id);
+        if (item) {
+          total += ci.quantity * item.price;
+        }
+      }
+      return total;
+    }
+
   searchQuery = signal<string>('');
   sortOrder = signal<string>('none');
   priceMin = signal<number | null>(null);

@@ -111,7 +111,7 @@ module Api
 
     # DELETE /api/users/:id (soft delete)
     def destroy
-      @user.soft_delete
+      @user.soft_delete!
 
       render json: {
         success: true,

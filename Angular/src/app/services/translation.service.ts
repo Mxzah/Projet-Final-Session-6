@@ -40,6 +40,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'menu.portions': { fr: 'portions', en: 'portions' },
   'menu.loadError': { fr: 'Erreur lors du chargement du menu', en: 'Error loading the menu' },
   'menu.goToOrder': { fr: 'Voir la commande', en: 'View order' },
+  'menu.normalTotal': { fr: 'Prix normal', en: 'Normal price' },
 
   // Admin items
   'admin.itemsTitle': { fr: 'Gestion des items', en: 'Items management' },
@@ -124,6 +125,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.comboItems.adding': { fr: 'Ajout...', en: 'Adding...' },
   'admin.comboItems.empty': { fr: 'Aucun article dans ce combo.', en: 'No items in this combo.' },
   'admin.comboItems.deleted': { fr: 'Supprimé', en: 'Deleted' },
+  'admin.comboItems.showDeleted': { fr: 'Afficher les supprimés', en: 'Show deleted' },
   'admin.comboItems.createTitle': { fr: 'Créer un combo item', en: 'Create combo item' },
   'admin.comboItems.item': { fr: 'Article', en: 'Item' },
   'admin.comboItems.quantity': { fr: 'Quantité', en: 'Quantity' },

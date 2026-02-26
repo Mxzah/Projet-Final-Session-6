@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,13 +11,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../services/user.service';
 import { UserInfo } from './user.model';
 import { TranslationService } from '../services/translation.service';
-
-function notOnlyWhitespace(control: AbstractControl): ValidationErrors | null {
-  if (control.value && /^\s*$/.test(control.value)) {
-    return { whitespace: true };
-  }
-  return null;
-}
 
 @Component({
   selector: 'app-admin-users',
@@ -50,8 +43,8 @@ export class AdminUsersComponent implements OnInit {
   // Edit
   editingUser = signal<UserInfo | null>(null);
   editForm = new FormGroup({
-    first_name: new FormControl('', [Validators.required, Validators.maxLength(50), notOnlyWhitespace]),
-    last_name: new FormControl('', [Validators.required, Validators.maxLength(50), notOnlyWhitespace]),
+    first_name: new FormControl('', [Validators.required, Validators.maxLength(50), Validators.pattern(/.*\S.*/)]),
+    last_name: new FormControl('', [Validators.required, Validators.maxLength(50), Validators.pattern(/.*\S.*/)]),
     email: new FormControl('', [Validators.required, Validators.email]),
     type: new FormControl('Client', [Validators.required]),
     status: new FormControl('active', [Validators.required]),
@@ -68,7 +61,7 @@ export class AdminUsersComponent implements OnInit {
     private userService: UserService,
     public ts: TranslationService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadData();

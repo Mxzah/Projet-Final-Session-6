@@ -170,9 +170,18 @@
     font-weight: 600;
     font-size: 0.95rem;
     margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+}
+
+.combo-name-text {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
+    flex: 1;
 }
 
 .combo-description {
@@ -200,7 +209,7 @@
     opacity: 0.75;
 }
 
-.combo-card.unavailable .combo-name,
+.combo-card.unavailable .combo-name-text,
 .combo-card.unavailable .combo-description,
 .combo-card.unavailable .combo-price {
     color: rgba(27, 26, 23, 0.35) !important;
@@ -214,7 +223,7 @@
     opacity: 0.7;
 }
 
-.combo-card.deleted .combo-name,
+.combo-card.deleted .combo-name-text,
 .combo-card.deleted .combo-description,
 .combo-card.deleted .combo-price,
 .combo-item-card.deleted .combo-item-name,
@@ -255,8 +264,7 @@
     font-family: "Space Grotesk", "Segoe UI", sans-serif;
     border-radius: 6px;
     padding: 0.15rem 0.5rem;
-    vertical-align: middle;
-    margin-left: 0.5rem;
+    flex-shrink: 0;
 }
 
 .loading {

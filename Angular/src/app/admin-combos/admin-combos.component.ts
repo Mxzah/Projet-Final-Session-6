@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, NgZone, ViewChild, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,13 +18,6 @@ import { AvailabilityEntry } from '../menu/menu.models';
 import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 import { ErrorService } from '../services/error.service';
 import { TranslationService } from '../services/translation.service';
-
-function notOnlyWhitespace(control: AbstractControl): ValidationErrors | null {
-    if (control.value && /^\s*$/.test(control.value)) {
-        return { whitespace: true };
-    }
-    return null;
-}
 
 @Component({
     selector: 'app-admin-combos',
@@ -129,7 +122,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     isSaving = signal(false);
 
     // Image for create combo
-    createImage: File | null = null;
+    createImage = signal<File | null>(null);
     createImagePreview = signal<string | null>(null);
     createImageError = signal('');
 
@@ -146,7 +139,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     });
 
     createForm = new FormGroup({
-        name: new FormControl('', [Validators.required, Validators.maxLength(100), notOnlyWhitespace]),
+        name: new FormControl('', [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)]),
         description: new FormControl('', [Validators.maxLength(255)]),
         price: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01), Validators.max(9999.99)])
     });
@@ -195,6 +188,11 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     toggleShowDeleted(): void {
         this.showDeleted.update(v => !v);
         this.loadCombos();
+    }
+
+    toggleShowDeletedDetail(): void {
+        this.showDeleted.update(v => !v);
+        this.loadComboItemsAndItems();
     }
 
     // ── Combo Detail View ──
@@ -303,7 +301,15 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     deleteComboItem(comboItem: ComboItem): void {
         this.comboItemsService.deleteComboItem(comboItem.id).subscribe({
             next: () => {
-                this.comboItems.update(list => list.filter(ci => ci.id !== comboItem.id));
+                if (this.showDeleted()) {
+                    // Reload to get the item with deleted_at set
+                    this.comboItemsService.getComboItems(true).subscribe({
+                        next: (data) => this.comboItems.set(data),
+                        error: () => { }
+                    });
+                } else {
+                    this.comboItems.update(list => list.filter(ci => ci.id !== comboItem.id));
+                }
             },
             error: (err) => {
                 this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
@@ -316,7 +322,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         this.actionError.set('');
         this.isCreating.set(true);
         this.createAvailabilities.set([]);
-        this.createImage = null;
+        this.createImage.set(null);
         this.createImagePreview.set(null);
         this.createImageError.set('');
         this.createForm.reset({
@@ -333,7 +339,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         this.isSaving.set(false);
         this.actionError.set('');
         this.createAvailabilities.set([]);
-        this.createImage = null;
+        this.createImage.set(null);
         this.createImagePreview.set(null);
         this.createImageError.set('');
     }
@@ -358,7 +364,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         }
 
         this.createImageError.set('');
-        this.createImage = file;
+        this.createImage.set(file);
 
         const reader = new FileReader();
         reader.onload = () => this.createImagePreview.set(reader.result as string);
@@ -402,7 +408,8 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         this.isSaving.set(true);
 
         const payload: { name: string; description?: string; price: number; image?: File } = { name, description, price };
-        if (this.createImage) payload.image = this.createImage;
+        const image = this.createImage();
+        if (image) payload.image = image;
 
         this.combosService.createCombo(payload).subscribe({
             next: (created) => {
