@@ -1,11 +1,11 @@
 ================================================================================
                        PROCÉDURIER DE TESTS — RestoQR
-         Pages : /form · /menu (panier) · /order · /cuisine
+         Pages : /form · /menu (panier) · /order · /kitchen
 ================================================================================
 
 Identifiants utilisés :
   - Client   : client@restoqr.ca  / password123
-  - Cuisine  : cuisine@restoqr.ca / password123
+  - Cuisine  : cook@restoqr.ca / password123
 
 ================================================================================
 MODULE 1 — Panier dans /menu (cart.service)
@@ -78,11 +78,11 @@ MODULE 2 — Page /form — Sélection du vibe et création de la commande
      - La commande peut être vide à ce stade (aucune ligne de commande requise)
      - Redirection automatique vers /menu après la création
 
-2.5  Affichage du vibe sélectionné dans /order et /cuisine
+2.5  Affichage du vibe sélectionné dans /order et /kitchen
      - Une fois la commande créée avec un vibe
      - Dans /order : un badge de couleur affiche le nom du vibe
        à côté du nom du serveur (ex : « ✦ Date » en couleur du vibe)
-     - Dans /cuisine : le même badge apparaît sur la carte de commande
+     - Dans /kitchen : le même badge apparaît sur la carte de commande
 
 
 ================================================================================
@@ -272,8 +272,8 @@ MODULE 7 — Page /pay — Paiement fictif et fermeture de commande
        un nouveau client peut scanner le QR code et créer une nouvelle commande
      - Note : le paiement est fictif (aucune transaction bancaire réelle)
 
-7.6  Commande fermée non visible dans /cuisine
-     - Après le paiement, la commande n'apparaît plus dans /cuisine
+7.6  Commande fermée non visible dans /kitchen
+     - Après le paiement, la commande n'apparaît plus dans /kitchen
        car elle a un ended_at et n'est plus « active »
      - Le cuisinier ne voit que les commandes avec ended_at = null
 
@@ -307,21 +307,21 @@ MODULE 8 — Page /order — Section Détails (commande existante)
 
 
 ================================================================================
-MODULE 9 — Page /cuisine — Affichage général
+MODULE 9 — Page /kitchen — Affichage général
 ================================================================================
 
 9.1  Accès sans être connecté
-     - Accéder à /cuisine sans être connecté
+     - Accéder à /kitchen sans être connecté
      - Redirection automatique vers /login
 
 9.2  Accès avec un compte sans rôle cuisine
      Avec client@restoqr.ca : password123
-     - Accéder à /cuisine
+     - Accéder à /kitchen
      - Redirection automatique vers /menu
 
 9.3  Accès avec un compte cuisine
-     Avec cuisine@restoqr.ca : password123
-     - Accéder à /cuisine
+     Avec cook@restoqr.ca : password123
+     - Accéder à /kitchen
      - Le tableau de bord s'affiche avec le titre « Cuisine »
        et le sous-titre « Commandes actives en temps réel »
 
@@ -332,11 +332,11 @@ MODULE 9 — Page /cuisine — Affichage général
 
 
 ================================================================================
-MODULE 10 — Page /cuisine — Cartes de commande et statuts
+MODULE 10 — Page /kitchen — Cartes de commande et statuts
 ================================================================================
 
 10.1 En-tête de la carte
-     Avec cuisine@restoqr.ca : password123
+     Avec cook@restoqr.ca : password123
      - Une commande active existe (Table 3, 3 personnes)
      - La carte affiche : badge « Table 3 » et « 3 personne(s) »
      - Le nom du serveur est affiché (ex : « Marie Dupont »)
@@ -399,7 +399,7 @@ MODULE 11 — Hard delete vs Soft delete
 ================================================================================
 
 11.1  Lignes de commande — Hard delete (suppression physique)
-      - Que ce soit dans /order ou /cuisine, supprimer une ligne de commande
+      - Que ce soit dans /order ou /kitchen, supprimer une ligne de commande
         entraîne une suppression définitive dans la base de données
       - La ligne n'est plus récupérable une fois supprimée
       - Condition : la ligne doit avoir le statut « Envoyée » (sent)
@@ -415,19 +415,20 @@ MODULE 11 — Hard delete vs Soft delete
       - Si la page est rechargée avant l'envoi, les items du panier
         sont perdus (le panier n'est pas persisté côté serveur)
 
-11.3  Commandes (orders) — Soft delete (fermeture logique)
-      - La suppression ou la fermeture d'une commande ne supprime pas
-        l'enregistrement de la base de données
-      - La commande est marquée comme terminée en remplissant
-        le champ ended_at avec la date et heure actuelles
-      - La commande reste visible dans l'historique mais n'apparaît
-        plus parmi les commandes actives
+11.3  Commandes (orders) — Fermeture logique (via ended_at)
+      - Une commande envoyée au serveur n'est jamais supprimée
+        physiquement de la base de données (pas de hard delete)
+      - La fermeture se fait en remplissant le champ ended_at
+        avec la date et heure actuelles (≠ soft delete classique
+        qui utiliserait deleted_at)
+      - La commande reste dans la BD pour l'historique mais
+        n'apparaît plus parmi les commandes actives
       - Endpoints concernés : POST /api/orders/close_open
                                POST /api/orders/:id/pay
 
 
 ================================================================================
-MODULE 12 — Traduction (/order, /cuisine et /pay)
+MODULE 12 — Traduction (/order, /kitchen et /pay)
 ================================================================================
 
 12.1  Traduction en anglais — Header
@@ -453,9 +454,9 @@ MODULE 12 — Traduction (/order, /cuisine et /pay)
         · « Pourboire (CA$) » → « Tip (CA$) »
         · « Envoyer » → « Send »
 
-12.3  Traduction en anglais — /cuisine
+12.3  Traduction en anglais — /kitchen
       Avec cuisine@restoqr.ca : password123
-      - Accéder à /cuisine
+      - Accéder à /kitchen
       - Changer la langue à « English » via le header
       - Les textes passent en anglais :
         · « Tableau de bord » → « Dashboard »
@@ -487,23 +488,23 @@ MODULE 12 — Traduction (/order, /cuisine et /pay)
 
 
 ================================================================================
-MODULE 13 — Rechargement automatique (/order et /cuisine)
+MODULE 13 — Rechargement automatique (/order et /kitchen)
 ================================================================================
 
 13.1  Mise à jour automatique dans /order
       Avec client@restoqr.ca : password123
       - Accéder à /order avec une commande active contenant des lignes
-      - Depuis /cuisine, avancer le statut d'une ligne (ex : « Envoyée » → « En préparation »)
+      - Depuis /kitchen, avancer le statut d'une ligne (ex : « Envoyée » → « En préparation »)
       - Sans rafraîchir la page /order, le badge de statut se met à jour
         automatiquement après quelques secondes (polling toutes les 10 secondes)
       - Le bouton « Payer » apparaît automatiquement quand toutes les lignes
         passent à « Servie », sans besoin de refresh
 
-13.2  Mise à jour automatique dans /cuisine
+13.2  Mise à jour automatique dans /kitchen
       Avec cuisine@restoqr.ca : password123
-      - Accéder à /cuisine
+      - Accéder à /kitchen
       - Depuis /order, un client envoie une nouvelle commande ou de nouvelles lignes
-      - Sans rafraîchir la page /cuisine, la nouvelle commande ou les nouvelles
+      - Sans rafraîchir la page /kitchen, la nouvelle commande ou les nouvelles
         lignes apparaissent automatiquement après quelques secondes (polling 10s)
       - Les commandes fermées (payées) disparaissent aussi automatiquement
 
@@ -511,6 +512,6 @@ MODULE 13 — Rechargement automatique (/order et /cuisine)
       - Le polling est nettoyé automatiquement quand l'utilisateur quitte
         la page (ngOnDestroy) pour éviter les fuites de mémoire
       - Naviguer vers une autre page arrête le polling
-      - Revenir sur /order ou /cuisine redémarre le polling
+      - Revenir sur /order ou /kitchen redémarre le polling
 
 ================================================================================

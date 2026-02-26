@@ -11,7 +11,7 @@ class OrderLine < ApplicationRecord
 
   # Scope: order lines belonging to open (not ended) orders
   scope :open, -> { joins(:order).where(orders: { ended_at: nil, deleted_at: nil }) }
-
+  
   validates :quantity, presence: true,
                        numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 50 }
   validates :unit_price, presence: true,

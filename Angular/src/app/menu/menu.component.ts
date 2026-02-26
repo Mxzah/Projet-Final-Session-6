@@ -20,6 +20,8 @@ import { MatSliderModule } from '@angular/material/slider';
 import { ItemsService } from '../services/items.service';
 import { AuthService } from '../services/auth.service';
 import { CartService, CartLine } from '../services/cart.service';
+import { CombosService, Combo } from '../services/combos.service';
+import { ComboItemsService, ComboItem } from '../services/combo-items.service';
 import { TableService } from '../services/table.service';
 import { OrderService } from '../services/order.service';
 import { TranslationService } from '../services/translation.service';
@@ -62,6 +64,23 @@ export class MenuComponent implements OnInit, OnDestroy {
   modalQuantity = signal<number>(1);
   modalNote = signal<string>('');
 
+  readonly COMBOS_CATEGORY_ID = -1;
+  combos = signal<Combo[]>([]);
+  selectedCombo = signal<Combo | null>(null);
+  allComboItems = signal<ComboItem[]>([]);
+
+  selectedComboItems = computed(() => {
+    const combo = this.selectedCombo();
+    if (!combo) return [];
+    return this.allComboItems().filter(ci => ci.combo_id === combo.id);
+  });
+
+  comboModalTotal = computed(() => {
+    const combo = this.selectedCombo();
+    if (!combo) return 0;
+    return combo.price * this.modalQuantity();
+  });
+
   private searchTimer: any = null;
 
   itemsByCategory = computed(() => {
@@ -90,11 +109,14 @@ export class MenuComponent implements OnInit, OnDestroy {
     private router: Router,
     private renderer: Renderer2,
     private dialog: MatDialog,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private combosService: CombosService,
+    private comboItemsService: ComboItemsService
   ) {}
 
   ngOnInit(): void {
     this.loadItems(true);
+    this.loadComboItems();
     this.checkOpenOrder();
   }
 
@@ -128,6 +150,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   loadItems(showLoading = false): void {
     if (showLoading) this.isLoading.set(true);
+    this.loadCombos();
     this.itemsService.getItems({
       search: this.searchQuery(),
       sort: this.sortOrder(),
@@ -226,7 +249,62 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.selectedItem.set(null);
+    this.selectedCombo.set(null);
     this.renderer.removeStyle(document.documentElement, 'overflow');
+  }
+
+  // Charge la liste des combos depuis le backend
+  loadCombos(): void {
+    this.combosService.getCombos({
+      search: this.searchQuery(),
+      sort: this.sortOrder(),
+      price_min: this.priceMin(),
+      price_max: this.priceMax()
+    }).subscribe({
+      next: (combos) => this.combos.set(combos),
+      error: () => {}
+    });
+  }
+
+  // Charge tous les combo_items pour afficher le détail dans le modal
+  loadComboItems(): void {
+    this.comboItemsService.getComboItems().subscribe({
+      next: (items) => this.allComboItems.set(items),
+      error: () => {}
+    });
+  }
+
+  // Ouvre le modal de détail d'un combo
+  openComboModal(combo: Combo): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    if (!this.tableService.hasTable() && !this.hasOpenOrder()) {
+      this.router.navigate(['/form']);
+      return;
+    }
+    this.selectedCombo.set(combo);
+    this.modalQuantity.set(1);
+    this.modalNote.set('');
+    this.renderer.setStyle(document.documentElement, 'overflow', 'hidden');
+  }
+
+  // Ajoute le combo sélectionné au panier (orderable_type: 'Combo')
+  addComboToCart(): void {
+    const combo = this.selectedCombo();
+    if (!combo) return;
+    this.cartService.addLine({
+      orderable_type: 'Combo',
+      orderable_id: combo.id,
+      name: combo.name,
+      description: combo.description ?? '',
+      unit_price: combo.price,
+      quantity: this.modalQuantity(),
+      note: this.modalNote(),
+      image_url: combo.image_url || null
+    });
+    this.closeModal();
   }
 
   onOverlayClick(event: MouseEvent): void {

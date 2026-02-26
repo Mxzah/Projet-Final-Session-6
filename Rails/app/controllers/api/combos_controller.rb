@@ -7,6 +7,17 @@ module Api
     def index
       combos = Combo.includes(:availabilities)
 
+      # Filtrer par disponibilité active (sauf admin)
+      unless current_user&.type == "Administrator" && params[:admin] == "true"
+        now = Time.current
+        combos = combos.joins(:availabilities)
+                       .where(
+                         "availabilities.start_at <= ? AND (availabilities.end_at IS NULL OR availabilities.end_at > ?)",
+                         now, now
+                       )
+                       .distinct
+      end
+
       # Search
       if params[:search].present?
         combos = combos.where("combos.name LIKE ?", "%#{params[:search]}%")

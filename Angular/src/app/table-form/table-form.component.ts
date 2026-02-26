@@ -50,6 +50,7 @@ export class TableFormComponent implements OnInit {
     private router: Router
   ) {}
 
+  // Appelé au chargement — vérifie qu'une table est sélectionnée et initialise le formulaire
   ngOnInit(): void {
     this.table = this.tableService.getCurrentTable();
     if (!this.table) {
@@ -69,6 +70,7 @@ export class TableFormComponent implements OnInit {
     this.loadVibes();
   }
 
+  // Charge la liste des vibes depuis le backend (créées dans seeds.rb)
   private loadVibes(): void {
     this.orderService.getVibes().subscribe({
       next: (res) => {
@@ -81,13 +83,16 @@ export class TableFormComponent implements OnInit {
     });
   }
 
+  // Raccourcis pour accéder aux champs du formulaire facilement dans le HTML
   get guestCtrl() { return this.form.get('guestCount')!; }
   get vibeCtrl() { return this.form.get('vibeId')!; }
 
+  // Retourne l'objet vibe sélectionné (pour afficher sa couleur par exemple)
   getSelectedVibe(): VibeData | null {
     return this.vibes.find(v => v.id === this.vibeCtrl.value) ?? null;
   }
 
+  // Crée la commande dans le backend et redirige vers le menu
   goToMenu(): void {
     if (this.form.invalid || this.isSubmitting()) return;
 
@@ -114,6 +119,7 @@ export class TableFormComponent implements OnInit {
     });
   }
 
+  // Appelé quand l'utilisateur clique sur déconnexion dans le header
   logout(): void {
     this.authService.logout().subscribe({
       next: () => {

@@ -45,10 +45,13 @@ export class PayComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {}
 
+  // Appelé automatiquement au chargement de la page
   ngOnInit(): void {
     this.loadOrder();
   }
 
+  // Charge la commande ouverte du client depuis le backend
+  // Si aucune commande ouverte, redirige vers /order
   private loadOrder(): void {
     this.orderService.getOrders().subscribe({
       next: (res) => {
@@ -66,6 +69,8 @@ export class PayComponent implements OnInit {
     });
   }
 
+  // Valide le montant du pourboire (doit être entre 0 et 999.99)
+  // Retourne true si valide, false sinon
   validateTip(): boolean {
     const val = this.tip();
     if (val < 0) {
@@ -80,6 +85,7 @@ export class PayComponent implements OnInit {
     return true;
   }
 
+  // Appelé chaque fois que l'utilisateur modifie le champ pourboire
   onTipChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const val = parseFloat(input.value) || 0;
@@ -87,6 +93,8 @@ export class PayComponent implements OnInit {
     this.validateTip();
   }
 
+  // Appelé quand l'utilisateur clique sur Payer
+  // Envoie la commande + pourboire au backend, puis déconnecte et redirige vers /login
   onPay(): void {
     if (!this.validateTip() || this.isPaying()) return;
 
@@ -119,6 +127,7 @@ export class PayComponent implements OnInit {
     });
   }
 
+  // Appelé quand l'utilisateur clique sur déconnexion dans le header
   logout(): void {
     this.cartService.clear();
     this.authService.logout().subscribe({

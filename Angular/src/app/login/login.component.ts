@@ -55,7 +55,7 @@ export class LoginComponent {
         this.cartService.clear();
 
         if (this.authService.isCook()) {
-          this.router.navigate(['/cuisine']);
+          this.router.navigate(['/kitchen']);
           return;
         }
 

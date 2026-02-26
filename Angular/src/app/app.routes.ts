@@ -19,7 +19,6 @@ export const routes: Routes = [
             { path: 'tables', loadComponent: () => import('./admin-tables/admin-tables.component').then(m => m.AdminTablesComponent) },
             { path: 'items', loadComponent: () => import('./admin-items/admin-items.component').then(m => m.AdminItemsComponent) },
             { path: 'combos', loadComponent: () => import('./admin-combos/admin-combos.component').then(m => m.AdminCombosComponent) },
-            { path: 'combo-items', loadComponent: () => import('./admin-combo-items/admin-combo-items.component').then(m => m.AdminComboItemsComponent) },
             { path: 'users', loadComponent: () => import('./admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
         ]
     },

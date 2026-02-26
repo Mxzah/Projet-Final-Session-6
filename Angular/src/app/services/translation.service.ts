@@ -243,6 +243,9 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'order.editNote': { fr: 'Modifier la note', en: 'Edit note' },
   'order.noteSaved': { fr: 'Note sauvegardée', en: 'Note saved' },
   'order.saveNote': { fr: 'Sauvegarder la note', en: 'Save note' },
+  'order.noNote': { fr: 'Aucune note', en: 'No note' },
+  'order.save': { fr: 'Sauvegarder', en: 'Save' },
+  'order.cancel': { fr: 'Annuler', en: 'Cancel' },
 
   // Cuisine page
   'cuisine.eyebrow': { fr: 'Tableau de bord', en: 'Dashboard' },

@@ -1,7 +1,7 @@
 module Api
   class CuisineController < ApplicationController
     before_action :authenticate_user!
-    before_action :authorize_kitchen_staff!
+    before_action :require_cook!
 
     # GET /api/kitchen/orders — All open orders with their lines
     def orders
@@ -92,10 +92,14 @@ module Api
 
     private
 
-    def authorize_kitchen_staff!
-      unless %w[Administrator Waiter Cook].include?(current_user.type)
-        render json: { code: 200, success: false, data: [], errors: ["Unauthorized"] }, status: :ok
-      end
+    def require_cook!
+      return if %w[Administrator Waiter Cook].include?(current_user&.type)
+
+      render json: {
+        success: false,
+        data: nil,
+        errors: ["Access restricted to kitchen staff"]
+      }, status: :ok
     end
 
     def senior_staff?

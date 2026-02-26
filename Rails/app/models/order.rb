@@ -19,10 +19,6 @@ class Order < ApplicationRecord
 
   default_scope { where(deleted_at: nil) }
 
-  def soft_delete
-    update(deleted_at: Time.current)
-  end
-
   # JSON serialization for API responses
   def as_json(options = {})
     lines_data = order_lines.map(&:as_json)

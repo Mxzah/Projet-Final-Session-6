@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -13,6 +14,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
 
 interface DisplayOrderLine {
@@ -36,6 +39,9 @@ interface DisplayOrderLine {
     MatCardModule,
     MatDividerModule,
     MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
@@ -52,6 +58,11 @@ export class OrderComponent implements OnInit, OnDestroy {
   existingVibeName = signal<string | null>(null);
   existingVibeColor = signal<string | null>(null);
   existingNbPeople = signal<number | null>(null);
+
+  // Note editing state
+  editingNote = signal(false);
+  noteInput = signal('');
+  isSavingNote = signal(false);
 
   private pendingLines = computed<DisplayOrderLine[]>(() =>
     this.cartService.lines().map((line, index) => ({
@@ -286,6 +297,36 @@ export class OrderComponent implements OnInit, OnDestroy {
       },
       complete: () => {
         this.isSending.set(false);
+      }
+    });
+  }
+
+  // Ouvre le mode édition de la note de commande
+  openEditNote(): void {
+    this.noteInput.set(this.existingNote() ?? '');
+    this.editingNote.set(true);
+  }
+
+  // Annule l'édition de la note
+  cancelEditNote(): void {
+    this.editingNote.set(false);
+  }
+
+  // Sauvegarde la note modifiée dans le backend
+  saveNote(): void {
+    const orderId = this.openOrderId();
+    if (!orderId || this.isSavingNote()) return;
+
+    this.isSavingNote.set(true);
+    this.orderService.updateOrder(orderId, { note: this.noteInput() }).subscribe({
+      next: () => {
+        this.editingNote.set(false);
+        this.isSavingNote.set(false);
+        this.loadOpenOrder();
+      },
+      error: (err) => {
+        this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+        this.isSavingNote.set(false);
       }
     });
   }

@@ -87,12 +87,17 @@ export class CuisineComponent implements OnInit, OnDestroy {
     return this.authService.isAdmin() || this.authService.isWaiter();
   }
 
+  // Retourne le prochain statut dans la liste (ex: 'sent' → 'in_preparation')
+  // Retourne null si le statut est déjà le dernier (ex: 'served')
   getNextStatus(status: string): string | null {
     const idx = this.statuses.indexOf(status);
     if (idx === -1 || idx === this.statuses.length - 1) return null;
     return this.statuses[idx + 1];
   }
 
+  // Envoie une requête au backend pour avancer le statut d'une ligne de commande
+  // Ex: 'sent' → 'in_preparation' → 'ready' → 'served'
+  // advancingLineIds empêche de cliquer deux fois sur le même bouton en même temps
   advanceStatus(line: CuisineOrderLine): void {
     if (this.advancingLineIds.has(line.id)) return;
     this.advancingLineIds.add(line.id);
@@ -114,6 +119,8 @@ export class CuisineComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Traduit un statut interne (ex: 'in_preparation') en texte affiché à l'écran
+  // Utilise le service de traduction (ts.t) pour supporter le français/anglais
   getStatusLabel(status: string): string {
     const keys: Record<string, string> = {
       sent: 'cuisine.status.sent',
@@ -124,6 +131,8 @@ export class CuisineComponent implements OnInit, OnDestroy {
     return keys[status] ? this.ts.t(keys[status]) : status;
   }
 
+  // Formate une date en texte lisible selon la langue choisie (fr ou en)
+  // Ex: '2024-03-15T14:30:00' → 'mars 15, 14:30' (fr) ou 'Mar 15, 2:30 PM' (en)
   formatOrderTime(dateStr: string): string {
     const date = new Date(dateStr);
     const locale = this.ts.lang() === 'en' ? 'en-CA' : 'fr-CA';
@@ -135,6 +144,9 @@ export class CuisineComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Retourne la classe CSS correspondant au statut pour colorier visuellement la ligne
+  // Ex: 'sent' → 'status-sent', 'ready' → 'status-ready'
+  // ?? '' = si le statut est inconnu, retourne une chaîne vide (pas de classe appliquée)
   getStatusClass(status: string): string {
     const classes: Record<string, string> = {
       sent: 'status-sent',

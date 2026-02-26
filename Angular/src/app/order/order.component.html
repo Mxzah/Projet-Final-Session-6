@@ -106,13 +106,32 @@
         </div>
       </mat-card>
 
-      @if (openOrderId() !== null && existingNote()) {
+      @if (openOrderId() !== null) {
         <mat-card class="order-details-card" appearance="outlined">
           <mat-card-content class="details-content">
-            <div class="detail-item">
-              <mat-icon>sticky_note_2</mat-icon>
-              <span>{{ existingNote() }}</span>
-            </div>
+            @if (!editingNote()) {
+              <div class="detail-item">
+                <mat-icon>sticky_note_2</mat-icon>
+                <span>{{ existingNote() || ts.t('order.noNote') }}</span>
+                <button mat-icon-button class="action-btn edit" [title]="ts.t('order.editNote')" (click)="openEditNote()">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <mat-form-field appearance="outline" class="note-field">
+                <mat-label>{{ ts.t('order.editNote') }}</mat-label>
+                <textarea matInput [ngModel]="noteInput()" (ngModelChange)="noteInput.set($event)" rows="2" maxlength="255"></textarea>
+              </mat-form-field>
+              <div class="note-actions">
+                <button mat-raised-button color="primary" [disabled]="isSavingNote()" (click)="saveNote()">
+                  <mat-icon>save</mat-icon>
+                  {{ ts.t('order.save') }}
+                </button>
+                <button mat-button (click)="cancelEditNote()">
+                  {{ ts.t('order.cancel') }}
+                </button>
+              </div>
+            }
           </mat-card-content>
         </mat-card>
       }
