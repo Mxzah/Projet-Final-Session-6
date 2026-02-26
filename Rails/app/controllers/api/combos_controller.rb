@@ -3,9 +3,13 @@ module Api
     skip_before_action :authenticate_user!, only: [:index]
     skip_before_action :require_admin!, only: [:index]
 
-    # GET /api/combos?search=…&sort=asc|desc&price_min=…&price_max=…
+    # GET /api/combos?search=…&sort=asc|desc&price_min=…&price_max=…&include_deleted=true
     def index
-      combos = Combo.includes(:availabilities)
+      combos = if params[:include_deleted] == 'true' && current_user&.is_a?(Administrator)
+                 Combo.unscoped.includes(:availabilities)
+               else
+                 Combo.includes(:availabilities)
+               end
 
       # Filtrer par disponibilité active (sauf admin)
       unless current_user&.type == "Administrator" && params[:admin] == "true"
@@ -80,6 +84,7 @@ module Api
         price: combo.price.to_f,
         image_url: combo.image.attached? ? url_for(combo.image) : nil,
         created_at: combo.created_at,
+        deleted_at: combo.deleted_at,
         availabilities: combo.availabilities.map { |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
         }

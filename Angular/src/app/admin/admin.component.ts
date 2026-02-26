@@ -19,7 +19,6 @@ export class AdminComponent {
     { path: 'tables', label: 'admin.tables.tab' },
     { path: 'items', label: 'admin.items.tab' },
     { path: 'combos', label: 'admin.combos.tab' },
-    { path: 'combo-items', label: 'admin.comboItems.tab' },
     { path: 'users', label: 'admin.users.tab' },
   ];
 

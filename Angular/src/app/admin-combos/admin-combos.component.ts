@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CombosService, Combo } from '../services/combos.service';
 import { ComboItemsService, ComboItem } from '../services/combo-items.service';
 import { ItemsService } from '../services/items.service';
@@ -38,6 +39,7 @@ function notOnlyWhitespace(control: AbstractControl): ValidationErrors | null {
         MatInputModule,
         MatSelectModule,
         MatProgressSpinnerModule,
+        MatSlideToggleModule,
         AvailabilityListComponent
     ],
     templateUrl: './admin-combos.component.html',
@@ -48,6 +50,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
 
     combos = signal<Combo[]>([]);
     createAvailabilities = signal<AvailabilityEntry[]>([]);
+    showDeleted = signal(false);
 
     // Selected combo for detail view
     selectedCombo = signal<Combo | null>(null);
@@ -81,6 +84,40 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         return this.comboItems().filter(ci => ci.combo_id === combo.id);
     });
 
+    // Total value of items in the selected combo (sum of individual item prices * quantity)
+    itemsTotalValue = computed(() => {
+        const comboItems = this.selectedComboItems();
+        const itemsMap = new Map(this.items().map(item => [item.id, item.price]));
+        return comboItems.reduce((total, ci) => {
+            const itemPrice = itemsMap.get(ci.item_id) ?? 0;
+            return total + (itemPrice * ci.quantity);
+        }, 0);
+    });
+
+    // Savings when buying combo vs buying items individually
+    comboSavings = computed(() => {
+        const itemsTotal = this.itemsTotalValue();
+        const comboPrice = this.selectedCombo()?.price ?? 0;
+        return itemsTotal - comboPrice;
+    });
+
+    // Unavailable item IDs (items without valid availability)
+    unavailableItemIds = computed(() => {
+        const now = this.now();
+        return new Set(
+            this.items()
+                .filter(item => {
+                    if (!item.availabilities || item.availabilities.length === 0) return true;
+                    return !item.availabilities.some(a => {
+                        const start = new Date(a.start_at).getTime();
+                        const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
+                        return start <= now && now < end;
+                    });
+                })
+                .map(item => item.id)
+        );
+    });
+
     ngOnDestroy(): void {
         clearInterval(this.nowInterval);
     }
@@ -99,6 +136,14 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     // Add item to combo form
     isAddingItem = signal(false);
     isSavingItem = signal(false);
+    itemSearchTerm = signal('');
+
+    // Filtered items based on search term
+    filteredItems = computed(() => {
+        const search = this.itemSearchTerm().toLowerCase().trim();
+        if (!search) return this.items();
+        return this.items().filter(item => item.name.toLowerCase().includes(search));
+    });
 
     createForm = new FormGroup({
         name: new FormControl('', [Validators.required, Validators.maxLength(100), notOnlyWhitespace]),
@@ -135,7 +180,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         this.isLoading.set(true);
         this.loadError.set('');
 
-        this.combosService.getCombos().subscribe({
+        this.combosService.getCombos({ include_deleted: this.showDeleted() }).subscribe({
             next: (combos) => {
                 this.combos.set(combos);
                 this.isLoading.set(false);
@@ -145,6 +190,11 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    toggleShowDeleted(): void {
+        this.showDeleted.update(v => !v);
+        this.loadCombos();
     }
 
     // ── Combo Detail View ──
@@ -172,7 +222,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
             }
         };
 
-        this.comboItemsService.getComboItems().subscribe({
+        this.comboItemsService.getComboItems(this.showDeleted()).subscribe({
             next: (data) => {
                 this.comboItems.set(data);
                 finish();
@@ -199,9 +249,19 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     openAddItem(): void {
         this.actionError.set('');
         this.isAddingItem.set(true);
+        this.itemSearchTerm.set('');
         this.addItemForm.reset({ item_id: null, quantity: 1 });
         this.addItemForm.markAsPristine();
         this.addItemForm.markAsUntouched();
+    }
+
+    onItemSearchInput(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        this.itemSearchTerm.set(input.value);
+    }
+
+    onSelectOpened(): void {
+        this.itemSearchTerm.set('');
     }
 
     cancelAddItem(): void {

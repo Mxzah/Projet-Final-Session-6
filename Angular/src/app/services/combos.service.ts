@@ -9,6 +9,7 @@ export interface Combo {
     price: number;
     image_url: string | null;
     created_at: string;
+    deleted_at: string | null;
     availabilities?: { id: number; start_at: string; end_at?: string | null; description?: string | null }[];
 }
 
@@ -24,6 +25,7 @@ export interface ComboQueryParams {
     sort?: string;
     price_min?: number | null;
     price_max?: number | null;
+    include_deleted?: boolean;
 }
 
 @Injectable({
@@ -38,6 +40,7 @@ export class CombosService {
         if (params?.sort) queryParams['sort'] = params.sort;
         if (params?.price_min != null) queryParams['price_min'] = params.price_min.toString();
         if (params?.price_max != null) queryParams['price_max'] = params.price_max.toString();
+        if (params?.include_deleted) queryParams['include_deleted'] = 'true';
 
         return this.apiService.get<Combo[]>('/api/combos', queryParams).pipe(
             map(response => response.data ?? [])

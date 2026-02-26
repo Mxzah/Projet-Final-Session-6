@@ -10,6 +10,9 @@
           </button>
         </h2>
         <p class="welcome-text">{{ ts.t('admin.combos.subtitle') }}</p>
+        <div class="show-deleted-toggle">
+          <mat-slide-toggle [checked]="showDeleted()" (change)="toggleShowDeleted()">{{ ts.t('admin.combos.showDeleted') }}</mat-slide-toggle>
+        </div>
       </div>
 
       @if (loadError()) {
@@ -33,8 +36,11 @@
       @if (!isLoading() && combos().length > 0) {
         <div class="combos-list">
           @for (combo of combos(); track trackByComboId($index, combo)) {
-            <mat-card class="combo-card clickable" [class.unavailable]="unavailableIds().has(combo.id)" (click)="selectCombo(combo)">
+            <mat-card class="combo-card clickable" [class.unavailable]="unavailableIds().has(combo.id)" [class.deleted]="combo.deleted_at" (click)="selectCombo(combo)">
               <mat-card-content class="combo-body">
+                @if (combo.deleted_at) {
+                  <span class="deleted-badge">{{ ts.t('admin.combos.deleted') }}</span>
+                }
                 @if (combo.image_url) {
                   <img [src]="combo.image_url" alt="" class="combo-image" />
                 } @else {
@@ -74,6 +80,26 @@
         <p class="welcome-text">{{ ts.t('admin.comboItems.detailSubtitle') }}</p>
       </div>
 
+      <!-- Price comparison section -->
+      @if (!isLoadingItems() && selectedComboItems().length > 0) {
+        <div class="price-comparison">
+          <div class="price-comparison-row">
+            <span class="price-label">{{ ts.t('admin.comboItems.itemsTotal') }}:</span>
+            <span class="price-value items-total">{{ itemsTotalValue() | number:'1.2-2' }} $</span>
+          </div>
+          <div class="price-comparison-row">
+            <span class="price-label">{{ ts.t('admin.comboItems.comboPrice') }}:</span>
+            <span class="price-value combo-price">{{ selectedCombo()?.price | number:'1.2-2' }} $</span>
+          </div>
+          @if (comboSavings() > 0) {
+            <div class="price-comparison-row savings">
+              <span class="price-label">{{ ts.t('admin.comboItems.savings') }}:</span>
+              <span class="price-value savings-value">{{ comboSavings() | number:'1.2-2' }} $</span>
+            </div>
+          }
+        </div>
+      }
+
       @if (actionError() && !isAddingItem()) {
         <div class="admin-error">{{ actionError() }}</div>
       }
@@ -91,8 +117,11 @@
       @if (!isLoadingItems() && selectedComboItems().length > 0) {
         <div class="combo-items-list">
           @for (ci of selectedComboItems(); track trackByComboItemId($index, ci)) {
-            <mat-card class="combo-item-card">
+            <mat-card class="combo-item-card" [class.deleted]="ci.deleted_at">
               <mat-card-content class="combo-item-body">
+                @if (ci.deleted_at) {
+                  <span class="deleted-badge">{{ ts.t('admin.comboItems.deleted') }}</span>
+                }
                 @if (ci.item_image_url) {
                   <img [src]="ci.item_image_url" alt="" class="combo-item-image" />
                 } @else {
@@ -104,9 +133,11 @@
                   <div class="combo-item-name">{{ ci.item_name }}</div>
                   <div class="combo-item-quantity">{{ ts.t('admin.comboItems.qty') }}: {{ ci.quantity }}</div>
                 </div>
-                <button mat-icon-button color="warn" (click)="deleteComboItem(ci)" [title]="ts.t('admin.delete')">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                @if (!ci.deleted_at) {
+                  <button mat-icon-button color="warn" (click)="deleteComboItem(ci)" [title]="ts.t('admin.delete')">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
               </mat-card-content>
             </mat-card>
           }
@@ -228,9 +259,15 @@
         <form [formGroup]="addItemForm" (ngSubmit)="saveAddItem()">
           <mat-form-field appearance="outline" class="modal-field-full">
             <mat-label>{{ ts.t('admin.comboItems.item') }}</mat-label>
-            <mat-select formControlName="item_id">
-              @for (item of items(); track item.id) {
-                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+            <mat-select formControlName="item_id" (opened)="onSelectOpened()">
+              <div class="select-search-wrapper">
+                <input matInput type="text" class="select-search-input" [placeholder]="ts.t('admin.comboItems.searchItem')" (input)="onItemSearchInput($event)" (keydown.space)="$event.stopPropagation()" (click)="$event.stopPropagation()" />
+              </div>
+              @for (item of filteredItems(); track item.id) {
+                <mat-option [value]="item.id" [disabled]="unavailableItemIds().has(item.id)" [class.unavailable-option]="unavailableItemIds().has(item.id)">{{ item.name }}</mat-option>
+              }
+              @if (filteredItems().length === 0) {
+                <mat-option disabled>{{ ts.t('admin.comboItems.noItemsFound') }}</mat-option>
               }
             </mat-select>
             @if ((addItemForm.controls.item_id.dirty || addItemForm.controls.item_id.touched) && addItemForm.controls.item_id.errors?.['required']) {

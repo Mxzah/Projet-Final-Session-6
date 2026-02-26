@@ -96,7 +96,7 @@
           </mat-form-field>
         </div>
 
-        @if (allItems().length === 0 && combos().length === 0) {
+        @if (availableItems().length === 0 && availableCombos().length === 0) {
           <div class="no-results">
             <mat-icon class="no-results-icon">search_off</mat-icon>
             <p class="no-results-text">{{ ts.t('menu.noResults') }}</p>
@@ -136,12 +136,12 @@
           }
 
           <!-- Combos section -->
-          @if (combos().length > 0) {
+          @if (availableCombos().length > 0) {
             <div class="category-section" [id]="'category-' + COMBOS_CATEGORY_ID">
               <h1 class="category-heading">{{ ts.t('menu.combosCategory') }}</h1>
 
               <div class="items-grid">
-                @for (combo of combos(); track combo.id) {
+                @for (combo of availableCombos(); track combo.id) {
                   <mat-card class="menu-card combo-card" (click)="openComboModal(combo)">
                     <mat-card-content class="card-content-row">
                       <div class="card-info">

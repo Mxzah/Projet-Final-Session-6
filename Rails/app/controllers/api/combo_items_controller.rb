@@ -3,7 +3,11 @@ module Api
     skip_before_action :require_admin!, only: [:index]
 
     def index
-      combo_items = ComboItem.includes(:combo, :item).order(combo_id: :asc, item_id: :asc)
+      combo_items = if params[:include_deleted] == 'true' && current_user&.is_a?(Administrator)
+                      ComboItem.unscoped.includes(:combo, :item).order(combo_id: :asc, item_id: :asc)
+                    else
+                      ComboItem.includes(:combo, :item).order(combo_id: :asc, item_id: :asc)
+                    end
 
       render json: {
         success: true,
@@ -64,7 +68,8 @@ module Api
         item_id: combo_item.item_id,
         item_name: item&.name,
         item_image_url: item&.image&.attached? ? url_for(item.image) : nil,
-        quantity: combo_item.quantity
+        quantity: combo_item.quantity,
+        deleted_at: combo_item.deleted_at
       }
     end
   end

@@ -107,6 +107,8 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.combos.subtitle': { fr: 'Créer et consulter les combos.', en: 'Create and list combos.' },
   'admin.combos.add': { fr: 'Ajouter un combo', en: 'Add combo' },
   'admin.combos.empty': { fr: 'Aucun combo pour le moment.', en: 'No combo for now.' },
+  'admin.combos.showDeleted': { fr: 'Afficher les supprimés', en: 'Show deleted' },
+  'admin.combos.deleted': { fr: 'Supprimé', en: 'Deleted' },
   'admin.combos.createTitle': { fr: 'Créer un combo', en: 'Create combo' },
   'admin.combos.nameMaxLength': { fr: 'Maximum 100 caractères.', en: 'Maximum 100 characters.' },
   'admin.combos.nameWhitespace': { fr: 'Le nom ne peut pas être vide.', en: 'Name cannot be empty.' },
@@ -121,6 +123,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.comboItems.addTitle': { fr: 'Ajouter un article au combo', en: 'Add item to combo' },
   'admin.comboItems.adding': { fr: 'Ajout...', en: 'Adding...' },
   'admin.comboItems.empty': { fr: 'Aucun article dans ce combo.', en: 'No items in this combo.' },
+  'admin.comboItems.deleted': { fr: 'Supprimé', en: 'Deleted' },
   'admin.comboItems.createTitle': { fr: 'Créer un combo item', en: 'Create combo item' },
   'admin.comboItems.item': { fr: 'Article', en: 'Item' },
   'admin.comboItems.quantity': { fr: 'Quantité', en: 'Quantity' },
@@ -134,6 +137,11 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.comboItems.quantityMin': { fr: 'La quantité doit être au moins 1.', en: 'Quantity must be at least 1.' },
   'admin.comboItems.quantityMax': { fr: 'La quantité ne peut pas dépasser 10.', en: 'Quantity cannot exceed 10.' },
   'admin.comboItems.creating': { fr: 'Création...', en: 'Creating...' },
+  'admin.comboItems.itemsTotal': { fr: 'Valeur des articles', en: 'Items value' },
+  'admin.comboItems.comboPrice': { fr: 'Prix du combo', en: 'Combo price' },
+  'admin.comboItems.savings': { fr: 'Économie', en: 'Savings' },
+  'admin.comboItems.searchItem': { fr: 'Rechercher un article...', en: 'Search item...' },
+  'admin.comboItems.noItemsFound': { fr: 'Aucun article trouvé', en: 'No items found' },
 
   // Admin tables
   'tables.title': { fr: 'Gestion des tables', en: 'Table management' },

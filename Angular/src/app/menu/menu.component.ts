@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, Renderer2, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,10 +18,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSliderModule } from '@angular/material/slider';
 import { ItemsService } from '../services/items.service';
-import { AuthService } from '../services/auth.service';
-import { CartService, CartLine } from '../services/cart.service';
 import { CombosService, Combo } from '../services/combos.service';
 import { ComboItemsService, ComboItem } from '../services/combo-items.service';
+import { AuthService } from '../services/auth.service';
+import { forkJoin } from 'rxjs';
+import { CartService, CartLine } from '../services/cart.service';
 import { TableService } from '../services/table.service';
 import { OrderService } from '../services/order.service';
 import { TranslationService } from '../services/translation.service';
@@ -29,6 +30,8 @@ import { ErrorService } from '../services/error.service';
 import { HeaderComponent } from '../header/header.component';
 import { Item, Category } from './menu.models';
 import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
+
+const COMBOS_CATEGORY_ID = -999;
 
 @Component({
   selector: 'app-menu',
@@ -45,8 +48,42 @@ import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent
   styleUrls: ['./menu.component.css']
 })
 export class MenuComponent implements OnInit, OnDestroy {
+  readonly COMBOS_CATEGORY_ID = COMBOS_CATEGORY_ID;
+
   categories = signal<Category[]>([]);
   allItems = signal<Item[]>([]);
+  combos = signal<Combo[]>([]);
+
+  // Time tracking for availability
+  private now = signal(Date.now());
+  private nowInterval?: ReturnType<typeof setInterval>;
+
+  // Filter items by availability
+  availableItems = computed(() => {
+    const now = this.now();
+    return this.allItems().filter(item => {
+      if (!item.availabilities || item.availabilities.length === 0) return false;
+      return item.availabilities.some(a => {
+        const start = new Date(a.start_at).getTime();
+        const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
+        return start <= now && now < end;
+      });
+    });
+  });
+
+  // Filter combos by availability
+  availableCombos = computed(() => {
+    const now = this.now();
+    return this.combos().filter(combo => {
+      if (!combo.availabilities || combo.availabilities.length === 0) return false;
+      return combo.availabilities.some(a => {
+        const start = new Date(a.start_at).getTime();
+        const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
+        return start <= now && now < end;
+      });
+    });
+  });
+  comboItems = signal<ComboItem[]>([]);
   activeCategory = signal<number>(0);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string>('');
@@ -61,6 +98,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   cartOpen = signal<boolean>(false);
 
   selectedItem = signal<Item | null>(null);
+  selectedCombo = signal<Combo | null>(null);
   modalQuantity = signal<number>(1);
   modalNote = signal<string>('');
 
@@ -85,7 +123,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   itemsByCategory = computed(() => {
     return this.categories().map(cat => {
-      const items = this.allItems().filter(item => item.category_id === cat.id);
+      const items = this.availableItems().filter(item => item.category_id === cat.id);
       return { ...cat, items };
     });
   });
@@ -96,11 +134,25 @@ export class MenuComponent implements OnInit, OnDestroy {
     return item.price * this.modalQuantity();
   });
 
+  selectedComboItems = computed(() => {
+    const combo = this.selectedCombo();
+    if (!combo) return [];
+    return this.comboItems().filter(ci => ci.combo_id === combo.id);
+  });
+
+  comboModalTotal = computed(() => {
+    const combo = this.selectedCombo();
+    if (!combo) return 0;
+    return combo.price * this.modalQuantity();
+  });
+
   // Track if the user has an open order (even without a scanned table)
   hasOpenOrder = signal<boolean>(false);
 
   constructor(
     private itemsService: ItemsService,
+    private combosService: CombosService,
+    private comboItemsService: ComboItemsService,
     public authService: AuthService,
     public cartService: CartService,
     private tableService: TableService,
@@ -111,8 +163,15 @@ export class MenuComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private errorService: ErrorService,
     private combosService: CombosService,
-    private comboItemsService: ComboItemsService
-  ) {}
+    private comboItemsService: ComboItemsService,
+    private ngZone: NgZone
+  ) {
+    this.ngZone.runOutsideAngular(() => {
+      this.nowInterval = setInterval(() => {
+        this.ngZone.run(() => this.now.set(Date.now()));
+      }, 60_000);
+    });
+  }
 
   ngOnInit(): void {
     this.loadItems(true);
@@ -122,6 +181,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.searchTimer) clearTimeout(this.searchTimer);
+    clearInterval(this.nowInterval);
   }
 
   // Check if the user already has an open order — if so, restore table info
@@ -150,15 +210,27 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   loadItems(showLoading = false): void {
     if (showLoading) this.isLoading.set(true);
-    this.loadCombos();
-    this.itemsService.getItems({
-      search: this.searchQuery(),
-      sort: this.sortOrder(),
-      price_min: this.priceMin(),
-      price_max: this.priceMax()
+
+    forkJoin({
+      items: this.itemsService.getItems({
+        search: this.searchQuery(),
+        sort: this.sortOrder(),
+        price_min: this.priceMin(),
+        price_max: this.priceMax()
+      }),
+      combos: this.combosService.getCombos({
+        search: this.searchQuery(),
+        sort: this.sortOrder(),
+        price_min: this.priceMin(),
+        price_max: this.priceMax()
+      }),
+      comboItems: this.comboItemsService.getComboItems()
     }).subscribe({
-      next: (items: Item[]) => {
+      next: ({ items, combos, comboItems }) => {
         this.allItems.set(items);
+        this.combos.set(combos);
+        this.comboItems.set(comboItems);
+
         const catMap = new Map<number, Category>();
         for (const item of items) {
           if (!catMap.has(item.category_id)) {
@@ -262,7 +334,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       price_max: this.priceMax()
     }).subscribe({
       next: (combos) => this.combos.set(combos),
-      error: () => {}
+      error: () => { }
     });
   }
 
@@ -270,7 +342,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   loadComboItems(): void {
     this.comboItemsService.getComboItems().subscribe({
       next: (items) => this.allComboItems.set(items),
-      error: () => {}
+      error: () => { }
     });
   }
 
@@ -341,6 +413,37 @@ export class MenuComponent implements OnInit, OnDestroy {
       quantity: this.modalQuantity(),
       note: this.modalNote(),
       image_url: item.image_url || null
+    });
+    this.closeModal();
+  }
+
+  openComboModal(combo: Combo): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    if (!this.tableService.hasTable() && !this.hasOpenOrder()) {
+      this.router.navigate(['/form']);
+      return;
+    }
+    this.selectedCombo.set(combo);
+    this.modalQuantity.set(1);
+    this.modalNote.set('');
+    this.renderer.setStyle(document.documentElement, 'overflow', 'hidden');
+  }
+
+  addComboToCart(): void {
+    const combo = this.selectedCombo();
+    if (!combo) return;
+    this.cartService.addLine({
+      orderable_type: 'Combo',
+      orderable_id: combo.id,
+      name: combo.name,
+      description: combo.description ?? '',
+      unit_price: combo.price,
+      quantity: this.modalQuantity(),
+      note: this.modalNote(),
+      image_url: combo.image_url || null
     });
     this.closeModal();
   }

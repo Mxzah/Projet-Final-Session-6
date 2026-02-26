@@ -482,4 +482,64 @@ if risotto_id
   puts "- Indisponible : Risotto aux Truffes"
 end
 
+# ── Combos et ComboItems supprimés (soft delete) ───────────────────────────
+puts "\nCreating deleted combos for testing..."
+
+# Utiliser des items existants
+carpaccio_item = Item.find_by(name: 'Carpaccio de Bœuf')
+bar_item       = Item.find_by(name: 'Filet de Bar Grillé')
+petoncles_item = Item.find_by(name: 'Pétoncles Poêlés')
+magret_item    = Item.find_by(name: 'Magret de Canard')
+tartare_item   = Item.find_by(name: 'Tartare de Saumon')
+
+if carpaccio_item && bar_item
+  # Combo supprimé
+  deleted_combo = Combo.unscoped.find_or_create_by!(name: 'Menu Ancien') do |c|
+    c.description = 'Ancien menu promotionnel - retiré du catalogue'
+    c.price       = 55.99
+    c.deleted_at  = 3.days.ago
+  end
+  
+  # ComboItems pour le combo supprimé  
+  ComboItem.unscoped.find_or_create_by!(combo: deleted_combo, item: carpaccio_item) do |ci|
+    ci.quantity = 1
+  end
+  
+  ComboItem.unscoped.find_or_create_by!(combo: deleted_combo, item: bar_item) do |ci|
+    ci.quantity = 1
+  end
+  
+  puts "- Combo supprimé 'Menu Ancien' créé"
+end
+
+# ComboItem supprimé dans un combo actif
+surf_turf = Combo.find_by(name: 'Surf & Turf Premium')
+
+if surf_turf && tartare_item
+  deleted_ci = ComboItem.unscoped.find_or_create_by!(combo: surf_turf, item: tartare_item) do |ci|
+    ci.quantity   = 1
+    ci.deleted_at = 2.days.ago
+  end
+  puts "- ComboItem supprimé (Tartare de Saumon dans Surf & Turf Premium) créé"
+end
+
+# Un autre combo supprimé
+if petoncles_item && magret_item
+  deleted_combo2 = Combo.unscoped.find_or_create_by!(name: 'Duo Spécial Printemps') do |c|
+    c.description = 'Offre promotionnelle de printemps - terminée'
+    c.price       = 69.99
+    c.deleted_at  = 1.week.ago
+  end
+  
+  ComboItem.unscoped.find_or_create_by!(combo: deleted_combo2, item: petoncles_item) do |ci|
+    ci.quantity = 1
+  end
+  
+  ComboItem.unscoped.find_or_create_by!(combo: deleted_combo2, item: magret_item) do |ci|
+    ci.quantity = 1
+  end
+  
+  puts "- Combo supprimé 'Duo Spécial Printemps' créé"
+end
+
 puts "\nAll seeds created!"

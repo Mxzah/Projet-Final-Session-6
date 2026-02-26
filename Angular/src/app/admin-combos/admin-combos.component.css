@@ -51,11 +51,69 @@
     color: rgba(27, 26, 23, 0.7);
 }
 
+.show-deleted-toggle {
+    margin-top: 0.75rem;
+}
+
 .btn-add {
     background: var(--copper) !important;
     color: #fff !important;
     width: 36px !important;
     height: 36px !important;
+}
+
+/* ── Price comparison ── */
+.price-comparison {
+    background: var(--sand);
+    border: 1px solid rgba(27, 26, 23, 0.12);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.price-comparison-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0;
+}
+
+.price-comparison-row:not(:last-child) {
+    border-bottom: 1px dashed rgba(27, 26, 23, 0.1);
+}
+
+.price-label {
+    font-size: 0.9rem;
+    color: rgba(27, 26, 23, 0.7);
+}
+
+.price-value {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.price-value.items-total {
+    color: rgba(27, 26, 23, 0.6);
+    text-decoration: line-through;
+}
+
+.price-value.combo-price {
+    color: var(--rust);
+}
+
+.price-comparison-row.savings {
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+}
+
+.price-comparison-row.savings .price-label {
+    font-weight: 600;
+    color: var(--copper);
+}
+
+.price-value.savings-value {
+    color: var(--copper);
+    font-weight: 700;
 }
 
 .combos-list {
@@ -146,6 +204,44 @@
 .combo-card.unavailable .combo-description,
 .combo-card.unavailable .combo-price {
     color: rgba(27, 26, 23, 0.35) !important;
+}
+
+/* ── Deleted card ── */
+.combo-card.deleted,
+.combo-item-card.deleted {
+    background: #fef2f2 !important;
+    border-color: rgba(220, 53, 69, 0.2) !important;
+    opacity: 0.7;
+}
+
+.combo-card.deleted .combo-name,
+.combo-card.deleted .combo-description,
+.combo-card.deleted .combo-price,
+.combo-item-card.deleted .combo-item-name,
+.combo-item-card.deleted .combo-item-quantity {
+    color: rgba(27, 26, 23, 0.4) !important;
+    text-decoration: line-through;
+}
+
+.deleted-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: inline-block;
+    background: #dc3545;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+}
+
+.combo-card,
+.combo-item-card {
+    position: relative;
 }
 
 .unavailable-badge {
@@ -385,4 +481,39 @@
     display: block;
     margin-top: 0.5rem;
     font-size: 0.8rem;
+}
+
+/* ── Unavailable item option ── */
+::ng-deep .unavailable-option {
+    color: rgba(27, 26, 23, 0.4) !important;
+    text-decoration: line-through !important;
+}
+
+::ng-deep .unavailable-option .mdc-list-item__primary-text {
+    color: rgba(27, 26, 23, 0.4) !important;
+    text-decoration: line-through !important;
+}
+
+/* ── Select search input ── */
+.select-search-wrapper {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(27, 26, 23, 0.1);
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+}
+
+.select-search-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(27, 26, 23, 0.2);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.select-search-input:focus {
+    border-color: var(--copper);
 }

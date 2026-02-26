@@ -10,6 +10,7 @@ export interface ComboItem {
     item_name: string | null;
     item_image_url: string | null;
     quantity: number;
+    deleted_at: string | null;
 }
 
 export interface CreateComboItemPayload {
@@ -24,8 +25,10 @@ export interface CreateComboItemPayload {
 export class ComboItemsService {
     constructor(private apiService: ApiService) { }
 
-    getComboItems(): Observable<ComboItem[]> {
-        return this.apiService.get<ComboItem[]>('/api/combo_items').pipe(
+    getComboItems(includeDeleted = false): Observable<ComboItem[]> {
+        const params: Record<string, string> = {};
+        if (includeDeleted) params['include_deleted'] = 'true';
+        return this.apiService.get<ComboItem[]>('/api/combo_items', params).pipe(
             map(response => response.data ?? [])
         );
     }
