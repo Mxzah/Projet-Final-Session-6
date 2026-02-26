@@ -180,7 +180,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         this.isLoading.set(true);
         this.loadError.set('');
 
-        this.combosService.getCombos({ include_deleted: this.showDeleted() }).subscribe({
+        this.combosService.getCombos({ admin: true, include_deleted: this.showDeleted() }).subscribe({
             next: (combos) => {
                 this.combos.set(combos);
                 this.isLoading.set(false);

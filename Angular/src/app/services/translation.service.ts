@@ -197,6 +197,8 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'form.createError': { fr: 'Erreur lors de la création de la commande. Veuillez réessayer.', en: 'Error creating the order. Please try again.' },
   'form.noTable': { fr: 'Aucune table détectée', en: 'No table detected' },
   'form.noTableText': { fr: 'Veuillez scanner le code QR sur votre table pour continuer.', en: 'Please scan the QR code on your table to continue.' },
+  'form.tableUnavailable': { fr: 'Table indisponible', en: 'Table unavailable' },
+  'form.tableUnavailableText': { fr: 'Cette table n\'est pas disponible pour le moment. Veuillez réessayer plus tard ou contacter un serveur.', en: 'This table is not available at the moment. Please try again later or contact a waiter.' },
 
   // Order page
   'order.title': { fr: 'Votre commande', en: 'Your order' },

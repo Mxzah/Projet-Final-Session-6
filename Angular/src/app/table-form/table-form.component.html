@@ -11,8 +11,17 @@
     </div>
   }
 
+  <!-- Table unavailable -->
+  @if (tableUnavailable) {
+    <div class="form-card no-table-card">
+      <mat-icon class="no-table-icon">block</mat-icon>
+      <h2 class="form-title">{{ ts.t('form.tableUnavailable') }}</h2>
+      <p class="form-subtitle">{{ ts.t('form.tableUnavailableText') }}</p>
+    </div>
+  }
+
   <!-- Table found -->
-  @if (table) {
+  @if (table && !tableUnavailable) {
     <div class="form-card">
       <div class="form-header">
         <h2 class="form-title">{{ ts.t('form.title') }} #{{ table.number }}</h2>

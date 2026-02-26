@@ -36,6 +36,9 @@ module RestoqrApi
     # Add lib to autoload paths
     config.autoload_paths << "#{Rails.root}/lib"
 
+    # Serve static files from public/ (needed for Angular build output in api_only mode)
+    config.middleware.use ActionDispatch::Static, "#{config.root}/public"
+
     # Add cookies and session middleware for Devise
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore

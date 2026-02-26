@@ -8,6 +8,7 @@ export interface TableData {
     capacity: number;
     status: string;
     qr_token: string;
+    availabilities?: { id: number; start_at: string; end_at?: string | null }[];
 }
 
 @Injectable({

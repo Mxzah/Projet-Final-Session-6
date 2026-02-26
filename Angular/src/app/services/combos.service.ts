@@ -26,6 +26,7 @@ export interface ComboQueryParams {
     price_min?: number | null;
     price_max?: number | null;
     include_deleted?: boolean;
+    admin?: boolean;
 }
 
 @Injectable({
@@ -41,6 +42,7 @@ export class CombosService {
         if (params?.price_min != null) queryParams['price_min'] = params.price_min.toString();
         if (params?.price_max != null) queryParams['price_max'] = params.price_max.toString();
         if (params?.include_deleted) queryParams['include_deleted'] = 'true';
+        if (params?.admin) queryParams['admin'] = 'true';
 
         return this.apiService.get<Combo[]>('/api/combos', queryParams).pipe(
             map(response => response.data ?? [])
