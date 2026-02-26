@@ -5,7 +5,9 @@
     overflow-y: visible;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
@@ -286,7 +288,7 @@ img {
     scroll-margin-top: 5rem;
 }
 
-.category-section + .category-section {
+.category-section+.category-section {
     margin-top: 2.5rem;
 }
 
@@ -321,6 +323,64 @@ img {
     box-shadow: 0 30px 70px rgba(27, 26, 23, 0.22) !important;
 }
 
+/* Combo card icon */
+.combo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--copper) 0%, var(--rust) 100%);
+    color: #fff;
+}
+
+.combo-icon mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Combo modal icon */
+.combo-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--copper) 0%, var(--rust) 100%);
+    color: #fff;
+    border-radius: 12px;
+    min-height: 180px;
+}
+
+.combo-modal-icon mat-icon {
+    font-size: 5rem;
+    width: 5rem;
+    height: 5rem;
+}
+
+/* Combo items list in modal */
+.combo-items-detail {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    background: rgba(27, 26, 23, 0.04);
+    border-radius: 10px;
+}
+
+.combo-items-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--rust);
+    margin: 0 0 0.5rem;
+}
+
+.combo-items-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--ink);
+}
+
+.combo-items-list li {
+    margin-bottom: 0.25rem;
+}
+
 .card-content-row {
     display: flex !important;
     align-items: stretch;
@@ -330,6 +390,7 @@ img {
 
 .card-info {
     flex: 1;
+    min-width: 0;
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
@@ -343,6 +404,9 @@ img {
     color: var(--ink) !important;
     font-weight: 600 !important;
     padding: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
 }
 
 .card-description {
@@ -564,6 +628,7 @@ img {
         opacity: 0;
         transform: scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -1059,6 +1124,7 @@ img {
 }
 
 @media (max-width: 700px) {
+
     .cart-header,
     .header-divider {
         display: none;

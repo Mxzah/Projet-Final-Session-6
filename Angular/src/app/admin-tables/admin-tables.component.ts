@@ -41,7 +41,7 @@ interface TableInfo {
 })
 export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked {
     @ViewChild('createAvailList') createAvailList?: AvailabilityListComponent;
-    @ViewChild('editAvailList')   editAvailList?: AvailabilityListComponent;
+    @ViewChild('editAvailList') editAvailList?: AvailabilityListComponent;
 
     tables = signal<TableInfo[]>([]);
     isLoading = signal(true);
@@ -136,7 +136,7 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         this.qrCornerDotType();
         this.qrCornerColor();
         this.previewVersion.update(v => v + 1);
-    }, { allowSignalWrites: true });
+    });
 
     ngOnInit(): void {
         this.loadTables();

@@ -1,9 +1,34 @@
 module Api
   class CombosController < AdminController
+    skip_before_action :authenticate_user!, only: [:index]
     skip_before_action :require_admin!, only: [:index]
 
+    # GET /api/combos?search=…&sort=asc|desc&price_min=…&price_max=…
     def index
-      combos = Combo.includes(:availabilities).order(created_at: :desc)
+      combos = Combo.includes(:availabilities)
+
+      # Search
+      if params[:search].present?
+        combos = combos.where("combos.name LIKE ?", "%#{params[:search]}%")
+      end
+
+      # Price filters
+      if params[:price_min].present?
+        combos = combos.where("combos.price >= ?", params[:price_min].to_f)
+      end
+      if params[:price_max].present?
+        combos = combos.where("combos.price <= ?", params[:price_max].to_f)
+      end
+
+      # Sort
+      case params[:sort]
+      when 'asc'
+        combos = combos.order(price: :asc)
+      when 'desc'
+        combos = combos.order(price: :desc)
+      else
+        combos = combos.order(created_at: :desc)
+      end
 
       render json: {
         success: true,
@@ -33,7 +58,7 @@ module Api
     private
 
     def combo_params
-      params.require(:combo).permit(:name, :description, :price)
+      params.require(:combo).permit(:name, :description, :price, :image)
     end
 
     def combo_json(combo)
@@ -42,6 +67,7 @@ module Api
         name: combo.name,
         description: combo.description,
         price: combo.price.to_f,
+        image_url: combo.image.attached? ? url_for(combo.image) : nil,
         created_at: combo.created_at,
         availabilities: combo.availabilities.map { |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }

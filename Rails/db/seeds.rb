@@ -339,6 +339,14 @@ if magret && linguine
     c.price       = 79.99
   end
 
+  unless combo.image.attached?
+    combo.image.attach(
+      io:           File.open(Rails.root.join('db', 'images', 'DuoTerreMer.jpg')),
+      filename:     'DuoTerreMer.jpg',
+      content_type: 'image/jpeg'
+    )
+  end
+
   ComboItem.find_or_create_by!(combo: combo, item: magret) do |ci|
     ci.quantity = 1
   end
@@ -380,6 +388,15 @@ if filet_mignon && petoncles
     c.description = 'Filet mignon AAA et pétoncles poêlés — une alliance terre et mer d\'exception'
     c.price       = 89.99
   end
+
+  unless surf_turf.image.attached?
+    surf_turf.image.attach(
+      io:           File.open(Rails.root.join('db', 'images', 'SurfTurfPremium.jpg')),
+      filename:     'SurfTurfPremium.jpg',
+      content_type: 'image/jpeg'
+    )
+  end
+
   ComboItem.find_or_create_by!(combo: surf_turf, item: filet_mignon) { |ci| ci.quantity = 1 }
   ComboItem.find_or_create_by!(combo: surf_turf, item: petoncles)    { |ci| ci.quantity = 1 }
   unless Availability.exists?(available_type: 'Combo', available_id: surf_turf.id)
@@ -396,6 +413,15 @@ if tartare && bar_grille
     c.description = 'Tartare de saumon en entrée suivi d\'un filet de bar grillé — le meilleur de la mer'
     c.price       = 64.99
   end
+
+  unless menu_mer.image.attached?
+    menu_mer.image.attach(
+      io:           File.open(Rails.root.join('db', 'images', 'MenuFruitsDeMer.jpg')),
+      filename:     'MenuFruitsDeMer.jpg',
+      content_type: 'image/jpeg'
+    )
+  end
+
   ComboItem.find_or_create_by!(combo: menu_mer, item: tartare)   { |ci| ci.quantity = 1 }
   ComboItem.find_or_create_by!(combo: menu_mer, item: bar_grille) { |ci| ci.quantity = 1 }
   unless Availability.exists?(available_type: 'Combo', available_id: menu_mer.id)
@@ -412,6 +438,15 @@ if carpaccio && risotto
     c.description = 'Carpaccio de bœuf et risotto aux truffes — l\'élégance italienne dans votre assiette'
     c.price       = 54.99
   end
+
+  unless menu_prestige.image.attached?
+    menu_prestige.image.attach(
+      io:           File.open(Rails.root.join('db', 'images', 'MenuPrestige.jpg')),
+      filename:     'MenuPrestige.jpg',
+      content_type: 'image/jpeg'
+    )
+  end
+
   ComboItem.find_or_create_by!(combo: menu_prestige, item: carpaccio) { |ci| ci.quantity = 1 }
   ComboItem.find_or_create_by!(combo: menu_prestige, item: risotto)   { |ci| ci.quantity = 1 }
   unless Availability.exists?(available_type: 'Combo', available_id: menu_prestige.id)

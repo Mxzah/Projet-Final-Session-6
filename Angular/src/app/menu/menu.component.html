@@ -6,7 +6,7 @@
   <span class="header-divider">|</span>
   <div class="cart-display cart-header" (click)="toggleCart()">
     <div class="cart-icon-wrap">
-      <mat-icon [matBadge]="cartService.totalItems()" matBadgeSize="small" matBadgeColor="warn">shopping_cart</mat-icon>
+      <mat-icon aria-hidden="false" [matBadge]="cartService.totalItems()" matBadgeSize="small" matBadgeColor="warn">shopping_cart</mat-icon>
     </div>
     <div class="cart-text">
       <span class="cart-label">{{ ts.t('menu.subtotal') }}</span>
@@ -96,12 +96,13 @@
           </mat-form-field>
         </div>
 
-        @if (allItems().length === 0) {
+        @if (allItems().length === 0 && combos().length === 0) {
           <div class="no-results">
             <mat-icon class="no-results-icon">search_off</mat-icon>
             <p class="no-results-text">{{ ts.t('menu.noResults') }}</p>
           </div>
         } @else {
+          <!-- Items by category -->
           @for (group of itemsByCategory(); track group.id) {
             @if (group.items.length > 0) {
             <div class="category-section" [id]="'category-' + group.id">
@@ -132,6 +133,41 @@
               </div>
             </div>
             }
+          }
+
+          <!-- Combos section -->
+          @if (combos().length > 0) {
+            <div class="category-section" [id]="'category-' + COMBOS_CATEGORY_ID">
+              <h1 class="category-heading">{{ ts.t('menu.combosCategory') }}</h1>
+
+              <div class="items-grid">
+                @for (combo of combos(); track combo.id) {
+                  <mat-card class="menu-card combo-card" (click)="openComboModal(combo)">
+                    <mat-card-content class="card-content-row">
+                      <div class="card-info">
+                        <mat-card-title class="card-name">{{ combo.name }}</mat-card-title>
+                        <mat-card-subtitle class="card-description">{{ combo.description || '—' }}</mat-card-subtitle>
+                        <span class="card-price">CA${{ combo.price.toFixed(2) }}</span>
+                      </div>
+                      <div class="card-right">
+                        @if (combo.image_url) {
+                          <div class="card-image">
+                            <img [src]="combo.image_url" [alt]="combo.name" loading="lazy" />
+                          </div>
+                        } @else {
+                          <div class="card-image combo-icon">
+                            <mat-icon>restaurant_menu</mat-icon>
+                          </div>
+                        }
+                        <button mat-mini-fab class="add-btn" [attr.aria-label]="'Ajouter ' + combo.name">
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            </div>
           }
         }
       </section>
@@ -235,6 +271,81 @@
         </div>
         <button mat-flat-button class="modal-add-btn" (click)="addToCart()">
           {{ ts.t('menu.addToCart') }} — CA${{ modalTotal().toFixed(2) }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+}
+
+<!-- Modal: Add combo -->
+@if (selectedCombo()) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)">
+    <mat-card class="modal">
+      <button mat-icon-button class="modal-close" (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <mat-card-content class="modal-body">
+        @if (selectedCombo()!.image_url) {
+          <div class="modal-image">
+            <img [src]="selectedCombo()!.image_url" [alt]="selectedCombo()!.name" />
+          </div>
+        } @else {
+          <div class="modal-image combo-modal-icon">
+            <mat-icon>restaurant_menu</mat-icon>
+          </div>
+        }
+
+        <mat-card-header class="modal-details">
+          <mat-card-title class="modal-name">{{ selectedCombo()!.name }}</mat-card-title>
+          <mat-card-subtitle class="modal-description">{{ selectedCombo()!.description || '—' }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <!-- Combo items list -->
+        @if (selectedComboItems().length > 0) {
+          <div class="combo-items-detail">
+            <h4 class="combo-items-title">{{ ts.t('menu.comboIncludes') }}</h4>
+            <ul class="combo-items-list">
+              @for (ci of selectedComboItems(); track ci.id) {
+                <li>{{ ci.quantity }}x {{ ci.item_name }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div class="modal-price-box">
+          <span class="modal-price-label">{{ ts.t('menu.fromPrice') }}</span>
+          <span class="modal-price">CA${{ selectedCombo()!.price.toFixed(2) }}</span>
+        </div>
+
+        <div class="modal-note-section">
+          <mat-form-field appearance="outline" class="modal-note-field">
+            <mat-label>{{ ts.t('menu.specialInstructions') }}</mat-label>
+            <textarea
+              matInput
+              [placeholder]="ts.t('menu.specialPlaceholder')"
+              maxlength="255"
+              [value]="modalNote()"
+              (input)="onNoteInput($event)"
+              rows="3"
+            ></textarea>
+            <mat-hint align="end">{{ modalNote().length }}/255</mat-hint>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="modal-footer">
+        <div class="modal-quantity">
+          <button mat-icon-button class="qty-btn" (click)="decrementQuantity()" [disabled]="modalQuantity() <= 1">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <span class="qty-value">{{ modalQuantity() }}</span>
+          <button mat-icon-button class="qty-btn" (click)="incrementQuantity()" [disabled]="modalQuantity() >= 50">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <button mat-flat-button class="modal-add-btn" (click)="addComboToCart()">
+          {{ ts.t('menu.addToCart') }} — CA${{ comboModalTotal().toFixed(2) }}
         </button>
       </mat-card-actions>
     </mat-card>

@@ -60,7 +60,7 @@ export class LoginComponent {
         }
 
         if (this.authService.isAdmin()) {
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/admin', 'tables']);
           return;
         }
 

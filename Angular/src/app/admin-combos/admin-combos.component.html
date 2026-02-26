@@ -1,52 +1,117 @@
 <main class="page-admin">
   <div class="outer-container">
-    <div class="welcome-header">
-      <h2 class="welcome-title">
-        {{ ts.t('admin.combos.title') }}
-        <button mat-mini-fab class="btn-add" [title]="ts.t('admin.combos.add')" (click)="openCreate()">
-          <mat-icon>add</mat-icon>
-        </button>
-      </h2>
-      <p class="welcome-text">{{ ts.t('admin.combos.subtitle') }}</p>
-    </div>
-
-    @if (loadError()) {
-      <div class="admin-error">{{ loadError() }}</div>
-    }
-
-    @if (actionError()) {
-      <div class="admin-error">{{ actionError() }}</div>
-    }
-
-    @if (isLoading()) {
-      <div class="loading">
-        <mat-spinner diameter="48"></mat-spinner>
+    <!-- List View -->
+    @if (!selectedCombo()) {
+      <div class="welcome-header">
+        <h2 class="welcome-title">
+          {{ ts.t('admin.combos.title') }}
+          <button mat-mini-fab class="btn-add" [title]="ts.t('admin.combos.add')" (click)="openCreate()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </h2>
+        <p class="welcome-text">{{ ts.t('admin.combos.subtitle') }}</p>
       </div>
-    }
 
-    @if (!isLoading() && combos().length === 0) {
-      <div class="empty">{{ ts.t('admin.combos.empty') }}</div>
-    }
+      @if (loadError()) {
+        <div class="admin-error">{{ loadError() }}</div>
+      }
 
-    @if (!isLoading() && combos().length > 0) {
-      <div class="combos-list">
-        @for (combo of combos(); track trackByComboId($index, combo)) {
-          <mat-card class="combo-card" [class.unavailable]="unavailableIds().has(combo.id)">
-            <mat-card-content class="combo-body">
-              <div class="combo-main">
-                <div class="combo-name">
-                  {{ combo.name }}
-                  @if (unavailableIds().has(combo.id)) {
-                    <span class="unavailable-badge">{{ ts.t('admin.unavailable') }}</span>
-                  }
+      @if (actionError() && !isCreating()) {
+        <div class="admin-error">{{ actionError() }}</div>
+      }
+
+      @if (isLoading()) {
+        <div class="loading">
+          <mat-spinner diameter="48"></mat-spinner>
+        </div>
+      }
+
+      @if (!isLoading() && combos().length === 0) {
+        <div class="empty">{{ ts.t('admin.combos.empty') }}</div>
+      }
+
+      @if (!isLoading() && combos().length > 0) {
+        <div class="combos-list">
+          @for (combo of combos(); track trackByComboId($index, combo)) {
+            <mat-card class="combo-card clickable" [class.unavailable]="unavailableIds().has(combo.id)" (click)="selectCombo(combo)">
+              <mat-card-content class="combo-body">
+                @if (combo.image_url) {
+                  <img [src]="combo.image_url" alt="" class="combo-image" />
+                } @else {
+                  <div class="combo-image-placeholder">
+                    <mat-icon>restaurant</mat-icon>
+                  </div>
+                }
+                <div class="combo-main">
+                  <div class="combo-name">
+                    {{ combo.name }}
+                    @if (unavailableIds().has(combo.id)) {
+                      <span class="unavailable-badge">{{ ts.t('admin.unavailable') }}</span>
+                    }
+                  </div>
+                  <div class="combo-description">{{ combo.description || '—' }}</div>
                 </div>
-                <div class="combo-description">{{ combo.description || '—' }}</div>
-              </div>
-              <div class="combo-price">{{ combo.price | number:'1.2-2' }} $</div>
-            </mat-card-content>
-          </mat-card>
-        }
+                <div class="combo-price">{{ combo.price | number:'1.2-2' }} $</div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    }
+
+    <!-- Detail View (Combo Items) -->
+    @if (selectedCombo()) {
+      <div class="welcome-header">
+        <h2 class="welcome-title">
+          <button mat-icon-button class="btn-back" (click)="backToList()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="title-text">{{ selectedCombo()?.name }}</span>
+          <button mat-mini-fab class="btn-add" [title]="ts.t('admin.comboItems.add')" (click)="openAddItem()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </h2>
+        <p class="welcome-text">{{ ts.t('admin.comboItems.detailSubtitle') }}</p>
       </div>
+
+      @if (actionError() && !isAddingItem()) {
+        <div class="admin-error">{{ actionError() }}</div>
+      }
+
+      @if (isLoadingItems()) {
+        <div class="loading">
+          <mat-spinner diameter="48"></mat-spinner>
+        </div>
+      }
+
+      @if (!isLoadingItems() && selectedComboItems().length === 0) {
+        <div class="empty">{{ ts.t('admin.comboItems.empty') }}</div>
+      }
+
+      @if (!isLoadingItems() && selectedComboItems().length > 0) {
+        <div class="combo-items-list">
+          @for (ci of selectedComboItems(); track trackByComboItemId($index, ci)) {
+            <mat-card class="combo-item-card">
+              <mat-card-content class="combo-item-body">
+                @if (ci.item_image_url) {
+                  <img [src]="ci.item_image_url" alt="" class="combo-item-image" />
+                } @else {
+                  <div class="combo-item-image-placeholder">
+                    <mat-icon>fastfood</mat-icon>
+                  </div>
+                }
+                <div class="combo-item-main">
+                  <div class="combo-item-name">{{ ci.item_name }}</div>
+                  <div class="combo-item-quantity">{{ ts.t('admin.comboItems.qty') }}: {{ ci.quantity }}</div>
+                </div>
+                <button mat-icon-button color="warn" (click)="deleteComboItem(ci)" [title]="ts.t('admin.delete')">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
     }
   </div>
 </main>
@@ -63,10 +128,14 @@
       </mat-card-header>
 
       <mat-card-content>
+        @if (actionError()) {
+          <div class="modal-error">{{ actionError() }}</div>
+        }
+
         <form [formGroup]="createForm" (ngSubmit)="saveCreate()">
           <mat-form-field appearance="outline" class="modal-field-full">
             <mat-label>{{ ts.t('admin.name') }}</mat-label>
-            <input matInput formControlName="name" />
+            <input matInput formControlName="name" maxlength="100" />
             @if (createForm.controls.name.dirty && createForm.controls.name.errors) {
               <mat-error>
                 @if (createForm.controls.name.errors['required']) {
@@ -82,7 +151,7 @@
 
           <mat-form-field appearance="outline" class="modal-field-full">
             <mat-label>{{ ts.t('admin.description') }}</mat-label>
-            <textarea matInput rows="3" formControlName="description"></textarea>
+            <textarea matInput rows="3" formControlName="description" maxlength="255"></textarea>
             @if (createForm.controls.description.dirty && createForm.controls.description.errors?.['maxlength']) {
               <mat-error>{{ ts.t('admin.combos.descMaxLength') }}</mat-error>
             }
@@ -90,17 +159,36 @@
 
           <mat-form-field appearance="outline" class="modal-field-full">
             <mat-label>{{ ts.t('admin.price') }}</mat-label>
-            <input matInput type="number" step="0.01" min="0.01" formControlName="price" />
+            <input matInput type="number" step="0.01" min="0" max="9999.99" formControlName="price" (input)="clampPrice($event)" />
             @if (createForm.controls.price.dirty && createForm.controls.price.errors) {
               <mat-error>
                 @if (createForm.controls.price.errors['required']) {
                   {{ ts.t('admin.priceRequired') }}
                 } @else if (createForm.controls.price.errors['min']) {
                   {{ ts.t('admin.combos.priceMin') }}
+                } @else if (createForm.controls.price.errors['max']) {
+                  {{ ts.t('admin.combos.priceMax') }}
                 }
               </mat-error>
             }
           </mat-form-field>
+
+          <div class="image-field">
+            <label class="image-label">{{ ts.t('admin.image') }}</label>
+            @if (createImagePreview()) {
+              <div class="image-preview">
+                <img [src]="createImagePreview()" alt="Aperçu" />
+              </div>
+            }
+            <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" class="file-input-hidden" />
+            <button type="button" class="file-btn" (click)="fileInput.click()">
+              <mat-icon>upload</mat-icon>
+              {{ ts.t('admin.chooseFile') }}
+            </button>
+            @if (createImageError()) {
+              <mat-error class="image-error">{{ createImageError() }}</mat-error>
+            }
+          </div>
 
           <app-availability-list
             #createAvailList
@@ -111,8 +199,65 @@
 
           <mat-card-actions class="modal-actions">
             <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelCreate()">{{ ts.t('admin.cancel') }}</button>
-            <button mat-flat-button type="submit" class="btn-primary" [disabled]="createForm.invalid || isSaving()">
+            <button mat-flat-button type="submit" class="btn-primary" [disabled]="isSaving()">
               {{ isSaving() ? ts.t('admin.combos.creating') : ts.t('tables.create') }}
+            </button>
+          </mat-card-actions>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}
+
+@if (isAddingItem()) {
+  <div class="modal-overlay">
+    <mat-card class="modal modal-add-item">
+      <button mat-icon-button class="modal-close" (click)="cancelAddItem()">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <mat-card-header>
+        <mat-card-title class="modal-title">{{ ts.t('admin.comboItems.addTitle') }}</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (actionError()) {
+          <div class="modal-error">{{ actionError() }}</div>
+        }
+
+        <form [formGroup]="addItemForm" (ngSubmit)="saveAddItem()">
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('admin.comboItems.item') }}</mat-label>
+            <mat-select formControlName="item_id">
+              @for (item of items(); track item.id) {
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+              }
+            </mat-select>
+            @if ((addItemForm.controls.item_id.dirty || addItemForm.controls.item_id.touched) && addItemForm.controls.item_id.errors?.['required']) {
+              <mat-error>{{ ts.t('admin.comboItems.itemRequired') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="modal-field-full">
+            <mat-label>{{ ts.t('admin.comboItems.quantity') }}</mat-label>
+            <input matInput type="number" min="1" max="10" formControlName="quantity" (input)="clampQuantity($event)" />
+            @if ((addItemForm.controls.quantity.dirty || addItemForm.controls.quantity.touched) && addItemForm.controls.quantity.errors) {
+              <mat-error>
+                @if (addItemForm.controls.quantity.errors['required']) {
+                  {{ ts.t('admin.comboItems.quantityRequired') }}
+                } @else if (addItemForm.controls.quantity.errors['min']) {
+                  {{ ts.t('admin.comboItems.quantityMin') }}
+                } @else if (addItemForm.controls.quantity.errors['max']) {
+                  {{ ts.t('admin.comboItems.quantityMax') }}
+                }
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-card-actions class="modal-actions">
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelAddItem()">{{ ts.t('admin.cancel') }}</button>
+            <button mat-flat-button type="submit" class="btn-primary" [disabled]="isSavingItem()">
+              {{ isSavingItem() ? ts.t('admin.comboItems.adding') : ts.t('admin.comboItems.add') }}
             </button>
           </mat-card-actions>
         </form>

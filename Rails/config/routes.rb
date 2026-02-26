@@ -33,7 +33,7 @@ Rails.application.routes.draw do
       resources :availabilities, only: [:index, :create, :update, :destroy],
                 controller: 'combo_availabilities'
     end
-    resources :combo_items, only: [:index, :create]
+    resources :combo_items, only: [:index, :create, :destroy]
     resources :users, only: [:index, :show, :create, :update, :destroy]
 
     resources :orders, only: [:index, :show, :create, :update, :destroy] do

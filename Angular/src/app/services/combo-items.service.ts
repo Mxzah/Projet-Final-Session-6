@@ -8,6 +8,7 @@ export interface ComboItem {
     combo_name: string | null;
     item_id: number;
     item_name: string | null;
+    item_image_url: string | null;
     quantity: number;
 }
 
@@ -32,6 +33,12 @@ export class ComboItemsService {
     createComboItem(payload: CreateComboItemPayload): Observable<ComboItem> {
         return this.apiService.post<ComboItem>('/api/combo_items', { combo_item: payload }).pipe(
             map(response => response.data!)
+        );
+    }
+
+    deleteComboItem(id: number): Observable<void> {
+        return this.apiService.delete<void>(`/api/combo_items/${id}`).pipe(
+            map(() => void 0)
         );
     }
 }

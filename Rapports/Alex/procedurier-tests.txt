@@ -188,3 +188,177 @@ MODULE 7 — Traduction (admin-tables)
      - L'interface reste en anglais
 
 ================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+                  Page : Administration des combos (admin-combos)
+================================================================================
+
+================================================================================
+MODULE 8 — Accès à la page admin-combos
+================================================================================
+
+8.1  Accès sans être connecté
+     - Ouvrir directement l'URL /admin/combos sans être connecté
+     - Redirection automatique vers /login
+
+8.2  Accès avec un compte client
+     Avec client@restoqr.ca : password123
+     - Se connecter puis accéder à /admin/combos
+     - Redirection automatique vers /menu
+
+8.3  Accès avec un compte admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter puis accéder à /admin/combos
+     - La page d'administration des combos s'affiche correctement
+
+================================================================================
+MODULE 9 — Affichage de la liste des combos
+================================================================================
+
+9.1  Chargement initial
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/combos
+     - Un spinner de chargement s'affiche pendant le chargement
+     - Une fois chargé, les combos s'affichent en liste
+
+9.2  Affichage des cartes
+     - Chaque carte affiche : nom, description, prix, image
+     - L'image du combo ou une icône par défaut si pas d'image
+     - Boutons « modifier » et « supprimer »
+
+9.3  État vide
+     - Si aucun combo n'existe, le message « Aucun combo pour le moment » s'affiche
+
+================================================================================
+MODULE 10 — Création d'un combo
+================================================================================
+
+10.1  Ouverture de la modal de création
+     Avec admin@restoqr.ca : password123
+     - Clic sur le bouton « + » : La modal s'ouvre
+     - Le titre de la modal est « Créer un combo »
+     - Les champs sont vides (nom, description, prix)
+     - Bouton « Annuler » et « Créer »
+
+10.2  Validation — Nom requis
+     - Laisser le champ « Nom » vide et cliquer sur « Créer »
+     - Message d'erreur : « Le nom est requis »
+
+10.3  Validation — Nom trop long
+     - Entrer un nom > 100 caractères
+     - Message d'erreur : « Maximum 100 caractères »
+
+10.4  Validation — Nom composé uniquement d'espaces
+     - Entrer des espaces seulement dans le nom
+     - Message d'erreur : « Le nom ne peut pas être vide »
+
+10.5  Validation — Description trop longue
+     - Entrer une description > 255 caractères
+     - Message d'erreur : « Maximum 255 caractères »
+
+10.6  Validation — Prix requis
+     - Laisser le champ « Prix » vide et cliquer sur « Créer »
+     - Message d'erreur : « Le prix est requis »
+
+10.7  Validation — Prix trop petit
+     - Entrer un prix <= 0
+     - Message d'erreur : « Le prix doit être supérieur à 0 »
+
+10.8  Validation — Prix trop grand
+     - Entrer un prix > 9999.99
+     - Message d'erreur : « Le prix ne peut pas dépasser 9999.99 $ »
+
+10.9  Validation — Image trop grande
+     - Sélectionner une image > 5 Mo
+     - Message d'erreur : « L'image doit être inférieure à 5 MB »
+
+10.10 Création réussie
+     - Remplir tous les champs avec des valeurs valides
+     - Clic sur « Créer »
+     - La modal se ferme
+     - Le nouveau combo apparaît dans la liste
+
+10.11 Annulation
+     - Remplir des champs puis cliquer sur « Annuler »
+     - La modal se ferme, aucun combo n'est créé
+
+================================================================================
+MODULE 11 — Gestion des articles d'un combo (combo items)
+================================================================================
+
+11.1  Sélection d'un combo
+     Avec admin@restoqr.ca : password123
+     - Cliquer sur un combo dans la liste
+     - Le panneau de détail s'affiche à droite
+     - Le titre indique le nom du combo sélectionné
+     - La liste des articles du combo s'affiche (ou message vide)
+
+11.2  Ajout d'un article au combo
+     - Cliquer sur le bouton « Ajouter un article »
+     - La modal de sélection d'article s'ouvre
+     - Sélectionner un article dans la liste déroulante
+     - Définir la quantité (1-10)
+     - Cliquer sur « Ajouter »
+     - L'article apparaît dans la liste des articles du combo
+
+11.3  Validation — Article requis
+     - Ne pas sélectionner d'article et cliquer sur « Ajouter »
+     - Message d'erreur : « L'article est requis »
+
+11.4  Validation — Quantité trop petite
+     - Entrer une quantité < 1
+     - Message d'erreur : « La quantité doit être >= 1 »
+
+11.5  Validation — Quantité trop grande
+     - Entrer une quantité > 10
+     - Message d'erreur : « La quantité doit être <= 10 »
+
+11.6  Validation — Article en doublon
+     - Ajouter un article déjà présent dans le combo
+     - Message d'erreur : « Cet article existe déjà dans ce combo »
+
+11.7  Suppression d'un article
+     - Cliquer sur l'icône de suppression d'un article
+     - L'article disparaît de la liste
+
+================================================================================
+MODULE 12 — Combos dans le menu client
+================================================================================
+
+12.1  Affichage des combos
+     - Accéder au menu sans être connecté
+     - Les combos s'affichent dans la catégorie « Combos »
+     - Chaque combo affiche : nom, description, prix, image
+
+12.2  Recherche de combos
+     - Taper un terme de recherche dans le champ de recherche
+     - Les combos sont filtrés par nom (comme les items)
+
+12.3  Tri par prix
+     - Sélectionner « Prix croissant » ou « Prix décroissant »
+     - Les combos sont triés par prix
+
+12.4  Filtrage par prix
+     - Utiliser les filtres prix min/max
+     - Les combos sont filtrés par prix
+
+12.5  Modal de détail du combo
+     - Cliquer sur un combo
+     - La modal de détail s'ouvre
+     - Les articles inclus dans le combo s'affichent
+
+================================================================================
+MODULE 13 — Traduction (admin-combos)
+================================================================================
+
+13.1 Traduction en anglais
+     Avec admin@restoqr.ca : password123
+     - Changer la langue à « English » via le header
+     - Les labels passent en anglais (Name, Description, Price)
+     - Les messages de validation passent en anglais
+     - « Cet article existe déjà dans ce combo » → « This item already exists in this combo »
+
+13.2 Traduction en français
+     - Changer la langue à « Français » via le header
+     - Tous les textes reviennent en français
+
+================================================================================

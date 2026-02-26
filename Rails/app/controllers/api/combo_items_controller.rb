@@ -32,6 +32,23 @@ module Api
       end
     end
 
+    def destroy
+      combo_item = ComboItem.find(params[:id])
+      combo_item.destroy
+
+      render json: {
+        success: true,
+        data: nil,
+        errors: []
+      }, status: :ok
+    rescue ActiveRecord::RecordNotFound
+      render json: {
+        success: false,
+        data: nil,
+        errors: [I18n.t('controllers.combo_items.not_found')]
+      }, status: :not_found
+    end
+
     private
 
     def combo_item_params
@@ -39,12 +56,14 @@ module Api
     end
 
     def combo_item_json(combo_item)
+      item = combo_item.item
       {
         id: combo_item.id,
         combo_id: combo_item.combo_id,
         combo_name: combo_item.combo&.name,
         item_id: combo_item.item_id,
-        item_name: combo_item.item&.name,
+        item_name: item&.name,
+        item_image_url: item&.image&.attached? ? url_for(item.image) : nil,
         quantity: combo_item.quantity
       }
     end

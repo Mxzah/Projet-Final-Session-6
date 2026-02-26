@@ -33,7 +33,7 @@ export class HeaderComponent {
     public ts: TranslationService,
     public authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update(v => !v);
@@ -44,6 +44,6 @@ export class HeaderComponent {
   }
 
   goToAdmin(): void {
-    this.router.navigate(['/admin']);
+    this.router.navigate(['/admin', 'tables']);
   }
 }

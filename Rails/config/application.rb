@@ -28,6 +28,11 @@ module RestoqrApi
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # Configuration de la locale française
+    config.i18n.default_locale = :fr
+    config.i18n.available_locales = [:fr, :en]
+    config.i18n.fallbacks = [:en]
+
     # Add lib to autoload paths
     config.autoload_paths << "#{Rails.root}/lib"
 
