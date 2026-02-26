@@ -50,7 +50,7 @@ export class ItemFormDialogComponent {
 
   form = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)]),
-    description: new FormControl('', [Validators.maxLength(255), Validators.pattern(/.*\S.*/)]),
+    description: new FormControl('', [Validators.maxLength(255)]),
     price: new FormControl<number>(0, [Validators.required, Validators.min(0), Validators.max(9999.99)]),
     category_id: new FormControl<number>(0, [Validators.required])
   });

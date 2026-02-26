@@ -20,6 +20,18 @@ function startNotInPastValidator(control: AbstractControl): { [key: string]: boo
   return new Date(control.value) < now ? { startInPast: true } : null;
 }
 
+function makeStartValidator(originalValue: string) {
+  return (control: AbstractControl): { [key: string]: boolean } | null => {
+    if (!control.value) return null;
+    if (!isValidDate(control.value)) return { invalidDate: true };
+    // Allow the original value unchanged (even if in the past)
+    if (control.value === originalValue) return null;
+    const now = new Date();
+    now.setSeconds(0, 0);
+    return new Date(control.value) < now ? { startInPast: true } : null;
+  };
+}
+
 function makeEndValidator(getGroup: () => FormGroup | null) {
   return (control: AbstractControl): { [key: string]: boolean } | null => {
     if (!control.value) return null;
@@ -110,9 +122,9 @@ export class AvailabilityListComponent implements OnChanges {
   private buildRow(a?: AvailabilityEntry): FormGroup {
     const group: FormGroup = new FormGroup({
       id: new FormControl<number | undefined>(a?.id),
-      start_at: new FormControl(a ? this.toDatetimeLocal(a.start_at) : '', [Validators.required, startNotInPastValidator]),
+      start_at: new FormControl(a ? this.toDatetimeLocal(a.start_at) : '', a?.id ? [Validators.required, makeStartValidator(this.toDatetimeLocal(a.start_at))] : [Validators.required, startNotInPastValidator]),
       end_at: new FormControl(a?.end_at ? this.toDatetimeLocal(a.end_at) : ''),
-      description: new FormControl(a?.description ?? '', [Validators.maxLength(255), Validators.pattern(/.*\S.*/)])
+      description: new FormControl(a?.description ?? '', [Validators.maxLength(255)])
     });
     group.get('end_at')!.addValidators(makeEndValidator(() => group));
     return group;
