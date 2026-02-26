@@ -148,6 +148,7 @@
                         <mat-card-title class="card-name">{{ combo.name }}</mat-card-title>
                         <mat-card-subtitle class="card-description">{{ combo.description || '—' }}</mat-card-subtitle>
                         <span class="card-price">CA${{ combo.price.toFixed(2) }}</span>
+                        <span class="combo-normal-price" style="color: #bdbdbd; text-decoration: line-through;">CA${{ comboNormalTotalFor(combo).toFixed(2) }}</span>
                       </div>
                       <div class="card-right">
                         @if (combo.image_url) {
@@ -316,6 +317,8 @@
         <div class="modal-price-box">
           <span class="modal-price-label">{{ ts.t('menu.fromPrice') }}</span>
           <span class="modal-price">CA${{ selectedCombo()!.price.toFixed(2) }}</span>
+          <span class="modal-normal-price-label">{{ ts.t('menu.normalTotal') }}</span>
+          <span class="modal-normal-price">CA${{ comboNormalTotal().toFixed(2) }}</span>
         </div>
 
         <div class="modal-note-section">
