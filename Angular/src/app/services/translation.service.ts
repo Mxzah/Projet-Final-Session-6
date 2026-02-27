@@ -425,6 +425,9 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'reviews.reviewServer': { fr: 'Évaluer le serveur', en: 'Review server' },
   'reviews.noOrders': { fr: 'Aucune commande passée à évaluer.', en: 'No past orders to review.' },
   'reviews.stars': { fr: 'étoiles', en: 'stars' },
+  'reviews.photos': { fr: 'Photos', en: 'Photos' },
+  'reviews.photosFormatError': { fr: 'Seuls les fichiers JPG et PNG sont acceptés.', en: 'Only JPG and PNG files are accepted.' },
+  'reviews.photosSizeError': { fr: 'Chaque photo doit faire moins de 5 Mo.', en: 'Each photo must be under 5 MB.' },
 
   // Admin reviews
   'admin.reviews.tab': { fr: 'Avis', en: 'Reviews' },

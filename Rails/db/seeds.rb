@@ -606,16 +606,12 @@ menu_mer_combo  = Combo.find_by(name: 'Menu Fruits de Mer')
 
 if client_test && alice && bob && marie && jean && tartare_item && filet_item
 
-  # Helper: create a closed order bypassing the "one open order" validation
-  # (these are historical orders, already ended)
-  seed_closed_order = ->(attrs) {
-    existing = Order.unscoped.find_by(
-      client_id: attrs[:client_id],
-      table_id:  attrs[:table]&.id,
-      ended_at:  attrs[:ended_at]
-    )
-    next existing if existing
+  # Clean up previously seeded closed orders to avoid duplicates on re-seed
+  seeded_client_ids = [client_test.id, alice.id, bob.id]
+  Order.unscoped.where(client_id: seeded_client_ids).where.not(ended_at: nil).destroy_all
 
+  # Helper: create a closed order bypassing the "one open order" validation
+  seed_closed_order = ->(attrs) {
     order = Order.new(attrs.except(:created_at))
     order.save(validate: false)
     order.update_columns(created_at: attrs[:created_at], ended_at: attrs[:ended_at])

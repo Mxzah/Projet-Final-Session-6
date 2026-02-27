@@ -18,6 +18,7 @@ export interface ReviewFormDialogData {
 export interface ReviewFormDialogResult {
   rating: number;
   comment: string;
+  images?: File[];
 }
 
 @Component({
@@ -57,6 +58,27 @@ export interface ReviewFormDialogResult {
           <mat-error>{{ commentError() }}</mat-error>
         }
       </mat-form-field>
+
+      <div class="photo-section">
+        <label class="photo-label">{{ ts.t('reviews.photos') }}</label>
+        <div class="photo-previews">
+          @for (preview of imagePreviews(); track preview) {
+            <div class="photo-thumb">
+              <img [src]="preview" alt="preview" />
+              <button type="button" class="remove-photo" (click)="removeImage($index)">×</button>
+            </div>
+          }
+          @if (selectedImages().length < 3) {
+            <button type="button" class="add-photo-btn" (click)="fileInput.click()">
+              <mat-icon>add_a_photo</mat-icon>
+            </button>
+          }
+        </div>
+        <input #fileInput type="file" accept="image/jpeg,image/png" multiple hidden (change)="onFilesSelected($event)" />
+        @if (imageError()) {
+          <span class="photo-error">{{ imageError() }}</span>
+        }
+      </div>
 
       <div class="dialog-actions">
         <button mat-stroked-button
@@ -120,6 +142,15 @@ export interface ReviewFormDialogResult {
     .comment-field {
       width: 100%;
     }
+    .photo-section { margin-bottom: 0.75rem; }
+    .photo-label { font-size: 0.85rem; color: rgba(27,26,23,0.6); display: block; margin-bottom: 0.35rem; }
+    .photo-previews { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .photo-thumb { position: relative; width: 72px; height: 72px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(27,26,23,0.12); }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .remove-photo { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,0.55); color: #fff; font-size: 14px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .add-photo-btn { width: 72px; height: 72px; border-radius: 8px; border: 2px dashed rgba(27,26,23,0.2); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(27,26,23,0.35); transition: border-color 0.15s, color 0.15s; }
+    .add-photo-btn:hover { border-color: #C86D3F; color: #C86D3F; }
+    .photo-error { font-size: 0.75rem; color: #d32f2f; display: block; margin-top: 0.25rem; }
     .dialog-actions {
       display: flex;
       justify-content: flex-end;
@@ -132,6 +163,9 @@ export class ReviewFormDialogComponent {
   rating = signal(0);
   comment = '';
   commentError = signal('');
+  selectedImages = signal<File[]>([]);
+  imagePreviews = signal<string[]>([]);
+  imageError = signal('');
 
   constructor(
     public dialogRef: MatDialogRef<ReviewFormDialogComponent>,
@@ -140,6 +174,48 @@ export class ReviewFormDialogComponent {
   ) {
     this.rating.set(data.rating || 0);
     this.comment = data.comment || '';
+  }
+
+  onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+    const newFiles = Array.from(input.files);
+    const current = this.selectedImages();
+    const toAdd = newFiles.slice(0, 3 - current.length);
+    for (const file of toAdd) {
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        this.imageError.set(this.ts.t('reviews.photosFormatError'));
+        input.value = '';
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        this.imageError.set(this.ts.t('reviews.photosSizeError'));
+        input.value = '';
+        return;
+      }
+    }
+    this.imageError.set('');
+    const updatedFiles = [...current, ...toAdd];
+    this.selectedImages.set(updatedFiles);
+    const previews = [...this.imagePreviews()];
+    toAdd.forEach(f => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        previews.push(reader.result as string);
+        this.imagePreviews.set([...previews]);
+      };
+      reader.readAsDataURL(f);
+    });
+    input.value = '';
+  }
+
+  removeImage(index: number): void {
+    const files = [...this.selectedImages()];
+    const previews = [...this.imagePreviews()];
+    files.splice(index, 1);
+    previews.splice(index, 1);
+    this.selectedImages.set(files);
+    this.imagePreviews.set(previews);
   }
 
   isValid(): boolean {
@@ -160,7 +236,8 @@ export class ReviewFormDialogComponent {
 
     this.dialogRef.close({
       rating: this.rating(),
-      comment: this.comment.trim()
+      comment: this.comment.trim(),
+      images: this.selectedImages().length > 0 ? this.selectedImages() : undefined
     } as ReviewFormDialogResult);
   }
 }

@@ -14,6 +14,7 @@ import { ReviewService, ReviewData } from '../services/review.service';
 import { TranslationService } from '../services/translation.service';
 import { ReviewFormDialogComponent, ReviewFormDialogData, ReviewFormDialogResult } from './review-form-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog.component';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-reviews',
@@ -110,7 +111,7 @@ export class ReviewsComponent implements OnInit {
         this.reviewService.updateReview(existingReview.id, {
           rating: result.rating,
           comment: result.comment
-        }).subscribe({
+        }, result.images).subscribe({
           next: (res) => {
             if (res.success) {
               this.snackBar.open(this.ts.t('reviews.updated'), '', { duration: 3000 });
@@ -126,7 +127,7 @@ export class ReviewsComponent implements OnInit {
           comment: result.comment,
           reviewable_type: reviewableType,
           reviewable_id: reviewableId
-        }).subscribe({
+        }, result.images).subscribe({
           next: (res) => {
             if (res.success) {
               this.snackBar.open(this.ts.t('reviews.created'), '', { duration: 3000 });
@@ -160,6 +161,10 @@ export class ReviewsComponent implements OnInit {
         }
       });
     });
+  }
+
+  getImageUrl(path: string): string {
+    return `${environment.apiUrl}${path}`;
   }
 
   renderStars(rating: number): string {

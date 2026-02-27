@@ -109,6 +109,34 @@ export class ApiService {
     );
   }
 
+  postFormData<T>(endpoint: string, formData: FormData): Observable<ApiResponse<T>> {
+    return this.http.post<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, formData, {
+      withCredentials: true,
+      headers: new HttpHeaders().set('X-Locale', this.ts.lang())
+    }).pipe(
+      map(response => { if (!response.success) throw response; return response; }),
+      catchError((error: HttpErrorResponse | ApiResponse<T>) => {
+        if ('success' in error && error.success === false) return throwError(() => error);
+        const serverErrors = (error as HttpErrorResponse).error?.errors;
+        return throwError(() => ({ success: false, data: null, errors: serverErrors || ['Une erreur est survenue'] }));
+      })
+    );
+  }
+
+  putFormData<T>(endpoint: string, formData: FormData): Observable<ApiResponse<T>> {
+    return this.http.put<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, formData, {
+      withCredentials: true,
+      headers: new HttpHeaders().set('X-Locale', this.ts.lang())
+    }).pipe(
+      map(response => { if (!response.success) throw response; return response; }),
+      catchError((error: HttpErrorResponse | ApiResponse<T>) => {
+        if ('success' in error && error.success === false) return throwError(() => error);
+        const serverErrors = (error as HttpErrorResponse).error?.errors;
+        return throwError(() => ({ success: false, data: null, errors: serverErrors || ['Une erreur est survenue'] }));
+      })
+    );
+  }
+
   delete<T>(endpoint: string): Observable<ApiResponse<T>> {
     return this.http.delete<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, {
       withCredentials: true,

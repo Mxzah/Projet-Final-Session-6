@@ -43,6 +43,13 @@
                     @if (getReviewForItem(line.orderable_type, line.orderable_id); as review) {
                       <div class="existing-review">
                         <span class="stars">{{ renderStars(review.rating) }}</span>
+                        @if (review.image_urls && review.image_urls.length > 0) {
+                          <div class="review-images">
+                            @for (url of review.image_urls; track url) {
+                              <img [src]="getImageUrl(url)" class="review-thumb" />
+                            }
+                          </div>
+                        }
                         <button mat-stroked-button class="btn-review"
                                 (click)="openReviewDialog(line.orderable_type, line.orderable_id, line.orderable_name, review)">
                           <mat-icon>edit</mat-icon>
@@ -74,6 +81,13 @@
                     @if (getReviewForServer(order.server_id); as review) {
                       <div class="existing-review">
                         <span class="stars">{{ renderStars(review.rating) }}</span>
+                        @if (review.image_urls && review.image_urls.length > 0) {
+                          <div class="review-images">
+                            @for (url of review.image_urls; track url) {
+                              <img [src]="getImageUrl(url)" class="review-thumb" />
+                            }
+                          </div>
+                        }
                         <button mat-stroked-button class="btn-review"
                                 (click)="openReviewDialog('User', order.server_id, order.server_name!, review)">
                           <mat-icon>edit</mat-icon>
