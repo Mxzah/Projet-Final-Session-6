@@ -185,6 +185,19 @@ mat-card-content {
   margin-right: 0.2rem;
 }
 
+.review-images {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.review-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid rgba(27, 26, 23, 0.1);
+}
+
 .btn-delete-review {
   color: rgba(27, 26, 23, 0.35) !important;
   width: 28px !important;

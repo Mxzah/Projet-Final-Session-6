@@ -14,6 +14,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ReviewService, ReviewData } from '../services/review.service';
 import { TranslationService } from '../services/translation.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog.component';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-admin-reviews',
@@ -126,6 +127,10 @@ export class AdminReviewsComponent implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  getImageUrl(path: string): string {
+    return `${environment.apiUrl}${path}`;
   }
 
   renderStars(rating: number): string {

@@ -145,6 +145,20 @@ mat-card-content {
   margin-bottom: 0.4rem;
 }
 
+.review-images {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.review-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(27, 26, 23, 0.1);
+}
+
 .review-comment {
   font-size: 0.88rem;
   color: var(--ink);
