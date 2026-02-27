@@ -10,13 +10,16 @@
   Équipe :
     - Mathis   : Menu public + Administration des items
     - Alex     : Administration des tables + QR codes
-    - Samer    : Connexion + Inscription + Administration des utilisateurs
+    - Samer    : Connexion + Inscription + Admin Users + Avis + Rabais
     - William  : Panier + Commande + Cuisine
 
   Identifiants utilisés :
     - Admin    : admin@restoqr.ca    / password123
     - Client   : client@restoqr.ca   / password123
+    - Alice    : alice@restoqr.ca    / password123
+    - Bob      : bob@restoqr.ca      / password123
     - Serveur  : waiter@restoqr.ca   / password123
+    - Marie    : marie@restoqr.ca    / password123
     - Cuisinier: cook@restoqr.ca     / password123
     - Cuisine  : cuisine@restoqr.ca  / password123
 
@@ -145,6 +148,8 @@ MODULE 4 — Affichage du menu
      - Accéder à /menu
      - Un spinner de chargement (mat-spinner) s'affiche pendant le chargement
      - Une fois chargé, le spinner disparaît et les items s'affichent
+     - Les items archivés ou indisponible ne sont PAS visible dans le menu (/menu) pour les clients ni les admins
+
 
 4.2  Affichage des items par catégorie
      - Les items sont regroupés par catégorie avec un titre de section (h1)
@@ -153,6 +158,16 @@ MODULE 4 — Affichage du menu
 
 4.3  Erreur de chargement
      - Si le serveur est inaccessible, un message d'erreur s'affiche dans un bandeau
+
+4.4  Filtrage par disponibilité (utilisateur non connecté ou client)
+     - Seuls les items ayant au moins une disponibilité actuellement active
+       (start_at <= maintenant ET (end_at IS NULL OU end_at > maintenant)) sont visibles
+     - Un item sans aucune disponibilité n'apparaît PAS dans le menu
+     - Un item dont toutes les disponibilités sont passées n'apparaît PAS dans le menu
+
+4.5  Filtrage par disponibilité (utilisateur admin — page /menu)
+     - Même comportement que pour un client : seuls les items disponibles
+       sont visibles dans le menu, même pour un admin connecté
 
 ================================================================================
 MODULE 5 — Modal d'item
@@ -194,6 +209,16 @@ MODULE 5 — Modal d'item
 
 
 ================================================================================
+================================================================================
+                    Page : Administration des items (admin-items)
+================================================================================
+
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca   / password123
+  - Client   : client@restoqr.ca  / password123
+  - Serveur  : waiter@restoqr.ca  / password123
+
+================================================================================
 MODULE 6 — Accès à la page admin
 ================================================================================
 
@@ -226,13 +251,34 @@ MODULE 7 — Affichage de la liste des items
      - Un spinner de chargement s'affiche pendant le chargement
      - Une fois chargé, les items s'affichent en grille, trié par catégorie
 
-7.2  Affichage des cartes
+7.2  Affichage des cartes (item actif et disponible)
      - Chaque carte affiche : image, nom, description,
        catégorie, prix (X.XX $)
      - Chaque carte a un bouton « modifier » (icône edit) et « supprimer »
        (icône delete)
 
-7.3  État vide
+7.3  Affichage des cartes (item archivé)
+     - Les items archivés apparaissent dans la liste avec un style grisé
+     - L'image est en niveaux de gris avec un badge « ARCHIVÉ » superposé
+     - Le nom, la description, la catégorie et le prix sont atténués
+     - La carte a uniquement un bouton « désarchiver » (icône unarchive)
+     - Les boutons « modifier » et « supprimer » ne sont PAS visibles
+
+7.4  Affichage des cartes (item indisponible)
+     - Les items non archivés mais sans disponibilité active apparaissent
+       avec le même style grisé que les items archivés
+     - L'image est en niveaux de gris avec un badge « INDISPONIBLE » superposé
+     - Le nom, la description, la catégorie et le prix sont atténués
+     - Les boutons « modifier » et « supprimer » restent visibles (l'item n'est
+       pas archivé)
+
+7.5  Tous les items visibles dans le panneau admin
+     Avec admin@restoqr.ca : password123
+     - Les items actifs, archivés ET indisponibles apparaissent tous dans la
+       liste du panneau admin
+     - Aucun item n'est masqué, quelle que soit sa disponibilité
+
+7.6  État vide
      - Si aucun item n'existe, le message « Aucun item trouvé » s'affiche
 
 ================================================================================
@@ -244,6 +290,7 @@ MODULE 8 — Création d'un item
      - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
      - Le titre de la modal est « Ajouter un item »
      - Les champs sont vides (nom, description, prix à 0, catégorie par défaut)
+     - La section « Disponibilités » est visible avec un bouton « + »
 
 8.2  Validation — Nom requis
      - Laisser le champ « Nom » vide et cliquer sur « Ajouter »
@@ -285,14 +332,17 @@ MODULE 8 — Création d'un item
      - Remplir tous les champs sauf l'image et cliquer sur « Ajouter »
      - Message d'erreur : « L'image est obligatoire. »
 
-8.12 Création réussie
+8.12 Validation — Disponibilités
+     - Voir les validations du MODULE 12 (12.3 à 12.8)
+
+8.13 Création réussie
      - Remplir tous les champs avec des valeurs valides (nom, description,
        prix, catégorie) et sélectionner une image JPG/PNG valide
      - Clic sur « Ajouter »
      - La modal se ferme
      - Le nouvel item apparaît dans la liste
 
-8.13 Annulation
+8.14 Annulation
      - Remplir des champs puis cliquer sur « Annuler »
      - La modal se ferme, aucun item n'est créé
 
@@ -306,9 +356,11 @@ MODULE 9 — Modification d'un item
      - La modal s'ouvre avec le titre « Modifier l'item »
      - Les champs sont pré-remplis (nom, description, prix, catégorie)
      - L'aperçu de l'image existante est affiché
+     - La section « Disponibilités » est visible avec les disponibilités
+       existantes pré-chargées
 
 9.2  Validations
-     - Mêmes validations que la création (8.2 à 8.11)
+     - Mêmes validations que la création (8.2 à 8.12)
 
 9.3  Modification réussie
      - Modifier le nom et/ou le prix d'un item existant
@@ -327,25 +379,41 @@ MODULE 9 — Modification d'un item
      - La modal se ferme, l'item n'est pas modifié
 
 ================================================================================
-MODULE 10 — Suppression d'un item
+MODULE 10 — Suppression / Archivage d'un item
 ================================================================================
 
-10.1 Ouverture de la modal de confirmation
+10.1 Ouverture de la modal — Item non utilisé (hard delete)
      Avec admin@restoqr.ca : password123
-     - Clic sur l'icône « delete » d'un item
+     - Clic sur l'icône « delete » d'un item qui n'apparaît dans aucune commande
+       ni aucun combo (ex: Carpaccio de Bœuf, Filet de Bar Grillé)
      - Une modal de confirmation s'ouvre
-     - Le message affiche le nom de l'item à supprimer
+     - Le titre est « Supprimer l'item »
+     - Le message demande de confirmer la suppression définitive de l'item
 
-10.2 Annulation de la suppression
-     - Clic sur « Annuler » : La modal se ferme, l'item est toujours dans la liste
+10.2 Ouverture de la modal — Item utilisé (soft delete / archivage)
+     - Clic sur l'icône « delete » d'un item présent dans une commande
+       ou un combo (ex: Tartare de Saumon, Magret de Canard)
+     - Une modal de confirmation s'ouvre
+     - Le titre est « Archiver l'item »
+     - Le message demande de confirmer l'archivage
+     - Un avertissement indique que l'item sera archivé et ne sera plus visible
+       dans le menu
 
-10.3 Fermeture par le bouton X
-     - Clic sur le bouton « X » : La modal se ferme, l'item est toujours dans la liste
+10.3 Annulation
+     - Clic sur « Annuler » : La modal se ferme, l'item est inchangé
+     - Clic sur le bouton « X » : Même résultat
 
-10.4 Confirmation de la suppression
+10.4 Confirmation — Suppression définitive (item non utilisé)
      - Clic sur « Supprimer »
      - La modal se ferme
-     - L'item disparaît de la liste et de la page du menu
+     - L'item disparaît définitivement de la liste
+
+10.5 Confirmation — Archivage (item utilisé)
+     - Clic sur « Archiver »
+     - La modal se ferme
+     - La carte de l'item passe immédiatement au style grisé avec le badge
+       « ARCHIVÉ » sur l'image, sans rechargement de la page
+     - L'item n'est plus visible sur la page /menu (clients)
 
 ================================================================================
 MODULE 11 — Traduction (admin-items)
@@ -355,11 +423,18 @@ MODULE 11 — Traduction (admin-items)
      Avec admin@restoqr.ca : password123
      - Changer la langue à « English » via le header
      - Le titre passe à « Items Management »
-     - Les boutons passent en anglais (Add, Save, Cancel, Delete)
+     - Les boutons passent en anglais (Add, Save, Cancel, Delete, Archive,
+       Restore)
      - Les labels des champs passent en anglais (Name, Description, Price,
        Category, Image)
      - Les messages de validation passent en anglais
-     - Les messages de confirmation de suppression passent en anglais
+     - Les titres et messages des modals passent en anglais (Delete item,
+       Archive item, Restore item)
+     - Le badge « ARCHIVÉ » passe à « ARCHIVED »
+     - Le badge « INDISPONIBLE » passe à « UNAVAILABLE »
+     - Les labels de disponibilités passent en anglais (Start, End (optional),
+       Description, Availabilities)
+     - Les messages de validation des disponibilités passent en anglais
 
 11.2 Traduction en français
      - Changer la langue à « Français » via le header
@@ -369,7 +444,6 @@ MODULE 11 — Traduction (admin-items)
      - Changer la langue à « English »
      - Rafraîchir la page
      - L'interface reste en anglais
-
 
 ================================================================================
 ================================================================================
@@ -561,7 +635,7 @@ MODULE 18 — Traduction (admin-tables)
 
 ================================================================================
 ================================================================================
-              PARTIE C — Connexion + Inscription + Admin Users
+     PARTIE C — Connexion + Inscription + Admin Users + Avis + Rabais
                               (Samer)
 ================================================================================
 ================================================================================
@@ -1071,6 +1145,401 @@ MODULE 28 — Traduction (login + signup + admin-users)
 
 
 ================================================================================
+MODULE 29 — Assignation du serveur (/cuisine)
+================================================================================
+
+29.1 Assignation réussie — Serveur
+     Avec waiter@restoqr.ca : password123
+     - Se connecter et accéder à /cuisine
+     - Trouver une commande sans serveur assigné (affiche « Aucun serveur
+       assigné »)
+     - Cliquer sur le bouton « M'assigner »
+     - Le nom du serveur s'affiche sur la carte de commande
+     - Le bouton « M'assigner » disparaît
+     - En base de données : server_id est mis à jour sur la commande
+
+29.2 Assignation réussie — Admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /cuisine
+     - Trouver une commande sans serveur assigné
+     - Cliquer sur le bouton « M'assigner »
+     - Le nom de l'admin s'affiche comme serveur sur la carte
+
+29.3 Cuisinier ne peut pas s'assigner
+     Avec cook@restoqr.ca : password123
+     - Se connecter et accéder à /cuisine
+     - Le bouton « M'assigner » n'est PAS visible sur les commandes
+       sans serveur
+     - Appel API direct POST /api/kitchen/orders/:id/assign_server
+       retourne : success false
+
+29.4 Client ne peut pas accéder à l'endpoint
+     Avec client@restoqr.ca : password123
+     - Tenter d'appeler POST /api/kitchen/orders/:id/assign_server
+     - Réponse : success false (authentification requise ou type invalide)
+
+29.5 Commande déjà assignée
+     Avec waiter@restoqr.ca : password123
+     - Sur une commande qui a déjà un serveur assigné
+     - Le bouton « M'assigner » n'est pas visible (le nom du serveur
+       est affiché à la place)
+     - Appel API direct retourne : « Order already has a server assigned »
+
+29.6 Commande fermée
+     Avec waiter@restoqr.ca : password123
+     - Tenter d'assigner un serveur sur une commande déjà clôturée
+       (ended_at défini)
+     - Appel API retourne : « Order is already closed »
+
+29.7 Commande inexistante
+     - Appel API avec un ID invalide (ex : 999999)
+     - Réponse : success false, erreur « Order not found »
+
+
+================================================================================
+MODULE 30 — Avis clients (/reviews)
+================================================================================
+
+30.1 Accès à la page des avis
+     Avec alice@restoqr.ca : password123
+     - Se connecter et cliquer sur le bouton « Mes avis » dans le header
+     - Redirection vers /reviews
+     - Le titre « Mes avis » est affiché
+     - Le sous-titre « Laissez un avis sur vos commandes passées. » est
+       affiché
+
+30.2 Affichage des commandes fermées
+     - Les commandes fermées (ended_at défini) s'affichent en cartes
+     - Chaque carte montre : un badge « Table X », la date de commande
+     - Chaque ligne de commande affiche : nom de l'item/combo, type,
+       quantité
+     - Si un serveur était assigné, une ligne « Évaluer le serveur »
+       apparaît en bas de la carte
+
+30.3 Aucune commande fermée
+     Avec un client sans commande passée
+     - Le message « Aucune commande passée à évaluer. » s'affiche
+       avec une icône
+
+30.4 Création d'un avis sur un item
+     Avec alice@restoqr.ca : password123
+     - Sur une commande fermée, cliquer sur « Laisser un avis » à côté
+       d'un item (ex : Filet de Bar Grillé)
+     - La modal s'ouvre avec le titre « Laisser un avis »
+     - Le nom de l'item est affiché sous le titre
+     - Un sélecteur d'étoiles (1 à 5) est visible
+     - Un champ commentaire (textarea, max 500 caractères) est visible
+     - Une section « Photos » est visible avec un bouton d'ajout (icône
+       add_a_photo en pointillé)
+     - Sélectionner 5 étoiles, entrer un commentaire
+     - Cliquer sur « Enregistrer »
+     - La modal se ferme
+     - Le message « Avis créé avec succès » s'affiche (snackbar)
+     - Le bouton change pour « Modifier l'avis » avec les étoiles affichées
+
+30.5 Création d'un avis sur un serveur
+     Avec alice@restoqr.ca : password123
+     - Sur une commande ayant un serveur assigné (ex : Marie)
+     - Cliquer sur « Évaluer le serveur »
+     - La modal s'ouvre avec le nom du serveur affiché
+     - Sélectionner des étoiles, entrer un commentaire
+     - Cliquer sur « Enregistrer »
+     - L'avis est créé, les étoiles s'affichent à côté du nom du serveur
+
+30.6 Création d'un avis avec photo
+     Avec bob@restoqr.ca : password123
+     - Sur une commande fermée, cliquer sur « Laisser un avis »
+     - Sélectionner des étoiles et entrer un commentaire
+     - Cliquer sur le bouton d'ajout de photo (icône add_a_photo)
+     - Sélectionner une image JPG ou PNG (< 5 Mo)
+     - L'aperçu de la photo apparaît avec un bouton « × » pour la retirer
+     - Cliquer sur « Enregistrer »
+     - L'avis est créé avec la photo attachée
+     - La miniature de la photo s'affiche à côté des étoiles
+
+30.7 Validation — Photo format invalide
+     - Dans la modal d'avis, tenter de sélectionner un fichier non
+       JPG/PNG (ex : .gif, .pdf)
+     - Message d'erreur : « Seuls les fichiers JPG et PNG sont acceptés. »
+
+30.8 Validation — Photo trop lourde
+     - Tenter de sélectionner une image de plus de 5 Mo
+     - Message d'erreur : « Chaque photo doit faire moins de 5 Mo. »
+
+30.9 Validation — Maximum 3 photos
+     - Ajouter 3 photos à un avis
+     - Le bouton d'ajout disparaît (plus de bouton add_a_photo)
+     - Retirer une photo : le bouton d'ajout réapparaît
+
+30.10 Retrait d'une photo
+     - Ajouter une photo dans la modal d'avis
+     - Cliquer sur le bouton « × » sur la miniature
+     - La photo est retirée de l'aperçu
+
+30.11 Validation — Note requise
+     - Tenter de cliquer sur « Enregistrer » sans sélectionner d'étoile
+     - Le bouton « Enregistrer » est grisé (désactivé) tant qu'aucune
+       étoile n'est sélectionnée
+
+30.12 Validation — Commentaire requis
+     - Sélectionner des étoiles mais laisser le commentaire vide
+     - Cliquer sur « Enregistrer »
+     - Message d'erreur : « Le commentaire est requis. »
+
+30.13 Validation — Commentaire trop long
+     - Entrer un commentaire de plus de 500 caractères
+     - Le compteur affiche « 500/500 » et le bouton est désactivé
+
+30.14 Modification d'un avis existant
+     Avec alice@restoqr.ca : password123
+     - Sur un avis existant (étoiles affichées), cliquer sur
+       « Modifier l'avis »
+     - La modal s'ouvre avec le titre « Modifier l'avis »
+     - Les étoiles et le commentaire sont pré-remplis avec les valeurs
+       actuelles
+     - Modifier la note (ex : 5 → 4) et/ou le commentaire
+     - Cliquer sur « Enregistrer »
+     - La modal se ferme
+     - Le message « Avis modifié avec succès » s'affiche (snackbar)
+     - Les nouvelles étoiles s'affichent
+
+30.15 Suppression d'un avis
+     Avec alice@restoqr.ca : password123
+     - Sur un avis existant, cliquer sur l'icône poubelle (delete)
+     - Une modal de confirmation s'ouvre : « Voulez-vous vraiment
+       supprimer cet avis ? »
+     - Cliquer sur « Supprimer »
+     - La modal se ferme
+     - Le message « Avis supprimé avec succès » s'affiche (snackbar)
+     - Le bouton revient à « Laisser un avis »
+
+30.16 Annulation de la suppression
+     - Cliquer sur l'icône poubelle d'un avis existant
+     - Cliquer sur « Annuler » dans la modal de confirmation
+     - La modal se ferme, l'avis est toujours présent
+
+30.17 Annulation du formulaire d'avis
+     - Cliquer sur « Laisser un avis » ou « Modifier l'avis »
+     - Cliquer sur « Annuler » dans la modal
+     - La modal se ferme, aucun avis n'est créé/modifié
+
+30.18 Avis sur item non commandé (backend)
+     - Tenter de créer un avis sur un item que le client n'a jamais
+       commandé dans une commande fermée
+     - Réponse API : success false
+
+30.19 Avis sur un non-serveur (backend)
+     - Tenter de créer un avis avec reviewable_type « User » sur un
+       cuisinier (type Cook)
+     - Réponse API : success false (seuls les serveurs et admins
+       peuvent être évalués)
+
+30.20 Avis sur serveur non assigné au client (backend)
+     - Tenter d'évaluer un serveur qui n'a jamais été assigné à une
+       commande du client
+     - Réponse API : success false
+
+30.21 Seuls les clients peuvent créer des avis (backend)
+     Avec waiter@restoqr.ca : password123
+     - Tenter de créer un avis via l'API
+     - Réponse : success false, erreur « Only clients can create reviews »
+
+30.22 Modification par un autre utilisateur (backend)
+     - Un serveur tente de modifier l'avis d'un client via l'API
+     - Réponse : success false, erreur « You can only update your own
+       reviews »
+
+30.23 Avis en double (backend)
+     - Tenter de créer un deuxième avis sur le même item/combo/serveur
+       par le même client
+     - Réponse : success false (la base de données empêche le doublon)
+
+
+================================================================================
+MODULE 31 — Administration des avis (/admin/reviews)
+================================================================================
+
+31.1 Affichage de la liste des avis
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin, cliquer sur l'onglet « Avis »
+     - Tous les avis de tous les clients s'affichent en grille de cartes
+     - Chaque carte affiche :
+       · Nom du client (ex : « Alice Tremblay »)
+       · Badge du type d'avis (« Item », « Combo » ou « Serveur »)
+       · Icône et nom de la cible (ex : icône person + « Marie Serveur »)
+       · Étoiles (★★★★★ ou ★★★★☆, etc.)
+       · Photos miniatures (si attachées)
+       · Commentaire
+       · Date de création
+       · Bouton de suppression (icône delete)
+
+31.2 Recherche par nom
+     - Taper un nom dans la barre de recherche (ex : « Alice »)
+     - Seuls les avis du client correspondant s'affichent
+     - Effacer la recherche : tous les avis réapparaissent
+
+31.3 Recherche sans résultat
+     - Taper un texte qui ne correspond à aucun avis (ex : « zzzzz »)
+     - Le message « Aucun avis. » s'affiche
+
+31.4 Filtre par type — Item
+     - Sélectionner « Item » dans le dropdown « Type »
+     - Seuls les avis sur des items s'affichent
+
+31.5 Filtre par type — Combo
+     - Sélectionner « Combo » dans le dropdown « Type »
+     - Seuls les avis sur des combos s'affichent
+
+31.6 Filtre par type — Serveur
+     - Sélectionner « Serveur » dans le dropdown « Type »
+     - Seuls les avis sur des serveurs s'affichent
+
+31.7 Filtre par note
+     - Sélectionner « 5 » dans le dropdown « Note »
+     - Seuls les avis avec 5 étoiles s'affichent
+     - Sélectionner « 3 » : seuls les avis 3 étoiles
+     - Remettre à « Tous » : tous les avis réapparaissent
+
+31.8 Tri — Plus récent
+     - Sélectionner « Plus récent » dans le dropdown « Tri »
+     - Les avis sont triés par date décroissante (les plus récents en haut)
+
+31.9 Tri — Plus ancien
+     - Sélectionner « Plus ancien »
+     - Les avis sont triés par date croissante
+
+31.10 Tri — Meilleures notes
+     - Sélectionner « Note ↑ »
+     - Les avis sont triés par note décroissante (5 étoiles en haut)
+
+31.11 Tri — Moins bonnes notes
+     - Sélectionner « Note ↓ »
+     - Les avis sont triés par note croissante (1 étoile en haut)
+
+31.12 Suppression d'un avis (admin)
+     Avec admin@restoqr.ca : password123
+     - Cliquer sur l'icône « delete » d'un avis
+     - La modal de confirmation s'ouvre : « Voulez-vous vraiment
+       supprimer cet avis ? »
+     - Le nom de la cible est affiché dans la modal
+     - Cliquer sur « Supprimer »
+     - La modal se ferme
+     - Le message « Avis supprimé » s'affiche (snackbar)
+     - L'avis disparaît de la grille
+
+31.13 Annulation de la suppression (admin)
+     - Cliquer sur l'icône « delete » d'un avis
+     - Cliquer sur « Annuler » dans la modal
+     - L'avis reste visible dans la grille
+
+31.14 Non-propriétaire ne peut pas supprimer (backend)
+     Avec waiter@restoqr.ca : password123
+     - Appel API DELETE /api/reviews/:id sur un avis d'un autre utilisateur
+     - Réponse : success false, erreur « Unauthorized »
+
+31.15 Utilisateur non authentifié (backend)
+     - Accéder à GET /api/reviews sans être connecté
+     - Réponse : success false
+
+31.16 Avis inexistant (backend)
+     - Appel API DELETE /api/reviews/999999
+     - Réponse : success false, erreur « Review not found »
+
+
+================================================================================
+MODULE 32 — Rabais employé
+================================================================================
+
+32.1 Client n'a pas de rabais
+     Avec client@restoqr.ca : password123
+     - Le client n'est pas un employé
+     - La page de paiement (/pay) affiche le total normal sans ligne de
+       rabais
+     - employee_discount_percentage = 0
+
+32.2 Nouvel employé (< 6 mois) — 0 %
+     - Un employé (Serveur/Cuisinier/Admin) dont le compte a été créé
+       il y a moins de 6 mois
+     - employee_discount_percentage = 0
+     - Aucune ligne de rabais n'est affichée sur /pay
+
+32.3 Employé 6-12 mois — 5 %
+     - Un employé dont le compte a été créé il y a 8 mois (ex : cook@)
+     - employee_discount_percentage = 5
+     - La page de paiement affiche : « Rabais employé : 5 % » en vert
+     - Le montant économisé est affiché (ex : -X.XX $)
+     - Le total ajusté est affiché
+
+32.4 Employé 1-2 ans — 10 %
+     - Un employé dont le compte a été créé il y a 18 mois
+     - employee_discount_percentage = 10
+     - La page de paiement affiche : « Rabais employé : 10 % »
+     - Le montant économisé et le total ajusté sont affichés
+
+32.5 Employé 2+ ans — 15 %
+     Avec marie@restoqr.ca : password123
+     - Marie a un compte créé il y a 26 mois
+     - employee_discount_percentage = 15
+     - La page de paiement affiche : « Rabais employé : 15 % »
+     - Exemple : commande de 181.96 $, rabais de -27.29 $,
+       total ajusté de 154.67 $
+
+32.6 Tous les types d'employés sont admissibles
+     - Les types Administrator, Waiter et Cook sont reconnus comme
+       employés
+     - Vérifier que chacun reçoit un rabais selon son ancienneté
+     - Le type Client n'est PAS un employé (0 % toujours)
+
+32.7 Affichage conditionnel du rabais sur /pay
+     - Quand discount_percentage > 0 :
+       · La ligne « Rabais employé : X % » s'affiche en vert
+       · Le montant économisé est affiché
+       · Le total ajusté est affiché
+     - Quand discount_percentage = 0 :
+       · Aucune ligne de rabais ne s'affiche
+
+32.8 Rabais dans la réponse JSON de la commande (backend)
+     - Appel GET /api/orders avec un client employé
+     - La réponse JSON inclut :
+       · discount_percentage (ex : 15)
+       · discount_amount (montant du rabais en $)
+       · adjusted_total (total après rabais)
+     - Pour un client non-employé : discount_percentage = 0
+
+
+================================================================================
+MODULE 33 — Navigation backend (redirection après connexion)
+================================================================================
+
+33.1 Redirection — Cuisinier vers /cuisine
+     Avec cook@restoqr.ca : password123
+     - Se connecter
+     - Le backend retourne redirect_to : « /cuisine »
+     - Le frontend redirige automatiquement vers /cuisine
+
+33.2 Redirection — Admin vers /admin/tables
+     Avec admin@restoqr.ca : password123
+     - Se connecter
+     - Le backend retourne redirect_to : « /admin/tables »
+     - Le frontend redirige automatiquement vers /admin/tables
+
+33.3 Redirection — Client sans commande ouverte vers /form
+     Avec client@restoqr.ca : password123
+     - Se connecter (pas de commande ouverte en cours)
+     - Le backend retourne redirect_to : « /form »
+     - Le frontend redirige vers /form
+
+33.4 Redirection — Client avec commande ouverte vers /menu
+     - Se connecter avec un client qui a une commande ouverte
+     - Le backend retourne redirect_to : « /menu »
+     - Le frontend redirige vers /menu
+
+33.5 Endpoint current_user inclut redirect_to
+     - Après connexion, appeler GET /api/current_user
+     - La réponse inclut le champ redirect_to avec la bonne destination
+
+
+================================================================================
 ================================================================================
                     PARTIE D — Panier + Commande + Cuisine
                               (William)
@@ -1079,10 +1548,10 @@ MODULE 28 — Traduction (login + signup + admin-users)
 
 
 ================================================================================
-MODULE 29 — Panier dans /menu (cart.service)
+MODULE 34 — Panier dans /menu (cart.service)
 ================================================================================
 
-29.1 Ajout d'un item au panier
+34.1 Ajout d'un item au panier
      Avec client@restoqr.ca : password123
      - Se connecter et accéder à /menu
      - Cliquer sur un item (ex: « Tartare de Saumon »)
@@ -1092,28 +1561,28 @@ MODULE 29 — Panier dans /menu (cart.service)
      - Le sous-total dans le panneau de droite affiche le bon montant
 
 
-29.4 Bouton Continuer
+34.4 Bouton Continuer
      - Avec au moins 1 item dans le panier
      - Cliquer sur « Continuer »
      - Redirection vers /order
 
-29.5 Bouton Continuer désactivé si panier vide
+34.5 Bouton Continuer désactivé si panier vide
      - Panier vide
      - Le bouton « Continuer » n'est pas visible ou est désactivé
 
 
 ================================================================================
-MODULE 30 — Page /order — État vide
+MODULE 35 — Page /order — État vide
 ================================================================================
 
-30.1 Page vide sans article dans le panier
+35.1 Page vide sans article dans le panier
      Avec client@restoqr.ca : password123
      - Accéder à /order sans avoir ajouté d'item au panier
      - Un message « Aucune commande en cours. » s'affiche
      - Un bouton « Ajouter + » est visible
      - Clic sur « Ajouter + » : Redirection vers /menu
 
-30.2 Page avec des lignes de commande déjà envoyées (commande existante)
+35.2 Page avec des lignes de commande déjà envoyées (commande existante)
      Avec client@restoqr.ca : password123
      - Une commande est déjà ouverte sur le serveur avec des lignes envoyées
      - Accéder à /order (sans items dans le panier local)
@@ -1129,10 +1598,10 @@ MODULE 30 — Page /order — État vide
 
 
 ================================================================================
-MODULE 31 — Page /order — Affichage d'une nouvelle commande
+MODULE 36 — Page /order — Affichage d'une nouvelle commande
 ================================================================================
 
-31.1 En-tête de la commande
+36.1 En-tête de la commande
      Avec client@restoqr.ca : password123
      - Ajouter un item au panier et accéder à /order
      - Le titre « Votre commande » est visible
@@ -1142,59 +1611,59 @@ MODULE 31 — Page /order — Affichage d'une nouvelle commande
        (affiche « pas implémenté » si aucun vibe assigné)
      - Un bouton « Ajouter + » est visible en haut à droite
 
-31.2 Lignes de commande
+36.2 Lignes de commande
      - Chaque item du panier apparaît comme une carte
      - La carte affiche : nom de l'item, quantité × prix unitaire, total
      - L'image de l'item est affichée si disponible
      - Un badge « En attente de l'envoi » est affiché (couleur distincte)
      - Si l'item a une note spéciale, elle apparaît avec une icône
 
-31.3 Note de ligne (instruction spéciale)
+36.3 Note de ligne (instruction spéciale)
      - Ajouter un item avec une note (ex : « Sans oignon »)
      - Dans /order, la note s'affiche sous le nom de l'item
 
-31.4 Sous-total
+36.4 Sous-total
      - Sous le tableau des lignes, le sous-total est affiché
      - Format : « Sous-total (N article(s)) CA$XX.XX »
      - Le total est la somme correcte de toutes les lignes
 
-31.5 Boutons Modifier / Supprimer sur les lignes
+36.5 Boutons Modifier / Supprimer sur les lignes
      - Chaque ligne affiche deux boutons : « Modifier » et « Supprimer »
      - Ces boutons sont visibles mais non fonctionnels pour l'instant
 
 
 ================================================================================
-MODULE 32 — Page /order — Section Détails (nouvelle commande)
+MODULE 37 — Page /order — Section Détails (nouvelle commande)
 ================================================================================
 
-32.1 Affichage du formulaire Détails
+37.1 Affichage du formulaire Détails
      - Accéder à /order sans commande ouverte sur le serveur
      - La section « Détails » affiche un formulaire avec :
        · Un champ texte « Note générale (optionnelle) »
        · Un champ nombre « Pourboire (CA$) »
 
-32.2 Validation — Note uniquement composée d'espaces
+37.2 Validation — Note uniquement composée d'espaces
      - Entrer uniquement des espaces dans le champ « Note générale »
      - Message d'erreur : « La note ne peut pas être composée
        uniquement d'espaces. »
      - Le bouton « Envoyer » devient désactivé (grisé)
 
-32.3 Validation — Note trop longue
+37.3 Validation — Note trop longue
      - Le champ « Note générale » est limité à 255 caractères
        (attribut maxlength)
      - Un compteur « N / 255 » s'affiche en bas à droite du champ
 
-32.4 Validation — Pourboire négatif
+37.4 Validation — Pourboire négatif
      - Entrer -1 dans le champ « Pourboire »
      - Message d'erreur : « Le pourboire ne peut pas être négatif. »
      - Le bouton « Envoyer » devient désactivé
 
-32.5 Validation — Pourboire trop élevé
+37.5 Validation — Pourboire trop élevé
      - Entrer 1000 dans le champ « Pourboire »
      - Message d'erreur : « Le pourboire ne peut pas dépasser 999,99 CA$. »
      - Le bouton « Envoyer » devient désactivé
 
-32.6 Envoi de la commande
+37.6 Envoi de la commande
      - Remplir une note valide (ex : « Table anniversaire », max 255 caractères)
        et un pourboire valide (ex : 5, max 999,99 CA$)
      - Une table doit avoir été scannée au préalable ;
@@ -1204,62 +1673,62 @@ MODULE 32 — Page /order — Section Détails (nouvelle commande)
      - Les lignes « En attente de l'envoi » deviennent « Envoyée »
      - La section Détails passe en mode lecture seule (plus de formulaire)
 
-32.7 Bouton Envoyer désactivé si panier vide
+37.7 Bouton Envoyer désactivé si panier vide
      - Si aucune ligne n'est « En attente de l'envoi »
      - Le bouton « Envoyer » est désactivé (grisé)
 
 
 ================================================================================
-MODULE 33 — Page /order — Section Détails (commande existante)
+MODULE 38 — Page /order — Section Détails (commande existante)
 ================================================================================
 
-33.1 Affichage en lecture seule
+38.1 Affichage en lecture seule
      - Une commande est déjà ouverte sur le serveur (avec note et pourboire)
      - La section « Détails » affiche les valeurs en lecture seule :
        · Note
        · Pourboire avec icône payments (ex : « Pourboire : CA$5.00 »)
      - Aucun formulaire n'est affiché
 
-33.2 Aucun détail
+38.2 Aucun détail
      - Commande ouverte sans note ni pourboire
      - Le message « Aucun détail ajouté. » s'affiche
 
-33.3 Vibe existant
+38.3 Vibe existant
      - Si la commande a un vibe assigné (ex : « Date »)
      - Le badge de vibe dans l'en-tête affiche le nom avec sa couleur
        à côté du nom du serveur
 
 
 ================================================================================
-MODULE 34 — Page /cuisine — Affichage général
+MODULE 39 — Page /cuisine — Affichage général
 ================================================================================
 
-34.1 Accès sans être connecté
+39.1 Accès sans être connecté
      - Accéder à /cuisine sans être connecté
      - Redirection automatique vers /login
 
-34.2 Accès avec un compte sans rôle cuisine
+39.2 Accès avec un compte sans rôle cuisine
      Avec client@restoqr.ca : password123
      - Accéder à /cuisine
      - Redirection automatique vers /menu
 
-34.3 Accès avec un compte cuisine
+39.3 Accès avec un compte cuisine
      Avec cuisine@restoqr.ca : password123
      - Accéder à /cuisine
      - Le tableau de bord s'affiche avec le titre « Cuisine »
        et le sous-titre « Commandes actives en temps réel »
 
-34.4 État vide
+39.4 État vide
      - Aucune commande active en base
      - Le message « Aucune commande active » s'affiche avec
        l'icône restaurant
 
 
 ================================================================================
-MODULE 35 — Page /cuisine — Cartes de commande
+MODULE 40 — Page /cuisine — Cartes de commande
 ================================================================================
 
-35.1 En-tête de la carte
+40.1 En-tête de la carte
      Avec cuisine@restoqr.ca : password123
      - Une commande active existe (Table 3, 3 personnes)
      - La carte affiche : badge « Table 3 » et « 3 personne(s) »
@@ -1267,35 +1736,35 @@ MODULE 35 — Page /cuisine — Cartes de commande
      - Si un vibe est assigné, le badge s'affiche à côté du serveur
        avec sa couleur (ex : « ✦ Date » en rose)
 
-35.2 Note générale de la commande
+40.2 Note générale de la commande
      - Si la commande a une note (ex : « Allergie aux arachides »)
      - La note s'affiche sous l'en-tête
        en couleur cuivre
 
-35.3 Pourboire
+40.3 Pourboire
      - Si la commande a un pourboire > 0
      - Une section verte s'affiche : « Pourboire : CA$5.00 »
 
-35.4 Lignes de commande
+40.4 Lignes de commande
      - La section « Lignes de commande » liste chaque plat
      - Chaque ligne affiche : nom du plat, quantité (x2), statut
      - Les statuts affichés : Envoyée, En préparation, Prête, Servie
        (chacun avec une couleur distincte)
 
-35.5 Note de ligne
+40.5 Note de ligne
      - Si une ligne a une note (ex : « Sans sel »)
      - La note s'affiche sous le nom du plat sur une nouvelle ligne
 
-35.6 Boutons Modifier / Supprimer
+40.6 Boutons Modifier / Supprimer
      - Chaque carte a deux boutons en bas : « Modifier » et « Supprimer »
      - Ces boutons sont visibles mais non fonctionnels pour l'instant
 
 
 ================================================================================
-MODULE 36 — Traduction (/order et /cuisine)
+MODULE 41 — Traduction (/order et /cuisine)
 ================================================================================
 
-36.1 Traduction en anglais — Header
+41.1 Traduction en anglais — Header
      - Sur n'importe quelle page, changer la langue à « English »
      - Les textes du header passent en anglais :
        · « Déconnexion » → « Logout »
@@ -1304,7 +1773,7 @@ MODULE 36 — Traduction (/order et /cuisine)
      - Retour en français : clic sur « EN » puis « Français »
        les textes reviennent en français
 
-36.2 Traduction en anglais — /order
+41.2 Traduction en anglais — /order
      Avec client@restoqr.ca : password123
      - Accéder à /order avec des items dans le panier
      - Changer la langue à « English » via le header
@@ -1318,7 +1787,7 @@ MODULE 36 — Traduction (/order et /cuisine)
        · « Pourboire (CA$) » → « Tip (CA$) »
        · « Envoyer » → « Send »
 
-36.3 Traduction en anglais — /cuisine
+41.3 Traduction en anglais — /cuisine
      Avec cuisine@restoqr.ca : password123
      - Accéder à /cuisine
      - Changer la langue à « English » via le header
@@ -1330,11 +1799,11 @@ MODULE 36 — Traduction (/order et /cuisine)
        · « Aucun serveur assigné » → « No server assigned »
        · Statuts : « Envoyée » → « Sent », « En préparation » → « In preparation »
 
-36.4 Retour en français
+41.4 Retour en français
      - Cliquer sur « Français » dans le header
      - Tous les textes reviennent en français
 
-36.5 Persistance de la langue
+41.5 Persistance de la langue
      - Changer la langue à « English »
      - Rafraîchir la page
      - L'interface reste en anglais

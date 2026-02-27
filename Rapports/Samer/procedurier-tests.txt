@@ -1,13 +1,19 @@
 ================================================================================
                         PROCÉDURIER DE TESTS — RestoQR
                Pages : Connexion (login) · Inscription (signup) ·
-                       Administration des utilisateurs (admin-users)
+                       Administration des utilisateurs (admin-users) ·
+                       Avis clients (reviews) · Avis admin (admin-reviews) ·
+                       Assignation serveur · Rabais employé ·
+                       Navigation backend
 ================================================================================
 
 Identifiants utilisés :
   - Admin    : admin@restoqr.ca    / password123
   - Client   : client@restoqr.ca   / password123
+  - Alice    : alice@restoqr.ca    / password123
+  - Bob      : bob@restoqr.ca      / password123
   - Serveur  : waiter@restoqr.ca   / password123
+  - Marie    : marie@restoqr.ca    / password123
   - Cuisinier: cook@restoqr.ca     / password123
 
 ================================================================================
@@ -514,44 +520,50 @@ MODULE 10 — Traduction (login + signup + admin-users)
 
 
 ================================================================================
-MODULE 11 — Assignation du serveur (cuisine)
+MODULE 11 — Assignation du serveur (/cuisine)
 ================================================================================
 
 11.1 Assignation réussie — Serveur
      Avec waiter@restoqr.ca : password123
-     - Se connecter et accéder à /kitchen
-     - Trouver une commande sans serveur assigné
+     - Se connecter et accéder à /cuisine
+     - Trouver une commande sans serveur assigné (affiche « Aucun serveur
+       assigné »)
      - Cliquer sur le bouton « M'assigner »
-     - Le nom du serveur s'affiche sur la commande
-     - En base de données : server_id est mis à jour
+     - Le nom du serveur s'affiche sur la carte de commande
+     - Le bouton « M'assigner » disparaît
+     - En base de données : server_id est mis à jour sur la commande
 
 11.2 Assignation réussie — Admin
      Avec admin@restoqr.ca : password123
-     - Se connecter et accéder à /kitchen
+     - Se connecter et accéder à /cuisine
      - Trouver une commande sans serveur assigné
      - Cliquer sur le bouton « M'assigner »
-     - Le nom de l'admin s'affiche comme serveur
+     - Le nom de l'admin s'affiche comme serveur sur la carte
 
 11.3 Cuisinier ne peut pas s'assigner
      Avec cook@restoqr.ca : password123
-     - Se connecter et accéder à /kitchen
-     - Le bouton « M'assigner » n'est PAS visible (ou retourne une erreur)
-     - La commande reste sans serveur en base de données
+     - Se connecter et accéder à /cuisine
+     - Le bouton « M'assigner » n'est PAS visible sur les commandes
+       sans serveur
+     - Appel API direct POST /api/kitchen/orders/:id/assign_server
+       retourne : success false
 
 11.4 Client ne peut pas accéder à l'endpoint
      Avec client@restoqr.ca : password123
      - Tenter d'appeler POST /api/kitchen/orders/:id/assign_server
-     - Réponse : success false
+     - Réponse : success false (authentification requise ou type invalide)
 
 11.5 Commande déjà assignée
      Avec waiter@restoqr.ca : password123
      - Sur une commande qui a déjà un serveur assigné
-     - Le bouton « M'assigner » n'est pas visible
-     - Appel API retourne : « Order already has a server assigned »
+     - Le bouton « M'assigner » n'est pas visible (le nom du serveur
+       est affiché à la place)
+     - Appel API direct retourne : « Order already has a server assigned »
 
 11.6 Commande fermée
      Avec waiter@restoqr.ca : password123
-     - Sur une commande déjà clôturée (ended_at défini)
+     - Tenter d'assigner un serveur sur une commande déjà clôturée
+       (ended_at défini)
      - Appel API retourne : « Order is already closed »
 
 11.7 Commande inexistante
@@ -560,122 +572,251 @@ MODULE 11 — Assignation du serveur (cuisine)
 
 
 ================================================================================
-MODULE 12 — Avis clients (reviews)
+MODULE 12 — Avis clients (/reviews)
 ================================================================================
 
-12.1 Création d'un avis sur un item
-     Avec client@restoqr.ca : password123
-     - Se connecter et accéder à /reviews
-     - Trouver une commande fermée avec des items commandés
-     - Cliquer sur « Laisser un avis » à côté d'un item
-     - La modal s'ouvre avec un sélecteur d'étoiles (1-5) et un champ commentaire
-     - Sélectionner 5 étoiles, entrer un commentaire, cliquer « Enregistrer »
-     - L'avis est créé en base de données
-     - Le bouton change pour « Modifier l'avis »
+12.1 Accès à la page des avis
+     Avec alice@restoqr.ca : password123
+     - Se connecter et cliquer sur le bouton « Mes avis » dans le header
+     - Redirection vers /reviews
+     - Le titre « Mes avis » est affiché
+     - Le sous-titre « Laissez un avis sur vos commandes passées. » est
+       affiché
 
-12.2 Création d'un avis sur un combo
-     - Même procédure que 12.1 mais pour un combo commandé
-     - L'avis est associé au type « Combo »
+12.2 Affichage des commandes fermées
+     - Les commandes fermées (ended_at défini) s'affichent en cartes
+     - Chaque carte montre : un badge « Table X », la date de commande
+     - Chaque ligne de commande affiche : nom de l'item/combo, type,
+       quantité
+     - Si un serveur était assigné, une ligne « Évaluer le serveur »
+       apparaît en bas de la carte
 
-12.3 Création d'un avis sur un serveur
-     - Sur une commande ayant un serveur assigné
+12.3 Aucune commande fermée
+     Avec un client sans commande passée
+     - Le message « Aucune commande passée à évaluer. » s'affiche
+       avec une icône
+
+12.4 Création d'un avis sur un item
+     Avec alice@restoqr.ca : password123
+     - Sur une commande fermée, cliquer sur « Laisser un avis » à côté
+       d'un item (ex : Filet de Bar Grillé)
+     - La modal s'ouvre avec le titre « Laisser un avis »
+     - Le nom de l'item est affiché sous le titre
+     - Un sélecteur d'étoiles (1 à 5) est visible
+     - Un champ commentaire (textarea, max 500 caractères) est visible
+     - Une section « Photos » est visible avec un bouton d'ajout (icône
+       add_a_photo en pointillé)
+     - Sélectionner 5 étoiles, entrer un commentaire
+     - Cliquer sur « Enregistrer »
+     - La modal se ferme
+     - Le message « Avis créé avec succès » s'affiche (snackbar)
+     - Le bouton change pour « Modifier l'avis » avec les étoiles affichées
+
+12.5 Création d'un avis sur un serveur
+     Avec alice@restoqr.ca : password123
+     - Sur une commande ayant un serveur assigné (ex : Marie)
      - Cliquer sur « Évaluer le serveur »
-     - La modal s'ouvre, saisir étoiles et commentaire
-     - L'avis est associé au type « User » (serveur)
+     - La modal s'ouvre avec le nom du serveur affiché
+     - Sélectionner des étoiles, entrer un commentaire
+     - Cliquer sur « Enregistrer »
+     - L'avis est créé, les étoiles s'affichent à côté du nom du serveur
 
-12.4 Modification d'un avis
-     - Sur un avis existant, cliquer sur « Modifier l'avis »
-     - La modal s'ouvre avec les valeurs actuelles pré-remplies
-     - Modifier la note et/ou le commentaire
-     - Clic sur « Enregistrer »
-     - L'avis est mis à jour en base
+12.6 Création d'un avis avec photo
+     Avec bob@restoqr.ca : password123
+     - Sur une commande fermée, cliquer sur « Laisser un avis »
+     - Sélectionner des étoiles et entrer un commentaire
+     - Cliquer sur le bouton d'ajout de photo (icône add_a_photo)
+     - Sélectionner une image JPG ou PNG (< 5 Mo)
+     - L'aperçu de la photo apparaît avec un bouton « × » pour la retirer
+     - Cliquer sur « Enregistrer »
+     - L'avis est créé avec la photo attachée
+     - La miniature de la photo s'affiche à côté des étoiles
 
-12.5 Suppression d'un avis
-     - Sur un avis existant, cliquer sur l'icône de suppression
-     - L'avis disparaît de la liste (soft delete)
+12.7 Validation — Photo format invalide
+     - Dans la modal d'avis, tenter de sélectionner un fichier non
+       JPG/PNG (ex : .gif, .pdf)
+     - Message d'erreur : « Seuls les fichiers JPG et PNG sont acceptés. »
 
-12.6 Validation — Note requise (1-5)
-     - Tenter de créer un avis avec une note de 0 ou 6
-     - Erreur de validation : la note doit être entre 1 et 5
+12.8 Validation — Photo trop lourde
+     - Tenter de sélectionner une image de plus de 5 Mo
+     - Message d'erreur : « Chaque photo doit faire moins de 5 Mo. »
 
-12.7 Validation — Commentaire requis
-     - Tenter de créer un avis sans commentaire ou avec des espaces seulement
-     - Erreur de validation : le commentaire est requis
+12.9 Validation — Maximum 3 photos
+     - Ajouter 3 photos à un avis
+     - Le bouton d'ajout disparaît (plus de bouton add_a_photo)
+     - Retirer une photo : le bouton d'ajout réapparaît
 
-12.8 Validation — Commentaire trop long
-     - Tenter de créer un avis avec un commentaire de plus de 500 caractères
-     - Erreur de validation : maximum 500 caractères
+12.10 Retrait d'une photo
+     - Ajouter une photo dans la modal d'avis
+     - Cliquer sur le bouton « × » sur la miniature
+     - La photo est retirée de l'aperçu
 
-12.9 Avis sur item non commandé
-     - Tenter de créer un avis sur un item jamais commandé par le client
-     - Réponse : success false
+12.11 Validation — Note requise
+     - Tenter de cliquer sur « Enregistrer » sans sélectionner d'étoile
+     - Le bouton « Enregistrer » est grisé (désactivé) tant qu'aucune
+       étoile n'est sélectionnée
 
-12.10 Avis sur un non-serveur
-     - Tenter de créer un avis sur un cuisinier (type != Waiter)
-     - Réponse : success false
+12.12 Validation — Commentaire requis
+     - Sélectionner des étoiles mais laisser le commentaire vide
+     - Cliquer sur « Enregistrer »
+     - Message d'erreur : « Le commentaire est requis. »
 
-12.11 Avis sur serveur non assigné
-     - Tenter d'évaluer un serveur qui n'a jamais été assigné à une commande
-       du client
-     - Réponse : success false
+12.13 Validation — Commentaire trop long
+     - Entrer un commentaire de plus de 500 caractères
+     - Le compteur affiche « 500/500 » et le bouton est désactivé
 
-12.12 Non-client ne peut pas créer d'avis
+12.14 Modification d'un avis existant
+     Avec alice@restoqr.ca : password123
+     - Sur un avis existant (étoiles affichées), cliquer sur
+       « Modifier l'avis »
+     - La modal s'ouvre avec le titre « Modifier l'avis »
+     - Les étoiles et le commentaire sont pré-remplis avec les valeurs
+       actuelles
+     - Modifier la note (ex : 5 → 4) et/ou le commentaire
+     - Cliquer sur « Enregistrer »
+     - La modal se ferme
+     - Le message « Avis modifié avec succès » s'affiche (snackbar)
+     - Les nouvelles étoiles s'affichent
+
+12.15 Suppression d'un avis
+     Avec alice@restoqr.ca : password123
+     - Sur un avis existant, cliquer sur l'icône poubelle (delete)
+     - Une modal de confirmation s'ouvre : « Voulez-vous vraiment
+       supprimer cet avis ? »
+     - Cliquer sur « Supprimer »
+     - La modal se ferme
+     - Le message « Avis supprimé avec succès » s'affiche (snackbar)
+     - Le bouton revient à « Laisser un avis »
+
+12.16 Annulation de la suppression
+     - Cliquer sur l'icône poubelle d'un avis existant
+     - Cliquer sur « Annuler » dans la modal de confirmation
+     - La modal se ferme, l'avis est toujours présent
+
+12.17 Annulation du formulaire d'avis
+     - Cliquer sur « Laisser un avis » ou « Modifier l'avis »
+     - Cliquer sur « Annuler » dans la modal
+     - La modal se ferme, aucun avis n'est créé/modifié
+
+12.18 Avis sur item non commandé (backend)
+     - Tenter de créer un avis sur un item que le client n'a jamais
+       commandé dans une commande fermée
+     - Réponse API : success false
+
+12.19 Avis sur un non-serveur (backend)
+     - Tenter de créer un avis avec reviewable_type « User » sur un
+       cuisinier (type Cook)
+     - Réponse API : success false (seuls les serveurs et admins
+       peuvent être évalués)
+
+12.20 Avis sur serveur non assigné au client (backend)
+     - Tenter d'évaluer un serveur qui n'a jamais été assigné à une
+       commande du client
+     - Réponse API : success false
+
+12.21 Seuls les clients peuvent créer des avis (backend)
      Avec waiter@restoqr.ca : password123
-     - Tenter de créer un avis
+     - Tenter de créer un avis via l'API
      - Réponse : success false, erreur « Only clients can create reviews »
 
-12.13 Modification par un autre utilisateur
-     - Un serveur tente de modifier l'avis d'un client
-     - Réponse : success false, erreur « You can only update your own reviews »
+12.22 Modification par un autre utilisateur (backend)
+     - Un serveur tente de modifier l'avis d'un client via l'API
+     - Réponse : success false, erreur « You can only update your own
+       reviews »
+
+12.23 Avis en double (backend)
+     - Tenter de créer un deuxième avis sur le même item/combo/serveur
+       par le même client
+     - Réponse : success false (la base de données empêche le doublon)
 
 
 ================================================================================
-MODULE 13 — Administration des avis
+MODULE 13 — Administration des avis (/admin/reviews)
 ================================================================================
 
-13.1 Affichage de la liste
+13.1 Affichage de la liste des avis
      Avec admin@restoqr.ca : password123
      - Se connecter et accéder à /admin, cliquer sur l'onglet « Avis »
-     - Tous les avis s'affichent en grille de cartes
-     - Chaque carte affiche : nom du client, type d'avis (badge), cible,
-       étoiles, commentaire, date
+     - Tous les avis de tous les clients s'affichent en grille de cartes
+     - Chaque carte affiche :
+       · Nom du client (ex : « Alice Tremblay »)
+       · Badge du type d'avis (« Item », « Combo » ou « Serveur »)
+       · Icône et nom de la cible (ex : icône person + « Marie Serveur »)
+       · Étoiles (★★★★★ ou ★★★★☆, etc.)
+       · Photos miniatures (si attachées)
+       · Commentaire
+       · Date de création
+       · Bouton de suppression (icône delete)
 
-13.2 Recherche par nom d'utilisateur
-     - Taper un nom dans la barre de recherche (ex : « Jean »)
-     - Seuls les avis correspondants s'affichent
+13.2 Recherche par nom
+     - Taper un nom dans la barre de recherche (ex : « Alice »)
+     - Seuls les avis du client correspondant s'affichent
+     - Effacer la recherche : tous les avis réapparaissent
 
-13.3 Filtre par type d'avis
-     - Sélectionner « Item » dans le dropdown de type
+13.3 Recherche sans résultat
+     - Taper un texte qui ne correspond à aucun avis (ex : « zzzzz »)
+     - Le message « Aucun avis. » s'affiche
+
+13.4 Filtre par type — Item
+     - Sélectionner « Item » dans le dropdown « Type »
      - Seuls les avis sur des items s'affichent
-     - Sélectionner « Combo » : seuls les avis sur des combos
-     - Sélectionner « Serveur » : seuls les avis sur des serveurs
 
-13.4 Filtre par note
-     - Sélectionner « 5 étoiles » dans le dropdown de note
+13.5 Filtre par type — Combo
+     - Sélectionner « Combo » dans le dropdown « Type »
+     - Seuls les avis sur des combos s'affichent
+
+13.6 Filtre par type — Serveur
+     - Sélectionner « Serveur » dans le dropdown « Type »
+     - Seuls les avis sur des serveurs s'affichent
+
+13.7 Filtre par note
+     - Sélectionner « 5 » dans le dropdown « Note »
      - Seuls les avis avec 5 étoiles s'affichent
+     - Sélectionner « 3 » : seuls les avis 3 étoiles
+     - Remettre à « Tous » : tous les avis réapparaissent
 
-13.5 Tri
-     - Sélectionner « Plus récents » : avis triés par date décroissante
-     - Sélectionner « Plus anciens » : avis triés par date croissante
-     - Sélectionner « Meilleures notes » : avis triés par note décroissante
-     - Sélectionner « Moins bonnes notes » : avis triés par note croissante
+13.8 Tri — Plus récent
+     - Sélectionner « Plus récent » dans le dropdown « Tri »
+     - Les avis sont triés par date décroissante (les plus récents en haut)
 
-13.6 Suppression d'un avis (admin)
-     - Cliquer sur l'icône de suppression d'un avis
-     - La modal de confirmation s'ouvre
+13.9 Tri — Plus ancien
+     - Sélectionner « Plus ancien »
+     - Les avis sont triés par date croissante
+
+13.10 Tri — Meilleures notes
+     - Sélectionner « Note ↑ »
+     - Les avis sont triés par note décroissante (5 étoiles en haut)
+
+13.11 Tri — Moins bonnes notes
+     - Sélectionner « Note ↓ »
+     - Les avis sont triés par note croissante (1 étoile en haut)
+
+13.12 Suppression d'un avis (admin)
+     Avec admin@restoqr.ca : password123
+     - Cliquer sur l'icône « delete » d'un avis
+     - La modal de confirmation s'ouvre : « Voulez-vous vraiment
+       supprimer cet avis ? »
+     - Le nom de la cible est affiché dans la modal
      - Cliquer sur « Supprimer »
-     - L'avis disparaît de la liste (soft delete)
+     - La modal se ferme
+     - Le message « Avis supprimé » s'affiche (snackbar)
+     - L'avis disparaît de la grille
 
-13.7 Non-propriétaire ne peut pas supprimer
+13.13 Annulation de la suppression (admin)
+     - Cliquer sur l'icône « delete » d'un avis
+     - Cliquer sur « Annuler » dans la modal
+     - L'avis reste visible dans la grille
+
+13.14 Non-propriétaire ne peut pas supprimer (backend)
      Avec waiter@restoqr.ca : password123
      - Appel API DELETE /api/reviews/:id sur un avis d'un autre utilisateur
      - Réponse : success false, erreur « Unauthorized »
 
-13.8 Utilisateur non authentifié
+13.15 Utilisateur non authentifié (backend)
      - Accéder à GET /api/reviews sans être connecté
      - Réponse : success false
 
-13.9 Avis inexistant
+13.16 Avis inexistant (backend)
      - Appel API DELETE /api/reviews/999999
      - Réponse : success false, erreur « Review not found »
 
@@ -687,33 +828,44 @@ MODULE 14 — Rabais employé
 14.1 Client n'a pas de rabais
      Avec client@restoqr.ca : password123
      - Le client n'est pas un employé
-     - La page de paiement affiche le total normal sans rabais
+     - La page de paiement (/pay) affiche le total normal sans ligne de
+       rabais
      - employee_discount_percentage = 0
 
 14.2 Nouvel employé (< 6 mois) — 0 %
-     - Créer un employé (Serveur/Cuisinier/Admin) avec un compte de moins de
-       6 mois
-     - Le rabais est de 0 %
+     - Un employé (Serveur/Cuisinier/Admin) dont le compte a été créé
+       il y a moins de 6 mois
+     - employee_discount_percentage = 0
+     - Aucune ligne de rabais n'est affichée sur /pay
 
 14.3 Employé 6-12 mois — 5 %
-     - Employé avec un compte créé il y a 8 mois
-     - Le rabais est de 5 %
-     - La page de paiement affiche : « Rabais employé : 5 % »
+     - Un employé dont le compte a été créé il y a 8 mois (ex : cook@)
+     - employee_discount_percentage = 5
+     - La page de paiement affiche : « Rabais employé : 5 % » en vert
+     - Le montant économisé est affiché (ex : -X.XX $)
+     - Le total ajusté est affiché
 
 14.4 Employé 1-2 ans — 10 %
-     - Employé avec un compte créé il y a 18 mois
-     - Le rabais est de 10 %
-     - La page de paiement affiche le montant économisé et le total ajusté
+     - Un employé dont le compte a été créé il y a 18 mois
+     - employee_discount_percentage = 10
+     - La page de paiement affiche : « Rabais employé : 10 % »
+     - Le montant économisé et le total ajusté sont affichés
 
 14.5 Employé 2+ ans — 15 %
-     - Employé avec un compte créé il y a 30 mois
-     - Le rabais est de 15 %
+     Avec marie@restoqr.ca : password123
+     - Marie a un compte créé il y a 26 mois
+     - employee_discount_percentage = 15
+     - La page de paiement affiche : « Rabais employé : 15 % »
+     - Exemple : commande de 181.96 $, rabais de -27.29 $,
+       total ajusté de 154.67 $
 
 14.6 Tous les types d'employés sont admissibles
-     - Les types Administrator, Waiter et Cook sont reconnus comme employés
+     - Les types Administrator, Waiter et Cook sont reconnus comme
+       employés
      - Vérifier que chacun reçoit un rabais selon son ancienneté
+     - Le type Client n'est PAS un employé (0 % toujours)
 
-14.7 Affichage du rabais sur la page de paiement
+14.7 Affichage conditionnel du rabais sur /pay
      - Quand discount_percentage > 0 :
        · La ligne « Rabais employé : X % » s'affiche en vert
        · Le montant économisé est affiché
@@ -721,16 +873,24 @@ MODULE 14 — Rabais employé
      - Quand discount_percentage = 0 :
        · Aucune ligne de rabais ne s'affiche
 
+14.8 Rabais dans la réponse JSON de la commande (backend)
+     - Appel GET /api/orders avec un client employé
+     - La réponse JSON inclut :
+       · discount_percentage (ex : 15)
+       · discount_amount (montant du rabais en $)
+       · adjusted_total (total après rabais)
+     - Pour un client non-employé : discount_percentage = 0
+
 
 ================================================================================
 MODULE 15 — Navigation backend (redirection après connexion)
 ================================================================================
 
-15.1 Redirection — Cuisinier vers /kitchen
+15.1 Redirection — Cuisinier vers /cuisine
      Avec cook@restoqr.ca : password123
      - Se connecter
-     - Le backend retourne redirect_to : « /kitchen »
-     - Le frontend redirige automatiquement vers /kitchen
+     - Le backend retourne redirect_to : « /cuisine »
+     - Le frontend redirige automatiquement vers /cuisine
 
 15.2 Redirection — Admin vers /admin/tables
      Avec admin@restoqr.ca : password123
