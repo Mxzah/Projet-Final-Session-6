@@ -282,6 +282,37 @@ end
 order1.update_column(:created_at, 2.hours.ago)
 puts "- Order ##{order1.id} (Table #{table3.number}, #{marie.first_name}) — il y a 2h"
 
+# Order demo — Marie (employee, 15% discount), table 9, server jean
+table9 = Table.find_by(number: 9)
+order_marie = Order.find_or_create_by!(client_id: marie.id, ended_at: nil) do |o|
+  o.table     = table9
+  o.nb_people = 2
+  o.server    = jean
+  o.vibe      = vibes['Date']
+  o.tip       = 10.00
+end
+
+OrderLine.find_or_create_by!(order_id: order_marie.id, orderable_type: 'Item', orderable_id: filet.id) do |l|
+  l.quantity   = 2
+  l.unit_price = filet.price
+  l.status     = 'served'
+end
+
+OrderLine.find_or_create_by!(order_id: order_marie.id, orderable_type: 'Item', orderable_id: petoncle.id) do |l|
+  l.quantity   = 1
+  l.unit_price = petoncle.price
+  l.status     = 'served'
+end
+
+OrderLine.find_or_create_by!(order_id: order_marie.id, orderable_type: 'Item', orderable_id: tartare.id) do |l|
+  l.quantity   = 1
+  l.unit_price = tartare.price
+  l.status     = 'ready'
+end
+
+order_marie.update_column(:created_at, 30.minutes.ago)
+puts "- Order ##{order_marie.id} (Table #{table9.number}, Marie employee — 15% discount demo)"
+
 # Order 2 — client2, table 5, server jean, vibe Date + note + tip
 order2 = Order.find_or_create_by!(client_id: client2.id, ended_at: nil) do |o|
   o.table     = table5
