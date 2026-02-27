@@ -1,0 +1,17 @@
+line_item_one:
+  order: closed_order
+  orderable_type: Item
+  orderable_id: <%= ActiveRecord::FixtureSet.identify(:item_one) %>
+  quantity: 2
+  unit_price: 24.99
+  status: served
+  created_at: <%= Time.current - 2.hours %>
+
+line_combo_one:
+  order: closed_order
+  orderable_type: Combo
+  orderable_id: <%= ActiveRecord::FixtureSet.identify(:combo_one) %>
+  quantity: 1
+  unit_price: 59.99
+  status: served
+  created_at: <%= Time.current - 2.hours %>

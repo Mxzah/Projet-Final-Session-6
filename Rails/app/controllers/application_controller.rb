@@ -9,11 +9,11 @@ class ApplicationController < ActionController::API
     I18n.locale = I18n.available_locales.map(&:to_s).include?(locale) ? locale : :fr
   end
 
-  def render_not_found(exception)
+  def render_not_found(_exception)
     render json: {
       success: false,
       data: nil,
-      errors: [exception.message]
+      errors: [ "Record not found" ]
     }, status: :ok
   end
 end

@@ -32,6 +32,13 @@
         {{ ts.t('header.login') }}
       </button>
     }
+    @if (showLogout && isClient()) {
+      <span class="header-divider">|</span>
+      <button mat-button class="reviews-btn" (click)="goToReviews()">
+        <mat-icon>rate_review</mat-icon>
+        {{ ts.t('header.reviews') }}
+      </button>
+    }
     @if (showLogout && showAdmin && authService.isAdmin()) {
       <span class="header-divider">|</span>
       <button mat-button class="admin-btn" (click)="goToAdmin()">
@@ -82,6 +89,12 @@
       <button mat-button class="logout-btn" (click)="loginClick.emit(); toggleMobileMenu()">
         <mat-icon>login</mat-icon>
         {{ ts.t('header.login') }}
+      </button>
+    }
+    @if (showLogout && isClient()) {
+      <button mat-button class="reviews-btn" (click)="goToReviews(); toggleMobileMenu()">
+        <mat-icon>rate_review</mat-icon>
+        {{ ts.t('header.reviews') }}
       </button>
     }
     @if (showLogout && showAdmin && authService.isAdmin()) {

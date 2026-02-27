@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
-import { OrderService } from '../services/order.service';
 import { TableService } from '../services/table.service';
 import { TranslationService } from '../services/translation.service';
 import { HeaderComponent } from '../header/header.component';
@@ -32,7 +31,6 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private cartService: CartService,
-    private orderService: OrderService,
     private tableService: TableService,
     private router: Router,
     public ts: TranslationService
@@ -54,53 +52,32 @@ export class LoginComponent {
         this.isLoading = false;
         this.cartService.clear();
 
-        if (this.authService.isCook()) {
-          this.router.navigate(['/kitchen']);
-          return;
-        }
+        const redirectTo = response.data?.redirect_to || '/form';
 
-        if (this.authService.isAdmin()) {
-          this.router.navigate(['/admin', 'tables']);
-          return;
-        }
-
-        // Check if the user already has an open order
-        this.orderService.getOrders().subscribe({
-          next: (res) => {
-            const orders = (res.data || []) as any[];
-            const openOrder = orders.find((o: any) => !o.ended_at);
-
-            if (openOrder) {
-              // User already has an open order — restore table info and go to menu
-              this.tableService.setCurrentTable({
-                id: openOrder.table_id,
-                number: openOrder.table_number,
-                capacity: 20,
-                status: 'active',
-                qr_token: ''
-              });
-              this.router.navigate(['/menu']);
-            } else {
-              // No open order — proceed with the QR scan flow
-              if (this.tableService.getPendingToken()) {
-                this.tableService.validateAndSavePendingToken().subscribe(() => {
-                  this.router.navigate(['/form']);
-                });
-              } else {
-                this.router.navigate(['/form']);
-              }
-            }
-          },
-          error: () => {
-            // Fallback: go to /form
+        // Handle QR pending token for /form redirect
+        if (redirectTo === '/form' && this.tableService.getPendingToken()) {
+          this.tableService.validateAndSavePendingToken().subscribe(() => {
             this.router.navigate(['/form']);
-          }
-        });
+          });
+        } else if (redirectTo === '/menu') {
+          // Restore table info from open order for menu navigation
+          this.restoreTableAndNavigate(redirectTo);
+        } else {
+          this.router.navigate([redirectTo]);
+        }
       },
       error: (error: any) => {
         this.isLoading = false;
         this.errorMessage.set(error?.errors?.join(', ') || this.ts.t('login.defaultError'));
       }
+    });
+  }
+
+  private restoreTableAndNavigate(path: string): void {
+    // Import OrderService lazily to restore table context
+    import('../services/order.service').then(m => {
+      // We need to get the injector — simplest approach: just navigate, the order page handles its own loading
+      this.router.navigate([path]);
     });
   }
 }

@@ -5,7 +5,7 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    user = User.find_by(email: params[:user][:email])
+    user = User.find_for_authentication(email: params[:user][:email])
 
     if user && user.valid_password?(params[:user][:password])
       if user.active_for_authentication?
@@ -16,21 +16,22 @@ class Users::SessionsController < Devise::SessionsController
             email: user.email,
             first_name: user.first_name,
             last_name: user.last_name,
-            type: user.type
+            type: user.type,
+            redirect_to: compute_redirect_for(user)
           }
         }, status: :ok
       else
         render json: {
           success: false,
           data: nil,
-          errors: ["Votre compte n'est pas encore activé"]
+          errors: [ "Invalid email or password" ]
         }, status: :ok
       end
     else
       render json: {
         success: false,
         data: nil,
-        errors: ['Email ou mot de passe invalide']
+        errors: [ "Invalid email or password" ]
       }, status: :ok
     end
   end
@@ -45,5 +46,20 @@ class Users::SessionsController < Devise::SessionsController
 
   def respond_to_on_destroy
     render json: { success: true }, status: :ok
+  end
+
+  def compute_redirect_for(user)
+    case user.type
+    when "Cook"
+      "/kitchen"
+    when "Administrator"
+      "/admin/tables"
+    else
+      if Order.open.where(client_id: user.id).exists?
+        "/menu"
+      else
+        "/form"
+      end
+    end
   end
 end

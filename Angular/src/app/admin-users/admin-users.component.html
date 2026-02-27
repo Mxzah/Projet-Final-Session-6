@@ -48,6 +48,11 @@
       </mat-form-field>
     </div>
 
+    <!-- Sort indicator -->
+    @if (sortIndicator()) {
+      <div class="sort-indicator">{{ sortIndicator() }}</div>
+    }
+
     @if (isLoading()) {
       <div class="loading">
         <mat-spinner diameter="48"></mat-spinner>
@@ -59,179 +64,69 @@
     }
 
     @if (!isLoading() && users().length > 0) {
-      <div class="users-list">
-        @for (user of users(); track user.id) {
-          <mat-card class="user-card">
-            <mat-card-content class="user-body">
-              <div class="user-info">
-                <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
-                <div class="user-email">{{ user.email }}</div>
-              </div>
-              <div class="user-badges">
-                <span class="badge badge-type" [attr.data-type]="user.type">{{ getTypeLabel(user.type) }}</span>
-                <span class="badge badge-status" [attr.data-status]="user.status">{{ getStatusLabel(user.status) }}</span>
-              </div>
-            </mat-card-content>
-            <mat-card-actions class="user-actions">
-              <button mat-icon-button class="action-btn toggle" [title]="user.status === 'active' ? ts.t('admin.users.block') : ts.t('admin.users.activate')" (click)="toggleStatus(user)">
-                <mat-icon>{{ user.status === 'active' ? 'block' : 'check_circle' }}</mat-icon>
-              </button>
-              <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(user)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(user)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </mat-card-actions>
-          </mat-card>
-        }
-      </div>
+      <!-- Employees section -->
+      @if (employees().length > 0) {
+        <div class="section-header">{{ ts.t('admin.users.employeesSection') }}</div>
+        <div class="users-list">
+          @for (user of employees(); track user.id) {
+            <mat-card class="user-card">
+              <mat-card-content class="user-body">
+                <div class="user-info">
+                  <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+                  <div class="user-email">{{ user.email }}</div>
+                </div>
+                <div class="user-badges">
+                  <span class="badge badge-type" [attr.data-type]="user.type">{{ getTypeLabel(user.type) }}</span>
+                  <span class="badge badge-status" [attr.data-status]="user.status">{{ getStatusLabel(user.status) }}</span>
+                </div>
+              </mat-card-content>
+              <mat-card-actions class="user-actions">
+                <button mat-icon-button class="action-btn toggle" [title]="user.status === 'active' ? ts.t('admin.users.block') : ts.t('admin.users.activate')" (click)="toggleStatus(user)">
+                  <mat-icon>{{ user.status === 'active' ? 'block' : 'check_circle' }}</mat-icon>
+                </button>
+                <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(user)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(user)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+      }
+
+      <!-- Clients section -->
+      @if (clients().length > 0) {
+        <div class="section-header">{{ ts.t('admin.users.clientsSection') }}</div>
+        <div class="users-list">
+          @for (user of clients(); track user.id) {
+            <mat-card class="user-card">
+              <mat-card-content class="user-body">
+                <div class="user-info">
+                  <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+                  <div class="user-email">{{ user.email }}</div>
+                </div>
+                <div class="user-badges">
+                  <span class="badge badge-type" [attr.data-type]="user.type">{{ getTypeLabel(user.type) }}</span>
+                  <span class="badge badge-status" [attr.data-status]="user.status">{{ getStatusLabel(user.status) }}</span>
+                </div>
+              </mat-card-content>
+              <mat-card-actions class="user-actions">
+                <button mat-icon-button class="action-btn toggle" [title]="user.status === 'active' ? ts.t('admin.users.block') : ts.t('admin.users.activate')" (click)="toggleStatus(user)">
+                  <mat-icon>{{ user.status === 'active' ? 'block' : 'check_circle' }}</mat-icon>
+                </button>
+                <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(user)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(user)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+      }
     }
   </div>
 </main>
-
-<!-- Delete confirmation modal -->
-@if (userToDelete()) {
-  <div class="modal-overlay">
-    <mat-card class="modal">
-      <button mat-icon-button class="modal-close" (click)="cancelDelete()">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ ts.t('admin.users.deleteTitle') }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p class="modal-text">{{ ts.t('admin.users.deleteConfirm') }} <strong>{{ userToDelete()!.first_name }} {{ userToDelete()!.last_name }}</strong> ?</p>
-      </mat-card-content>
-      <mat-card-actions class="modal-actions">
-        <button mat-stroked-button class="btn-cancel" (click)="cancelDelete()">{{ ts.t('admin.cancel') }}</button>
-        <button mat-flat-button class="btn-danger" (click)="deleteUser()">{{ ts.t('admin.delete') }}</button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-}
-
-<!-- Create / Edit modal -->
-@if (editingUser() || isCreating()) {
-  <div class="modal-overlay">
-    <mat-card class="modal modal-edit">
-      <button mat-icon-button class="modal-close" (click)="cancelEdit()">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ isCreating() ? ts.t('admin.users.add') : ts.t('admin.users.edit') }}</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        @if (editError()) {
-          <div class="modal-error">{{ editError() }}</div>
-        }
-
-        <form [formGroup]="editForm" (ngSubmit)="isCreating() ? saveCreate() : saveEdit()">
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.users.firstName') }}</mat-label>
-            <input matInput formControlName="first_name" />
-            @if (editForm.controls.first_name.dirty && editForm.controls.first_name.errors) {
-              <mat-error>
-                @if (editForm.controls.first_name.errors['required']) {
-                  {{ ts.t('admin.users.firstNameRequired') }}
-                } @else if (editForm.controls.first_name.errors['maxlength']) {
-                  {{ ts.t('admin.users.firstNameMaxLength') }}
-                } @else if (editForm.controls.first_name.errors['pattern']) {
-                  {{ ts.t('admin.users.firstNameWhitespace') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.users.lastName') }}</mat-label>
-            <input matInput formControlName="last_name" />
-            @if (editForm.controls.last_name.dirty && editForm.controls.last_name.errors) {
-              <mat-error>
-                @if (editForm.controls.last_name.errors['required']) {
-                  {{ ts.t('admin.users.lastNameRequired') }}
-                } @else if (editForm.controls.last_name.errors['maxlength']) {
-                  {{ ts.t('admin.users.lastNameMaxLength') }}
-                } @else if (editForm.controls.last_name.errors['pattern']) {
-                  {{ ts.t('admin.users.lastNameWhitespace') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.users.email') }}</mat-label>
-            <input matInput formControlName="email" type="email" />
-            @if (editForm.controls.email.dirty && editForm.controls.email.errors) {
-              <mat-error>
-                @if (editForm.controls.email.errors['required']) {
-                  {{ ts.t('admin.users.emailRequired') }}
-                } @else if (editForm.controls.email.errors['email']) {
-                  {{ ts.t('admin.users.emailInvalid') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.users.typeLabel') }}</mat-label>
-            <mat-select formControlName="type">
-              @for (t of userTypes; track t) {
-                <mat-option [value]="t">{{ getTypeLabel(t) }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.users.statusLabel') }}</mat-label>
-            <mat-select formControlName="status">
-              @for (s of userStatuses; track s) {
-                <mat-option [value]="s">{{ getStatusLabel(s) }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.users.password') }}</mat-label>
-            <input matInput formControlName="password" type="password" />
-            @if (editForm.controls.password.dirty && editForm.controls.password.errors) {
-              <mat-error>
-                @if (editForm.controls.password.errors['required']) {
-                  {{ ts.t('admin.users.passwordRequired') }}
-                } @else if (editForm.controls.password.errors['minlength']) {
-                  {{ ts.t('admin.users.passwordMinLength') }}
-                } @else if (editForm.controls.password.errors['maxlength']) {
-                  {{ ts.t('admin.users.passwordMaxLength') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.users.passwordConfirmation') }}</mat-label>
-            <input matInput formControlName="password_confirmation" type="password" />
-            @if (editForm.controls.password_confirmation.dirty && editForm.controls.password_confirmation.errors) {
-              <mat-error>
-                @if (editForm.controls.password_confirmation.errors['required']) {
-                  {{ ts.t('admin.users.passwordConfirmationRequired') }}
-                } @else if (editForm.controls.password_confirmation.errors['minlength']) {
-                  {{ ts.t('admin.users.passwordMinLength') }}
-                } @else if (editForm.controls.password_confirmation.errors['maxlength']) {
-                  {{ ts.t('admin.users.passwordMaxLength') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-card-actions class="modal-actions">
-            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelEdit()">{{ ts.t('admin.cancel') }}</button>
-            <button mat-flat-button type="submit" class="btn-primary" [disabled]="editLoading() || editForm.invalid">
-              {{ editLoading() ? ts.t('admin.saving') : (isCreating() ? ts.t('admin.add') : ts.t('admin.save')) }}
-            </button>
-          </mat-card-actions>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  </div>
-}

@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     end
     resources :combo_items, only: [:index, :create, :destroy]
     resources :users, only: [:index, :show, :create, :update, :destroy]
+    resources :reviews, only: [:index, :show, :create, :update, :destroy]
 
     resources :orders, only: [:index, :show, :create, :update, :destroy] do
       resources :order_lines, only: [:index, :create, :update, :destroy]
@@ -51,6 +52,7 @@ Rails.application.routes.draw do
     resources :vibes, only: [:index]
     get 'kitchen/orders', to: 'cuisine#orders'
     post 'kitchen/orders/:id/release', to: 'cuisine#release_order'
+    post 'kitchen/orders/:id/assign_server', to: 'cuisine#assign_server'
     put 'kitchen/order_lines/:id/next_status', to: 'cuisine#next_status'
     put 'kitchen/order_lines/:id', to: 'cuisine#update_line'
     delete 'kitchen/order_lines/:id', to: 'cuisine#destroy_line'

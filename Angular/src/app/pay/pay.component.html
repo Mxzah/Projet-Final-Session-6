@@ -24,6 +24,16 @@
             <span>{{ ts.t('pay.total') }}</span>
             <strong class="total-price">CA${{ o.total.toFixed(2) }}</strong>
           </div>
+          @if (o.discount_percentage > 0) {
+            <div class="summary-line discount-line">
+              <span>{{ ts.t('pay.discount') }} ({{ o.discount_percentage }}%)</span>
+              <strong class="discount-price">-CA${{ o.discount_amount.toFixed(2) }}</strong>
+            </div>
+            <div class="summary-line adjusted-total-line">
+              <span>{{ ts.t('pay.adjustedTotal') }}</span>
+              <strong class="adjusted-total-price">CA${{ o.adjusted_total.toFixed(2) }}</strong>
+            </div>
+          }
         </div>
 
         <div class="tip-section">
@@ -46,7 +56,7 @@
 
         <div class="grand-total">
           <span>{{ ts.t('pay.grandTotal') }}</span>
-          <strong class="grand-total-price">CA${{ (o.total + tip()).toFixed(2) }}</strong>
+          <strong class="grand-total-price">CA${{ ((o.discount_percentage > 0 ? o.adjusted_total : o.total) + tip()).toFixed(2) }}</strong>
         </div>
 
         <button mat-raised-button

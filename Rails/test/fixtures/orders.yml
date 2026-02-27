@@ -1,0 +1,21 @@
+open_order:
+  table: table_one
+  client: valid_user
+  server: waiter_user
+  nb_people: 2
+  created_at: <%= Time.current - 1.hour %>
+
+closed_order:
+  table: table_two
+  client: valid_user
+  server: waiter_user
+  nb_people: 4
+  tip: 5.00
+  ended_at: <%= Time.current - 30.minutes %>
+  created_at: <%= Time.current - 2.hours %>
+
+unassigned_order:
+  table: table_three
+  client: inactive_user
+  nb_people: 2
+  created_at: <%= Time.current - 15.minutes %>

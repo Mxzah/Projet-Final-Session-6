@@ -12,7 +12,8 @@ module Api
               first_name: current_user.first_name,
               last_name: current_user.last_name,
               type: current_user.type
-            }
+            },
+            redirect_to: compute_redirect_for(current_user)
           },
           errors: []
         }, status: :ok
@@ -25,6 +26,23 @@ module Api
           },
           errors: []
         }, status: :ok
+      end
+    end
+
+    private
+
+    def compute_redirect_for(user)
+      case user.type
+      when "Cook"
+        "/kitchen"
+      when "Administrator"
+        "/admin/tables"
+      else
+        if Order.open.where(client_id: user.id).exists?
+          "/menu"
+        else
+          "/form"
+        end
       end
     end
   end

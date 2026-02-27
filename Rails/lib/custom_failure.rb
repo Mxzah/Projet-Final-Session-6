@@ -4,7 +4,8 @@ class CustomFailure < Devise::FailureApp
     self.content_type = 'application/json'
     self.response_body = {
       success: false,
-      errors: ['Vous devez être connecté pour accéder à cette ressource']
+      data: nil,
+      errors: [ "Invalid email or password" ]
     }.to_json
   end
 end

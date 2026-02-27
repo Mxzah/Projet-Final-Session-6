@@ -1,2 +1,2 @@
-class Administrator < Client
+class Administrator < User
 end

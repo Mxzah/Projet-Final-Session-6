@@ -20,6 +20,7 @@ export class AdminComponent {
     { path: 'items', label: 'admin.items.tab' },
     { path: 'combos', label: 'admin.combos.tab' },
     { path: 'users', label: 'admin.users.tab' },
+    { path: 'reviews', label: 'admin.reviews.tab' },
   ];
 
   constructor(

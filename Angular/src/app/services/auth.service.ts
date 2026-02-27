@@ -8,6 +8,7 @@ export interface UserData {
   first_name: string;
   last_name: string;
   type: string;
+  redirect_to?: string;
 }
 
 @Injectable({
@@ -110,5 +111,11 @@ export class AuthService {
 
   getCurrentUser(): UserData | null {
     return this.currentUser;
+  }
+
+  clearSession(): void {
+    this.currentUser = null;
+    this.clearUserFromStorage();
+    this.isLoggedIn = false;
   }
 }

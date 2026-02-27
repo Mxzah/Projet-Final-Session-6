@@ -33,6 +33,9 @@ export interface OrderData {
   ended_at: string | null;
   order_lines: OrderLineData[];
   total: number;
+  discount_percentage: number;
+  discount_amount: number;
+  adjusted_total: number;
 }
 
 export interface VibeData {

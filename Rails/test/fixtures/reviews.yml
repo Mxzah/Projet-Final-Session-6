@@ -1,0 +1,17 @@
+item_review:
+  user: valid_user
+  reviewable_type: Item
+  reviewable_id: <%= ActiveRecord::FixtureSet.identify(:item_one) %>
+  rating: 4
+  comment: "Great tartare, very fresh!"
+  created_at: <%= Time.current - 1.hour %>
+  updated_at: <%= Time.current - 1.hour %>
+
+server_review:
+  user: valid_user
+  reviewable_type: User
+  reviewable_id: <%= ActiveRecord::FixtureSet.identify(:waiter_user) %>
+  rating: 5
+  comment: "Excellent service from Pierre!"
+  created_at: <%= Time.current - 30.minutes %>
+  updated_at: <%= Time.current - 30.minutes %>

@@ -36,6 +36,29 @@ module Api
       end
     end
 
+    # POST /api/kitchen/orders/:id/assign_server (waiter/admin only — assigns self as server)
+    def assign_server
+      return render json: { code: 200, success: false, data: [], errors: ["Unauthorized"] }, status: :ok unless senior_staff?
+
+      order = Order.find_by(id: params[:id])
+      return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok unless order
+
+      if order.ended_at.present?
+        return render json: { code: 200, success: false, data: [], errors: ["Order is already closed"] }, status: :ok
+      end
+
+      if order.server_id.present?
+        return render json: { code: 200, success: false, data: [], errors: ["Order already has a server assigned"] }, status: :ok
+      end
+
+      order.server_id = current_user.id
+      if order.save(validate: false)
+        render json: { code: 200, success: true, data: [order.reload.as_json], errors: [] }, status: :ok
+      else
+        render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
+      end
+    end
+
     # PUT /api/kitchen/order_lines/:id/next_status (all kitchen staff)
     def next_status
       line = OrderLine.find_by(id: params[:id])

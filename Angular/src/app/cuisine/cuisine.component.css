@@ -700,6 +700,27 @@ mat-card-content {
   cursor: not-allowed;
 }
 
+/* ── Assign me button ── */
+.assign-btn {
+  background: linear-gradient(120deg, #2e7d32, #43a047) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+  height: auto !important;
+  padding: 0.2rem 0.55rem !important;
+  line-height: 1.4 !important;
+  white-space: nowrap;
+}
+
+.assign-btn mat-icon {
+  font-size: 0.85rem !important;
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+  margin-right: 0.2rem;
+}
+
 /* ── Next-status button ── */
 .btn-next-status {
   background: linear-gradient(120deg, var(--copper), var(--rust)) !important;

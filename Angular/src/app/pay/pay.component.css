@@ -78,6 +78,28 @@
   color: var(--copper);
 }
 
+.discount-line {
+  color: #2e7d32;
+}
+
+.discount-price {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.adjusted-total-line {
+  border-top: 1px solid rgba(27, 26, 23, 0.1);
+  padding-top: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.adjusted-total-price {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
 .tip-section {
   display: flex;
   flex-direction: column;

@@ -24,6 +24,10 @@ class Order < ApplicationRecord
     lines_data = order_lines.map(&:as_json)
     total = lines_data.sum { |l| l[:unit_price] * l[:quantity] }
 
+    discount_pct = client&.employee_discount_percentage || 0
+    discount_amt = (total * discount_pct / 100.0).round(2)
+    adj_total = (total - discount_amt).round(2)
+
     {
       id: id,
       nb_people: nb_people,
@@ -40,7 +44,10 @@ class Order < ApplicationRecord
       created_at: created_at,
       ended_at: ended_at,
       order_lines: lines_data,
-      total: total
+      total: total,
+      discount_percentage: discount_pct,
+      discount_amount: discount_amt,
+      adjusted_total: adj_total
     }
   end
 

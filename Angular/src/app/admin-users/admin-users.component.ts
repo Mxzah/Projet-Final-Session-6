@@ -1,6 +1,6 @@
-import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,9 +8,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { UserService } from '../services/user.service';
+import { ErrorService } from '../services/error.service';
 import { UserInfo } from './user.model';
 import { TranslationService } from '../services/translation.service';
+import { UserFormDialogComponent, UserFormDialogResult } from './user-form-dialog.component';
+import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component';
 
 @Component({
   selector: 'app-admin-users',
@@ -24,7 +31,7 @@ import { TranslationService } from '../services/translation.service';
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.css']
 })
-export class AdminUsersComponent implements OnInit {
+export class AdminUsersComponent implements OnInit, OnDestroy {
   users = signal<UserInfo[]>([]);
   isLoading = signal(true);
 
@@ -34,37 +41,47 @@ export class AdminUsersComponent implements OnInit {
   filterType = signal('all');
   sortOrder = signal('none');
 
-  // Delete
-  userToDelete = signal<UserInfo | null>(null);
+  // Debounce search
+  private searchSubject = new Subject<string>();
+  private searchSubscription!: Subscription;
 
-  // Create
-  isCreating = signal(false);
+  // Computed: split employees and clients
+  employees = computed(() =>
+    this.users().filter(u => ['Administrator', 'Waiter', 'Cook'].includes(u.type))
+  );
+  clients = computed(() =>
+    this.users().filter(u => u.type === 'Client')
+  );
 
-  // Edit
-  editingUser = signal<UserInfo | null>(null);
-  editForm = new FormGroup({
-    first_name: new FormControl('', [Validators.required, Validators.maxLength(50), Validators.pattern(/.*\S.*/)]),
-    last_name: new FormControl('', [Validators.required, Validators.maxLength(50), Validators.pattern(/.*\S.*/)]),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    type: new FormControl('Client', [Validators.required]),
-    status: new FormControl('active', [Validators.required]),
-    password: new FormControl('', [Validators.minLength(6), Validators.maxLength(128)]),
-    password_confirmation: new FormControl('', [Validators.minLength(6), Validators.maxLength(128)])
+  // Sort indicator
+  sortIndicator = computed(() => {
+    if (this.sortOrder() === 'asc') return this.ts.t('admin.users.sortedByAZ');
+    if (this.sortOrder() === 'desc') return this.ts.t('admin.users.sortedByZA');
+    return '';
   });
-  editError = signal('');
-  editLoading = signal(false);
 
   userTypes = ['Administrator', 'Waiter', 'Client', 'Cook'];
   userStatuses = ['active', 'inactive', 'blocked'];
 
   constructor(
     private userService: UserService,
-    public ts: TranslationService,
-    private cdr: ChangeDetectorRef
-  ) { }
+    private errorService: ErrorService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    public ts: TranslationService
+  ) {}
 
   ngOnInit(): void {
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(() => this.loadData());
+
     this.loadData();
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe();
   }
 
   loadData(): void {
@@ -90,8 +107,9 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onSearchChange(event: Event): void {
-    this.searchTerm.set((event.target as HTMLInputElement).value);
-    this.loadData();
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+    this.searchSubject.next(value);
   }
 
   onFilterStatusChange(value: string): void {
@@ -114,33 +132,30 @@ export class AdminUsersComponent implements OnInit {
   toggleStatus(user: UserInfo): void {
     const newStatus = user.status === 'active' ? 'blocked' : 'active';
     this.userService.updateUser(user.id, { status: newStatus }).subscribe({
-      next: (updated) => {
-        this.users.update(users => users.map(u => u.id === user.id ? updated : u));
-      }
+      next: () => this.loadData()
     });
   }
 
   // ── Delete ──
 
   confirmDelete(user: UserInfo): void {
-    this.userToDelete.set(user);
-  }
+    const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '400px',
+      data: { userName: `${user.first_name} ${user.last_name}` }
+    });
 
-  cancelDelete(): void {
-    this.userToDelete.set(null);
-  }
-
-  deleteUser(): void {
-    const user = this.userToDelete();
-    if (!user) return;
-
-    this.userService.deleteUser(user.id).subscribe({
-      next: () => {
-        this.users.update(users => users.filter(u => u.id !== user.id));
-        this.userToDelete.set(null);
-      },
-      error: () => {
-        this.userToDelete.set(null);
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.userService.deleteUser(user.id).subscribe({
+          next: () => {
+            this.loadData();
+            this.snackBar.open(this.ts.t('admin.users.userDeleted'), '', { duration: 3000 });
+          },
+          error: (err: any) => {
+            const appError = this.errorService.fromApiError(err);
+            this.snackBar.open(this.errorService.format(appError), '', { duration: 5000 });
+          }
+        });
       }
     });
   }
@@ -148,119 +163,66 @@ export class AdminUsersComponent implements OnInit {
   // ── Create ──
 
   openCreate(): void {
-    this.isCreating.set(true);
-    this.editForm.reset({ first_name: '', last_name: '', email: '', type: 'Client', status: 'active', password: '', password_confirmation: '' });
-    this.editForm.markAsPristine();
-    this.editForm.markAsUntouched();
-    this.editForm.controls.password.setValidators([Validators.required, Validators.minLength(6), Validators.maxLength(128)]);
-    this.editForm.controls.password_confirmation.setValidators([Validators.required, Validators.minLength(6), Validators.maxLength(128)]);
-    this.editForm.controls.password.updateValueAndValidity();
-    this.editForm.controls.password_confirmation.updateValueAndValidity();
-    this.editError.set('');
-  }
+    const dialogRef = this.dialog.open(UserFormDialogComponent, {
+      width: '440px',
+      data: { mode: 'create' }
+    });
 
-  saveCreate(): void {
-    Object.values(this.editForm.controls).forEach(c => c.markAsDirty());
-    if (this.editForm.invalid) return;
+    dialogRef.afterClosed().subscribe((result: UserFormDialogResult | undefined) => {
+      if (!result) return;
 
-    this.editLoading.set(true);
-    this.editError.set('');
-
-    const v = this.editForm.value;
-    this.userService.createUser({
-      first_name: v.first_name,
-      last_name: v.last_name,
-      email: v.email,
-      type: v.type,
-      status: v.status,
-      password: v.password,
-      password_confirmation: v.password_confirmation
-    }).subscribe({
-      next: (created) => {
-        this.users.update(users => [...users, created]);
-        this.isCreating.set(false);
-        this.editLoading.set(false);
-      },
-      error: (err: any) => {
-        this.editError.set(err?.errors?.join(', ') || this.ts.t('admin.users.createError'));
-        this.editLoading.set(false);
-        this.cdr.detectChanges();
-      }
+      this.userService.createUser(result.data).subscribe({
+        next: () => {
+          this.loadData();
+          this.snackBar.open(this.ts.t('admin.users.userCreated'), '', { duration: 3000 });
+        },
+        error: (err: any) => {
+          const appError = this.errorService.fromApiError(err);
+          // Reopen dialog with error
+          const retryRef = this.dialog.open(UserFormDialogComponent, {
+            width: '440px',
+            data: { mode: 'create' }
+          });
+          retryRef.componentInstance.setServerError(this.errorService.format(appError));
+        }
+      });
     });
   }
 
   // ── Edit ──
 
   openEdit(user: UserInfo): void {
-    this.editingUser.set(user);
-    this.editForm.patchValue({
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      type: user.type,
-      status: user.status,
-      password: '',
-      password_confirmation: ''
+    const dialogRef = this.dialog.open(UserFormDialogComponent, {
+      width: '440px',
+      data: { mode: 'edit', user }
     });
-    this.editForm.markAsPristine();
-    this.editForm.markAsUntouched();
-    this.editForm.controls.password.setValidators([Validators.minLength(6), Validators.maxLength(128)]);
-    this.editForm.controls.password_confirmation.setValidators([Validators.minLength(6), Validators.maxLength(128)]);
-    this.editForm.controls.password.updateValueAndValidity();
-    this.editForm.controls.password_confirmation.updateValueAndValidity();
-    this.editError.set('');
-  }
 
-  cancelEdit(): void {
-    this.editingUser.set(null);
-    this.isCreating.set(false);
-    this.editError.set('');
-  }
+    dialogRef.afterClosed().subscribe((result: UserFormDialogResult | undefined) => {
+      if (!result) return;
 
-  saveEdit(): void {
-    const user = this.editingUser();
-    if (!user) return;
-
-    Object.values(this.editForm.controls).forEach(c => c.markAsDirty());
-    if (this.editForm.invalid) return;
-
-    this.editLoading.set(true);
-    this.editError.set('');
-
-    const v = this.editForm.value;
-    const data: Record<string, any> = {
-      first_name: v.first_name,
-      last_name: v.last_name,
-      email: v.email,
-      type: v.type,
-      status: v.status
-    };
-    if (v.password) {
-      data['password'] = v.password;
-      data['password_confirmation'] = v.password_confirmation;
-    }
-
-    this.userService.updateUser(user.id, data).subscribe({
-      next: (updated) => {
-        this.users.update(users => users.map(u => u.id === user.id ? updated : u));
-        this.editingUser.set(null);
-        this.editLoading.set(false);
-      },
-      error: (err: any) => {
-        this.editError.set(err?.errors?.join(', ') || this.ts.t('admin.users.editError'));
-        this.editLoading.set(false);
-        this.cdr.detectChanges();
-      }
+      this.userService.updateUser(user.id, result.data).subscribe({
+        next: () => {
+          this.loadData();
+          this.snackBar.open(this.ts.t('admin.users.userUpdated'), '', { duration: 3000 });
+        },
+        error: (err: any) => {
+          const appError = this.errorService.fromApiError(err);
+          // Reopen dialog with error
+          const retryRef = this.dialog.open(UserFormDialogComponent, {
+            width: '440px',
+            data: { mode: 'edit', user }
+          });
+          retryRef.componentInstance.setServerError(this.errorService.format(appError));
+        }
+      });
     });
   }
 
   getTypeLabel(type: string): string {
-    const key = 'admin.users.type.' + type;
-    return this.ts.t(key);
+    return this.ts.t('admin.users.type.' + type);
   }
 
   getStatusLabel(status: string): string {
-    const key = 'admin.users.status.' + status;
-    return this.ts.t(key);
+    return this.ts.t('admin.users.status.' + status);
   }
 }

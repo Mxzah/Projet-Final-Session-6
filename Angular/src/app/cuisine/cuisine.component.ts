@@ -223,6 +223,22 @@ export class CuisineComponent implements OnInit, OnDestroy {
     });
   }
 
+  assignMe(order: CuisineOrder): void {
+    this.actionError = '';
+    this.cuisineService.assignServer(order.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.loadOrders();
+        } else {
+          this.actionError = this.errorService.format(this.errorService.fromApiError(res));
+        }
+      },
+      error: (err) => {
+        this.actionError = this.errorService.format(this.errorService.fromApiError(err));
+      }
+    });
+  }
+
   goBack(): void {
     this.location.back();
   }

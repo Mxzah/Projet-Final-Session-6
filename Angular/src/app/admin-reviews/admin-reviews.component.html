@@ -1,0 +1,89 @@
+<div class="page-header">
+  <h1>{{ ts.t('admin.reviews.title') }}</h1>
+  <p class="subtitle">{{ ts.t('admin.reviews.subtitle') }}</p>
+</div>
+
+<!-- Filters -->
+<div class="filters-bar">
+  <mat-form-field class="filter-field search-field" appearance="outline">
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput
+           [placeholder]="ts.t('admin.reviews.search')"
+           [value]="searchTerm()"
+           (input)="onSearchChange($event)" />
+  </mat-form-field>
+
+  <mat-form-field class="filter-field" appearance="outline">
+    <mat-label>{{ ts.t('admin.reviews.filterType') }}</mat-label>
+    <mat-select [value]="filterType()" (selectionChange)="onFilterTypeChange($event.value)">
+      <mat-option value="all">{{ ts.t('admin.reviews.all') }}</mat-option>
+      @for (type of reviewableTypes; track type.value) {
+        <mat-option [value]="type.value">{{ ts.t(type.labelKey) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="filter-field" appearance="outline">
+    <mat-label>{{ ts.t('admin.reviews.filterRating') }}</mat-label>
+    <mat-select [value]="filterRating()" (selectionChange)="onFilterRatingChange($event.value)">
+      <mat-option value="all">{{ ts.t('admin.reviews.all') }}</mat-option>
+      @for (r of ratings; track r) {
+        <mat-option [value]="r.toString()">{{ r }} ★</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="filter-field" appearance="outline">
+    <mat-label>{{ ts.t('admin.reviews.sort') }}</mat-label>
+    <mat-select [value]="sortOrder()" (selectionChange)="onSortChange($event.value)">
+      <mat-option value="newest">{{ ts.t('admin.reviews.sortNewest') }}</mat-option>
+      <mat-option value="oldest">{{ ts.t('admin.reviews.sortOldest') }}</mat-option>
+      <mat-option value="rating_high">{{ ts.t('admin.reviews.sortRatingHigh') }}</mat-option>
+      <mat-option value="rating_low">{{ ts.t('admin.reviews.sortRatingLow') }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+@if (isLoading()) {
+  <div class="spinner-wrapper">
+    <mat-spinner diameter="48" />
+  </div>
+}
+
+@if (!isLoading() && reviews().length === 0) {
+  <div class="empty-state">
+    <mat-icon>rate_review</mat-icon>
+    <p>{{ ts.t('admin.reviews.noReviews') }}</p>
+  </div>
+}
+
+@if (!isLoading() && reviews().length > 0) {
+  <div class="reviews-grid">
+    @for (review of reviews(); track review.id) {
+      <mat-card class="review-card">
+        <mat-card-content>
+          <div class="review-header">
+            <div class="review-meta">
+              <span class="reviewer-name">{{ review.user_name }}</span>
+              <span class="review-type-badge">{{ review.reviewable_type === 'User' ? ts.t('admin.reviews.typeServer') : review.reviewable_type }}</span>
+            </div>
+            <button mat-icon-button class="btn-delete" (click)="confirmDelete(review)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <div class="review-target">
+            <mat-icon>{{ review.reviewable_type === 'User' ? 'person' : 'restaurant' }}</mat-icon>
+            <span>{{ review.reviewable_name }}</span>
+          </div>
+
+          <div class="review-stars">{{ renderStars(review.rating) }}</div>
+
+          <p class="review-comment">{{ review.comment }}</p>
+
+          <span class="review-date">{{ review.created_at | date:'medium' }}</span>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

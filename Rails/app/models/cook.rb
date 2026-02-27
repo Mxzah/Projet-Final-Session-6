@@ -1,2 +1,2 @@
-class Cook < Client
+class Cook < User
 end

@@ -24,7 +24,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
         render json: {
           success: false,
           data: nil,
-          errors: ['Compte créé mais inactif']
+          errors: [ "Account created but inactive" ]
         }, status: :ok
       end
     else

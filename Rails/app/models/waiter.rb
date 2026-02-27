@@ -1,2 +1,2 @@
-class Waiter < Client
+class Waiter < User
 end

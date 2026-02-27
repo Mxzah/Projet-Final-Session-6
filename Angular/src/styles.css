@@ -13,6 +13,15 @@
   padding-left: 24px !important;
 }
 
+/* Remove vertical line artifact on Material outline fields */
+.mdc-notched-outline__leading {
+  border-right: none !important;
+}
+
+.mdc-notched-outline__notch {
+  border-left: none !important;
+}
+
 html,
 body {
     min-height: 100%;

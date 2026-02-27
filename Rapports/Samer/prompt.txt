@@ -1,0 +1,80 @@
+[IMPORTANT READ STEP 1, UNDERSTAND IT, AND THEN READ STEP 2. I WANT YOU TO START WITH STEP 2, AND ONCE IT'S FULLY COMPLETED, LET ME KNOW AND WE'LL DO STEP 2. IT'S IMPORTANT TO START WITH STEP 2 AS IT ONLY CONTAINS MODIFICATIONS/FIXES ABOUT OUR CURRENT PROJECT, AND THEN STEP 1 ONLY CONTAINS NEW STUFF THAT WE NEED TO ADD. SO LET'S START BY FIXING THE CURRENT PROJECT, AND THEN WE'LL ADD THE NEW THINGS ON TOP OF IT.]
+
+
+
+### PART 1 (new stuff we need to add):
+We are now on the second step - we are continuing to work on this project. Next step is to code in my second CRUDL - the one for user reviews. Users will be able to leave a review on an item or a combo that they ordered. They'll also be able to leave a review on the server that served them their food. We need to ensure that reviews can only be left on food that they actually ordered, and on servers that actually served them. 
+
+Additionally, in order to be able to do that, we need to implement the logic that allows a server to assign himself to a certain order (probably best to do it within /kitchen)
+
+We need to implement a logic of discounts for employees. The longer you've been here = the bigger discount you get when ordering items. We can find a nice logic for this. The discount should be shown in the /pay section, and it'll be visible depending on the user role.
+
+Make the role validations in `login.component` (front-end) be handled by back-end navigation logic.
+
+After all of that, we'll need to update all of our tests to take all of this new logic into account (pretty much the exact same thing we did last time - where we updated the entire /test/Samer folder. However, I was told that for tests, each function of a controller needs to have its own file (do not just separate with by fail/success)
+
+After all of this is done, we'll need to update our procedurier-tests.txt (in /Rapports/Samer/) with EVERYTHING that we added
+
+Here's the information about reviews in our database:
+--------------------------------------------------------------------------------
+
+
+[REVIEW] (Polymorphique: Item, Combo, User/Server)
+
+Actions référentielles:
+  - User : SOFT DELETE (l'utilisateur auteur de la review utilise le soft delete)
+
+Validations:
+  - rating : présence obligatoire, CHECK (rating >= 1 AND rating <= 5)
+  - comment : présence obligatoire, longueur maximale 500 caractères, ne peut pas être composé uniquement d'espaces
+  - user_id : présence obligatoire, doit exister dans User, l'utilisateur doit être de type Client
+  - reviewable_type : présence obligatoire, inclusion dans [Item, Combo, User]
+  - reviewable_id : présence obligatoire, doit exister dans la table correspondante
+  - images : type de fichier (jpg, png), CHECK (size <= 5 MB chacune)
+  - updated_at : optionnel
+  - Validation applicative : la review doit être liée à un item ou combo que le client a commandé
+  - deleted_at : Validation applicative, doit être égal à NOW() lors du soft delete
+
+--------------------------------------------------------------------------------
+
+
+
+### PART 2 (fixes of the current project):
+- In the list of users in the admin panel, separate regular users from company accounts (server/cook/admin)
+- When searching in the SSF, add a type ahead mechanic to prevent sending too many requests at once
+- Show that the table is sorted by alphabetical order of the LAST name somewhere
+- We need 200 error/responses EVERYWHERE. i.e we have a 201 on user creation right now. ensure that EVERYWHERE the responses are 200's. Same structure as before.
+- When adding/modifying a user in the user list, make sure to refresh the list so that the new user or the modified user gets added in the right spot in the list (in alphabetical order or whatever)
+- Let's say the the filter is set to only 'Cooks' on the user list, and you decide to add a regular user: you'll have no clear retro-action that the user was actually added, because you won't see him. Let's add a temporary banner that shows you if the add/modification was successful.
+- No point in admins being able to create 'regular client accounts' in the CRUDL for users -> they can just do it through the regular user sign up form, same result
+- When giving the status 'blocked' to a user, add a field for a note (we need to know why that specific user was blocked)
+- When modifying a password through the admin CRUDL for a specific user, errors and validations should be raised on the front end (currently we have the error "Password confirmation doesn't match Password")
+- When looking at the list of users, you shouldn't be able to delete your own/current account (neither should you able to give it the 'blocked' status)
+- Verify that you always have at least 1 (one) administrator account before allowing deleting of an account from the admin CRUDL for users (call back before delete)
+- Disable scrolling the page when a modal is opened (you shouldn't be able to scroll behind the modal)
+- Better looking modals, instead of just a list of fields
+- When you attempt to login with an account that is inactive/blocked, it gives you the error "Votre compte n'est pas encore activé". Instead, just give the same error as an invalid login when a login is attempted with an account with either of those status types.
+- No mapping when it comes to json data, find a better alternative
+- Line 33 in our user controller has a filter that is too long, find a more efficient way (sort_column = %w[first_name last_name email created_at].include?(params[:sort_by]) ? params[:sort_by] : "last_name")
+- User type (cook, server, client, admin, etc.) needs to be in the model, not the controller
+- Line 86-89 of the user controller (if update_data[:password].blank?...), this shouldn't be managed in the controller
+- No 'find_by' in controllers
+- Don't use 'user_json', just use 'as json'
+- Why are we doing 'assert json["data"].length >= 5' on line 29 of our user_success_test.rb? Why is 5 hardcoded? Find a better way to do this, more intuitive
+- In ALL of our tests, we should be ensuring that the database is also updated as intended. Fetch data from the database and check (assert_difference?), add comments/labels to determine what we're checking on each row (database, json data, response, etc)
+- Absolutely everything needs to be in English, we don't want a mix of English and french. Even the test names.
+- In the model, user status could be an Enum
+- For type, have a default inside of the model (  attribute :my_string, :string, default: "new default") -- it's more elegant
+- Properly handle STI (Single Table Inheritance) in server.rb. Do not pollute the User model — only put logic and attributes there that are shared by all user types.
+- Add a comment to explain the purpose of line 35 in the user model
+- [Administrator Waiter Client Cook] This could all be a static variable instead of rewriting the entire list every time
+- Redirect the user towards the login page when the session is expired
+- In our tests, authenticate with devise and use the fixtures for success tests (we don't want to have any json that is constructed at the moment of the request)
+- Refactorize our forms to use dialogs (https://material.angular.dev/components/dialog/overview)
+- Clean up any useless files
+
+- Auth subject and observable? (Remove the subjects in the auth service and in the table service)
+- For errors, use the error service (in the services folder)
+- Custom validator vs `pattern()` — Use a regex pattern (when needed, in validations)
+- Properly use RxJS when using services in the `.ts` files
+- Add a `!` for soft_delete functions → `soft_delete!`

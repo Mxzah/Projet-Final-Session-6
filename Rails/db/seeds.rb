@@ -542,4 +542,230 @@ if petoncles_item && magret_item
   puts "- Combo supprimé 'Duo Spécial Printemps' créé"
 end
 
+# ── Closed orders + Reviews ──────────────────────────────────────────────────
+puts "\nCreating closed orders for reviews..."
+
+client_test = Client.find_by(email: 'client@restoqr.ca')
+alice       = Client.find_by(email: 'alice@restoqr.ca')
+marie       = Waiter.find_by(email: 'marie@restoqr.ca')
+jean        = Waiter.find_by(email: 'jean@restoqr.ca')
+waiter_test = Waiter.find_by(email: 'waiter@restoqr.ca')
+table1      = Table.find_by(number: 1)
+table2      = Table.find_by(number: 2)
+table4      = Table.find_by(number: 4)
+
+tartare_item    = Item.find_by(name: 'Tartare de Saumon')
+filet_item      = Item.find_by(name: 'Filet Mignon AAA')
+petoncles_item  = Item.find_by(name: 'Pétoncles Poêlés')
+carpaccio_item  = Item.find_by(name: 'Carpaccio de Bœuf')
+bar_item        = Item.find_by(name: 'Filet de Bar Grillé')
+magret_item     = Item.find_by(name: 'Magret de Canard')
+surf_turf_combo = Combo.find_by(name: 'Surf & Turf Premium')
+menu_mer_combo  = Combo.find_by(name: 'Menu Fruits de Mer')
+
+if client_test && alice && marie && jean && tartare_item && filet_item
+
+  # Helper: create a closed order bypassing the "one open order" validation
+  # (these are historical orders, already ended)
+  seed_closed_order = ->(attrs) {
+    existing = Order.unscoped.find_by(
+      client_id: attrs[:client_id],
+      table_id:  attrs[:table]&.id,
+      ended_at:  attrs[:ended_at]
+    )
+    next existing if existing
+
+    order = Order.new(attrs.except(:created_at))
+    order.save(validate: false)
+    order.update_columns(created_at: attrs[:created_at], ended_at: attrs[:ended_at])
+    order
+  }
+
+  # ── Closed order 1: client@restoqr.ca, served by Marie, 3 days ago ──
+  closed1 = seed_closed_order.call(
+    client_id: client_test.id, table: table1, server: marie,
+    nb_people: 2, tip: 12.00, note: 'Anniversaire de mariage',
+    created_at: 3.days.ago, ended_at: 3.days.ago + 2.hours
+  )
+
+  OrderLine.find_or_create_by!(order: closed1, orderable: tartare_item) do |l|
+    l.quantity   = 1
+    l.unit_price = tartare_item.price
+    l.status     = 'served'
+  end
+  OrderLine.find_or_create_by!(order: closed1, orderable: filet_item) do |l|
+    l.quantity   = 1
+    l.unit_price = filet_item.price
+    l.status     = 'served'
+  end
+  if surf_turf_combo
+    OrderLine.find_or_create_by!(order: closed1, orderable: surf_turf_combo) do |l|
+      l.quantity   = 1
+      l.unit_price = surf_turf_combo.price
+      l.status     = 'served'
+    end
+  end
+
+  puts "- Closed order ##{closed1.id} (client@, Table 1, Marie, 3 days ago)"
+
+  # ── Closed order 2: client@restoqr.ca, served by Jean, 1 week ago ──
+  closed2 = seed_closed_order.call(
+    client_id: client_test.id, table: table2, server: jean,
+    nb_people: 2, tip: 8.00,
+    created_at: 1.week.ago, ended_at: 1.week.ago + 1.5.hours
+  )
+
+  if petoncles_item
+    OrderLine.find_or_create_by!(order: closed2, orderable: petoncles_item) do |l|
+      l.quantity   = 2
+      l.unit_price = petoncles_item.price
+      l.status     = 'served'
+    end
+  end
+  if carpaccio_item
+    OrderLine.find_or_create_by!(order: closed2, orderable: carpaccio_item) do |l|
+      l.quantity   = 1
+      l.unit_price = carpaccio_item.price
+      l.status     = 'served'
+    end
+  end
+  if menu_mer_combo
+    OrderLine.find_or_create_by!(order: closed2, orderable: menu_mer_combo) do |l|
+      l.quantity   = 1
+      l.unit_price = menu_mer_combo.price
+      l.status     = 'served'
+    end
+  end
+
+  puts "- Closed order ##{closed2.id} (client@, Table 2, Jean, 1 week ago)"
+
+  # ── Closed order 3: alice@restoqr.ca, served by Marie, 2 days ago ──
+  closed3 = seed_closed_order.call(
+    client_id: alice.id, table: table4, server: marie,
+    nb_people: 4, tip: 20.00, note: 'Souper entre amis',
+    created_at: 2.days.ago, ended_at: 2.days.ago + 1.hour
+  )
+
+  if bar_item
+    OrderLine.find_or_create_by!(order: closed3, orderable: bar_item) do |l|
+      l.quantity   = 2
+      l.unit_price = bar_item.price
+      l.status     = 'served'
+    end
+  end
+  if magret_item
+    OrderLine.find_or_create_by!(order: closed3, orderable: magret_item) do |l|
+      l.quantity   = 2
+      l.unit_price = magret_item.price
+      l.status     = 'served'
+    end
+  end
+  OrderLine.find_or_create_by!(order: closed3, orderable: filet_item) do |l|
+    l.quantity   = 1
+    l.unit_price = filet_item.price
+    l.status     = 'served'
+  end
+
+  puts "- Closed order ##{closed3.id} (alice@, Table 4, Marie, 2 days ago)"
+
+  # ── Closed order 4: alice@restoqr.ca, served by Serveur Test, 5 days ago ──
+  closed4 = seed_closed_order.call(
+    client_id: alice.id, table: table1, server: waiter_test,
+    nb_people: 2, tip: 6.00,
+    created_at: 5.days.ago, ended_at: 5.days.ago + 1.hour
+  )
+
+  OrderLine.find_or_create_by!(order: closed4, orderable: tartare_item) do |l|
+    l.quantity   = 1
+    l.unit_price = tartare_item.price
+    l.status     = 'served'
+  end
+
+  puts "- Closed order ##{closed4.id} (alice@, Table 1, Serveur Test, 5 days ago)"
+
+  # ── Reviews ──────────────────────────────────────────────────────────────
+  puts "\nCreating reviews..."
+
+  reviews_data = [
+    # client@restoqr.ca — from closed order 1 (Marie, 3 days ago)
+    { user: client_test, reviewable: tartare_item,    rating: 5,
+      comment: "Incroyablement frais, le meilleur tartare que j'ai mangé! Les chips de won-ton ajoutent une texture parfaite.",
+      ago: 3.days.ago },
+    { user: client_test, reviewable: filet_item,      rating: 4,
+      comment: "Très tendre et bien assaisonné, cuisson parfaite. La sauce au poivre vert est un délice.",
+      ago: 3.days.ago },
+    { user: client_test, reviewable: marie,           rating: 5,
+      comment: "Service impeccable! Marie est toujours souriante et attentionnée, elle a rendu notre soirée d'anniversaire spéciale.",
+      ago: 2.days.ago },
+
+    # client@restoqr.ca — from closed order 2 (Jean, 1 week ago)
+    { user: client_test, reviewable: petoncles_item,  rating: 3,
+      comment: "Bons mais un peu trop cuits à mon goût. La purée de panais était cependant excellente.",
+      ago: 6.days.ago },
+    { user: client_test, reviewable: carpaccio_item,  rating: 4,
+      comment: "Présentation magnifique, l'huile de truffe relève parfaitement le plat. À recommander!",
+      ago: 6.days.ago },
+    { user: client_test, reviewable: jean,            rating: 4,
+      comment: "Très professionnel, bonnes recommandations de vins. Service rapide et courtois.",
+      ago: 6.days.ago },
+
+    # alice@restoqr.ca — from closed order 3 (Marie, 2 days ago)
+    { user: alice, reviewable: bar_item,     rating: 5,
+      comment: "Le bar était cuit à la perfection, un vrai délice! Le beurre blanc au citron est sublime.",
+      ago: 1.day.ago },
+    { user: alice, reviewable: magret_item,  rating: 4,
+      comment: "Sauce aux cerises et porto incroyable. Le canard était un peu plus rosé que demandé mais excellent quand même.",
+      ago: 1.day.ago },
+    { user: alice, reviewable: filet_item,   rating: 5,
+      comment: "Meilleur filet mignon en ville! Fondant comme du beurre, les pommes dauphines sont addictives.",
+      ago: 1.day.ago },
+    { user: alice, reviewable: marie,        rating: 5,
+      comment: "Marie nous a fait sentir comme des VIP! Toujours de bonne humeur, elle connaît le menu par cœur.",
+      ago: 1.day.ago },
+
+    # alice@restoqr.ca — from closed order 4 (Serveur Test, 5 days ago)
+    { user: alice, reviewable: tartare_item, rating: 4,
+      comment: "Très bon tartare, portion généreuse. L'huile de sésame apporte une belle originalité.",
+      ago: 4.days.ago },
+    { user: alice, reviewable: waiter_test,  rating: 3,
+      comment: "Service correct mais un peu lent ce soir-là. Les plats ont mis du temps à arriver.",
+      ago: 4.days.ago },
+  ]
+
+  # Combo reviews (if combos exist)
+  if surf_turf_combo
+    reviews_data << { user: client_test, reviewable: surf_turf_combo, rating: 5,
+      comment: "Combinaison terre et mer extraordinaire! Le filet mignon et les pétoncles se complètent à merveille.",
+      ago: 2.days.ago }
+  end
+  if menu_mer_combo
+    reviews_data << { user: client_test, reviewable: menu_mer_combo, rating: 4,
+      comment: "Excellent rapport qualité-prix pour ce menu. Le tartare en entrée suivi du bar grillé, parfait!",
+      ago: 5.days.ago }
+  end
+
+  reviews_data.each do |rd|
+    existing = Review.find_by(user: rd[:user], reviewable: rd[:reviewable])
+    next if existing
+
+    review = Review.new(
+      user:       rd[:user],
+      reviewable: rd[:reviewable],
+      rating:     rd[:rating],
+      comment:    rd[:comment]
+    )
+    if review.save
+      review.update_columns(created_at: rd[:ago], updated_at: rd[:ago])
+      label = rd[:reviewable].is_a?(User) ? rd[:reviewable].first_name : rd[:reviewable].name
+      puts "- #{rd[:user].first_name}: #{rd[:rating]}★ #{rd[:reviewable].class.name} '#{label}'"
+    else
+      puts "- SKIPPED #{rd[:reviewable].class.name}: #{review.errors.full_messages.join(', ')}"
+    end
+  end
+
+  puts "\n#{Review.count} reviews total!"
+else
+  puts "Skipping reviews — required users or items not found"
+end
+
 puts "\nAll seeds created!"

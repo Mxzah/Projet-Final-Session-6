@@ -46,4 +46,12 @@ export class HeaderComponent {
   goToAdmin(): void {
     this.router.navigate(['/admin', 'tables']);
   }
+
+  goToReviews(): void {
+    this.router.navigate(['/reviews']);
+  }
+
+  isClient(): boolean {
+    return this.authService.getCurrentUser()?.type === 'Client';
+  }
 }

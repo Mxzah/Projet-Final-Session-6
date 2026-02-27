@@ -7,6 +7,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'header.logout': { fr: 'Déconnexion', en: 'Logout' },
   'header.login': { fr: 'Connexion', en: 'Login' },
   'header.quit': { fr: 'Menu', en: 'Menu' },
+  'header.reviews': { fr: 'Mes avis', en: 'My Reviews' },
   'header.admin': { fr: 'Admin', en: 'Admin' },
   'header.kitchen': { fr: 'Cuisine', en: 'Kitchen' },
 
@@ -281,6 +282,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'cuisine.status.label': { fr: 'Statut', en: 'Status' },
   'cuisine.releaseTable': { fr: 'Libérer la table', en: 'Release table' },
   'cuisine.releaseConfirm': { fr: 'Voulez-vous fermer cette commande et libérer la table ?', en: 'Do you want to close this order and release the table?' },
+  'cuisine.assignMe': { fr: "M'assigner", en: 'Assign me' },
 
   // Admin users
   'admin.users.tab': { fr: 'Utilisateurs', en: 'Users' },
@@ -329,6 +331,15 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.users.status.active': { fr: 'Actif', en: 'Active' },
   'admin.users.status.inactive': { fr: 'Inactif', en: 'Inactive' },
   'admin.users.status.blocked': { fr: 'Bloqué', en: 'Blocked' },
+  'admin.users.blockNote': { fr: 'Note de blocage', en: 'Block note' },
+  'admin.users.passwordMismatch': { fr: 'Les mots de passe ne correspondent pas.', en: 'Passwords do not match.' },
+  'admin.users.employeesSection': { fr: 'Employés', en: 'Employees' },
+  'admin.users.clientsSection': { fr: 'Clients', en: 'Clients' },
+  'admin.users.sortedByAZ': { fr: 'Trié par nom (A-Z)', en: 'Sorted by last name (A-Z)' },
+  'admin.users.sortedByZA': { fr: 'Trié par nom (Z-A)', en: 'Sorted by last name (Z-A)' },
+  'admin.users.userCreated': { fr: 'Utilisateur créé avec succès', en: 'User created successfully' },
+  'admin.users.userUpdated': { fr: 'Utilisateur modifié avec succès', en: 'User updated successfully' },
+  'admin.users.userDeleted': { fr: 'Utilisateur supprimé avec succès', en: 'User deleted successfully' },
 
   // Login page
   'login.welcome': { fr: 'Bienvenue sur RestoQR', en: 'Welcome to RestoQR' },
@@ -394,6 +405,46 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'pay.processing': { fr: 'Traitement...', en: 'Processing...' },
   'pay.error': { fr: 'Erreur lors du paiement. Veuillez réessayer.', en: 'Payment error. Please try again.' },
   'pay.loading': { fr: 'Chargement...', en: 'Loading...' },
+  'pay.discount': { fr: 'Rabais employé', en: 'Employee discount' },
+  'pay.adjustedTotal': { fr: 'Total après rabais', en: 'Total after discount' },
+
+  // Reviews page (client)
+  'reviews.title': { fr: 'Mes avis', en: 'My reviews' },
+  'reviews.subtitle': { fr: 'Laissez un avis sur vos commandes passées.', en: 'Leave a review on your past orders.' },
+  'reviews.leaveReview': { fr: 'Laisser un avis', en: 'Leave a review' },
+  'reviews.editReview': { fr: "Modifier l'avis", en: 'Edit review' },
+  'reviews.deleteReview': { fr: "Supprimer l'avis", en: 'Delete review' },
+  'reviews.deleteConfirm': { fr: 'Voulez-vous vraiment supprimer cet avis ?', en: 'Are you sure you want to delete this review?' },
+  'reviews.rating': { fr: 'Note', en: 'Rating' },
+  'reviews.comment': { fr: 'Commentaire', en: 'Comment' },
+  'reviews.commentRequired': { fr: 'Le commentaire est requis.', en: 'Comment is required.' },
+  'reviews.commentMaxLength': { fr: 'Maximum 500 caractères.', en: 'Maximum 500 characters.' },
+  'reviews.created': { fr: 'Avis créé avec succès', en: 'Review created successfully' },
+  'reviews.updated': { fr: 'Avis modifié avec succès', en: 'Review updated successfully' },
+  'reviews.deleted': { fr: 'Avis supprimé avec succès', en: 'Review deleted successfully' },
+  'reviews.reviewServer': { fr: 'Évaluer le serveur', en: 'Review server' },
+  'reviews.noOrders': { fr: 'Aucune commande passée à évaluer.', en: 'No past orders to review.' },
+  'reviews.stars': { fr: 'étoiles', en: 'stars' },
+
+  // Admin reviews
+  'admin.reviews.tab': { fr: 'Avis', en: 'Reviews' },
+  'admin.reviews.title': { fr: 'Gestion des avis', en: 'Review management' },
+  'admin.reviews.subtitle': { fr: 'Consultez et gérez les avis clients.', en: 'Browse and manage client reviews.' },
+  'admin.reviews.noReviews': { fr: 'Aucun avis.', en: 'No reviews.' },
+  'admin.reviews.search': { fr: 'Rechercher...', en: 'Search...' },
+  'admin.reviews.filterType': { fr: 'Type', en: 'Type' },
+  'admin.reviews.filterRating': { fr: 'Note', en: 'Rating' },
+  'admin.reviews.sort': { fr: 'Tri', en: 'Sort' },
+  'admin.reviews.sortNewest': { fr: 'Plus récent', en: 'Newest' },
+  'admin.reviews.sortOldest': { fr: 'Plus ancien', en: 'Oldest' },
+  'admin.reviews.sortRatingHigh': { fr: 'Note ↑', en: 'Rating ↑' },
+  'admin.reviews.sortRatingLow': { fr: 'Note ↓', en: 'Rating ↓' },
+  'admin.reviews.all': { fr: 'Tous', en: 'All' },
+  'admin.reviews.typeItem': { fr: 'Item', en: 'Item' },
+  'admin.reviews.typeCombo': { fr: 'Combo', en: 'Combo' },
+  'admin.reviews.typeServer': { fr: 'Serveur', en: 'Server' },
+  'admin.reviews.deleteConfirm': { fr: 'Voulez-vous vraiment supprimer cet avis ?', en: 'Are you sure you want to delete this review?' },
+  'admin.reviews.reviewDeleted': { fr: 'Avis supprimé', en: 'Review deleted' },
 };
 
 @Injectable({ providedIn: 'root' })

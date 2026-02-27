@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, signal, computed } from '@angular/core';
+import { Observable } from 'rxjs';
 import { ApiService, ApiResponse } from './api.service';
 
 export interface TableData {
@@ -15,9 +15,9 @@ export interface TableData {
     providedIn: 'root'
 })
 export class TableService {
-    private currentTable: TableData | null = null;
-    private currentTableSubject = new BehaviorSubject<TableData | null>(null);
-    public currentTable$ = this.currentTableSubject.asObservable();
+    private currentTableSignal = signal<TableData | null>(null);
+    public currentTable = this.currentTableSignal.asReadonly();
+    public hasTable = computed(() => this.currentTableSignal() !== null);
 
     constructor(private apiService: ApiService) {
         this.loadTableFromStorage();
@@ -26,8 +26,7 @@ export class TableService {
     private loadTableFromStorage(): void {
         const tableData = sessionStorage.getItem('currentTable');
         if (tableData) {
-            this.currentTable = JSON.parse(tableData);
-            this.currentTableSubject.next(this.currentTable);
+            this.currentTableSignal.set(JSON.parse(tableData));
         }
     }
 
@@ -40,23 +39,17 @@ export class TableService {
     }
 
     setCurrentTable(table: TableData): void {
-        this.currentTable = table;
+        this.currentTableSignal.set(table);
         this.saveTableToStorage(table);
-        this.currentTableSubject.next(table);
     }
 
     getCurrentTable(): TableData | null {
-        return this.currentTable;
-    }
-
-    hasTable(): boolean {
-        return this.currentTable !== null;
+        return this.currentTableSignal();
     }
 
     clearTable(): void {
-        this.currentTable = null;
+        this.currentTableSignal.set(null);
         sessionStorage.removeItem('currentTable');
-        this.currentTableSubject.next(null);
     }
 
     setPendingToken(token: string): void {

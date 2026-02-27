@@ -19,8 +19,7 @@ module Api
         users = users.where(status: params[:status])
       end
       if params[:type].present?
-        valid_types = %w[Administrator Waiter Client Cook]
-        if valid_types.include?(params[:type])
+        if User::VALID_TYPES.include?(params[:type])
           users = users.where(type: params[:type])
         else
           users = users.none
@@ -28,19 +27,19 @@ module Api
       end
 
       # Sort
-      sort_column = %w[first_name last_name email created_at].include?(params[:sort_by]) ? params[:sort_by] : "last_name"
+      sort_col = User::SORTABLE_COLUMNS.include?(params[:sort_by]) ? params[:sort_by] : "last_name"
       case params[:sort]
       when "asc"
-        users = users.order(sort_column => :asc)
+        users = users.order(sort_col => :asc)
       when "desc"
-        users = users.order(sort_column => :desc)
+        users = users.order(sort_col => :desc)
       else
         users = users.order(:last_name, :first_name)
       end
 
       render json: {
         success: true,
-        data: users.map { |u| user_json(u) },
+        data: users.map(&:as_json),
         errors: []
       }, status: :ok
     end
@@ -49,21 +48,30 @@ module Api
     def show
       render json: {
         success: true,
-        data: user_json(@user),
+        data: @user.as_json,
         errors: []
       }, status: :ok
     end
 
     # POST /api/users
     def create
+      # Block creating Client type via admin CRUDL
+      if user_params[:type] == "Client"
+        return render json: {
+          success: false,
+          data: nil,
+          errors: [ "Cannot create Client users from admin panel" ]
+        }, status: :ok
+      end
+
       user = User.new(user_params)
 
       if user.save
         render json: {
           success: true,
-          data: user_json(user),
+          data: user.as_json,
           errors: []
-        }, status: :created
+        }, status: :ok
       else
         render json: {
           success: false,
@@ -77,21 +85,29 @@ module Api
         data: nil,
         errors: [ "Type is not included in the list" ]
       }, status: :ok
+    rescue ArgumentError => e
+      render json: {
+        success: false,
+        data: nil,
+        errors: [ e.message ]
+      }, status: :ok
     end
 
     # PATCH/PUT /api/users/:id
     def update
-      update_data = user_params
-      # Strip blank passwords so update without password change works
-      if update_data[:password].blank?
-        update_data.delete(:password)
-        update_data.delete(:password_confirmation)
+      # Self-update protection
+      if @user.id == current_user.id
+        return render json: {
+          success: false,
+          data: nil,
+          errors: [ "You cannot modify your own account" ]
+        }, status: :ok
       end
 
-      if @user.update(update_data)
+      if @user.update(user_params)
         render json: {
           success: true,
-          data: user_json(@user),
+          data: @user.as_json,
           errors: []
         }, status: :ok
       else
@@ -107,10 +123,34 @@ module Api
         data: nil,
         errors: [ "Type is not included in the list" ]
       }, status: :ok
+    rescue ArgumentError => e
+      render json: {
+        success: false,
+        data: nil,
+        errors: [ e.message ]
+      }, status: :ok
     end
 
     # DELETE /api/users/:id (soft delete)
     def destroy
+      # Self-delete protection
+      if @user.id == current_user.id
+        return render json: {
+          success: false,
+          data: nil,
+          errors: [ "You cannot delete your own account" ]
+        }, status: :ok
+      end
+
+      # Last admin protection
+      if @user.type == "Administrator" && Administrator.where.not(id: @user.id).count == 0
+        return render json: {
+          success: false,
+          data: nil,
+          errors: [ "Cannot delete the last administrator" ]
+        }, status: :ok
+      end
+
       @user.soft_delete!
 
       render json: {
@@ -127,19 +167,7 @@ module Api
     end
 
     def user_params
-      params.require(:user).permit(:email, :first_name, :last_name, :type, :status, :password, :password_confirmation)
-    end
-
-    def user_json(user)
-      {
-        id: user.id,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        type: user.type,
-        status: user.status,
-        created_at: user.created_at
-      }
+      params.require(:user).permit(:email, :first_name, :last_name, :type, :status, :password, :password_confirmation, :block_note)
     end
   end
 end

@@ -53,6 +53,12 @@
             <div class="server-row">
               <mat-icon>person</mat-icon>
               <span>{{ order.server_name ?? ts.t('cuisine.noServer') }}</span>
+              @if (canManageLines() && !order.server_id) {
+                <button mat-flat-button class="assign-btn" (click)="assignMe(order)">
+                  <mat-icon>person_add</mat-icon>
+                  {{ ts.t('cuisine.assignMe') }}
+                </button>
+              }
               @if (order.vibe_name) {
                 <span class="vibe-badge"
                   [style.background-color]="order.vibe_color + '22'"

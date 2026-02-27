@@ -21,6 +21,7 @@ export interface CuisineOrder {
   vibe_name: string | null;
   vibe_color: string | null;
   table_number: number;
+  server_id: number | null;
   server_name: string | null;
   created_at: string;
   order_lines: CuisineOrderLine[];
@@ -58,5 +59,10 @@ export class CuisineService {
   // Release/close an order (waiter/admin only — like paying, frees the table)
   releaseOrder(orderId: number): Observable<ApiResponse<any>> {
     return this.api.post<any>(`/api/kitchen/orders/${orderId}/release`, {});
+  }
+
+  // Assign current user as server (waiter/admin only)
+  assignServer(orderId: number): Observable<ApiResponse<any>> {
+    return this.api.post<any>(`/api/kitchen/orders/${orderId}/assign_server`, {});
   }
 }

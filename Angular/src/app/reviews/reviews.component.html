@@ -1,0 +1,103 @@
+<app-header (logoutClick)="logout()"></app-header>
+
+<div class="page">
+  <div class="page-header">
+    <h1>{{ ts.t('reviews.title') }}</h1>
+    <p class="subtitle">{{ ts.t('reviews.subtitle') }}</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="spinner-wrapper">
+      <mat-spinner diameter="48" />
+    </div>
+  }
+
+  @if (!isLoading() && orders().length === 0) {
+    <div class="empty-state">
+      <mat-icon>rate_review</mat-icon>
+      <p>{{ ts.t('reviews.noOrders') }}</p>
+    </div>
+  }
+
+  @if (!isLoading() && orders().length > 0) {
+    <div class="orders-list">
+      @for (order of orders(); track order.id) {
+        <mat-card class="order-card">
+          <mat-card-header>
+            <div class="order-header">
+              <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
+              <span class="order-date">{{ order.created_at | date:'mediumDate' }}</span>
+            </div>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="lines-list">
+              @for (line of order.order_lines; track line.id) {
+                <div class="review-line">
+                  <div class="line-info">
+                    <span class="line-name">{{ line.orderable_name }}</span>
+                    <span class="line-type">{{ line.orderable_type }}</span>
+                    <span class="line-qty">x{{ line.quantity }}</span>
+                  </div>
+                  <div class="line-actions">
+                    @if (getReviewForItem(line.orderable_type, line.orderable_id); as review) {
+                      <div class="existing-review">
+                        <span class="stars">{{ renderStars(review.rating) }}</span>
+                        <button mat-stroked-button class="btn-review"
+                                (click)="openReviewDialog(line.orderable_type, line.orderable_id, line.orderable_name, review)">
+                          <mat-icon>edit</mat-icon>
+                          {{ ts.t('reviews.editReview') }}
+                        </button>
+                        <button mat-icon-button class="btn-delete-review"
+                                (click)="confirmDelete(review)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    } @else {
+                      <button mat-stroked-button class="btn-review"
+                              (click)="openReviewDialog(line.orderable_type, line.orderable_id, line.orderable_name)">
+                        <mat-icon>rate_review</mat-icon>
+                        {{ ts.t('reviews.leaveReview') }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (order.server_id) {
+                <div class="review-line server-line">
+                  <div class="line-info">
+                    <span class="line-name">{{ order.server_name }}</span>
+                    <span class="line-type">{{ ts.t('reviews.reviewServer') }}</span>
+                  </div>
+                  <div class="line-actions">
+                    @if (getReviewForServer(order.server_id); as review) {
+                      <div class="existing-review">
+                        <span class="stars">{{ renderStars(review.rating) }}</span>
+                        <button mat-stroked-button class="btn-review"
+                                (click)="openReviewDialog('User', order.server_id, order.server_name!, review)">
+                          <mat-icon>edit</mat-icon>
+                          {{ ts.t('reviews.editReview') }}
+                        </button>
+                        <button mat-icon-button class="btn-delete-review"
+                                (click)="confirmDelete(review)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    } @else {
+                      <button mat-stroked-button class="btn-review"
+                              (click)="openReviewDialog('User', order.server_id, order.server_name!)">
+                        <mat-icon>rate_review</mat-icon>
+                        {{ ts.t('reviews.reviewServer') }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>
