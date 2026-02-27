@@ -75,6 +75,13 @@ Client.find_or_create_by!(email: 'demo@restoqr.ca') do |user|
   user.status = 'active'
 end
 
+# Set employee seniority for discount testing
+marie_user = Waiter.find_by(email: 'marie@restoqr.ca')
+marie_user&.update_columns(created_at: 2.years.ago - 2.months) # 26 months → 15%
+
+cook_user = Cook.find_by(email: 'cook@restoqr.ca')
+cook_user&.update_columns(created_at: 8.months.ago) # 8 months → 5%
+
 puts "Users created!"
 puts "- Administrator: admin@restoqr.ca"
 puts "- Client: client@restoqr.ca"
@@ -547,12 +554,15 @@ puts "\nCreating closed orders for reviews..."
 
 client_test = Client.find_by(email: 'client@restoqr.ca')
 alice       = Client.find_by(email: 'alice@restoqr.ca')
+bob         = Client.find_by(email: 'bob@restoqr.ca')
 marie       = Waiter.find_by(email: 'marie@restoqr.ca')
 jean        = Waiter.find_by(email: 'jean@restoqr.ca')
 waiter_test = Waiter.find_by(email: 'waiter@restoqr.ca')
 table1      = Table.find_by(number: 1)
 table2      = Table.find_by(number: 2)
 table4      = Table.find_by(number: 4)
+table6      = Table.find_by(number: 6)
+table8      = Table.find_by(number: 8)
 
 tartare_item    = Item.find_by(name: 'Tartare de Saumon')
 filet_item      = Item.find_by(name: 'Filet Mignon AAA')
@@ -563,7 +573,7 @@ magret_item     = Item.find_by(name: 'Magret de Canard')
 surf_turf_combo = Combo.find_by(name: 'Surf & Turf Premium')
 menu_mer_combo  = Combo.find_by(name: 'Menu Fruits de Mer')
 
-if client_test && alice && marie && jean && tartare_item && filet_item
+if client_test && alice && bob && marie && jean && tartare_item && filet_item
 
   # Helper: create a closed order bypassing the "one open order" validation
   # (these are historical orders, already ended)
@@ -682,6 +692,66 @@ if client_test && alice && marie && jean && tartare_item && filet_item
   end
 
   puts "- Closed order ##{closed4.id} (alice@, Table 1, Serveur Test, 5 days ago)"
+
+  # ── Closed order 5: bob@restoqr.ca, served by Marie, 4 days ago ──
+  if bob
+    closed5 = seed_closed_order.call(
+      client_id: bob.id, table: table6, server: marie,
+      nb_people: 3, tip: 10.00, note: 'Souper en famille',
+      created_at: 4.days.ago, ended_at: 4.days.ago + 1.5.hours
+    )
+
+    OrderLine.find_or_create_by!(order: closed5, orderable: tartare_item) do |l|
+      l.quantity   = 2
+      l.unit_price = tartare_item.price
+      l.status     = 'served'
+    end
+    OrderLine.find_or_create_by!(order: closed5, orderable: filet_item) do |l|
+      l.quantity   = 1
+      l.unit_price = filet_item.price
+      l.status     = 'served'
+    end
+    if magret_item
+      OrderLine.find_or_create_by!(order: closed5, orderable: magret_item) do |l|
+        l.quantity   = 1
+        l.unit_price = magret_item.price
+        l.status     = 'served'
+      end
+    end
+
+    puts "- Closed order ##{closed5.id} (bob@, Table 6, Marie, 4 days ago)"
+
+    # ── Closed order 6: bob@restoqr.ca, served by Jean, 10 days ago ──
+    closed6 = seed_closed_order.call(
+      client_id: bob.id, table: table8, server: jean,
+      nb_people: 2, tip: 15.00,
+      created_at: 10.days.ago, ended_at: 10.days.ago + 2.hours
+    )
+
+    if petoncles_item
+      OrderLine.find_or_create_by!(order: closed6, orderable: petoncles_item) do |l|
+        l.quantity   = 2
+        l.unit_price = petoncles_item.price
+        l.status     = 'served'
+      end
+    end
+    if bar_item
+      OrderLine.find_or_create_by!(order: closed6, orderable: bar_item) do |l|
+        l.quantity   = 1
+        l.unit_price = bar_item.price
+        l.status     = 'served'
+      end
+    end
+    if surf_turf_combo
+      OrderLine.find_or_create_by!(order: closed6, orderable: surf_turf_combo) do |l|
+        l.quantity   = 1
+        l.unit_price = surf_turf_combo.price
+        l.status     = 'served'
+      end
+    end
+
+    puts "- Closed order ##{closed6.id} (bob@, Table 8, Jean, 10 days ago)"
+  end
 
   # ── Reviews ──────────────────────────────────────────────────────────────
   puts "\nCreating reviews..."
