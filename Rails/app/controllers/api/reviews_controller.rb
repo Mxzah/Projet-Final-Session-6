@@ -132,11 +132,11 @@ module Api
     end
 
     def review_params
-      params.require(:review).permit(:rating, :comment, :reviewable_type, :reviewable_id, images: [])
+      params.require(:review).permit(:rating, :comment, :reviewable_type, :reviewable_id)
     end
 
     def review_update_params
-      params.require(:review).permit(:rating, :comment, images: [])
+      params.require(:review).permit(:rating, :comment)
     end
 
     def review_json(review)

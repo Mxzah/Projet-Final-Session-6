@@ -79,14 +79,6 @@
 
           <div class="review-stars">{{ renderStars(review.rating) }}</div>
 
-          @if (review.image_urls && review.image_urls.length > 0) {
-            <div class="review-images">
-              @for (url of review.image_urls; track url) {
-                <img [src]="getImageUrl(url)" class="review-thumb" alt="review photo" />
-              }
-            </div>
-          }
-
           <p class="review-comment">{{ review.comment }}</p>
 
           <span class="review-date">{{ review.created_at | date:'medium' }}</span>
