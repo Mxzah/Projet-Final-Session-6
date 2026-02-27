@@ -781,16 +781,19 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
   end
 
   # ── Reviews ──────────────────────────────────────────────────────────────
+  # Clean existing reviews to re-seed with images
+  Review.unscoped.destroy_all
+
   puts "\nCreating reviews..."
 
   reviews_data = [
     # client@restoqr.ca — from closed order 1 (Marie, 3 days ago)
     { user: client_test, reviewable: tartare_item,    rating: 5,
       comment: "Incroyablement frais, le meilleur tartare que j'ai mangé! Les chips de won-ton ajoutent une texture parfaite.",
-      ago: 3.days.ago },
+      ago: 3.days.ago, image: 'TartareDeSaumon.jpeg' },
     { user: client_test, reviewable: filet_item,      rating: 4,
       comment: "Très tendre et bien assaisonné, cuisson parfaite. La sauce au poivre vert est un délice.",
-      ago: 3.days.ago },
+      ago: 3.days.ago, image: 'FiletMignonAAA.jpg' },
     { user: client_test, reviewable: marie,           rating: 5,
       comment: "Service impeccable! Marie est toujours souriante et attentionnée, elle a rendu notre soirée d'anniversaire spéciale.",
       ago: 2.days.ago },
@@ -798,10 +801,10 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     # client@restoqr.ca — from closed order 2 (Jean, 1 week ago)
     { user: client_test, reviewable: petoncles_item,  rating: 3,
       comment: "Bons mais un peu trop cuits à mon goût. La purée de panais était cependant excellente.",
-      ago: 6.days.ago },
+      ago: 6.days.ago, image: 'PetonclesPoeles.jpg' },
     { user: client_test, reviewable: carpaccio_item,  rating: 4,
       comment: "Présentation magnifique, l'huile de truffe relève parfaitement le plat. À recommander!",
-      ago: 6.days.ago },
+      ago: 6.days.ago, image: 'CarpaccioDeBœufjpg.jpg' },
     { user: client_test, reviewable: jean,            rating: 4,
       comment: "Très professionnel, bonnes recommandations de vins. Service rapide et courtois.",
       ago: 6.days.ago },
@@ -809,13 +812,13 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     # alice@restoqr.ca — from closed order 3 (Marie, 2 days ago)
     { user: alice, reviewable: bar_item,     rating: 5,
       comment: "Le bar était cuit à la perfection, un vrai délice! Le beurre blanc au citron est sublime.",
-      ago: 1.day.ago },
+      ago: 1.day.ago, image: 'FiletdeBarGrille.jpg' },
     { user: alice, reviewable: magret_item,  rating: 4,
       comment: "Sauce aux cerises et porto incroyable. Le canard était un peu plus rosé que demandé mais excellent quand même.",
-      ago: 1.day.ago },
+      ago: 1.day.ago, image: 'MagretDeCanard.jpg' },
     { user: alice, reviewable: filet_item,   rating: 5,
       comment: "Meilleur filet mignon en ville! Fondant comme du beurre, les pommes dauphines sont addictives.",
-      ago: 1.day.ago },
+      ago: 1.day.ago, image: 'FiletMignonAAA.jpg' },
     { user: alice, reviewable: marie,        rating: 5,
       comment: "Marie nous a fait sentir comme des VIP! Toujours de bonne humeur, elle connaît le menu par cœur.",
       ago: 1.day.ago },
@@ -853,8 +856,19 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     )
     if review.save
       review.update_columns(created_at: rd[:ago], updated_at: rd[:ago])
+      if rd[:image]
+        img_path = Rails.root.join('db', 'images', rd[:image])
+        if File.exist?(img_path)
+          review.images.attach(
+            io: File.open(img_path),
+            filename: rd[:image],
+            content_type: rd[:image].end_with?('.png') ? 'image/png' : 'image/jpeg'
+          )
+        end
+      end
       label = rd[:reviewable].is_a?(User) ? rd[:reviewable].first_name : rd[:reviewable].name
-      puts "- #{rd[:user].first_name}: #{rd[:rating]}★ #{rd[:reviewable].class.name} '#{label}'"
+      img_tag = rd[:image] ? " 📷" : ""
+      puts "- #{rd[:user].first_name}: #{rd[:rating]}★ #{rd[:reviewable].class.name} '#{label}'#{img_tag}"
     else
       puts "- SKIPPED #{rd[:reviewable].class.name}: #{review.errors.full_messages.join(', ')}"
     end
