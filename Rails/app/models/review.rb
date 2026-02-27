@@ -30,6 +30,7 @@ class Review < ApplicationRecord
       reviewable_name: compute_reviewable_name,
       rating: rating,
       comment: comment,
+      image_urls: images.attached? ? images.map { |img| Rails.application.routes.url_helpers.rails_blob_url(img, only_path: true) } : [],
       created_at: created_at,
       updated_at: updated_at
     }
