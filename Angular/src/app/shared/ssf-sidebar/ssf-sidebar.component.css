@@ -1,0 +1,85 @@
+@import url("../../theme.css");
+
+:host {
+    display: contents;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    background: var(--sand);
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(27, 26, 23, 0.08);
+    align-self: start;
+    position: sticky;
+    top: var(--sidebar-top, 4.5rem);
+    max-height: calc(100vh - var(--sidebar-top, 4.5rem) - 1rem);
+    overflow-y: auto;
+}
+
+.sidebar-title {
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-size: 1.2rem;
+    margin: 0 0 1rem 0;
+    color: var(--ink);
+}
+
+.category-nav {
+    padding: 0 !important;
+    gap: 0.25rem;
+}
+
+.category-btn {
+    border-radius: 12px !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    color: var(--ink) !important;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.category-btn:hover {
+    background: rgba(200, 109, 63, 0.1) !important;
+}
+
+.category-btn.active {
+    background: linear-gradient(120deg, var(--copper), var(--rust)) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(138, 63, 36, 0.3);
+}
+
+.category-btn.active span {
+    color: #fff !important;
+}
+
+/* ── Mobile category select (hidden on desktop) ── */
+.mobile-category-select {
+    display: none;
+}
+
+.mobile-cat-field {
+    width: 100%;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+    .sidebar {
+        display: none;
+    }
+
+    .mobile-category-select {
+        display: block;
+        position: sticky;
+        top: 3.5rem;
+        z-index: 10;
+        padding: 0.5rem 0;
+        margin-bottom: 1rem;
+        background: transparent;
+        width: 100%;
+    }
+
+    .mobile-cat-field {
+        width: 100% !important;
+    }
+}

@@ -1,0 +1,25 @@
+<aside class="sidebar">
+  <h2 class="sidebar-title">{{ ts.t('menu.categories') }}</h2>
+  <mat-nav-list class="category-nav">
+    @for (cat of categories(); track cat.id) {
+      <mat-list-item
+        class="category-btn"
+        [class.active]="cat.id === activeCategory()"
+        (click)="categoryChange.emit(cat.id)"
+      >
+        <span matListItemTitle>{{ cat.name }}</span>
+      </mat-list-item>
+    }
+  </mat-nav-list>
+</aside>
+
+<div class="mobile-category-select">
+  <mat-form-field appearance="outline" class="mobile-cat-field">
+    <mat-label>{{ ts.t('menu.category') }}</mat-label>
+    <mat-select [value]="activeCategory()" (selectionChange)="categoryChange.emit($event.value)">
+      @for (cat of categories(); track cat.id) {
+        <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>

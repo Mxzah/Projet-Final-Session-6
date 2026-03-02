@@ -40,61 +40,32 @@
       </mat-card-content>
     </mat-card>
   } @else {
+    <!-- SSF bar (au-dessus du grid) -->
+    <div class="ssf-bar-wrapper">
+      <app-ssf-bar
+        [searchQuery]="searchQuery()"
+        [sortOrder]="sortOrder()"
+        [sliderMin]="sliderMin()"
+        [sliderMax]="sliderMax()"
+        [computedMaxPrice]="computedMaxPrice()"
+        (searchChange)="onSearchInput($event)"
+        (sortChange)="onSortChange($event)"
+        (sliderMinChange)="onSliderMinChange($event)"
+        (sliderMaxChange)="onSliderMaxChange($event)"
+        (inputMinChange)="onInputMinChange($event)"
+        (inputMaxChange)="onInputMaxChange($event)"
+      />
+    </div>
+
     <div class="menu-layout" [class.menu-layout-cart-open]="cartOpen()">
-      <aside class="sidebar">
-        <h2 class="sidebar-title">{{ ts.t('menu.categories') }}</h2>
-        <mat-nav-list class="category-nav">
-          @for (cat of categories(); track cat.id) {
-            <mat-list-item
-              class="category-btn"
-              [class.active]="cat.id === activeCategory()"
-              (click)="selectCategory(cat.id)"
-            >
-              <span matListItemTitle>{{ cat.name }}</span>
-            </mat-list-item>
-          }
-        </mat-nav-list>
-      </aside>
+      <!-- Sidebar catégories -->
+      <app-ssf-sidebar
+        [categories]="categories()"
+        [activeCategory]="activeCategory()"
+        (categoryChange)="selectCategory($event)"
+      />
 
       <section class="menu-content">
-        <mat-toolbar class="ssf-bar">
-          <mat-form-field class="ssf-search" appearance="outline">
-            <mat-label>{{ ts.t('menu.search') }}</mat-label>
-            <input matInput type="text" (input)="onSearchInput($event)" />
-            <mat-icon matPrefix>search</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field class="ssf-sort" appearance="outline">
-            <mat-label>{{ ts.t('menu.sortByPrice') }}</mat-label>
-            <mat-select (selectionChange)="onSortChange($event.value)">
-              <mat-option value="none">{{ ts.t('menu.sortByPrice') }}</mat-option>
-              <mat-option value="asc">{{ ts.t('menu.priceAsc') }}</mat-option>
-              <mat-option value="desc">{{ ts.t('menu.priceDesc') }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <div class="ssf-filter">
-            <div class="ssf-slider-row">
-              <input #minInput type="number" class="ssf-price-input" min="0" max="9999" [value]="sliderMin()" (change)="onInputMinChange(+$any($event.target).value, minInput)" />
-              <mat-slider min="0" max="9999" step="1" class="ssf-slider">
-                <input matSliderStartThumb [value]="sliderMin()" (valueChange)="onSliderMinChange($event)" />
-                <input matSliderEndThumb [value]="sliderMax()" (valueChange)="onSliderMaxChange($event)" />
-              </mat-slider>
-              <input #maxInput type="number" class="ssf-price-input" min="0" max="9999" [value]="sliderMax()" (change)="onInputMaxChange(+$any($event.target).value, maxInput)" />
-            </div>
-          </div>
-        </mat-toolbar>
-
-        <div class="mobile-category-select">
-          <mat-form-field appearance="outline" class="mobile-cat-field">
-            <mat-label>{{ ts.t('menu.category') }}</mat-label>
-            <mat-select [value]="activeCategory()" (selectionChange)="onMobileCategoryChange($event.value)">
-              @for (cat of categories(); track cat.id) {
-                <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
 
         @if (allItems().length === 0 && combos().length === 0) {
           <div class="no-results">

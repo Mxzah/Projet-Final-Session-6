@@ -18,55 +18,89 @@
       <div class="admin-error">{{ actionError() }}</div>
     }
 
-    @if (isLoading()) {
-      <div class="loading">
-        <mat-spinner diameter="48"></mat-spinner>
-      </div>
-    }
+    <!-- SSF bar (sous le header, alignée avec le contenu) -->
+    <div class="ssf-bar-wrapper">
+      <app-ssf-bar
+        [searchQuery]="searchQuery()"
+        [sortOrder]="sortOrder()"
+        [sliderMin]="sliderMin()"
+        [sliderMax]="sliderMax()"
+        [computedMaxPrice]="computedMaxPrice()"
+        (searchChange)="onSearchInput($event)"
+        (sortChange)="onSortChange($event)"
+        (sliderMinChange)="onSliderMinChange($event)"
+        (sliderMaxChange)="onSliderMaxChange($event)"
+        (inputMinChange)="onInputMinChange($event)"
+        (inputMaxChange)="onInputMaxChange($event)"
+      />
+    </div>
 
-    @if (!isLoading() && items().length === 0) {
-      <div class="empty">{{ ts.t('admin.noItems') }}</div>
-    }
+    <div class="admin-layout">
+      <!-- Sidebar catégories -->
+      <app-ssf-sidebar
+        [categories]="categories()"
+        [activeCategory]="activeCategory()"
+        (categoryChange)="selectCategory($event)"
+      />
 
-    @if (!isLoading() && items().length > 0) {
-      <div class="items-grid">
-        @for (item of items(); track item.id) {
-          <mat-card class="item-card" [class.archived]="item.deleted_at" [class.unavailable]="unavailableIds().has(item.id)">
-            <div class="item-image">
-              @if (item.image_url) {
-                <img [src]="item.image_url" [alt]="item.name" />
-              } @else {
-                <div class="image-placeholder"></div>
-              }
-              @if (item.deleted_at) {
-                <div class="archived-badge">{{ ts.t('admin.archived') }}</div>
-              } @else if (unavailableIds().has(item.id)) {
-                <div class="unavailable-badge" [matTooltip]="ts.t('admin.unavailableItemTooltip')">{{ ts.t('admin.unavailable') }}</div>
-              }
-            </div>
-            <mat-card-content class="item-body">
-              <mat-card-title class="item-name">{{ item.name }}</mat-card-title>
-              <mat-card-subtitle class="item-description">{{ item.description }}</mat-card-subtitle>
-              <span class="item-category">{{ item.category_name ?? '—' }}</span>
-              <span class="item-price">{{ item.price | number:'1.2-2' }} $</span>
-            </mat-card-content>
-            <mat-card-actions class="item-actions">
-              @if (item.deleted_at) {
-                <button mat-icon-button class="action-btn restore" [title]="ts.t('admin.restoreBtn')" (click)="confirmRestore(item)">
-                  <mat-icon>unarchive</mat-icon>
-                </button>
-              } @else {
-                <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(item)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(item)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              }
-            </mat-card-actions>
-          </mat-card>
+      <section class="admin-content">
+        @if (isLoading()) {
+          <div class="loading">
+            <mat-spinner diameter="48"></mat-spinner>
+          </div>
         }
-      </div>
-    }
+
+        @if (!isLoading() && items().length === 0) {
+          <div class="empty">{{ ts.t('admin.noItems') }}</div>
+        }
+
+        @if (!isLoading() && items().length > 0) {
+          @for (group of itemsByCategory(); track group.id) {
+            @if (group.items.length > 0) {
+              <div class="category-section" [id]="'admin-category-' + group.id">
+                <h2 class="category-heading">{{ group.name }}</h2>
+                <div class="items-grid">
+                  @for (item of group.items; track item.id) {
+                    <mat-card class="item-card" [class.archived]="item.deleted_at" [class.unavailable]="unavailableIds().has(item.id)">
+                      <div class="item-image">
+                        @if (item.image_url) {
+                          <img [src]="item.image_url" [alt]="item.name" />
+                        } @else {
+                          <div class="image-placeholder"></div>
+                        }
+                        @if (item.deleted_at) {
+                          <div class="archived-badge">{{ ts.t('admin.archived') }}</div>
+                        } @else if (unavailableIds().has(item.id)) {
+                          <div class="unavailable-badge" [matTooltip]="ts.t('admin.unavailableItemTooltip')">{{ ts.t('admin.unavailable') }}</div>
+                        }
+                      </div>
+                      <mat-card-content class="item-body">
+                        <mat-card-title class="item-name">{{ item.name }}</mat-card-title>
+                        <mat-card-subtitle class="item-description">{{ item.description }}</mat-card-subtitle>
+                        <span class="item-price">{{ item.price | number:'1.2-2' }} $</span>
+                      </mat-card-content>
+                      <mat-card-actions class="item-actions">
+                        @if (item.deleted_at) {
+                          <button mat-icon-button class="action-btn restore" [title]="ts.t('admin.restoreBtn')" (click)="confirmRestore(item)">
+                            <mat-icon>unarchive</mat-icon>
+                          </button>
+                        } @else {
+                          <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(item)">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(item)">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        }
+                      </mat-card-actions>
+                    </mat-card>
+                  }
+                </div>
+              </div>
+            }
+          }
+        }
+      </section>
+    </div>
   </div>
 </main>

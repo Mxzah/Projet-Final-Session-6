@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, computed, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,10 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatSliderModule } from '@angular/material/slider';
 import { ItemsService } from '../services/items.service';
 import { CombosService, Combo } from '../services/combos.service';
 import { ComboItemsService, ComboItem } from '../services/combo-items.service';
@@ -28,6 +25,8 @@ import { OrderService } from '../services/order.service';
 import { TranslationService } from '../services/translation.service';
 import { ErrorService } from '../services/error.service';
 import { HeaderComponent } from '../header/header.component';
+import { SsfSidebarComponent } from '../shared/ssf-sidebar/ssf-sidebar.component';
+import { SsfBarComponent } from '../shared/ssf-bar/ssf-bar.component';
 import { Item, Category } from './menu.models';
 import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
 
@@ -37,12 +36,12 @@ const COMBOS_CATEGORY_ID = -999;
   selector: 'app-menu',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, HeaderComponent,
+    CommonModule, FormsModule, HeaderComponent, SsfSidebarComponent, SsfBarComponent,
     MatDialogModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatButtonModule, MatIconModule, MatBadgeModule,
     MatProgressSpinnerModule, MatDividerModule,
-    MatCardModule, MatToolbarModule, MatListModule, MatChipsModule, MatSliderModule
+    MatCardModule, MatToolbarModule, MatChipsModule
   ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
@@ -96,6 +95,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   priceMax = signal<number | null>(null);
   sliderMin = signal<number>(0);
   sliderMax = signal<number>(9999);
+  computedMaxPrice = signal<number>(9999);
 
   cartOpen = signal<boolean>(false);
 
@@ -105,6 +105,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   modalNote = signal<string>('');
 
   private searchTimer: any = null;
+  private maxPriceInitialized = false;
 
   itemsByCategory = computed(() => {
     return this.categories().map(cat => {
@@ -144,13 +145,48 @@ export class MenuComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     public ts: TranslationService,
     private router: Router,
+    private route: ActivatedRoute,
     private renderer: Renderer2,
     private dialog: MatDialog,
     private errorService: ErrorService
   ) {}
 
   ngOnInit(): void {
-    this.loadItems(true);
+    this.isLoading.set(true);
+    // First load without filters to compute the real max price
+    forkJoin({
+      items: this.itemsService.getItems({}),
+      combos: this.combosService.getCombos({})
+    }).subscribe({
+      next: ({ items, combos }) => {
+        const maxPrice = Math.ceil(Math.max(...items.map(i => i.price), ...combos.map(c => c.price), 0));
+        this.computedMaxPrice.set(maxPrice);
+        this.maxPriceInitialized = true;
+
+        // Now read query params and apply them
+        const params = this.route.snapshot.queryParams;
+        if (params['search']) this.searchQuery.set(params['search']);
+        if (params['sort'] && params['sort'] !== 'none') this.sortOrder.set(params['sort']);
+        if (params['min']) {
+          const min = +params['min'];
+          this.sliderMin.set(min);
+          this.priceMin.set(min > 0 ? min : null);
+        }
+        if (params['max']) {
+          const max = +params['max'];
+          this.sliderMax.set(max);
+          this.priceMax.set(max < maxPrice ? max : null);
+        } else {
+          this.sliderMax.set(maxPrice);
+        }
+
+        this.loadItems(true);
+      },
+      error: () => {
+        // Fallback: load normally
+        this.loadItems(true);
+      }
+    });
     this.checkOpenOrder();
   }
 
@@ -221,8 +257,14 @@ export class MenuComponent implements OnInit, OnDestroy {
           this.activeCategory.set(categories[0].id);
         }
 
-        const maxPrice = Math.max(...items.map(i => i.price), ...combos.map(c => c.price), 0);
-        this.sliderMax.set(Math.ceil(maxPrice));
+        if (!this.maxPriceInitialized) {
+          const maxPrice = Math.ceil(Math.max(...items.map(i => i.price), ...combos.map(c => c.price), 0));
+          this.computedMaxPrice.set(maxPrice);
+          if (this.priceMax() === null) {
+            this.sliderMax.set(maxPrice);
+          }
+          this.maxPriceInitialized = true;
+        }
 
         this.isLoading.set(false);
       },
@@ -233,45 +275,47 @@ export class MenuComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSearchInput(event: Event): void {
-    this.searchQuery.set((event.target as HTMLInputElement).value);
+  private updateQueryParams(): void {
+    const queryParams: any = {};
+    if (this.searchQuery()) queryParams.search = this.searchQuery();
+    if (this.sortOrder() !== 'none') queryParams.sort = this.sortOrder();
+    if (this.priceMin() !== null) queryParams.min = this.priceMin();
+    if (this.priceMax() !== null) queryParams.max = this.priceMax();
+    this.router.navigate([], { queryParams, replaceUrl: true });
+  }
+
+  onSearchInput(value: string): void {
+    this.searchQuery.set(value);
     if (this.searchTimer) clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => this.loadItems(), 300);
+    this.searchTimer = setTimeout(() => { this.loadItems(); this.updateQueryParams(); }, 300);
   }
 
   onSortChange(value: string): void {
     this.sortOrder.set(value);
     this.loadItems();
+    this.updateQueryParams();
   }
 
   onSliderMinChange(value: number): void {
     this.sliderMin.set(value);
     this.priceMin.set(value > 0 ? value : null);
     if (this.searchTimer) clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => this.loadItems(), 300);
+    this.searchTimer = setTimeout(() => { this.loadItems(); this.updateQueryParams(); }, 300);
   }
 
   onSliderMaxChange(value: number): void {
     this.sliderMax.set(value);
-    this.priceMax.set(value < 9999 ? value : null);
+    this.priceMax.set(value < this.computedMaxPrice() ? value : null);
     if (this.searchTimer) clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => this.loadItems(), 300);
+    this.searchTimer = setTimeout(() => { this.loadItems(); this.updateQueryParams(); }, 300);
   }
 
-  onInputMinChange(value: number, input: HTMLInputElement): void {
-    const clamped = Math.min(Math.max(value, 0), this.sliderMax());
-    input.value = String(clamped);
-    this.onSliderMinChange(clamped);
+  onInputMinChange(value: number): void {
+    this.onSliderMinChange(value);
   }
 
-  onInputMaxChange(value: number, input: HTMLInputElement): void {
-    const clamped = Math.min(Math.max(value, this.sliderMin()), 9999);
-    input.value = String(clamped);
-    this.onSliderMaxChange(clamped);
-  }
-
-  onMobileCategoryChange(value: number): void {
-    this.selectCategory(value);
+  onInputMaxChange(value: number): void {
+    this.onSliderMaxChange(value);
   }
 
   selectCategory(id: number): void {

@@ -7,22 +7,39 @@
     flex-direction: column;
     align-items: center;
     min-height: calc(100vh - 60px);
-    padding: 2rem 1rem;
+    padding: calc(2rem - 5px) 1rem 2rem;
 }
 
 .outer-container {
-    max-width: 960px;
+    max-width: 1200px;
     width: 100%;
+}
+
+/* ── Admin layout (sidebar + content) ── */
+.admin-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2.5rem;
+    --sidebar-top: 12rem;
+}
+
+.admin-content {
+    min-width: 0;
+}
+
+.ssf-bar-wrapper {
+    padding-left: calc(240px + 2.5rem);
+    padding-bottom: 10px;
+    margin-top: 30px;
 }
 
 .welcome-header {
     text-align: center;
-    margin-bottom: 1.5rem;
     position: sticky;
     top: 7.5rem;
     z-index: 30;
     background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
-    padding: 0.75rem 0 0.5rem;
+    padding: 0.75rem 0 0.75rem;
 }
 
 .welcome-title {
@@ -55,6 +72,18 @@
     margin: 0;
     font-size: 0.9rem;
     color: rgba(27, 26, 23, 0.7);
+}
+
+/* ── Category sections ── */
+.category-section {
+    margin-bottom: 2rem;
+}
+
+.category-heading {
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-size: 1.3rem;
+    color: var(--ink);
+    margin: 0 0 1rem 0;
 }
 
 /* ── Items grid ── */
@@ -552,16 +581,50 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 500px) {
-    .welcome-header {
-        top: 6.25rem;
+@media (max-width: 900px) {
+    .admin-layout {
+        grid-template-columns: 200px 1fr;
+        gap: 1.5rem;
+    }
+
+    .ssf-bar-wrapper {
+        padding-left: calc(200px + 1.5rem);
     }
 }
 
 @media (max-width: 700px) {
+    .admin-layout {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .ssf-bar-wrapper {
+        padding-left: 0;
+    }
+
     .items-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .welcome-header {
+        top: 9.5rem;
+    }
+
+    .admin-layout {
+        --sidebar-top: 13.5rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .welcome-header {
+        top: 9rem;
+    }
+
+    .admin-layout {
+        --sidebar-top: 13rem;
     }
 }
 

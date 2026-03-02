@@ -1,0 +1,181 @@
+@import url("../../theme.css");
+
+:host {
+    display: contents;
+}
+
+/* ── SSF Bar (Search, Sort, Filter) ── */
+.ssf-bar {
+    display: flex !important;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+::ng-deep .ssf-bar .mat-mdc-form-field {
+    margin: 0;
+}
+
+::ng-deep .ssf-bar .mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+::ng-deep .ssf-bar .mat-mdc-input-element {
+    margin-top: 0 !important;
+}
+
+::ng-deep .ssf-bar .mat-mdc-text-field-wrapper {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+::ng-deep .ssf-bar .mat-mdc-floating-label {
+    top: 18px !important;
+}
+
+::ng-deep .ssf-sort .mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 48px !important;
+}
+
+::ng-deep .ssf-sort .mat-mdc-floating-label {
+    top: 18px !important;
+}
+
+.ssf-search {
+    flex: 1;
+    min-width: 150px;
+    max-width: 370px;
+}
+
+.ssf-sort {
+    min-width: 150px;
+}
+
+.ssf-filter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 220px;
+}
+
+.ssf-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.ssf-price-input {
+    width: 68px;
+    border: 1px solid rgba(27, 26, 23, 0.15);
+    border-radius: 8px;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.8rem;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    color: #1b1a17;
+    background: #fff;
+    text-align: center;
+    -moz-appearance: textfield;
+}
+
+.ssf-price-input::-webkit-outer-spin-button,
+.ssf-price-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.ssf-slider {
+    flex: 1;
+}
+
+::ng-deep .ssf-slider .mdc-slider__track--active_fill {
+    border-color: #c86d3f !important;
+}
+
+::ng-deep .ssf-slider .mdc-slider__thumb-knob {
+    background-color: #c86d3f !important;
+    border-color: #c86d3f !important;
+}
+
+::ng-deep .ssf-slider .mdc-slider__track--inactive {
+    background-color: rgba(200, 109, 63, 0.3) !important;
+}
+
+::ng-deep .ssf-slider .mat-mdc-slider-visual-thumb .mat-ripple .mat-ripple-element {
+    background-color: rgba(200, 109, 63, 0.2) !important;
+}
+
+/* ── Material form field overrides ── */
+::ng-deep .ssf-bar .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+::ng-deep .ssf-bar .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+::ng-deep .ssf-bar .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+::ng-deep .ssf-bar .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+    border-color: rgba(27, 26, 23, 0.15) !important;
+    border-width: 1px !important;
+}
+
+::ng-deep .ssf-bar .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+    color: rgba(27, 26, 23, 0.6) !important;
+}
+
+::ng-deep .ssf-bar .mat-mdc-text-field-wrapper:focus-within {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+::ng-deep .ssf-bar input.mat-mdc-input-element:focus,
+::ng-deep .ssf-bar .mat-mdc-select:focus,
+::ng-deep .ssf-bar .mat-mdc-select-trigger:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+::ng-deep .ssf-bar .mdc-text-field--focused .mdc-notched-outline__leading,
+::ng-deep .ssf-bar .mdc-text-field--focused .mdc-notched-outline__notch,
+::ng-deep .ssf-bar .mdc-text-field--focused .mdc-notched-outline__trailing {
+    border-color: rgba(27, 26, 23, 0.15) !important;
+    border-width: 1px !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 500px) {
+    .ssf-bar {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        margin-top: 6px;
+    }
+
+    .ssf-search {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        flex: none;
+    }
+
+    .ssf-sort {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        flex: none;
+    }
+
+    .ssf-filter {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+}

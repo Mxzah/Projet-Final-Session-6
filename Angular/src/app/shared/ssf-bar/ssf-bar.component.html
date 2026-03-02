@@ -1,0 +1,27 @@
+<div class="ssf-bar">
+  <mat-form-field class="ssf-search" appearance="outline">
+    <mat-label>{{ ts.t('menu.search') }}</mat-label>
+    <input matInput type="text" [value]="searchQuery()" (input)="onSearchInput($event)" />
+    <mat-icon matPrefix>search</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field class="ssf-sort" appearance="outline">
+    <mat-label>{{ ts.t('menu.sortByPrice') }}</mat-label>
+    <mat-select [value]="sortOrder()" (selectionChange)="sortChange.emit($event.value)">
+      <mat-option value="none">{{ ts.t('menu.sortByPrice') }}</mat-option>
+      <mat-option value="asc">{{ ts.t('menu.priceAsc') }}</mat-option>
+      <mat-option value="desc">{{ ts.t('menu.priceDesc') }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="ssf-filter">
+    <div class="ssf-slider-row">
+      <input #minInput type="number" class="ssf-price-input" min="0" [max]="computedMaxPrice()" [value]="sliderMin()" (change)="onInputMinChange(+$any($event.target).value, minInput)" />
+      <mat-slider min="0" [max]="computedMaxPrice()" step="1" class="ssf-slider">
+        <input matSliderStartThumb [value]="sliderMin()" (valueChange)="sliderMinChange.emit($event)" />
+        <input matSliderEndThumb [value]="sliderMax()" (valueChange)="sliderMaxChange.emit($event)" />
+      </mat-slider>
+      <input #maxInput type="number" class="ssf-price-input" min="0" [max]="computedMaxPrice()" [value]="sliderMax()" (change)="onInputMaxChange(+$any($event.target).value, maxInput)" />
+    </div>
+  </div>
+</div>
