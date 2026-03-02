@@ -47,6 +47,10 @@ en:
             image:
               file_size_too_large: "must be less than 5 MB"
               invalid_content_type: "must be a JPEG or PNG image"
+        availability:
+          attributes:
+            start_at:
+              in_past: "must be in the future"
         combo_item:
           attributes:
             quantity:

@@ -18,13 +18,15 @@
           <mat-error>{{ ts.t('admin.availStartInvalid') }}</mat-error>
         } @else if (asGroup(row).get('start_at')?.errors?.['startInPast'] && asGroup(row).get('start_at')?.dirty) {
           <mat-error>{{ ts.t('admin.availStartInPast') }}</mat-error>
+        } @else if (asGroup(row).get('start_at')?.errors?.['startAfterEnd'] && asGroup(row).get('start_at')?.dirty) {
+          <mat-error>{{ ts.t('admin.availStartAfterEnd') }}</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="avail-end">
         <mat-label>{{ ts.t('admin.availEndAt') }}</mat-label>
         <input matInput type="datetime-local" formControlName="end_at" [disabled]="disabled"
-               (change)="onFieldChange()" />
+               (change)="onEndChange(asGroup(row))" />
         @if (asGroup(row).get('end_at')?.errors?.['invalidDate'] && asGroup(row).get('end_at')?.dirty) {
           <mat-error>{{ ts.t('admin.availEndInvalid') }}</mat-error>
         } @else if (asGroup(row).get('end_at')?.errors?.['endBeforeStart'] && asGroup(row).get('end_at')?.dirty) {
@@ -38,8 +40,8 @@
         <mat-label>{{ ts.t('admin.availDesc') }}</mat-label>
         <input matInput formControlName="description" maxlength="255" [disabled]="disabled"
                (input)="onFieldChange()" />
-        @if (asGroup(row).get('description')?.errors?.['pattern'] && asGroup(row).get('description')?.dirty) {
-          <mat-error>{{ ts.t('admin.availDescWhitespace') }}</mat-error>
+        @if (asGroup(row).get('description')?.errors?.['maxlength'] && asGroup(row).get('description')?.dirty) {
+          <mat-error>{{ ts.t('admin.availDescMaxLength') }}</mat-error>
         }
       </mat-form-field>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, Renderer2, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -54,35 +54,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   allItems = signal<Item[]>([]);
   combos = signal<Combo[]>([]);
 
-  // Time tracking for availability
-  private now = signal(Date.now());
-  private nowInterval?: ReturnType<typeof setInterval>;
-
-  // Filter items by availability
-  availableItems = computed(() => {
-    const now = this.now();
-    return this.allItems().filter(item => {
-      if (!item.availabilities || item.availabilities.length === 0) return false;
-      return item.availabilities.some(a => {
-        const start = new Date(a.start_at).getTime();
-        const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
-        return start <= now && now < end;
-      });
-    });
-  });
-
-  // Filter combos by availability
-  availableCombos = computed(() => {
-    const now = this.now();
-    return this.combos().filter(combo => {
-      if (!combo.availabilities || combo.availabilities.length === 0) return false;
-      return combo.availabilities.some(a => {
-        const start = new Date(a.start_at).getTime();
-        const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
-        return start <= now && now < end;
-      });
-    });
-  });
   comboItems = signal<ComboItem[]>([]);
   activeCategory = signal<number>(0);
   isLoading = signal<boolean>(true);
@@ -137,7 +108,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   itemsByCategory = computed(() => {
     return this.categories().map(cat => {
-      const items = this.availableItems().filter(item => item.category_id === cat.id);
+      const items = this.allItems().filter(item => item.category_id === cat.id);
       return { ...cat, items };
     });
   });
@@ -175,15 +146,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     private router: Router,
     private renderer: Renderer2,
     private dialog: MatDialog,
-    private errorService: ErrorService,
-    private ngZone: NgZone
-  ) {
-    this.ngZone.runOutsideAngular(() => {
-      this.nowInterval = setInterval(() => {
-        this.ngZone.run(() => this.now.set(Date.now()));
-      }, 60_000);
-    });
-  }
+    private errorService: ErrorService
+  ) {}
 
   ngOnInit(): void {
     this.loadItems(true);
@@ -192,7 +156,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.searchTimer) clearTimeout(this.searchTimer);
-    clearInterval(this.nowInterval);
   }
 
   // Check if the user already has an open order — if so, restore table info
@@ -257,6 +220,10 @@ export class MenuComponent implements OnInit, OnDestroy {
         if (categories.length > 0 && !categories.find(c => c.id === this.activeCategory())) {
           this.activeCategory.set(categories[0].id);
         }
+
+        const maxPrice = Math.max(...items.map(i => i.price), ...combos.map(c => c.price), 0);
+        this.sliderMax.set(Math.ceil(maxPrice));
+
         this.isLoading.set(false);
       },
       error: (err: any) => {

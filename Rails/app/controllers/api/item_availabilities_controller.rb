@@ -32,7 +32,7 @@ class Api::ItemAvailabilitiesController < Api::AdminController
   private
 
   def set_item
-    @item = Item.find(params[:item_id])
+    @item = Item.where(id: params[:item_id]).first!
   end
 
   def set_availability

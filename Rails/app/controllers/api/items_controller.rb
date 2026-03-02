@@ -142,7 +142,7 @@ module Api
     private
 
     def set_item
-      @item = Item.find(params[:id])
+      @item = Item.where(id: params[:id]).first!
     end
 
     def reject_if_archived

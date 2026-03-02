@@ -86,7 +86,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.editError': { fr: 'Erreur lors de la modification', en: 'Error during modification' },
   'admin.editBtn': { fr: 'Modifier', en: 'Edit' },
   'admin.deleteBtn': { fr: 'Supprimer', en: 'Delete' },
-  'admin.unavailable': { fr: 'Indisponible', en: 'Unavailable' },
+  'admin.unavailable': { fr: 'Inutilisable', en: 'Unusable' },
   'admin.availabilities': { fr: 'Disponibilités', en: 'Availabilities' },
   'admin.availStartAt': { fr: 'Début', en: 'Start' },
   'admin.availEndAt': { fr: 'Fin (optionnel)', en: 'End (optional)' },
@@ -94,10 +94,12 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.availStartRequired': { fr: 'La date de début est requise.', en: 'Start date is required.' },
   'admin.availStartInvalid': { fr: 'La date de début est invalide.', en: 'Start date is invalid.' },
   'admin.availStartInPast': { fr: 'La date de début doit être supérieure ou égale au moment présent.', en: 'Start date must be greater than or equal to the current time.' },
+  'admin.availStartAfterEnd': { fr: 'La date de début doit être inférieure à la date de fin.', en: 'Start date must be before the end date.' },
   'admin.availEndInvalid': { fr: 'La date de fin est invalide.', en: 'End date is invalid.' },
   'admin.availEndAfterStart': { fr: 'La fin doit être après le début.', en: 'End must be after start.' },
   'admin.availMinDuration': { fr: "Durée d'écart minimale : 1 heure.", en: 'Minimum gap duration: 1 hour.' },
   'admin.availDescWhitespace': { fr: "La description ne peut pas être composée uniquement d'espaces.", en: 'Description cannot be only whitespace.' },
+  'admin.availDescMaxLength': { fr: 'La description ne peut pas dépasser 255 caractères.', en: 'Description cannot exceed 255 characters.' },
   'admin.availOverlap': { fr: 'Cette période chevauche une autre disponibilité.', en: 'This period overlaps another availability.' },
 
   // Admin tabs + combos

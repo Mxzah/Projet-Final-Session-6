@@ -61,6 +61,10 @@ fr:
               invalid: "n'est pas valide"
               file_size_too_large: "doit être inférieure à 5 Mo"
               invalid_content_type: "doit être une image JPEG ou PNG"
+        availability:
+          attributes:
+            start_at:
+              in_past: "doit être dans le futur"
         combo_item:
           attributes:
             quantity:

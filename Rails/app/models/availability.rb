@@ -17,7 +17,8 @@ class Availability < ApplicationRecord
 
   def start_at_not_in_past
     return unless start_at.present?
-    errors.add(:start_at, "doit être dans le futur") if start_at < Time.current.beginning_of_minute
+    return if persisted? && !start_at_changed?
+    errors.add(:start_at, I18n.t("activerecord.errors.models.availability.attributes.start_at.in_past")) if start_at < Time.current.beginning_of_minute
   end
 
   def end_at_after_start_at

@@ -12,23 +12,34 @@ function isValidDate(value: string): boolean {
   return !isNaN(d.getTime());
 }
 
-function startNotInPastValidator(control: AbstractControl): { [key: string]: boolean } | null {
-  if (!control.value) return null;
-  if (!isValidDate(control.value)) return { invalidDate: true };
-  const now = new Date();
-  now.setSeconds(0, 0);
-  return new Date(control.value) < now ? { startInPast: true } : null;
+function makeStartNotInPastValidator(getGroup: () => FormGroup | null) {
+  return (control: AbstractControl): { [key: string]: boolean } | null => {
+    if (!control.value) return null;
+    if (!isValidDate(control.value)) return { invalidDate: true };
+    const now = new Date();
+    now.setSeconds(0, 0);
+    if (new Date(control.value) < now) return { startInPast: true };
+    const group = getGroup();
+    const end = group?.get('end_at')?.value;
+    if (end && isValidDate(end) && new Date(control.value) >= new Date(end)) return { startAfterEnd: true };
+    return null;
+  };
 }
 
-function makeStartValidator(originalValue: string) {
+function makeStartValidator(originalValue: string, getGroup: () => FormGroup | null) {
   return (control: AbstractControl): { [key: string]: boolean } | null => {
     if (!control.value) return null;
     if (!isValidDate(control.value)) return { invalidDate: true };
     // Allow the original value unchanged (even if in the past)
-    if (control.value === originalValue) return null;
-    const now = new Date();
-    now.setSeconds(0, 0);
-    return new Date(control.value) < now ? { startInPast: true } : null;
+    if (control.value !== originalValue) {
+      const now = new Date();
+      now.setSeconds(0, 0);
+      if (new Date(control.value) < now) return { startInPast: true };
+    }
+    const group = getGroup();
+    const end = group?.get('end_at')?.value;
+    if (end && isValidDate(end) && new Date(control.value) >= new Date(end)) return { startAfterEnd: true };
+    return null;
   };
 }
 
@@ -122,10 +133,14 @@ export class AvailabilityListComponent implements OnChanges {
   private buildRow(a?: AvailabilityEntry): FormGroup {
     const group: FormGroup = new FormGroup({
       id: new FormControl<number | undefined>(a?.id),
-      start_at: new FormControl(a ? this.toDatetimeLocal(a.start_at) : '', a?.id ? [Validators.required, makeStartValidator(this.toDatetimeLocal(a.start_at))] : [Validators.required, startNotInPastValidator]),
+      start_at: new FormControl(a ? this.toDatetimeLocal(a.start_at) : ''),
       end_at: new FormControl(a?.end_at ? this.toDatetimeLocal(a.end_at) : ''),
       description: new FormControl(a?.description ?? '', [Validators.maxLength(255)])
     });
+    const startValidators = a?.id
+      ? [Validators.required, makeStartValidator(this.toDatetimeLocal(a.start_at), () => group)]
+      : [Validators.required, makeStartNotInPastValidator(() => group)];
+    group.get('start_at')!.setValidators(startValidators);
     group.get('end_at')!.addValidators(makeEndValidator(() => group));
     return group;
   }
@@ -142,6 +157,12 @@ export class AvailabilityListComponent implements OnChanges {
 
   onStartChange(group: FormGroup): void {
     group.get('end_at')?.updateValueAndValidity();
+    this.rows.updateValueAndValidity();
+    this.emit();
+  }
+
+  onEndChange(group: FormGroup): void {
+    group.get('start_at')?.updateValueAndValidity();
     this.rows.updateValueAndValidity();
     this.emit();
   }
