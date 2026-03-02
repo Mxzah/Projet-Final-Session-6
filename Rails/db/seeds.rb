@@ -242,19 +242,25 @@ client1 = Client.find_by(email: 'demo@restoqr.ca')
 client2 = Client.find_by(email: 'alice@restoqr.ca')
 client3 = Client.find_by(email: 'bob@restoqr.ca')
 table3  = Table.find_by(number: 3)
-table5  = Table.find_by(number: 5)
+table4  = Table.find_by(number: 4)
 table7  = Table.find_by(number: 7)
 
-tartare  = Item.find_by(name: 'Tartare de Saumon')
-risotto  = Item.find_by(name: 'Risotto aux Truffes')
-filet    = Item.find_by(name: 'Filet Mignon AAA')
-petoncle = Item.find_by(name: 'Pétoncles Poêlés')
+tartare   = Item.find_by(name: 'Tartare de Saumon')
+magret    = Item.find_by(name: 'Magret de Canard')
+filet     = Item.find_by(name: 'Filet Mignon AAA')
+petoncle  = Item.find_by(name: 'Pétoncles Poêlés')
+carpaccio = Item.find_by(name: 'Carpaccio de Bœuf')
 
-unless tartare && risotto && filet && petoncle
+unless tartare && magret && filet && petoncle && carpaccio
   puts "Skipping demo orders — some items not found"
   puts "\nAll seeds created!"
   return
 end
+
+# Clean up existing open demo orders on each re-seed to avoid stale order lines
+demo_client_ids = [client1&.id, client2&.id, client3&.id, marie&.id].compact
+Order.where(client_id: demo_client_ids, ended_at: nil).destroy_all
+puts "- Cleaned up existing open demo orders"
 
 # Order 1 — client1, table 3, server marie, vibe Fête
 order1 = Order.find_or_create_by!(client_id: client1.id, ended_at: nil) do |o|
@@ -273,9 +279,9 @@ OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', ordera
   l.note       = 'Sans câpres'
 end
 
-OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', orderable_id: risotto.id) do |l|
+OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', orderable_id: magret.id) do |l|
   l.quantity   = 1
-  l.unit_price = risotto.price
+  l.unit_price = magret.price
   l.status     = 'in_preparation'
 end
 
@@ -315,7 +321,7 @@ puts "- Order ##{order_marie.id} (Table #{table9.number}, Marie employee — 15%
 
 # Order 2 — client2, table 5, server jean, vibe Date + note + tip
 order2 = Order.find_or_create_by!(client_id: client2.id, ended_at: nil) do |o|
-  o.table     = table5
+  o.table     = table4
   o.nb_people = 2
   o.server    = jean
   o.vibe      = vibes['Date']
@@ -331,14 +337,14 @@ OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', ordera
   l.note       = 'Saignant, sans sauce'
 end
 
-OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', orderable_id: risotto.id) do |l|
+OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', orderable_id: carpaccio.id) do |l|
   l.quantity   = 2
-  l.unit_price = risotto.price
+  l.unit_price = carpaccio.price
   l.status     = 'sent'
 end
 
 order2.update_column(:created_at, 45.minutes.ago)
-puts "- Order ##{order2.id} (Table #{table5.number}, #{jean.first_name}, tip: $15.00) — il y a 45min"
+puts "- Order ##{order2.id} (Table #{table4.number}, #{jean.first_name}, tip: $15.00) — il y a 45min"
 
 # Order 3 — client3, table 7, no server, vibe Mort + tip
 order3 = Order.find_or_create_by!(client_id: client3.id, ended_at: nil) do |o|

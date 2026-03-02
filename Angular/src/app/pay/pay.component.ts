@@ -35,6 +35,7 @@ export class PayComponent implements OnInit {
   tip = signal<number>(0);
   tipError = signal<string>('');
   isPaying = signal<boolean>(false);
+  paid = signal<boolean>(false);
 
   constructor(
     public ts: TranslationService,
@@ -107,13 +108,8 @@ export class PayComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.cartService.clear();
-          this.authService.logout().subscribe({
-            next: () => this.router.navigate(['/login']),
-            error: () => {
-              localStorage.removeItem('currentUser');
-              this.router.navigate(['/login']);
-            }
-          });
+          this.paid.set(true);
+          this.isPaying.set(false);
         } else {
           const msg = (res.errors as string[])?.join(', ') || this.ts.t('pay.error');
           this.snackBar.open(msg, 'OK', { duration: 5000 });
@@ -123,6 +119,20 @@ export class PayComponent implements OnInit {
       error: () => {
         this.snackBar.open(this.ts.t('pay.error'), 'OK', { duration: 5000 });
         this.isPaying.set(false);
+      }
+    });
+  }
+
+  goToReviews(): void {
+    this.router.navigate(['/reviews']);
+  }
+
+  skipReview(): void {
+    this.authService.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => {
+        localStorage.removeItem('currentUser');
+        this.router.navigate(['/login']);
       }
     });
   }

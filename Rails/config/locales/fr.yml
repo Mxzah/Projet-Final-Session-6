@@ -120,3 +120,20 @@ fr:
       created: "Combo créé avec succès"
       updated: "Combo mis à jour avec succès"
       deleted: "Combo supprimé avec succès"
+    cuisine:
+      unauthorized: "Accès réservé au personnel de cuisine"
+      order_line_not_found: "Ligne de commande non trouvée"
+      already_at_final_status: "Déjà au statut final"
+      cannot_modify_line: "Impossible de modifier la ligne avec le statut '%{status}'. Les lignes ne peuvent pas être modifiées une fois servies."
+      cannot_delete_line: "Impossible de supprimer la ligne avec le statut '%{status}'. Seules les lignes 'sent' ou 'in_preparation' peuvent être supprimées."
+    orders:
+      not_found: "Commande non trouvée"
+      already_closed: "La commande est déjà fermée"
+      not_all_served: "Tous les articles doivent être 'served' avant de payer"
+      tip_negative: "Le pourboire ne peut pas être négatif"
+      tip_too_high: "Le pourboire ne peut pas dépasser 999.99"
+    order_lines:
+      order_not_found: "Commande non trouvée"
+      not_found: "Ligne de commande non trouvée"
+      cannot_modify: "Impossible de modifier la ligne avec le statut : %{status}. Seules les lignes 'sent' peuvent être modifiées."
+      cannot_delete: "Impossible de supprimer la ligne avec le statut : %{status}. Seules les lignes 'sent' peuvent être supprimées."

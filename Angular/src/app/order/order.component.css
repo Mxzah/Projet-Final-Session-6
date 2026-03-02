@@ -1,5 +1,30 @@
 @import url("../theme.css");
 
+/* ── Quit order button (projected into header) ── */
+.quit-order-btn {
+  background: linear-gradient(120deg, var(--copper), var(--rust)) !important;
+  color: #fff !important;
+  border-radius: 14px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+  padding: 0 1rem !important;
+  height: 38px !important;
+  line-height: 38px !important;
+}
+
+.quit-order-btn mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-right: 0.35rem;
+  color: #fff !important;
+}
+
+.quit-order-btn:hover {
+  opacity: 0.88;
+}
+
 .order-page {
   padding: 1.5rem clamp(1rem, 3vw, 3rem) 2.5rem;
   min-height: calc(100vh - 60px);
@@ -323,6 +348,13 @@ button[mat-raised-button][color="primary"] {
   border-radius: 999px;
   font-weight: 600;
   font-size: 0.82rem;
+}
+
+.vibe-badge-header.no-vibe {
+  background-color: #88888822;
+  color: #888;
+  font-weight: 500;
+  font-style: italic;
 }
 
 /* ── Pending lines ── */

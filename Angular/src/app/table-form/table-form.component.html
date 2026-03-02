@@ -11,17 +11,8 @@
     </div>
   }
 
-  <!-- Table unavailable -->
-  @if (tableUnavailable) {
-    <div class="form-card no-table-card">
-      <mat-icon class="no-table-icon">block</mat-icon>
-      <h2 class="form-title">{{ ts.t('form.tableUnavailable') }}</h2>
-      <p class="form-subtitle">{{ ts.t('form.tableUnavailableText') }}</p>
-    </div>
-  }
-
   <!-- Table found -->
-  @if (table && !tableUnavailable) {
+  @if (table) {
     <div class="form-card">
       <div class="form-header">
         <h2 class="form-title">{{ ts.t('form.title') }} #{{ table.number }}</h2>
@@ -62,6 +53,8 @@
               @if (getSelectedVibe(); as vibe) {
                 <span class="vibe-dot" [style.background]="vibe.color"></span>
                 {{ vibe.name }}
+              } @else {
+                {{ ts.t('form.noVibe') }}
               }
             </mat-select-trigger>
 
@@ -71,6 +64,7 @@
                 {{ ts.t('form.loading') }}
               </mat-option>
             } @else {
+              <mat-option [value]="null">{{ ts.t('form.noVibe') }}</mat-option>
               @for (vibe of vibes; track vibe.id) {
                 <mat-option [value]="vibe.id">
                   <span class="vibe-dot" [style.background]="vibe.color"></span>
@@ -79,9 +73,6 @@
               }
             }
           </mat-select>
-          @if (vibeCtrl.invalid && vibeCtrl.touched) {
-            <mat-error>{{ ts.t('form.vibeRequired') }}</mat-error>
-          }
         </mat-form-field>
 
         <!-- API error -->

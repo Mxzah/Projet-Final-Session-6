@@ -8,7 +8,6 @@ module Api
       lines = order.order_lines.includes(:orderable).order(created_at: :asc)
 
       render json: {
-        code: 200,
         success: true,
         data: lines.map { |l| line_with_image(l) },
         errors: []
@@ -29,47 +28,47 @@ module Api
       end
 
       if line.save
-        render json: { code: 200, success: true, data: [ line_with_image(line) ], errors: [] }, status: :ok
+        render json: { success: true, data: [ line_with_image(line) ], errors: [] }, status: :ok
       else
-        render json: { code: 200, success: false, data: [], errors: line.errors.full_messages }, status: :ok
+        render json: { success: false, data: nil, errors: line.errors.full_messages }, status: :ok
       end
     end
 
     # PUT /api/orders/:order_id/order_lines/:id
     def update
       order = Order.find_by(id: params[:order_id], client_id: current_user.id)
-      return render json: { code: 200, success: false, data: [], errors: [ "Order not found" ] }, status: :ok unless order
+      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.order_not_found")] }, status: :ok unless order
 
       line = order.order_lines.find_by(id: params[:id])
-      return render json: { code: 200, success: false, data: [], errors: [ "Order line not found" ] }, status: :ok unless line
+      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.not_found")] }, status: :ok unless line
 
       # Only 'sent' lines can be modified (uses enum query method)
       unless line.sent?
-        return render json: { code: 200, success: false, data: [], errors: [ "Cannot modify line with status: #{line.status}. Only 'sent' lines can be modified." ] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.cannot_modify", status: line.status)] }, status: :ok
       end
 
       if line.update(line_update_params)
-        render json: { code: 200, success: true, data: [ line_with_image(line.reload) ], errors: [] }, status: :ok
+        render json: { success: true, data: [ line_with_image(line.reload) ], errors: [] }, status: :ok
       else
-        render json: { code: 200, success: false, data: [], errors: line.errors.full_messages }, status: :ok
+        render json: { success: false, data: nil, errors: line.errors.full_messages }, status: :ok
       end
     end
 
     # DELETE /api/orders/:order_id/order_lines/:id (hard delete)
     def destroy
       order = Order.find_by(id: params[:order_id], client_id: current_user.id)
-      return render json: { code: 200, success: false, data: [], errors: [ "Order not found" ] }, status: :ok unless order
+      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.order_not_found")] }, status: :ok unless order
 
       line = order.order_lines.find_by(id: params[:id])
-      return render json: { code: 200, success: false, data: [], errors: [ "Order line not found" ] }, status: :ok unless line
+      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.not_found")] }, status: :ok unless line
 
       # Only 'sent' lines can be deleted (uses enum query method)
       unless line.sent?
-        return render json: { code: 200, success: false, data: [], errors: [ "Cannot delete line with status: #{line.status}. Only 'sent' lines can be deleted." ] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.cannot_delete", status: line.status)] }, status: :ok
       end
 
       line.destroy
-      render json: { code: 200, success: true, data: [], errors: [] }, status: :ok
+      render json: { success: true, data: [], errors: [] }, status: :ok
     end
 
     private

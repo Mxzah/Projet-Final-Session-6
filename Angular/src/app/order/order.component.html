@@ -1,12 +1,6 @@
 <app-header (logoutClick)="logout()"></app-header>
 
 <main class="order-page">
-  @if (loadError()) {
-    <div class="order-error">{{ loadError() }}</div>
-  }
-  @if (actionError()) {
-    <div class="order-error">{{ actionError() }}</div>
-  }
   @if (lines().length === 0) {
     <mat-card class="empty-state" appearance="outlined">
       <mat-card-content>
@@ -16,6 +10,12 @@
           <mat-icon aria-hidden="true"></mat-icon>
           {{ ts.t('order.addItems') }}
         </button>
+        @if (openOrderId() !== null) {
+          <button mat-button class="quit-order-btn" (click)="confirmQuitOrder()">
+            <mat-icon>logout</mat-icon>
+            {{ ts.t('order.quitOrder') }}
+          </button>
+        }
       </mat-card-content>
     </mat-card>
   } @else {
@@ -35,6 +35,8 @@
               [style.color]="existingVibeColor() ?? '#C87941'">
               ✦ {{ existingVibeName() }}
             </span>
+          } @else {
+            <span class="vibe-badge-header no-vibe">{{ ts.t('order.noVibe') }}</span>
           }
           <div class="server-info">
             <mat-icon>person</mat-icon>
@@ -125,10 +127,10 @@
               <div class="note-actions">
                 <button mat-raised-button color="primary" [disabled]="isSavingNote()" (click)="saveNote()">
                   <mat-icon>save</mat-icon>
-                  {{ ts.t('order.save') }}
+                  {{ ts.t('order.saveNote') }}
                 </button>
                 <button mat-button (click)="cancelEditNote()">
-                  {{ ts.t('order.cancel') }}
+                  {{ ts.t('admin.cancel') }}
                 </button>
               </div>
             }
@@ -139,8 +141,8 @@
       <mat-divider></mat-divider>
 
       <div class="order-actions">
-        @if (allServed()) {
-          <button mat-raised-button color="primary" (click)="goToPay()">
+        @if (canPay()) {
+          <button mat-raised-button color="primary" class="pay-now-btn" (click)="goToPay()">
             <mat-icon aria-hidden="true">payment</mat-icon>
             {{ ts.t('order.pay') }}
           </button>

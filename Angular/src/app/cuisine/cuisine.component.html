@@ -65,6 +65,8 @@
                   [style.color]="order.vibe_color">
                   ✦ {{ order.vibe_name }}
                 </span>
+              } @else {
+                <span class="vibe-badge no-vibe">{{ ts.t('order.noVibe') }}</span>
               }
             </div>
             <div class="order-time">
@@ -126,16 +128,20 @@
                     <!-- Edit & Delete (waiter and admin only) -->
                     @if (canManageLines()) {
                       <div class="line-actions">
-                        <button mat-icon-button class="action-btn edit"
-                          [title]="ts.t('cuisine.modify')"
-                          (click)="openEditLine(line)">
-                          <mat-icon>edit</mat-icon>
-                        </button>
-                        <button mat-icon-button class="action-btn delete"
-                          [title]="ts.t('cuisine.delete')"
-                          (click)="confirmDeleteLine(line)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
+                        @if (canEditLine(line)) {
+                          <button mat-icon-button class="action-btn edit"
+                            [title]="ts.t('cuisine.modify')"
+                            (click)="openEditLine(line)">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                        }
+                        @if (canDeleteLine(line)) {
+                          <button mat-icon-button class="action-btn delete"
+                            [title]="ts.t('cuisine.delete')"
+                            (click)="confirmDeleteLine(line)">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        }
                       </div>
                     }
                   </div>

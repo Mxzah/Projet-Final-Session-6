@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +13,6 @@ import { CuisineService, CuisineOrder, CuisineOrderLine } from '../services/cuis
 import { AuthService } from '../services/auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { TranslationService } from '../services/translation.service';
-import { ErrorService } from '../services/error.service';
 import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
 
 @Component({
@@ -32,16 +32,15 @@ import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent
   templateUrl: './cuisine.component.html',
   styleUrl: './cuisine.component.css'
 })
-export class CuisineComponent implements OnInit, OnDestroy {
-  private pollingInterval: ReturnType<typeof setInterval> | null = null;
+export class CuisineComponent implements OnInit {
   orders: CuisineOrder[] = [];
   loading = true;
   error: string | null = null;
-  actionError = '';
 
   readonly statuses = ['sent', 'in_preparation', 'ready', 'served'];
 
   advancingLineIds = new Set<number>();
+  actionError = '';
 
   constructor(
     public ts: TranslationService,
@@ -51,19 +50,11 @@ export class CuisineComponent implements OnInit, OnDestroy {
     private location: Location,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private errorService: ErrorService
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.loadOrders();
-    this.pollingInterval = setInterval(() => this.loadOrders(), 10000);
-  }
-
-  ngOnDestroy(): void {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
-    }
   }
 
   loadOrders(): void {
@@ -75,8 +66,8 @@ export class CuisineComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        this.error = this.errorService.format(this.errorService.fromApiError(err));
+      error: () => {
+        this.error = 'Impossible de charger les commandes.';
         this.loading = false;
         this.cdr.detectChanges();
       }
@@ -87,21 +78,23 @@ export class CuisineComponent implements OnInit, OnDestroy {
     return this.authService.isAdmin() || this.authService.isWaiter();
   }
 
-  // Retourne le prochain statut dans la liste (ex: 'sent' → 'in_preparation')
-  // Retourne null si le statut est déjà le dernier (ex: 'served')
+  canEditLine(line: CuisineOrderLine): boolean {
+    return line.status !== 'served';
+  }
+
+  canDeleteLine(line: CuisineOrderLine): boolean {
+    return line.status === 'sent' || line.status === 'in_preparation';
+  }
+
   getNextStatus(status: string): string | null {
     const idx = this.statuses.indexOf(status);
     if (idx === -1 || idx === this.statuses.length - 1) return null;
     return this.statuses[idx + 1];
   }
 
-  // Envoie une requête au backend pour avancer le statut d'une ligne de commande
-  // Ex: 'sent' → 'in_preparation' → 'ready' → 'served'
-  // advancingLineIds empêche de cliquer deux fois sur le même bouton en même temps
   advanceStatus(line: CuisineOrderLine): void {
     if (this.advancingLineIds.has(line.id)) return;
     this.advancingLineIds.add(line.id);
-    this.actionError = '';
 
     this.cuisineService.nextStatus(line.id).subscribe({
       next: (res) => {
@@ -109,18 +102,17 @@ export class CuisineComponent implements OnInit, OnDestroy {
         if (res.success) {
           this.loadOrders();
         } else {
-          this.actionError = this.errorService.format(this.errorService.fromApiError(res));
+          const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
+          this.snackBar.open(msg, 'OK', { duration: 5000 });
         }
       },
-      error: (err) => {
+      error: () => {
         this.advancingLineIds.delete(line.id);
-        this.actionError = this.errorService.format(this.errorService.fromApiError(err));
+        this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
       }
     });
   }
 
-  // Traduit un statut interne (ex: 'in_preparation') en texte affiché à l'écran
-  // Utilise le service de traduction (ts.t) pour supporter le français/anglais
   getStatusLabel(status: string): string {
     const keys: Record<string, string> = {
       sent: 'cuisine.status.sent',
@@ -131,8 +123,6 @@ export class CuisineComponent implements OnInit, OnDestroy {
     return keys[status] ? this.ts.t(keys[status]) : status;
   }
 
-  // Formate une date en texte lisible selon la langue choisie (fr ou en)
-  // Ex: '2024-03-15T14:30:00' → 'mars 15, 14:30' (fr) ou 'Mar 15, 2:30 PM' (en)
   formatOrderTime(dateStr: string): string {
     const date = new Date(dateStr);
     const locale = this.ts.lang() === 'en' ? 'en-CA' : 'fr-CA';
@@ -144,9 +134,6 @@ export class CuisineComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Retourne la classe CSS correspondant au statut pour colorier visuellement la ligne
-  // Ex: 'sent' → 'status-sent', 'ready' → 'status-ready'
-  // ?? '' = si le statut est inconnu, retourne une chaîne vide (pas de classe appliquée)
   getStatusClass(status: string): string {
     const classes: Record<string, string> = {
       sent: 'status-sent',
@@ -171,7 +158,6 @@ export class CuisineComponent implements OnInit, OnDestroy {
     );
     ref.afterClosed().subscribe(result => {
       if (!result) return;
-      this.actionError = '';
       this.cuisineService.updateOrderLine(line.id, {
         quantity: result.quantity,
         note: result.note
@@ -180,11 +166,12 @@ export class CuisineComponent implements OnInit, OnDestroy {
           if (res.success) {
             this.loadOrders();
           } else {
-            this.actionError = this.errorService.format(this.errorService.fromApiError(res));
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
           }
         },
-        error: (err) => {
-          this.actionError = this.errorService.format(this.errorService.fromApiError(err));
+        error: () => {
+          this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
         }
       });
     });
@@ -207,19 +194,30 @@ export class CuisineComponent implements OnInit, OnDestroy {
     );
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      this.actionError = '';
       this.cuisineService.deleteOrderLine(line.id).subscribe({
         next: (res: any) => {
           if (res.success) {
             this.loadOrders();
           } else {
-            this.actionError = this.errorService.format(this.errorService.fromApiError(res));
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.deleteError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
           }
         },
-        error: (err) => {
-          this.actionError = this.errorService.format(this.errorService.fromApiError(err));
+        error: () => {
+          this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
         }
       });
+    });
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
+
+  logout(): void {
+    this.authService.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => this.router.navigate(['/login'])
     });
   }
 
@@ -230,55 +228,38 @@ export class CuisineComponent implements OnInit, OnDestroy {
         if (res.success) {
           this.loadOrders();
         } else {
-          this.actionError = this.errorService.format(this.errorService.fromApiError(res));
+          const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
+          this.snackBar.open(msg, 'OK', { duration: 5000 });
         }
       },
-      error: (err) => {
-        this.actionError = this.errorService.format(this.errorService.fromApiError(err));
-      }
+      error: () => this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 })
     });
   }
 
-  goBack(): void {
-    this.location.back();
-  }
-
-  // ── Release table / close order (waiter/admin only) ──
-
   confirmReleaseOrder(order: CuisineOrder): void {
-    const data: ConfirmDialogData = {
+    const data = {
       title: this.ts.t('cuisine.releaseTable'),
       message: this.ts.t('cuisine.releaseConfirm'),
-      itemName: `${this.ts.t('cuisine.table')} ${order.table_number}`,
+      itemName: this.ts.t('cuisine.table') + ' ' + order.table_number,
+      warning: '',
       confirmLabel: this.ts.t('cuisine.releaseTable'),
       confirmClass: 'btn-danger'
     };
-    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
-      ConfirmDialogComponent,
-      { data, width: '440px', maxHeight: '90vh' }
-    );
+    const ref = this.dialog.open(ConfirmDialogComponent, { data, width: '440px', maxHeight: '90vh' });
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      this.actionError = '';
       this.cuisineService.releaseOrder(order.id).subscribe({
         next: (res) => {
           if (res.success) {
             this.loadOrders();
           } else {
-            this.actionError = this.errorService.format(this.errorService.fromApiError(res));
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
           }
         },
-        error: (err) => {
-          this.actionError = this.errorService.format(this.errorService.fromApiError(err));
-        }
+        error: () => this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 })
       });
     });
   }
 
-  logout(): void {
-    this.authService.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login'])
-    });
-  }
 }

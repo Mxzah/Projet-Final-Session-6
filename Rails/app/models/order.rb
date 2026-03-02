@@ -72,4 +72,10 @@ class Order < ApplicationRecord
     return if nb_people <= table.nb_seats
     errors.add(:nb_people, "cannot exceed the table capacity (#{table.nb_seats} people max)")
   end
+
+  def nb_people_within_table_capacity
+    return unless table.present? && nb_people.present?
+    return if nb_people <= table.nb_seats
+    errors.add(:nb_people, "cannot exceed the table capacity (#{table.nb_seats} people max)")
+  end
 end

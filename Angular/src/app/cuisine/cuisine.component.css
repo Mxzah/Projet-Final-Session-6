@@ -2,6 +2,7 @@
 
 :host {
   display: block;
+  width: 100%;
   min-height: 100vh;
   background: radial-gradient(circle at top left, #f7e6d8 0%, #f9f5ef 45%, #efe7dc 100%);
 }
@@ -48,12 +49,15 @@
 
 /* ── Page header ── */
 .page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem clamp(1rem, 3vw, 3rem) 3rem;
+  display: block;
+  padding: 1.5rem 2rem 3rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 .page-header {
+  padding: 0 0.5rem;
   margin-bottom: 2rem;
 }
 
@@ -113,12 +117,26 @@ h1 {
 /* ── Orders grid ── */
 .orders-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Force Angular Material mat-card to fill its grid cell */
+::ng-deep .orders-grid > mat-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  align-self: start !important;
 }
 
 /* ── Order card ── */
 .order-card {
+  min-width: 0;
+  box-sizing: border-box !important;
   background: #fbf8f2 !important;
   border-radius: 20px !important;
   border: 1px solid rgba(27, 26, 23, 0.08) !important;
@@ -181,6 +199,13 @@ mat-card-header {
   border-radius: 999px;
   font-weight: 600;
   font-size: 0.8rem;
+}
+
+.vibe-badge.no-vibe {
+  background-color: #88888822;
+  color: #888;
+  font-weight: 500;
+  font-style: italic;
 }
 
 .order-time {
@@ -385,7 +410,7 @@ mat-card-content {
   stroke: var(--copper) !important;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .orders-grid {
     grid-template-columns: 1fr;
     gap: 1rem;

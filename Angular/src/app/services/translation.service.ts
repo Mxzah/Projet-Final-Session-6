@@ -205,7 +205,8 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'form.guestsMin': { fr: 'Minimum 1 client.', en: 'Minimum 1 guest.' },
   'form.guestsMax': { fr: 'La capacité maximale de la table est de', en: 'Maximum table capacity is' },
   'form.vibe': { fr: 'Ambiance de la table', en: 'Table vibe' },
-  'form.vibeRequired': { fr: 'Veuillez choisir une ambiance.', en: 'Please choose a vibe.' },
+  'form.noVibe': { fr: 'Aucune ambiance', en: 'No vibe' },
+  'order.noVibe': { fr: 'Pas de vibe choisie', en: 'No vibe selected' },
   'form.loading': { fr: 'Chargement...', en: 'Loading...' },
   'form.submit': { fr: 'Accéder au menu', en: 'Go to menu' },
   'form.submitting': { fr: 'Création...', en: 'Creating...' },
@@ -271,6 +272,10 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'order.noNote': { fr: 'Aucune note', en: 'No note' },
   'order.save': { fr: 'Sauvegarder', en: 'Save' },
   'order.cancel': { fr: 'Annuler', en: 'Cancel' },
+  'order.quitOrder': { fr: 'Quitter', en: 'Quit' },
+  'order.quitOrderConfirm': { fr: 'Voulez-vous vraiment quitter et supprimer', en: 'Are you sure you want to quit and delete' },
+  'order.yourOrder': { fr: 'votre commande', en: 'your order' },
+  'order.quitOrderWarning': { fr: 'Votre commande sera définitivement supprimée et vous serez déconnecté(e).', en: 'Your order will be permanently deleted and you will be logged out.' },
 
   // Cuisine page
   'cuisine.eyebrow': { fr: 'Tableau de bord', en: 'Dashboard' },
@@ -419,6 +424,11 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'pay.loading': { fr: 'Chargement...', en: 'Loading...' },
   'pay.discount': { fr: 'Rabais employé', en: 'Employee discount' },
   'pay.adjustedTotal': { fr: 'Total après rabais', en: 'Total after discount' },
+  'pay.invoiceLines': { fr: 'Détail de la commande', en: 'Order details' },
+  'pay.thankYouTitle': { fr: 'Merci pour votre commande !', en: 'Thank you for your order!' },
+  'pay.thankYouMsg': { fr: 'Votre paiement a bien été enregistré. Nous espérons vous revoir bientôt !', en: 'Your payment has been recorded. We hope to see you again soon!' },
+  'pay.reviewNow': { fr: 'Donner un avis maintenant', en: 'Leave a review now' },
+  'pay.reviewLater': { fr: 'Plus tard — Quitter', en: 'Later — Quit' },
 
   // Reviews page (client)
   'reviews.title': { fr: 'Mes avis', en: 'My reviews' },

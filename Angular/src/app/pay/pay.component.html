@@ -2,74 +2,115 @@
 
 <main class="pay-page">
   @if (order(); as o) {
-    <mat-card class="pay-card" appearance="outlined">
-      <mat-card-content class="pay-content">
 
-        <div class="pay-header">
-          <mat-icon class="pay-icon">receipt_long</mat-icon>
-          <h1 class="pay-title">{{ ts.t('pay.title') }}</h1>
-          <p class="pay-subtitle">{{ ts.t('pay.subtitle') }}</p>
-        </div>
+    @if (!paid()) {
+      <mat-card class="pay-card" appearance="outlined">
+        <mat-card-content class="pay-content">
 
-        <div class="pay-summary">
-          <div class="summary-line">
-            <span>{{ ts.t('pay.table') }}</span>
-            <strong>#{{ o.table_number }}</strong>
+          <div class="pay-header">
+            <mat-icon class="pay-icon">receipt_long</mat-icon>
+            <h1 class="pay-title">{{ ts.t('pay.title') }}</h1>
+            <p class="pay-subtitle">{{ ts.t('pay.subtitle') }}</p>
           </div>
-          <div class="summary-line">
-            <span>{{ ts.t('pay.items') }}</span>
-            <strong>{{ o.order_lines.length }}</strong>
-          </div>
-          <div class="summary-line total-line">
-            <span>{{ ts.t('pay.total') }}</span>
-            <strong class="total-price">CA${{ o.total.toFixed(2) }}</strong>
-          </div>
-          @if (o.discount_percentage > 0) {
-            <div class="summary-line discount-line">
-              <span>{{ ts.t('pay.discount') }} ({{ o.discount_percentage }}%)</span>
-              <strong class="discount-price">-CA${{ o.discount_amount.toFixed(2) }}</strong>
+
+          <div class="pay-meta">
+            <div class="summary-line">
+              <span>{{ ts.t('pay.table') }}</span>
+              <strong>#{{ o.table_number }}</strong>
             </div>
-            <div class="summary-line adjusted-total-line">
-              <span>{{ ts.t('pay.adjustedTotal') }}</span>
-              <strong class="adjusted-total-price">CA${{ o.adjusted_total.toFixed(2) }}</strong>
+            <div class="summary-line">
+              <span>{{ ts.t('order.people') }}</span>
+              <strong>{{ o.nb_people }}</strong>
             </div>
-          }
-        </div>
+          </div>
 
-        <div class="tip-section">
-          <mat-form-field class="tip-field" appearance="outline">
-            <mat-label>{{ ts.t('pay.tipLabel') }}</mat-label>
-            <input matInput
-                   type="number"
-                   [value]="tip()"
-                   (input)="onTipChange($event)"
-                   min="0"
-                   max="999.99"
-                   step="0.50"
-                   placeholder="0.00" />
-            <mat-icon matPrefix>volunteer_activism</mat-icon>
-            @if (tipError()) {
-              <mat-error>{{ tipError() }}</mat-error>
+          <div class="invoice-lines">
+            <p class="invoice-label">{{ ts.t('pay.invoiceLines') }}</p>
+            @for (line of o.order_lines; track line.id) {
+              <div class="invoice-line">
+                <div class="invoice-line-left">
+                  <span class="invoice-line-name">{{ line.orderable_name }}</span>
+                  <span class="invoice-line-qty">x{{ line.quantity }}</span>
+                </div>
+                <strong class="invoice-line-price">CA${{ (line.unit_price * line.quantity).toFixed(2) }}</strong>
+              </div>
             }
-          </mat-form-field>
-        </div>
+          </div>
 
-        <div class="grand-total">
-          <span>{{ ts.t('pay.grandTotal') }}</span>
-          <strong class="grand-total-price">CA${{ ((o.discount_percentage > 0 ? o.adjusted_total : o.total) + tip()).toFixed(2) }}</strong>
-        </div>
+          <div class="pay-totals">
+            <div class="summary-line total-line">
+              <span>{{ ts.t('pay.total') }}</span>
+              <strong class="total-price">CA${{ o.total.toFixed(2) }}</strong>
+            </div>
+            @if (o.discount_percentage > 0) {
+              <div class="summary-line discount-line">
+                <span>{{ ts.t('pay.discount') }} ({{ o.discount_percentage }}%)</span>
+                <strong class="discount-price">-CA${{ o.discount_amount.toFixed(2) }}</strong>
+              </div>
+              <div class="summary-line adjusted-total-line">
+                <span>{{ ts.t('pay.adjustedTotal') }}</span>
+                <strong class="adjusted-total-price">CA${{ o.adjusted_total.toFixed(2) }}</strong>
+              </div>
+            }
+          </div>
 
-        <button mat-raised-button
-                color="primary"
-                class="pay-btn"
-                [disabled]="isPaying() || tipError() !== ''"
-                (click)="onPay()">
-          <mat-icon>payment</mat-icon>
-          {{ isPaying() ? ts.t('pay.processing') : ts.t('pay.confirm') }}
-        </button>
+          <div class="tip-section">
+            <mat-form-field class="tip-field" appearance="outline">
+              <mat-label>{{ ts.t('pay.tipLabel') }}</mat-label>
+              <input matInput
+                     type="number"
+                     [value]="tip()"
+                     (input)="onTipChange($event)"
+                     min="0"
+                     max="999.99"
+                     step="0.50"
+                     placeholder="0.00" />
+              <mat-icon matPrefix>volunteer_activism</mat-icon>
+              @if (tipError()) {
+                <mat-error>{{ tipError() }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
 
-      </mat-card-content>
-    </mat-card>
+          <div class="grand-total">
+            <span>{{ ts.t('pay.grandTotal') }}</span>
+            <strong class="grand-total-price">CA${{ ((o.discount_percentage > 0 ? o.adjusted_total : o.total) + tip()).toFixed(2) }}</strong>
+          </div>
+
+          <button mat-raised-button
+                  color="primary"
+                  class="pay-btn"
+                  [disabled]="isPaying() || tipError() !== ''"
+                  (click)="onPay()">
+            <mat-icon>payment</mat-icon>
+            {{ isPaying() ? ts.t('pay.processing') : ts.t('pay.confirm') }}
+          </button>
+
+        </mat-card-content>
+      </mat-card>
+
+    } @else {
+      <mat-card class="pay-card" appearance="outlined">
+        <mat-card-content class="pay-content thank-you-content">
+
+          <mat-icon class="thank-you-icon">check_circle</mat-icon>
+          <h1 class="pay-title">{{ ts.t('pay.thankYouTitle') }}</h1>
+          <p class="pay-subtitle">{{ ts.t('pay.thankYouMsg') }}</p>
+
+          <div class="review-actions">
+            <button mat-raised-button color="primary" class="pay-btn" (click)="goToReviews()">
+              <mat-icon>star</mat-icon>
+              {{ ts.t('pay.reviewNow') }}
+            </button>
+            <button mat-button (click)="skipReview()">
+              {{ ts.t('pay.reviewLater') }}
+            </button>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+    }
+
   } @else {
     <div class="loading">
       <p>{{ ts.t('pay.loading') }}</p>

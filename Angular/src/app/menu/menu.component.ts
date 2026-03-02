@@ -468,7 +468,6 @@ export class MenuComponent implements OnInit, OnDestroy {
       title: this.ts.t('order.deleteLine'),
       message: this.ts.t('order.deleteLineConfirm'),
       itemName: line.name,
-      warning: this.ts.t('order.cartRemoveInfo'),
       confirmLabel: this.ts.t('admin.delete'),
       confirmClass: 'btn-danger'
     };

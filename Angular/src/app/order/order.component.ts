@@ -1,21 +1,21 @@
-import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
 import { OrderLineData, OrderService } from '../services/order.service';
 import { TranslationService } from '../services/translation.service';
-import { ErrorService } from '../services/error.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
 
 interface DisplayOrderLine {
@@ -39,30 +39,25 @@ interface DisplayOrderLine {
     MatCardModule,
     MatDividerModule,
     MatIconModule,
+    FormsModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule,
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
 })
-export class OrderComponent implements OnInit, OnDestroy {
-  private pollingInterval: ReturnType<typeof setInterval> | null = null;
+export class OrderComponent implements OnInit {
   openOrderId = signal<number | null>(null);
   private serverLines = signal<DisplayOrderLine[]>([]);
   isSending = signal<boolean>(false);
-  loadError = signal('');
-  actionError = signal('');
 
   existingNote = signal<string | null>(null);
-  existingVibeName = signal<string | null>(null);
-  existingVibeColor = signal<string | null>(null);
-  existingNbPeople = signal<number | null>(null);
-
-  // Note editing state
   editingNote = signal(false);
   noteInput = signal('');
   isSavingNote = signal(false);
+  existingVibeName = signal<string | null>(null);
+  existingVibeColor = signal<string | null>(null);
+  existingNbPeople = signal<number | null>(null);
 
   private pendingLines = computed<DisplayOrderLine[]>(() =>
     this.cartService.lines().map((line, index) => ({
@@ -80,13 +75,12 @@ export class OrderComponent implements OnInit, OnDestroy {
   subtotal = computed(() => this.lines().reduce((sum, line) => sum + line.unit_price * line.quantity, 0));
   totalItems = computed(() => this.lines().reduce((sum, line) => sum + line.quantity, 0));
   pendingCount = computed(() => this.cartService.lines().length);
-
-
-  //regarder si toutes les lignes sont servies et qu'il n'y a aucune ligne en attente (panier vide)
-  allServed = computed(() => {
-    const sLines = this.serverLines();
-    return sLines.length > 0 && sLines.every(l => l.status === 'served') && this.pendingCount() === 0;
-  });
+  canPay = computed(() =>
+    this.openOrderId() !== null &&
+    this.pendingCount() === 0 &&
+    this.serverLines().length > 0 &&
+    this.serverLines().every(l => l.status === 'served')
+  );
 
   constructor(
     public cartService: CartService,
@@ -95,19 +89,11 @@ export class OrderComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private router: Router,
     private dialog: MatDialog,
-    private errorService: ErrorService
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.loadOpenOrder();
-    this.pollingInterval = setInterval(() => this.loadOpenOrder(), 10000);
-  }
-
-  ngOnDestroy(): void {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
-    }
   }
 
   private mapApiLine(line: OrderLineData): DisplayOrderLine {
@@ -123,7 +109,6 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   private loadOpenOrder(): void {
-    this.loadError.set('');
     this.orderService.getOrders().subscribe({
       next: (response) => {
         const orders = response.data || [];
@@ -146,8 +131,7 @@ export class OrderComponent implements OnInit, OnDestroy {
         this.existingNbPeople.set(openOrder.nb_people ?? null);
         this.serverLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
       },
-      error: (err) => {
-        this.loadError.set(this.errorService.format(this.errorService.fromApiError(err)));
+      error: () => {
         this.openOrderId.set(null);
         this.serverLines.set([]);
       }
@@ -203,14 +187,13 @@ export class OrderComponent implements OnInit, OnDestroy {
       const orderId = this.openOrderId();
       if (!orderId) return;
 
-      this.actionError.set('');
       this.orderService.updateOrderLine(orderId, line.id, {
         quantity: result.quantity,
         note: result.note
       }).subscribe({
         next: () => this.loadOpenOrder(),
-        error: (err) => {
-          this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+        error: () => {
+          this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
         }
       });
     });
@@ -224,7 +207,6 @@ export class OrderComponent implements OnInit, OnDestroy {
       title: this.ts.t('order.deleteLine'),
       message: this.ts.t('order.deleteLineConfirm'),
       itemName: line.name,
-      warning: isCart ? this.ts.t('order.cartRemoveInfo') : this.ts.t('order.hardDeleteWarning'),
       confirmLabel: this.ts.t('admin.delete'),
       confirmClass: 'btn-danger'
     };
@@ -244,17 +226,17 @@ export class OrderComponent implements OnInit, OnDestroy {
       const orderId = this.openOrderId();
       if (!orderId) return;
 
-      this.actionError.set('');
       this.orderService.deleteOrderLine(orderId, line.id).subscribe({
         next: (res: any) => {
           if (res.success) {
             this.loadOpenOrder();
           } else {
-            this.actionError.set(this.errorService.format(this.errorService.fromApiError(res)));
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.deleteError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
           }
         },
-        error: (err) => {
-          this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+        error: () => {
+          this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
         }
       });
     });
@@ -269,13 +251,12 @@ export class OrderComponent implements OnInit, OnDestroy {
     if (linesToCreate.length === 0 || this.isSending()) return;
 
     if (!orderId) {
-      this.actionError.set(this.ts.t('order.noOrderRedirect'));
+      this.snackBar.open(this.ts.t('order.noOrderRedirect'), 'OK', { duration: 4000 });
       this.router.navigate(['/form']);
       return;
     }
 
     this.isSending.set(true);
-    this.actionError.set('');
 
     const requests = linesToCreate.map(line =>
       this.orderService.createOrderLine(orderId, {
@@ -291,14 +272,22 @@ export class OrderComponent implements OnInit, OnDestroy {
         this.cartService.clear();
         this.loadOpenOrder();
       },
-      error: (err) => {
-        this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+      error: () => {
+        this.snackBar.open(this.ts.t('order.sendError'), 'OK', { duration: 5000 });
         this.isSending.set(false);
       },
       complete: () => {
         this.isSending.set(false);
       }
     });
+  }
+
+  onAddItems(): void {
+    this.router.navigate(['/menu']);
+  }
+
+  goToPay(): void {
+    this.router.navigate(['/pay']);
   }
 
   // Ouvre le mode édition de la note de commande
@@ -316,27 +305,56 @@ export class OrderComponent implements OnInit, OnDestroy {
   saveNote(): void {
     const orderId = this.openOrderId();
     if (!orderId || this.isSavingNote()) return;
-
     this.isSavingNote.set(true);
     this.orderService.updateOrder(orderId, { note: this.noteInput() }).subscribe({
       next: () => {
         this.editingNote.set(false);
         this.isSavingNote.set(false);
+        this.snackBar.open(this.ts.t('order.noteSaved'), 'OK', { duration: 3000 });
         this.loadOpenOrder();
       },
-      error: (err) => {
-        this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
+      error: () => {
+        this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
         this.isSavingNote.set(false);
       }
     });
   }
 
-  onAddItems(): void {
-    this.router.navigate(['/menu']);
-  }
+  // ── Quit & delete order (client confirms, order deleted, logout) ──
 
-  goToPay(): void {
-    this.router.navigate(['/pay']);
+  confirmQuitOrder(): void {
+    const orderId = this.openOrderId();
+    if (!orderId) return;
+
+    const data: ConfirmDialogData = {
+      title: this.ts.t('order.quitOrder'),
+      message: this.ts.t('order.quitOrderConfirm'),
+      itemName: this.ts.t('order.yourOrder'),
+      confirmLabel: this.ts.t('order.quitOrder'),
+      confirmClass: 'btn-danger'
+    };
+    const ref = this.dialog.open<ConfirmDialogComponent, ConfirmDialogData, boolean>(
+      ConfirmDialogComponent,
+      { data, width: '440px', maxHeight: '90vh' }
+    );
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.cartService.clear();
+      this.orderService.deleteOrder(orderId).subscribe({
+        next: () => {
+          this.authService.logout().subscribe({
+            next: () => this.router.navigate(['/login']),
+            error: () => {
+              localStorage.removeItem('currentUser');
+              this.router.navigate(['/login']);
+            }
+          });
+        },
+        error: () => {
+          this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
+        }
+      });
+    });
   }
 
   goBack(): void {
