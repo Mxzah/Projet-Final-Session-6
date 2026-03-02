@@ -19,7 +19,7 @@ class OrderUpdateSuccessTest < ActionDispatch::IntegrationTest
     assert_equal "Extra bread please", json["data"].first["note"]
   end
 
-  
+
 
   # Test 2: Note is persisted in the database
   test "update persists note in database" do

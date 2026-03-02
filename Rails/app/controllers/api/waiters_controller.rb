@@ -4,12 +4,12 @@ module Api
 
     # GET /api/waiters/assigned
     def assigned
-      waiter = Waiter.where(status: 'active').order('RAND()').first
+      waiter = Waiter.where(status: "active").order("RAND()").first
 
       if waiter
         render json: {
           success: true,
-          data: [{ id: waiter.id, name: "#{waiter.first_name} #{waiter.last_name}" }],
+          data: [ { id: waiter.id, name: "#{waiter.first_name} #{waiter.last_name}" } ],
           error: [],
           errors: []
         }, status: :ok

@@ -11,7 +11,7 @@ class CreateOrderLines < ActiveRecord::Migration[8.1]
       t.datetime :created_at, null: false
     end
 
-    add_index :order_lines, [:orderable_type, :orderable_id], name: "idx_order_lines_type_id"
+    add_index :order_lines, [ :orderable_type, :orderable_id ], name: "idx_order_lines_type_id"
     add_index :order_lines, :status, name: "idx_order_lines_status"
   end
 end

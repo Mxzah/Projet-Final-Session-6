@@ -8,7 +8,7 @@ class ApiController < ApplicationController
   end
 
   def render_error(errors)
-    errors = [errors] unless errors.is_a?(Array)
+    errors = [ errors ] unless errors.is_a?(Array)
     render json: { success: false, errors: errors }, status: :ok
   end
 end

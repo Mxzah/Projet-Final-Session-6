@@ -1,8 +1,8 @@
 module Api
   class TablesController < AdminController
-    skip_before_action :authenticate_user!, only: [:index, :show, :qr_code]
-    skip_before_action :require_admin!, only: [:index, :show, :qr_code, :mark_cleaned]
-    before_action :require_cleaning_staff!, only: [:mark_cleaned]
+    skip_before_action :authenticate_user!, only: [ :index, :show, :qr_code ]
+    skip_before_action :require_admin!, only: [ :index, :show, :qr_code, :mark_cleaned ]
+    before_action :require_cleaning_staff!, only: [ :mark_cleaned ]
 
     def show
       table = Table.find_by!(temporary_code: params[:qr_token])
@@ -134,7 +134,7 @@ module Api
         render json: {
           success: false,
           data: nil,
-          errors: ["Invalid cleaned_at datetime"]
+          errors: [ "Invalid cleaned_at datetime" ]
         }, status: :unprocessable_entity
         return
       end
@@ -165,7 +165,7 @@ module Api
         id: table.id,
         number: table.number,
         capacity: table.nb_seats,
-        status: table.orders.where(ended_at: nil).any? ? 'occupied' : 'available',
+        status: table.orders.where(ended_at: nil).any? ? "occupied" : "available",
         qr_token: table.temporary_code,
         availabilities: table.availabilities.map { |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
@@ -179,7 +179,7 @@ module Api
       render json: {
         success: false,
         data: nil,
-        errors: ["Access restricted to cleaning staff"]
+        errors: [ "Access restricted to cleaning staff" ]
       }, status: :ok
     end
   end

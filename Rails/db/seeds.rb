@@ -174,7 +174,7 @@ items_data = [
 
   # Pâtes & Risottos
   { name: 'Risotto aux Truffes', description: 'Risotto crémeux au parmesan, copeaux de truffe noire et huile de truffe', price: 36.99, category: 'Pâtes & Risottos', image: 'RisottoAuxTruffes.jpg' },
-  { name: 'Linguine au Homard', description: 'Linguine fraîches, chair de homard, tomates cerises, bisque légère et estragon', price: 44.99, category: 'Pâtes & Risottos', image: 'LinguineAuHomard.jpg' },
+  { name: 'Linguine au Homard', description: 'Linguine fraîches, chair de homard, tomates cerises, bisque légère et estragon', price: 44.99, category: 'Pâtes & Risottos', image: 'LinguineAuHomard.jpg' }
 ]
 
 created_items = []
@@ -537,16 +537,16 @@ if carpaccio_item && bar_item
     c.price       = 55.99
     c.deleted_at  = 3.days.ago
   end
-  
-  # ComboItems pour le combo supprimé  
+
+  # ComboItems pour le combo supprimé
   ComboItem.unscoped.find_or_create_by!(combo: deleted_combo, item: carpaccio_item) do |ci|
     ci.quantity = 1
   end
-  
+
   ComboItem.unscoped.find_or_create_by!(combo: deleted_combo, item: bar_item) do |ci|
     ci.quantity = 1
   end
-  
+
   puts "- Combo supprimé 'Menu Ancien' créé"
 end
 
@@ -568,15 +568,15 @@ if petoncles_item && magret_item
     c.price       = 69.99
     c.deleted_at  = 1.week.ago
   end
-  
+
   ComboItem.unscoped.find_or_create_by!(combo: deleted_combo2, item: petoncles_item) do |ci|
     ci.quantity = 1
   end
-  
+
   ComboItem.unscoped.find_or_create_by!(combo: deleted_combo2, item: magret_item) do |ci|
     ci.quantity = 1
   end
-  
+
   puts "- Combo supprimé 'Duo Spécial Printemps' créé"
 end
 
@@ -607,7 +607,7 @@ menu_mer_combo  = Combo.find_by(name: 'Menu Fruits de Mer')
 if client_test && alice && bob && marie && jean && tartare_item && filet_item
 
   # Clean up previously seeded closed orders to avoid duplicates on re-seed
-  seeded_client_ids = [client_test.id, alice.id, bob.id]
+  seeded_client_ids = [ client_test.id, alice.id, bob.id ]
   Order.unscoped.where(client_id: seeded_client_ids).where.not(ended_at: nil).destroy_all
 
   # Helper: create a closed order bypassing the "one open order" validation
@@ -829,7 +829,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
       ago: 4.days.ago },
     { user: alice, reviewable: waiter_test,  rating: 3,
       comment: "Service correct mais un peu lent ce soir-là. Les plats ont mis du temps à arriver.",
-      ago: 4.days.ago },
+      ago: 4.days.ago }
   ]
 
   # Combo reviews (if combos exist)

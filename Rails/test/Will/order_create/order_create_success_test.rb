@@ -37,7 +37,7 @@ class OrderCreateSuccessTest < ActionDispatch::IntegrationTest
     end
   end
 
- 
+
   # Test 4: New order has ended_at nil and empty lines
   test "create returns order with ended_at nil and empty order_lines" do
     post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json

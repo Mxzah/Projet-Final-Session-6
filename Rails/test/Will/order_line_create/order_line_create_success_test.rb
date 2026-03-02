@@ -44,6 +44,4 @@ class OrderLineCreateSuccessTest < ActionDispatch::IntegrationTest
            params: { order_line: { orderable_type: "Item", orderable_id: @item.id, quantity: 1 } }, as: :json
     end
   end
-
- 
 end

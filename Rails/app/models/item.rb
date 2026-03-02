@@ -23,7 +23,7 @@ class Item < ApplicationRecord
   end
 
   def as_json(options = {})
-    super(options).tap { |h| h['price'] = h['price'].to_f if h.key?('price') }
+    super(options).tap { |h| h["price"] = h["price"].to_f if h.key?("price") }
   end
 
   validates :name, presence: true, length: { maximum: 100 },

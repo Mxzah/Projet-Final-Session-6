@@ -18,7 +18,7 @@ class VibeIndexSuccessTest < ActionDispatch::IntegrationTest
     assert_equal [], json["errors"]
   end
 
-  
+
 
   # Test 3: Returns the correct vibe data
   test "index returns correct vibe name and color" do

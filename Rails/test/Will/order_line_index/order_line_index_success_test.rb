@@ -37,6 +37,4 @@ class OrderLineIndexSuccessTest < ActionDispatch::IntegrationTest
     assert_equal 1, json["data"].length
     assert_equal 2, json["data"].first["quantity"]
   end
-
-  
 end

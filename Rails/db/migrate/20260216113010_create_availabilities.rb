@@ -9,6 +9,6 @@ class CreateAvailabilities < ActiveRecord::Migration[8.1]
       t.datetime :created_at, null: false
     end
 
-    add_index :availabilities, [:available_type, :available_id], name: "idx_availabilities_type_id"
+    add_index :availabilities, [ :available_type, :available_id ], name: "idx_availabilities_type_id"
   end
 end

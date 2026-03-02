@@ -1,7 +1,7 @@
 module Api
   class CategoriesController < AdminController
-    skip_before_action :authenticate_user!, only: [:index]
-    skip_before_action :require_admin!, only: [:index]
+    skip_before_action :authenticate_user!, only: [ :index ]
+    skip_before_action :require_admin!, only: [ :index ]
 
     # GET /api/categories
     def index
@@ -40,7 +40,7 @@ module Api
     end
 
     def category_json(category)
-      category.as_json(only: [:id, :name, :position, :created_at])
+      category.as_json(only: [ :id, :name, :position, :created_at ])
     end
   end
 end

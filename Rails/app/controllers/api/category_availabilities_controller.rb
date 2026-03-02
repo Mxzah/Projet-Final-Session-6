@@ -1,6 +1,6 @@
 class Api::CategoryAvailabilitiesController < Api::AdminController
   before_action :set_category
-  before_action :set_availability, only: [:update, :destroy]
+  before_action :set_availability, only: [ :update, :destroy ]
 
   def index
     availabilities = @category.availabilities.order(:start_at)
@@ -44,6 +44,6 @@ class Api::CategoryAvailabilitiesController < Api::AdminController
   end
 
   def availability_json(a)
-    a.as_json(only: [:id, :start_at, :end_at, :description])
+    a.as_json(only: [ :id, :start_at, :end_at, :description ])
   end
 end

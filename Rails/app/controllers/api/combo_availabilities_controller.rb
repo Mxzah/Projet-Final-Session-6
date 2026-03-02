@@ -1,6 +1,6 @@
 class Api::ComboAvailabilitiesController < Api::AdminController
   before_action :set_combo
-  before_action :set_availability, only: [:update, :destroy]
+  before_action :set_availability, only: [ :update, :destroy ]
 
   def index
     render json: { success: true, data: @combo.availabilities.order(:start_at).map { |a| availability_json(a) } }
@@ -43,6 +43,6 @@ class Api::ComboAvailabilitiesController < Api::AdminController
   end
 
   def availability_json(a)
-    a.as_json(only: [:id, :start_at, :end_at, :description])
+    a.as_json(only: [ :id, :start_at, :end_at, :description ])
   end
 end

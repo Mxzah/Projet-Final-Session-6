@@ -34,7 +34,7 @@ class OrderShowSuccessTest < ActionDispatch::IntegrationTest
     assert_equal @user.id, order["client_id"]
   end
 
-  
+
 
   # Test 4: order_lines is empty when order has no lines
   test "show returns empty order_lines when no lines" do

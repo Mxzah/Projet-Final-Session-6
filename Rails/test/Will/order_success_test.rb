@@ -199,7 +199,7 @@ class OrderSuccessTest < ActionDispatch::IntegrationTest
     assert json["success"]
 
     # Validation de la cohérence de la base de données
-    order = Order.unscoped.find(order_id)   #cherche totue sans filtre 
+    order = Order.unscoped.find(order_id)   # cherche totue sans filtre
     assert_not_nil order.ended_at
   end
 

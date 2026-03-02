@@ -24,7 +24,7 @@ module Api
       render json: {
         code: 200,
         success: true,
-        data: [order_with_images(order)],
+        data: [ order_with_images(order) ],
         errors: []
       }, status: :ok
     end
@@ -35,7 +35,7 @@ module Api
       order.client_id = current_user.id
 
       if order.save
-        render json: { code: 200, success: true, data: [order.as_json], errors: [] }, status: :ok
+        render json: { code: 200, success: true, data: [ order.as_json ], errors: [] }, status: :ok
       else
         render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
       end
@@ -53,11 +53,11 @@ module Api
       order = Order.find_by(id: params[:id], client_id: current_user.id)
 
       unless order
-        return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Order not found" ] }, status: :ok
       end
 
       if order.update(order_update_params)
-        render json: { code: 200, success: true, data: [order.reload.as_json], errors: [] }, status: :ok
+        render json: { code: 200, success: true, data: [ order.reload.as_json ], errors: [] }, status: :ok
       else
         render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
       end
@@ -68,33 +68,33 @@ module Api
       order = Order.find_by(id: params[:id], client_id: current_user.id)
 
       unless order
-        return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Order not found" ] }, status: :ok
       end
 
       if order.ended_at.present?
-        return render json: { code: 200, success: false, data: [], errors: ["Order is already closed"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Order is already closed" ] }, status: :ok
       end
 
       # All lines must be served before paying (uses enum query method)
       unless order.order_lines.all?(&:served?)
-        return render json: { code: 200, success: false, data: [], errors: ["All items must be 'served' before paying"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "All items must be 'served' before paying" ] }, status: :ok
       end
 
       tip_value = params[:tip].to_f
 
       if tip_value < 0
-        return render json: { code: 200, success: false, data: [], errors: ["Tip cannot be negative"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Tip cannot be negative" ] }, status: :ok
       end
 
       if tip_value > 999.99
-        return render json: { code: 200, success: false, data: [], errors: ["Tip cannot exceed 999.99"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Tip cannot exceed 999.99" ] }, status: :ok
       end
 
       order.tip = tip_value
       order.ended_at = Time.current
 
       if order.save(validate: false)
-        render json: { code: 200, success: true, data: [order.reload.as_json], errors: [] }, status: :ok
+        render json: { code: 200, success: true, data: [ order.reload.as_json ], errors: [] }, status: :ok
       else
         render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
       end
@@ -105,7 +105,7 @@ module Api
       order = Order.find_by(id: params[:id], client_id: current_user.id)
 
       unless order
-        return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Order not found" ] }, status: :ok
       end
 
       order.destroy

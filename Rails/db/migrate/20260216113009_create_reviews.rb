@@ -11,7 +11,7 @@ class CreateReviews < ActiveRecord::Migration[8.1]
       t.datetime :deleted_at
     end
 
-    add_index :reviews, [:reviewable_type, :reviewable_id], name: "idx_reviews_type_id"
+    add_index :reviews, [ :reviewable_type, :reviewable_id ], name: "idx_reviews_type_id"
     add_index :reviews, :deleted_at, name: "idx_reviews_deleted_at"
   end
 end

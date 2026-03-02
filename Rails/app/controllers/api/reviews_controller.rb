@@ -1,7 +1,7 @@
 module Api
   class ReviewsController < ApplicationController
     before_action :authenticate_user!
-    before_action :set_review, only: [:show, :update, :destroy]
+    before_action :set_review, only: [ :show, :update, :destroy ]
 
     # GET /api/reviews?search=…&reviewable_type=…&rating=…&sort=…
     def index
@@ -52,7 +52,7 @@ module Api
     # GET /api/reviews/:id
     def show
       unless current_user.type == "Administrator" || @review.user_id == current_user.id
-        return render json: { success: false, data: nil, errors: ["Unauthorized"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [ "Unauthorized" ] }, status: :ok
       end
 
       render json: {
@@ -65,7 +65,7 @@ module Api
     # POST /api/reviews
     def create
       unless current_user.type == "Client"
-        return render json: { success: false, data: nil, errors: ["Only clients can create reviews"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [ "Only clients can create reviews" ] }, status: :ok
       end
 
       review = Review.new(review_params)
@@ -89,7 +89,7 @@ module Api
     # PATCH/PUT /api/reviews/:id
     def update
       unless @review.user_id == current_user.id
-        return render json: { success: false, data: nil, errors: ["You can only update your own reviews"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [ "You can only update your own reviews" ] }, status: :ok
       end
 
       if @review.update(review_update_params)
@@ -110,7 +110,7 @@ module Api
     # DELETE /api/reviews/:id (soft delete)
     def destroy
       unless current_user.type == "Administrator" || @review.user_id == current_user.id
-        return render json: { success: false, data: nil, errors: ["Unauthorized"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [ "Unauthorized" ] }, status: :ok
       end
 
       @review.soft_delete!
@@ -127,7 +127,7 @@ module Api
     def set_review
       @review = Review.find_by(id: params[:id])
       unless @review
-        render json: { success: false, data: nil, errors: ["Review not found"] }, status: :ok
+        render json: { success: false, data: nil, errors: [ "Review not found" ] }, status: :ok
       end
     end
 

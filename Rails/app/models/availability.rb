@@ -36,10 +36,10 @@ class Availability < ApplicationRecord
     return unless available_id.present?
 
     record = case available_type
-            when "Item"  then Item
-            when "Table" then Table
-            when "Combo" then Combo
-            end
+    when "Item"  then Item
+    when "Table" then Table
+    when "Combo" then Combo
+    end
 
     return unless record
 

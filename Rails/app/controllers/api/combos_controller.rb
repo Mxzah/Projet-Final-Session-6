@@ -1,15 +1,15 @@
 module Api
   class CombosController < AdminController
-    skip_before_action :authenticate_user!, only: [:index]
-    skip_before_action :require_admin!, only: [:index]
+    skip_before_action :authenticate_user!, only: [ :index ]
+    skip_before_action :require_admin!, only: [ :index ]
 
     # GET /api/combos?search=…&sort=asc|desc&price_min=…&price_max=…&include_deleted=true
     def index
-      combos = if params[:include_deleted] == 'true' && current_user&.is_a?(Administrator)
+      combos = if params[:include_deleted] == "true" && current_user&.is_a?(Administrator)
                  Combo.unscoped.includes(:availabilities)
-               else
+      else
                  Combo.includes(:availabilities)
-               end
+      end
 
       # Filtrer par disponibilité active (sauf admin avec include_deleted ou admin=true)
       unless current_user&.is_a?(Administrator) && (params[:admin] == "true" || params[:include_deleted] == "true")
@@ -37,9 +37,9 @@ module Api
 
       # Sort
       case params[:sort]
-      when 'asc'
+      when "asc"
         combos = combos.order(price: :asc)
-      when 'desc'
+      when "desc"
         combos = combos.order(price: :desc)
       else
         combos = combos.order(created_at: :desc)

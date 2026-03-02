@@ -30,8 +30,8 @@ module RestoqrApi
 
     # Configuration de la locale française
     config.i18n.default_locale = :fr
-    config.i18n.available_locales = [:fr, :en]
-    config.i18n.fallbacks = [:en]
+    config.i18n.available_locales = [ :fr, :en ]
+    config.i18n.fallbacks = [ :en ]
 
     # Add lib to autoload paths
     config.autoload_paths << "#{Rails.root}/lib"
@@ -44,6 +44,6 @@ module RestoqrApi
     config.middleware.use ActionDispatch::Session::CookieStore
 
     # Change route analysis order for ActiveStorage
-    config.railties_order = [ActiveStorage::Engine, :main_app, :all]
+    config.railties_order = [ ActiveStorage::Engine, :main_app, :all ]
   end
 end

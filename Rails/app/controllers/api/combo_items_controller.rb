@@ -1,13 +1,13 @@
 module Api
   class ComboItemsController < AdminController
-    skip_before_action :require_admin!, only: [:index]
+    skip_before_action :require_admin!, only: [ :index ]
 
     def index
-      combo_items = if params[:include_deleted] == 'true' && current_user&.is_a?(Administrator)
+      combo_items = if params[:include_deleted] == "true" && current_user&.is_a?(Administrator)
                       ComboItem.unscoped.includes(:combo, :item).order(combo_id: :asc, item_id: :asc)
-                    else
+      else
                       ComboItem.includes(:combo, :item).order(combo_id: :asc, item_id: :asc)
-                    end
+      end
 
       render json: {
         success: true,
@@ -49,7 +49,7 @@ module Api
       render json: {
         success: false,
         data: nil,
-        errors: [I18n.t('controllers.combo_items.not_found')]
+        errors: [ I18n.t("controllers.combo_items.not_found") ]
       }, status: :not_found
     end
 

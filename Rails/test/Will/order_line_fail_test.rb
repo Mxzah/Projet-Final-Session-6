@@ -141,7 +141,6 @@ class OrderLineFailTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert_not json["success"]
     assert json["errors"].any?
-
   end
 
   # Test 7: Create avec quantity = 0 retourne success false

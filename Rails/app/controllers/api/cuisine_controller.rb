@@ -19,18 +19,18 @@ module Api
 
     # POST /api/kitchen/orders/:id/release (waiter/admin only — closes the order like paying)
     def release_order
-      return render json: { code: 200, success: false, data: [], errors: ["Unauthorized"] }, status: :ok unless senior_staff?
+      return render json: { code: 200, success: false, data: [], errors: [ "Unauthorized" ] }, status: :ok unless senior_staff?
 
       order = Order.find_by(id: params[:id])
-      return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok unless order
+      return render json: { code: 200, success: false, data: [], errors: [ "Order not found" ] }, status: :ok unless order
 
       if order.ended_at.present?
-        return render json: { code: 200, success: false, data: [], errors: ["Order is already closed"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Order is already closed" ] }, status: :ok
       end
 
       order.ended_at = Time.current
       if order.save(validate: false)
-        render json: { code: 200, success: true, data: [order.reload.as_json], errors: [] }, status: :ok
+        render json: { code: 200, success: true, data: [ order.reload.as_json ], errors: [] }, status: :ok
       else
         render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
       end
@@ -38,22 +38,22 @@ module Api
 
     # POST /api/kitchen/orders/:id/assign_server (waiter/admin only — assigns self as server)
     def assign_server
-      return render json: { code: 200, success: false, data: [], errors: ["Unauthorized"] }, status: :ok unless senior_staff?
+      return render json: { code: 200, success: false, data: [], errors: [ "Unauthorized" ] }, status: :ok unless senior_staff?
 
       order = Order.find_by(id: params[:id])
-      return render json: { code: 200, success: false, data: [], errors: ["Order not found"] }, status: :ok unless order
+      return render json: { code: 200, success: false, data: [], errors: [ "Order not found" ] }, status: :ok unless order
 
       if order.ended_at.present?
-        return render json: { code: 200, success: false, data: [], errors: ["Order is already closed"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Order is already closed" ] }, status: :ok
       end
 
       if order.server_id.present?
-        return render json: { code: 200, success: false, data: [], errors: ["Order already has a server assigned"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Order already has a server assigned" ] }, status: :ok
       end
 
       order.server_id = current_user.id
       if order.save(validate: false)
-        render json: { code: 200, success: true, data: [order.reload.as_json], errors: [] }, status: :ok
+        render json: { code: 200, success: true, data: [ order.reload.as_json ], errors: [] }, status: :ok
       else
         render json: { code: 200, success: false, data: [], errors: order.errors.full_messages }, status: :ok
       end
@@ -62,17 +62,17 @@ module Api
     # PUT /api/kitchen/order_lines/:id/next_status (all kitchen staff)
     def next_status
       line = OrderLine.find_by(id: params[:id])
-      return render json: { code: 200, success: false, data: [], errors: ["Order line not found"] }, status: :ok unless line
+      return render json: { code: 200, success: false, data: [], errors: [ "Order line not found" ] }, status: :ok unless line
 
       current_index = OrderLine::STATUS_ORDER[line.status]
       next_s = OrderLine::STATUSES[current_index + 1]
 
       unless next_s
-        return render json: { code: 200, success: false, data: [], errors: ["Already at final status"] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Already at final status" ] }, status: :ok
       end
 
       if line.update(status: next_s)
-        render json: { code: 200, success: true, data: [line.reload.as_json], errors: [] }, status: :ok
+        render json: { code: 200, success: true, data: [ line.reload.as_json ], errors: [] }, status: :ok
       else
         render json: { code: 200, success: false, data: [], errors: line.errors.full_messages }, status: :ok
       end
@@ -80,18 +80,18 @@ module Api
 
     # PUT /api/kitchen/order_lines/:id (waiter/admin only — quantity and note)
     def update_line
-      return render json: { code: 200, success: false, data: [], errors: ["Unauthorized"] }, status: :ok unless senior_staff?
+      return render json: { code: 200, success: false, data: [], errors: [ "Unauthorized" ] }, status: :ok unless senior_staff?
 
       line = OrderLine.find_by(id: params[:id])
-      return render json: { code: 200, success: false, data: [], errors: ["Order line not found"] }, status: :ok unless line
+      return render json: { code: 200, success: false, data: [], errors: [ "Order line not found" ] }, status: :ok unless line
 
       # Only 'sent' lines can be modified (uses enum query method)
       unless line.sent?
-        return render json: { code: 200, success: false, data: [], errors: ["Cannot modify line with status '#{line.status}'. Only 'sent' lines can be modified."] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Cannot modify line with status '#{line.status}'. Only 'sent' lines can be modified." ] }, status: :ok
       end
 
       if line.update(line_update_params)
-        render json: { code: 200, success: true, data: [line.reload.as_json], errors: [] }, status: :ok
+        render json: { code: 200, success: true, data: [ line.reload.as_json ], errors: [] }, status: :ok
       else
         render json: { code: 200, success: false, data: [], errors: line.errors.full_messages }, status: :ok
       end
@@ -99,14 +99,14 @@ module Api
 
     # DELETE /api/kitchen/order_lines/:id (waiter/admin only — hard delete, status must be 'sent')
     def destroy_line
-      return render json: { code: 200, success: false, data: [], errors: ["Unauthorized"] }, status: :ok unless senior_staff?
+      return render json: { code: 200, success: false, data: [], errors: [ "Unauthorized" ] }, status: :ok unless senior_staff?
 
       line = OrderLine.find_by(id: params[:id])
-      return render json: { code: 200, success: false, data: [], errors: ["Order line not found"] }, status: :ok unless line
+      return render json: { code: 200, success: false, data: [], errors: [ "Order line not found" ] }, status: :ok unless line
 
       # Only 'sent' lines can be deleted (uses enum query method)
       unless line.sent?
-        return render json: { code: 200, success: false, data: [], errors: ["Cannot delete line with status '#{line.status}'. Only 'sent' lines can be deleted."] }, status: :ok
+        return render json: { code: 200, success: false, data: [], errors: [ "Cannot delete line with status '#{line.status}'. Only 'sent' lines can be deleted." ] }, status: :ok
       end
 
       line.destroy
@@ -121,7 +121,7 @@ module Api
       render json: {
         success: false,
         data: nil,
-        errors: ["Access restricted to kitchen staff"]
+        errors: [ "Access restricted to kitchen staff" ]
       }, status: :ok
     end
 

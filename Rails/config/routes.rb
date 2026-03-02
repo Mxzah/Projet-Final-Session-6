@@ -1,63 +1,63 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: {
-    sessions: 'users/sessions',
-    registrations: 'users/registrations'
+    sessions: "users/sessions",
+    registrations: "users/registrations"
   }
 
   root to: "angular#index"
 
-  namespace :api, constraints: { format: 'json' } do
-    resources :tables, only: [:index, :create, :update, :destroy] do
+  namespace :api, constraints: { format: "json" } do
+    resources :tables, only: [ :index, :create, :update, :destroy ] do
       member do
         patch :mark_cleaned
       end
-      resources :availabilities, only: [:index, :create, :update, :destroy],
-                controller: 'table_availabilities'
+      resources :availabilities, only: [ :index, :create, :update, :destroy ],
+                controller: "table_availabilities"
     end
-    get 'tables/:qr_token', to: 'tables#show'
-    get 'tables/:qr_token/qr_code', to: 'tables#qr_code'
+    get "tables/:qr_token", to: "tables#show"
+    get "tables/:qr_token/qr_code", to: "tables#qr_code"
 
-    resources :categories, only: [:index, :create, :update, :destroy] do
-      resources :availabilities, only: [:index, :create, :update, :destroy],
-                controller: 'category_availabilities'
+    resources :categories, only: [ :index, :create, :update, :destroy ] do
+      resources :availabilities, only: [ :index, :create, :update, :destroy ],
+                controller: "category_availabilities"
     end
-    resources :items, only: [:index, :show, :create, :update, :destroy] do
+    resources :items, only: [ :index, :show, :create, :update, :destroy ] do
       member do
         delete :hard, action: :hard_destroy
         put :restore, action: :restore
       end
-      resources :availabilities, only: [:index, :create, :update, :destroy],
-                controller: 'item_availabilities'
+      resources :availabilities, only: [ :index, :create, :update, :destroy ],
+                controller: "item_availabilities"
     end
-    resources :combos, only: [:index, :create] do
-      resources :availabilities, only: [:index, :create, :update, :destroy],
-                controller: 'combo_availabilities'
+    resources :combos, only: [ :index, :create ] do
+      resources :availabilities, only: [ :index, :create, :update, :destroy ],
+                controller: "combo_availabilities"
     end
-    resources :combo_items, only: [:index, :create, :destroy]
-    resources :users, only: [:index, :show, :create, :update, :destroy]
-    resources :reviews, only: [:index, :show, :create, :update, :destroy]
+    resources :combo_items, only: [ :index, :create, :destroy ]
+    resources :users, only: [ :index, :show, :create, :update, :destroy ]
+    resources :reviews, only: [ :index, :show, :create, :update, :destroy ]
 
-    resources :orders, only: [:index, :show, :create, :update, :destroy] do
-      resources :order_lines, only: [:index, :create, :update, :destroy]
+    resources :orders, only: [ :index, :show, :create, :update, :destroy ] do
+      resources :order_lines, only: [ :index, :create, :update, :destroy ]
       member do
         post :pay
       end
     end
-    post 'orders/close_open', to: 'orders#close_open'
+    post "orders/close_open", to: "orders#close_open"
 
-    get 'waiters/assigned', to: 'waiters#assigned'
+    get "waiters/assigned", to: "waiters#assigned"
 
-    get 'current_user', to: 'sessions#current_user'
+    get "current_user", to: "sessions#current_user"
 
-    resources :vibes, only: [:index]
-    get 'kitchen/orders', to: 'cuisine#orders'
-    post 'kitchen/orders/:id/release', to: 'cuisine#release_order'
-    post 'kitchen/orders/:id/assign_server', to: 'cuisine#assign_server'
-    put 'kitchen/order_lines/:id/next_status', to: 'cuisine#next_status'
-    put 'kitchen/order_lines/:id', to: 'cuisine#update_line'
-    delete 'kitchen/order_lines/:id', to: 'cuisine#destroy_line'
+    resources :vibes, only: [ :index ]
+    get "kitchen/orders", to: "cuisine#orders"
+    post "kitchen/orders/:id/release", to: "cuisine#release_order"
+    post "kitchen/orders/:id/assign_server", to: "cuisine#assign_server"
+    put "kitchen/order_lines/:id/next_status", to: "cuisine#next_status"
+    put "kitchen/order_lines/:id", to: "cuisine#update_line"
+    delete "kitchen/order_lines/:id", to: "cuisine#destroy_line"
   end
 
-  match '*url', to: "angular#index", via: :get
+  match "*url", to: "angular#index", via: :get
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

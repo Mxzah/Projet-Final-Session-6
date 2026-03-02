@@ -44,14 +44,14 @@ class Combo < ApplicationRecord
   def image_content_type_validation
     return unless image.attached?
     unless image.content_type.in?(%w[image/jpeg image/png])
-      errors.add(:image, I18n.t('activerecord.errors.models.combo.attributes.image.invalid_content_type'))
+      errors.add(:image, I18n.t("activerecord.errors.models.combo.attributes.image.invalid_content_type"))
     end
   end
 
   def image_size_validation
     return unless image.attached?
     if image.blob.byte_size > 5.megabytes
-      errors.add(:image, I18n.t('activerecord.errors.models.combo.attributes.image.file_size_too_large'))
+      errors.add(:image, I18n.t("activerecord.errors.models.combo.attributes.image.file_size_too_large"))
     end
   end
 end
