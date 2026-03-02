@@ -5,7 +5,7 @@ class ApplicationController < ActionController::API
   private
 
   def set_locale
-    locale = request.headers['X-Locale'] || request.headers['Accept-Language']&.split(',')&.first&.split('-')&.first
+    locale = request.headers["X-Locale"] || request.headers["Accept-Language"]&.split(",")&.first&.split("-")&.first
     I18n.locale = I18n.available_locales.map(&:to_s).include?(locale) ? locale : :fr
   end
 
@@ -13,7 +13,7 @@ class ApplicationController < ActionController::API
     render json: {
       success: false,
       data: nil,
-      errors: [ "Record not found" ]
+      errors: [ I18n.t("controllers.common.not_found") ]
     }, status: :ok
   end
 end

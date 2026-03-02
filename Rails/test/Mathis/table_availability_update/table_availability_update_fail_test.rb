@@ -110,7 +110,7 @@ class TableAvailabilityUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Access restricted to administrators"
+    assert_includes json["errors"], I18n.t("controllers.admin.access_restricted")
 
     availability = Availability.find(@availability.id)
     assert_equal "Disponibilité table 1", availability.description

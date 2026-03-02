@@ -72,6 +72,13 @@ en:
         item: "Item"
         quantity: "Quantity"
   controllers:
+    common:
+      not_found: "Record not found"
+    admin:
+      access_restricted: "Access restricted to administrators"
+    items:
+      cannot_hard_delete: "Cannot permanently delete an item that is used in orders or combos"
+      cannot_update_archived: "Cannot update an archived item"
     combo_items:
       not_found: "Combo item not found"
     combos:

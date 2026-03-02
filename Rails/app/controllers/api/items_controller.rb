@@ -1,10 +1,10 @@
 module Api
   class ItemsController < AdminController
-    skip_before_action :authenticate_user!, only: [:index]
-    skip_before_action :require_admin!, only: [:index, :show]
-    before_action :set_item, only: [:show, :destroy, :hard_destroy]
-    before_action :set_item_unscoped, only: [:update, :restore]
-    before_action :reject_if_archived, only: [:update]
+    skip_before_action :authenticate_user!, only: [ :index ]
+    skip_before_action :require_admin!, only: [ :index, :show ]
+    before_action :set_item, only: [ :show, :destroy, :hard_destroy ]
+    before_action :set_item_unscoped, only: [ :update, :restore ]
+    before_action :reject_if_archived, only: [ :update ]
 
     # GET /api/items?search=…&sort=asc|desc&price_min=…&price_max=…
     def index
@@ -113,7 +113,7 @@ module Api
         render json: {
           success: false,
           data: nil,
-          errors: ["Cannot permanently delete an item that is used in orders or combos"]
+          errors: [ I18n.t("controllers.items.cannot_hard_delete") ]
         }, status: :ok
         return
       end
@@ -150,7 +150,7 @@ module Api
         render json: {
           success: false,
           data: nil,
-          errors: ["Cannot update an archived item"]
+          errors: [ I18n.t("controllers.items.cannot_update_archived") ]
         }, status: :ok
       end
     end
@@ -165,9 +165,9 @@ module Api
 
     def item_json(item)
       item.as_json(
-        only: [:id, :name, :description, :price, :category_id, :deleted_at, :created_at],
-        methods: [:category_name, :image_url, :in_use],
-        include: { availabilities: { only: [:id, :start_at, :end_at, :description] } }
+        only: [ :id, :name, :description, :price, :category_id, :deleted_at, :created_at ],
+        methods: [ :category_name, :image_url, :in_use ],
+        include: { availabilities: { only: [ :id, :start_at, :end_at, :description ] } }
       )
     end
   end

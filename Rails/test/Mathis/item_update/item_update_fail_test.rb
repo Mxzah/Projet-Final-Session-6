@@ -137,7 +137,7 @@ class ItemUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Cannot update an archived item"
+    assert_includes json["errors"], I18n.t("controllers.items.cannot_update_archived")
   end
 
   # Test 15: Update avec un compte client retourne success false
@@ -155,6 +155,6 @@ class ItemUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Access restricted to administrators"
+    assert_includes json["errors"], I18n.t("controllers.admin.access_restricted")
   end
 end

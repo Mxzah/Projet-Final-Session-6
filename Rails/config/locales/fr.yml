@@ -102,6 +102,13 @@ fr:
 
   # Messages du contrôleur
   controllers:
+    common:
+      not_found: "Enregistrement non trouvé"
+    admin:
+      access_restricted: "Accès réservé aux administrateurs"
+    items:
+      cannot_hard_delete: "Impossible de supprimer définitivement un article utilisé dans des commandes ou des combos"
+      cannot_update_archived: "Impossible de modifier un article archivé"
     combo_items:
       not_found: "Article du combo non trouvé"
     combos:

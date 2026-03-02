@@ -11,7 +11,7 @@ module Api
       render json: {
         success: false,
         data: nil,
-        errors: ["Access restricted to administrators"]
+        errors: [ I18n.t("controllers.admin.access_restricted") ]
       }, status: :ok
     end
   end
