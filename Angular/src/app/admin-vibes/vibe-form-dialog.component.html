@@ -1,0 +1,76 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>{{ isCreating ? ts.t('admin.vibes.add') : ts.t('admin.vibes.edit') }}</span>
+  <button mat-icon-button mat-dialog-close class="modal-close">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  @if (error()) {
+    <div class="dialog-error">{{ error() }}</div>
+  }
+
+  <form id="vibeForm" [formGroup]="form" (ngSubmit)="save()" class="form-grid">
+    <mat-form-field appearance="outline" class="field-full">
+      <mat-label>{{ ts.t('admin.vibes.name') }}</mat-label>
+      <input matInput formControlName="name" />
+      @if (form.controls.name.dirty && form.controls.name.errors) {
+        <mat-error>
+          @if (form.controls.name.errors['required']) {
+            {{ ts.t('admin.vibes.nameRequired') }}
+          } @else if (form.controls.name.errors['maxlength']) {
+            {{ ts.t('admin.vibes.nameMaxLength') }}
+          } @else if (form.controls.name.errors['pattern']) {
+            {{ ts.t('admin.vibes.nameWhitespace') }}
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <div class="color-row field-full">
+      <mat-form-field appearance="outline" class="color-text-field">
+        <mat-label>{{ ts.t('admin.vibes.color') }}</mat-label>
+        <input matInput formControlName="color" maxlength="7" />
+        @if (form.controls.color.dirty && form.controls.color.errors) {
+          <mat-error>
+            @if (form.controls.color.errors['required']) {
+              {{ ts.t('admin.vibes.colorRequired') }}
+            } @else if (form.controls.color.errors['pattern']) {
+              {{ ts.t('admin.vibes.colorFormat') }}
+            }
+          </mat-error>
+        }
+      </mat-form-field>
+      <input type="color"
+             class="color-picker"
+             [value]="form.controls.color.value || '#C87941'"
+             (input)="form.controls.color.setValue($any($event).target.value)" />
+    </div>
+
+    <div class="image-field field-full">
+      <label class="image-label">{{ ts.t('admin.vibes.image') }}</label>
+      @if (imagePreview()) {
+        <div class="image-preview">
+          <img [src]="imagePreview()" alt="Preview" />
+        </div>
+      }
+      <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" class="file-input-hidden" />
+      <button type="button" class="file-btn" (click)="fileInput.click()">
+        <mat-icon>add_a_photo</mat-icon>
+      </button>
+      @if (imageError()) {
+        <mat-error class="image-error">{{ imageError() }}</mat-error>
+      }
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close class="btn-cancel">{{ ts.t('admin.cancel') }}</button>
+  <button mat-flat-button type="submit" form="vibeForm" class="btn-primary" [disabled]="loading() || form.invalid">
+    @if (loading()) {
+      <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+    }
+    {{ loading() ? ts.t('admin.saving') : (isCreating ? ts.t('admin.add') : ts.t('admin.save')) }}
+  </button>
+</mat-dialog-actions>

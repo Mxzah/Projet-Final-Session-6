@@ -19,7 +19,7 @@ module Api
       order = Order.find_by!(id: params[:order_id], client_id: current_user.id)
 
       line = order.order_lines.build(line_params)
-      line.status = "sent"
+      line.status = "waiting"
 
       # Assign the unit_price from the Item or Combo
       if line.orderable_type.present? && line.orderable_id.present?
@@ -42,8 +42,8 @@ module Api
       line = order.order_lines.find_by(id: params[:id])
       return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.not_found")] }, status: :ok unless line
 
-      # Only 'sent' lines can be modified (uses enum query method)
-      unless line.sent?
+      # Only 'waiting' or 'sent' lines can be modified (uses enum query method)
+      unless line.waiting? || line.sent?
         return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.cannot_modify", status: line.status)] }, status: :ok
       end
 
@@ -62,13 +62,34 @@ module Api
       line = order.order_lines.find_by(id: params[:id])
       return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.not_found")] }, status: :ok unless line
 
-      # Only 'sent' lines can be deleted (uses enum query method)
-      unless line.sent?
+      # Only 'waiting' or 'sent' lines can be deleted
+      unless line.waiting? || line.sent?
         return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.cannot_delete", status: line.status)] }, status: :ok
       end
 
       line.destroy
       render json: { success: true, data: [], errors: [] }, status: :ok
+    end
+
+    # POST /api/orders/:order_id/order_lines/send_lines
+    # Batch update all 'waiting' lines to 'sent'
+    def send_lines
+      order = Order.find_by(id: params[:order_id], client_id: current_user.id)
+      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.order_not_found")] }, status: :ok unless order
+
+      waiting_lines = order.order_lines.where(status: "waiting")
+
+      if waiting_lines.empty?
+        return render json: { success: false, data: nil, errors: ["No waiting lines to send"] }, status: :ok
+      end
+
+      waiting_lines.update_all(status: "sent")
+
+      render json: {
+        success: true,
+        data: order.order_lines.reload.includes(:orderable).map { |l| line_with_image(l) },
+        errors: []
+      }, status: :ok
     end
 
     private

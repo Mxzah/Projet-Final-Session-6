@@ -297,6 +297,7 @@ button[mat-raised-button][color="primary"] {
   letter-spacing: 0.05rem;
 }
 
+.status-waiting { background: #fce4ec; color: #c62828; }
 .status-sent { background: #fff3e0; color: #e65100; }
 .status-prep { background: #e3f2fd; color: #1565c0; }
 .status-ready { background: #e8f5e9; color: #2e7d32; }

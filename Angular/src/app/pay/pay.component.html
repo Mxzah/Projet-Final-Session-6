@@ -92,21 +92,9 @@
     } @else {
       <mat-card class="pay-card" appearance="outlined">
         <mat-card-content class="pay-content thank-you-content">
-
           <mat-icon class="thank-you-icon">check_circle</mat-icon>
           <h1 class="pay-title">{{ ts.t('pay.thankYouTitle') }}</h1>
           <p class="pay-subtitle">{{ ts.t('pay.thankYouMsg') }}</p>
-
-          <div class="review-actions">
-            <button mat-raised-button color="primary" class="pay-btn" (click)="goToReviews()">
-              <mat-icon>star</mat-icon>
-              {{ ts.t('pay.reviewNow') }}
-            </button>
-            <button mat-button (click)="skipReview()">
-              {{ ts.t('pay.reviewLater') }}
-            </button>
-          </div>
-
         </mat-card-content>
       </mat-card>
     }
