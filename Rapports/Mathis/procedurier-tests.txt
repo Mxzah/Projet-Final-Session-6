@@ -224,18 +224,18 @@ MODULE 7 — Affichage de la liste des items
      Avec admin@restoqr.ca : password123
      - Se connecter et accéder à /admin/items
      - Un spinner de chargement s'affiche pendant le chargement
-     - Une fois chargé, les items s'affichent en grille, trié par catégorie
+     - Une fois chargé, les items s'affichent en grille, regroupés par catégorie
+       avec un titre de section (h2) pour chaque catégorie
 
 7.2  Affichage des cartes (item actif et disponible)
-     - Chaque carte affiche : image, nom, description,
-       catégorie, prix (X.XX $)
+     - Chaque carte affiche : image, nom, description, prix (X.XX $)
      - Chaque carte a un bouton « modifier » (icône edit) et « supprimer »
        (icône delete)
 
 7.3  Affichage des cartes (item archivé)
      - Les items archivés apparaissent dans la liste avec un style grisé
      - L'image est en niveaux de gris avec un badge « ARCHIVÉ » superposé
-     - Le nom, la description, la catégorie et le prix sont atténués
+     - Le nom, la description et le prix sont atténués
      - La carte a uniquement un bouton « désarchiver » (icône unarchive)
      - Les boutons « modifier » et « supprimer » ne sont PAS visibles
 
@@ -243,7 +243,7 @@ MODULE 7 — Affichage de la liste des items
      - Les items non archivés mais sans disponibilité active apparaissent
        avec le même style grisé que les items archivés
      - L'image est en niveaux de gris avec un badge « INDISPONIBLE » superposé
-     - Le nom, la description, la catégorie et le prix sont atténués
+     - Le nom, la description et le prix sont atténués
      - Les boutons « modifier » et « supprimer » restent visibles (l'item n'est
        pas archivé)
 
@@ -255,6 +255,74 @@ MODULE 7 — Affichage de la liste des items
 
 7.6  État vide
      - Si aucun item n'existe, le message « Aucun item trouvé » s'affiche
+
+================================================================================
+MODULE 7B — Navigation par catégories (admin-items)
+================================================================================
+
+7B.1 Sidebar desktop (écran large >= 700px)
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/items
+     - Les catégories sont listées dans la sidebar de gauche
+     - La première catégorie est active par défaut (style surligné)
+     - Clic sur une autre catégorie : La page scrolle vers la section
+       correspondante (comportement smooth scroll)
+     - La catégorie cliquée devient active (style surligné)
+
+7B.2 Dropdown mobile (écran < 700px)
+     - Réduire la fenêtre sous 700px de largeur
+     - La sidebar disparaît, un dropdown de catégories apparaît
+     - Le dropdown affiche la catégorie active
+     - Sélectionner une autre catégorie : La page scrolle vers la section
+       correspondante
+
+7B.3 Sidebar sticky au scroll
+     - Scroller vers le bas de la page
+     - La sidebar reste visible et suit le scroll (position sticky)
+     - La sidebar se positionne sous le titre « Gestion des items »
+
+================================================================================
+MODULE 7C — Recherche, tri et filtres (SSF) (admin-items)
+================================================================================
+
+7C.1 Recherche par nom
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/items
+     - Taper un nom d'item existant dans la barre de recherche (ex: « Burger »)
+     - Après ~300ms, seuls les items correspondants s'affichent
+     - Effacer la recherche : Tous les items réapparaissent
+     - Les items archivés ET indisponibles sont aussi filtrés (contrairement
+       au menu client)
+
+7C.2 Recherche sans résultat
+     - Taper un texte qui ne correspond à aucun item (ex: « xyzzzz »)
+     - Le message « Aucun item trouvé » apparaît
+
+7C.3 Tri par prix ascendant
+     - Dans le dropdown « Trier par prix », sélectionner « Prix croissant »
+     - Les items sont réordonnés du moins cher au plus cher
+
+7C.4 Tri par prix descendant
+     - Sélectionner « Prix décroissant »
+     - Les items sont réordonnés du plus cher au moins cher
+
+7C.5 Filtre prix minimum
+     - Entrer une valeur dans le champ « Prix min » (ex: 10)
+     - Seuls les items avec un prix >= 10 s'affichent
+
+7C.6 Filtre prix maximum
+     - Entrer une valeur dans le champ « Prix max » (ex: 15)
+     - Seuls les items avec un prix <= 15 s'affichent
+
+7C.7 Combinaison de filtres
+     - Entrer prix min = 5, prix max = 20, et taper un terme de recherche
+     - Seuls les items correspondant aux 3 critères s'affichent
+     - Ajouter un tri par prix croissant : Les résultats filtrés sont triés
+
+7C.8 Persistance des filtres dans l'URL
+     - Appliquer des filtres (recherche, tri, prix min/max)
+     - Les query params sont mis à jour dans l'URL (ex: ?search=Burger&sort=asc)
+     - Copier l'URL et l'ouvrir dans un nouvel onglet : Les filtres sont restaurés
 
 ================================================================================
 MODULE 8 — Création d'un item
@@ -524,6 +592,9 @@ MODULE 13 — Traduction (admin-items)
      - Les labels de disponibilités passent en anglais (Start, End (optional),
        Description, Availabilities)
      - Les messages de validation des disponibilités passent en anglais
+     - Le titre de la sidebar « Catégories » passe à « Categories »
+     - Les labels SSF passent en anglais (Search, Sort by price, Price min,
+       Price max)
 
 13.2 Traduction en français
      - Changer la langue à « Français » via le header

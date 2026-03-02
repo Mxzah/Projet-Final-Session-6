@@ -1,5 +1,6 @@
 module Api
   class ComboItemsController < AdminController
+    skip_before_action :authenticate_user!, only: [ :index ]
     skip_before_action :require_admin!, only: [ :index ]
 
     def index

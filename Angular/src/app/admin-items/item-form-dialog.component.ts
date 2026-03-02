@@ -157,8 +157,16 @@ export class ItemFormDialogComponent {
         next: (created) => {
           this.syncAvailabilities(created.id).subscribe({
             next: () => {
-              this.loading.set(false);
-              this.dialogRef.close({ created });
+              this.itemsService.getItem(created.id).subscribe({
+                next: (fresh) => {
+                  this.loading.set(false);
+                  this.dialogRef.close({ created: fresh });
+                },
+                error: () => {
+                  this.loading.set(false);
+                  this.dialogRef.close({ created });
+                }
+              });
             },
             error: (err: any) => {
               this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
@@ -184,8 +192,16 @@ export class ItemFormDialogComponent {
         next: (updated) => {
           this.syncAvailabilities(updated.id).subscribe({
             next: () => {
-              this.loading.set(false);
-              this.dialogRef.close({ updated });
+              this.itemsService.getItem(updated.id).subscribe({
+                next: (fresh) => {
+                  this.loading.set(false);
+                  this.dialogRef.close({ updated: fresh });
+                },
+                error: () => {
+                  this.loading.set(false);
+                  this.dialogRef.close({ updated });
+                }
+              });
             },
             error: (err: any) => {
               this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
