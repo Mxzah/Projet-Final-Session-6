@@ -3,13 +3,13 @@ class Api::TableAvailabilitiesController < Api::AdminController
   before_action :set_availability, only: [ :update, :destroy ]
 
   def index
-    render json: { success: true, data: @table.availabilities.order(:start_at).map { |a| availability_json(a) } }
+    render json: { success: true, data: @table.availabilities.order(:start_at).as_json(only: [ :id, :start_at, :end_at, :description ]) }
   end
 
   def create
     availability = @table.availabilities.build(availability_params)
     if availability.save
-      render json: { success: true, data: availability_json(availability) }
+      render json: { success: true, data: availability.as_json(only: [ :id, :start_at, :end_at, :description ]) }
     else
       render json: { success: false, data: nil, errors: availability.errors.full_messages }
     end
@@ -17,7 +17,7 @@ class Api::TableAvailabilitiesController < Api::AdminController
 
   def update
     if @availability.update(availability_params)
-      render json: { success: true, data: availability_json(@availability) }
+      render json: { success: true, data: @availability.as_json(only: [ :id, :start_at, :end_at, :description ]) }
     else
       render json: { success: false, data: nil, errors: @availability.errors.full_messages }
     end
@@ -42,7 +42,4 @@ class Api::TableAvailabilitiesController < Api::AdminController
     params.require(:availability).permit(:start_at, :end_at, :description)
   end
 
-  def availability_json(a)
-    a.as_json(only: [ :id, :start_at, :end_at, :description ])
-  end
 end

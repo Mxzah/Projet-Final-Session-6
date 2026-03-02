@@ -4,13 +4,13 @@ class Api::ItemAvailabilitiesController < Api::AdminController
 
   def index
     availabilities = @item.availabilities.order(:start_at)
-    render json: { success: true, data: availabilities.map { |a| availability_json(a) } }
+    render json: { success: true, data: availabilities.as_json(only: [ :id, :start_at, :end_at, :description ]) }
   end
 
   def create
     availability = @item.availabilities.build(availability_params)
     if availability.save
-      render json: { success: true, data: availability_json(availability) }
+      render json: { success: true, data: availability.as_json(only: [ :id, :start_at, :end_at, :description ]) }
     else
       render json: { success: false, data: nil, errors: availability.errors.full_messages }
     end
@@ -18,7 +18,7 @@ class Api::ItemAvailabilitiesController < Api::AdminController
 
   def update
     if @availability.update(availability_params)
-      render json: { success: true, data: availability_json(@availability) }
+      render json: { success: true, data: @availability.as_json(only: [ :id, :start_at, :end_at, :description ]) }
     else
       render json: { success: false, data: nil, errors: @availability.errors.full_messages }
     end
@@ -43,7 +43,4 @@ class Api::ItemAvailabilitiesController < Api::AdminController
     params.require(:availability).permit(:start_at, :end_at, :description)
   end
 
-  def availability_json(a)
-    a.as_json(only: [ :id, :start_at, :end_at, :description ])
-  end
 end
