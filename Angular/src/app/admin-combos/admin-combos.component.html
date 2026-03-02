@@ -52,7 +52,7 @@
                   <div class="combo-name">
                     <span class="combo-name-text">{{ combo.name }}</span>
                     @if (unavailableIds().has(combo.id)) {
-                      <span class="unavailable-badge">{{ ts.t('admin.unavailable') }}</span>
+                      <span class="unavailable-badge" [matTooltip]="ts.t('admin.unavailableComboTooltip')">{{ ts.t('admin.unavailable') }}</span>
                     }
                   </div>
                   <div class="combo-description">{{ combo.description || '—' }}</div>

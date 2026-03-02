@@ -103,7 +103,7 @@
             <div class="table-number">
               Table #{{ table.number }}
               @if (unavailableIds().has(table.id)) {
-                <span class="unavailable-badge">{{ ts.t('admin.unavailable') }}</span>
+                <span class="unavailable-badge" [matTooltip]="ts.t('admin.unavailableTooltip')">{{ ts.t('admin.unavailable') }}</span>
               }
             </div>
             <div class="table-meta">

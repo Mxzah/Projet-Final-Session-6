@@ -41,28 +41,50 @@
     flex-wrap: wrap;
     background-color: var(--clay, #f3ede4);
     border-radius: 8px;
-    padding: 0.75rem 0.75rem 0 0.75rem;
+    padding: 0.75rem 1rem 0.5rem 1rem;
 }
 
 .avail-start,
 .avail-end {
-    flex: 1 1 220px;
-    min-width: 210px;
+    flex: 1 1 180px;
+    min-width: 170px;
 }
 
 .avail-desc {
-    flex: 2 1 200px;
-    min-width: 160px;
+    flex: 1 1 150px;
+    min-width: 120px;
 }
 
 .btn-remove-avail {
     margin-top: 0.35rem;
+    margin-left: auto;
     flex-shrink: 0;
     color: rgba(27, 26, 23, 0.45) !important;
 }
 
 .btn-remove-avail:hover {
     color: var(--rust, #8a3f24) !important;
+}
+
+.btn-end-now {
+    margin-top: 0.35rem;
+    margin-left: auto;
+    flex-shrink: 0;
+    border-color: var(--rust, #8a3f24) !important;
+    color: var(--rust, #8a3f24) !important;
+    font-size: 0.8rem !important;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    padding: 0 0.75rem !important;
+    border-radius: 10px !important;
+}
+
+::ng-deep .btn-end-now .mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-right: 0.25rem;
 }
 
 .avail-overlap-error {

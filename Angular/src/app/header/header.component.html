@@ -20,12 +20,6 @@
       </button>
     </mat-menu>
 
-    @if (showLogout) {
-      <button mat-button class="logout-btn" (click)="logoutClick.emit()">
-        <mat-icon>logout</mat-icon>
-        {{ ts.t('header.logout') }}
-      </button>
-    }
     @if (showLogin) {
       <button mat-button class="logout-btn" (click)="loginClick.emit()">
         <mat-icon>login</mat-icon>
@@ -33,31 +27,45 @@
       </button>
     }
     @if (showLogout && isClient()) {
-      <span class="header-divider">|</span>
       <button mat-button class="reviews-btn" (click)="goToReviews()">
         <mat-icon>rate_review</mat-icon>
         {{ ts.t('header.reviews') }}
       </button>
+      <span class="header-divider">|</span>
     }
     @if (showLogout && showAdmin && authService.isAdmin()) {
-      <span class="header-divider">|</span>
       <button mat-button class="admin-btn" (click)="goToAdmin()">
         <mat-icon>admin_panel_settings</mat-icon>
         {{ ts.t('header.admin') }}
       </button>
+      <span class="header-divider">|</span>
     }
     @if (showKitchen) {
-      <span class="header-divider">|</span>
       <button mat-button class="quit-btn" (click)="kitchenClick.emit()">
         <mat-icon>restaurant</mat-icon>
         {{ ts.t('header.kitchen') }}
       </button>
+      <span class="header-divider">|</span>
     }
     @if (showQuitMenu) {
-      <span class="header-divider">|</span>
       <button mat-button class="quit-btn" (click)="quitMenuClick.emit()">
         <mat-icon>restaurant_menu</mat-icon>
         {{ ts.t('header.quit') }}
+      </button>
+      <span class="header-divider">|</span>
+    }
+    @if (authService.isAuthenticated()) {
+      <div class="role-indicator">
+        <span class="role-prefix">{{ ts.t('header.loggedAs') }}</span>
+        <mat-icon class="role-icon">{{ getRoleIcon() }}</mat-icon>
+        <span class="role-label">{{ getRoleLabel() }}</span>
+      </div>
+    }
+    @if (showLogout) {
+      <span class="header-divider">|</span>
+      <button mat-button class="logout-btn" (click)="logoutClick.emit()">
+        <mat-icon>logout</mat-icon>
+        {{ ts.t('header.logout') }}
       </button>
     }
     <ng-content />
@@ -79,12 +87,6 @@
       </button>
     </mat-menu>
 
-    @if (showLogout) {
-      <button mat-button class="logout-btn" (click)="logoutClick.emit(); toggleMobileMenu()">
-        <mat-icon>logout</mat-icon>
-        {{ ts.t('header.logout') }}
-      </button>
-    }
     @if (showLogin) {
       <button mat-button class="logout-btn" (click)="loginClick.emit(); toggleMobileMenu()">
         <mat-icon>login</mat-icon>
@@ -113,6 +115,19 @@
       <button mat-button class="quit-btn" (click)="quitMenuClick.emit(); toggleMobileMenu()">
         <mat-icon>restaurant_menu</mat-icon>
         {{ ts.t('header.quit') }}
+      </button>
+    }
+    @if (authService.isAuthenticated()) {
+      <div class="role-indicator role-indicator-mobile">
+        <span class="role-prefix">{{ ts.t('header.loggedAs') }}</span>
+        <mat-icon class="role-icon">{{ getRoleIcon() }}</mat-icon>
+        <span class="role-label">{{ getRoleLabel() }}</span>
+      </div>
+    }
+    @if (showLogout) {
+      <button mat-button class="logout-btn" (click)="logoutClick.emit(); toggleMobileMenu()">
+        <mat-icon>logout</mat-icon>
+        {{ ts.t('header.logout') }}
       </button>
     }
   </div>

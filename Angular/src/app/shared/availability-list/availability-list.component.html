@@ -45,10 +45,25 @@
         }
       </mat-form-field>
 
-      <button type="button" mat-icon-button class="btn-remove-avail"
-              (click)="removeRow(i)" [disabled]="disabled">
-        <mat-icon>delete</mat-icon>
-      </button>
+      @if (getAvailStatus(asGroup(row)) === 'active') {
+        <button type="button" mat-stroked-button class="btn-end-now"
+                (click)="endNow(asGroup(row))" [disabled]="disabled">
+          <mat-icon>stop_circle</mat-icon>
+          {{ ts.t('admin.availEndNow') }}
+        </button>
+      } @else if (getAvailStatus(asGroup(row)) === 'past') {
+        <span [matTooltip]="ts.t('admin.availCannotDelete')">
+          <button type="button" mat-icon-button class="btn-remove-avail" disabled>
+            <mat-icon>delete</mat-icon>
+          </button>
+        </span>
+      } @else {
+        <button type="button" mat-icon-button class="btn-remove-avail"
+                (click)="removeRow(i)" [disabled]="disabled">
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+
       @if (asGroup(row).errors?.['overlap'] && asGroup(row).dirty) {
         <div class="avail-overlap-error">{{ ts.t('admin.availOverlap') }}</div>
       }

@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CombosService, Combo } from '../services/combos.service';
 import { ComboItemsService, ComboItem } from '../services/combo-items.service';
 import { ItemsService } from '../services/items.service';
@@ -33,6 +34,7 @@ import { TranslationService } from '../services/translation.service';
         MatSelectModule,
         MatProgressSpinnerModule,
         MatSlideToggleModule,
+        MatTooltipModule,
         AvailabilityListComponent
     ],
     templateUrl: './admin-combos.component.html',

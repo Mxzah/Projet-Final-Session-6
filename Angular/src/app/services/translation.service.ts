@@ -10,6 +10,11 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'header.reviews': { fr: 'Mes avis', en: 'My Reviews' },
   'header.admin': { fr: 'Admin', en: 'Admin' },
   'header.kitchen': { fr: 'Cuisine', en: 'Kitchen' },
+  'header.loggedAs': { fr: 'Connecté en tant que', en: 'Logged in as' },
+  'header.roleAdmin': { fr: 'Admin', en: 'Admin' },
+  'header.roleWaiter': { fr: 'Serveur', en: 'Waiter' },
+  'header.roleCook': { fr: 'Cuisinier', en: 'Cook' },
+  'header.roleClient': { fr: 'Client', en: 'Client' },
 
   // Menu page
   'menu.categories': { fr: 'Catégories', en: 'Categories' },
@@ -87,6 +92,9 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.editBtn': { fr: 'Modifier', en: 'Edit' },
   'admin.deleteBtn': { fr: 'Supprimer', en: 'Delete' },
   'admin.unavailable': { fr: 'Inutilisable', en: 'Unusable' },
+  'admin.unavailableTooltip': { fr: 'Cette table n\'a aucune disponibilité en cours.', en: 'This table has no active availability.' },
+  'admin.unavailableItemTooltip': { fr: 'Cet article n\'a aucune disponibilité en cours.', en: 'This item has no active availability.' },
+  'admin.unavailableComboTooltip': { fr: 'Ce combo n\'a aucune disponibilité en cours.', en: 'This combo has no active availability.' },
   'admin.availabilities': { fr: 'Disponibilités', en: 'Availabilities' },
   'admin.availStartAt': { fr: 'Début', en: 'Start' },
   'admin.availEndAt': { fr: 'Fin (optionnel)', en: 'End (optional)' },
@@ -101,6 +109,8 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.availDescWhitespace': { fr: "La description ne peut pas être composée uniquement d'espaces.", en: 'Description cannot be only whitespace.' },
   'admin.availDescMaxLength': { fr: 'La description ne peut pas dépasser 255 caractères.', en: 'Description cannot exceed 255 characters.' },
   'admin.availOverlap': { fr: 'Cette période chevauche une autre disponibilité.', en: 'This period overlaps another availability.' },
+  'admin.availEndNow': { fr: 'Terminer', en: 'End now' },
+  'admin.availCannotDelete': { fr: 'Impossible de supprimer une disponibilité passée.', en: 'Cannot delete a past availability.' },
 
   // Admin tabs + combos
   'admin.tables.tab': { fr: 'Tables', en: 'Tables' },

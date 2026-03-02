@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AvailabilityEntry } from '../../menu/menu.models';
 import { TranslationService } from '../../services/translation.service';
 
@@ -99,7 +100,8 @@ function overlapsValidator(array: AbstractControl): { [key: string]: boolean } |
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatTooltipModule
   ],
   templateUrl: './availability-list.component.html',
   styleUrls: ['./availability-list.component.css']
@@ -170,6 +172,25 @@ export class AvailabilityListComponent implements OnChanges {
   onFieldChange(): void {
     this.rows.updateValueAndValidity();
     this.emit();
+  }
+
+  getAvailStatus(group: FormGroup): 'future' | 'active' | 'past' {
+    const now = new Date();
+    const startVal = group.get('start_at')?.value;
+    const endVal = group.get('end_at')?.value;
+    if (!startVal || !isValidDate(startVal)) return 'future';
+    const start = new Date(startVal);
+    const end = endVal && isValidDate(endVal) ? new Date(endVal) : null;
+    if (end && end <= now) return 'past';
+    if (start <= now) return 'active';
+    return 'future';
+  }
+
+  endNow(group: FormGroup): void {
+    const now = this.toDatetimeLocal(new Date().toISOString());
+    group.get('end_at')?.setValue(now);
+    group.get('end_at')?.markAsDirty();
+    this.onEndChange(group);
   }
 
   asGroup(control: AbstractControl): FormGroup {

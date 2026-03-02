@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ItemsService } from '../services/items.service';
 import { Item, Category } from '../menu/menu.models';
 import { ApiService } from '../services/api.service';
@@ -20,7 +21,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog.comp
     CommonModule,
     MatDialogModule,
     MatCardModule, MatButtonModule, MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule, MatTooltipModule
   ],
   templateUrl: './admin-items.component.html',
   styleUrls: ['./admin-items.component.css']
@@ -138,7 +139,7 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     const data: ItemFormDialogData = { item: null, categories: this.categories() };
     const ref = this.dialog.open<ItemFormDialogComponent, ItemFormDialogData, ItemFormDialogResult>(
       ItemFormDialogComponent,
-      { data, width: '460px', maxHeight: '90vh', disableClose: false }
+      { data, width: '720px', maxWidth: '95vw', maxHeight: '90vh', disableClose: false }
     );
     ref.afterClosed().subscribe({
       next: (result) => {
@@ -155,7 +156,7 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     const data: ItemFormDialogData = { item, categories: this.categories() };
     const ref = this.dialog.open<ItemFormDialogComponent, ItemFormDialogData, ItemFormDialogResult>(
       ItemFormDialogComponent,
-      { data, width: '460px', maxHeight: '90vh', disableClose: false }
+      { data, width: '720px', maxWidth: '95vw', maxHeight: '90vh', disableClose: false }
     );
     ref.afterClosed().subscribe({
       next: (result) => {

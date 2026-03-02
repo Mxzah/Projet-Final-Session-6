@@ -41,7 +41,7 @@
               @if (item.deleted_at) {
                 <div class="archived-badge">{{ ts.t('admin.archived') }}</div>
               } @else if (unavailableIds().has(item.id)) {
-                <div class="unavailable-badge">{{ ts.t('admin.unavailable') }}</div>
+                <div class="unavailable-badge" [matTooltip]="ts.t('admin.unavailableItemTooltip')">{{ ts.t('admin.unavailable') }}</div>
               }
             </div>
             <mat-card-content class="item-body">

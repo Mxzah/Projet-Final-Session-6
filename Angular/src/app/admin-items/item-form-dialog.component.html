@@ -10,7 +10,7 @@
     <div class="dialog-error">{{ error() }}</div>
   }
 
-  <form id="itemForm" [formGroup]="form" (ngSubmit)="save()">
+  <form id="itemForm" [formGroup]="form" (ngSubmit)="save()" class="form-grid">
     <mat-form-field appearance="outline" class="field-full">
       <mat-label>{{ ts.t('admin.name') }}</mat-label>
       <input matInput formControlName="name" />
@@ -22,20 +22,6 @@
             {{ ts.t('admin.nameMaxLength') }}
           } @else if (form.controls.name.errors['pattern']) {
             {{ ts.t('admin.nameWhitespace') }}
-          }
-        </mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="field-full">
-      <mat-label>{{ ts.t('admin.description') }}</mat-label>
-      <textarea matInput formControlName="description" rows="3"></textarea>
-      @if (form.controls.description.dirty && form.controls.description.errors) {
-        <mat-error>
-          @if (form.controls.description.errors['maxlength']) {
-            {{ ts.t('admin.descMaxLength') }}
-          } @else if (form.controls.description.errors['pattern']) {
-            {{ ts.t('admin.descWhitespace') }}
           }
         </mat-error>
       }
@@ -58,6 +44,20 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="field-full">
+      <mat-label>{{ ts.t('admin.description') }}</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+      @if (form.controls.description.dirty && form.controls.description.errors) {
+        <mat-error>
+          @if (form.controls.description.errors['maxlength']) {
+            {{ ts.t('admin.descMaxLength') }}
+          } @else if (form.controls.description.errors['pattern']) {
+            {{ ts.t('admin.descWhitespace') }}
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field-full">
       <mat-label>{{ ts.t('admin.category') }}</mat-label>
       <mat-select formControlName="category_id">
         @for (cat of categories; track cat.id) {
@@ -69,7 +69,7 @@
       }
     </mat-form-field>
 
-    <div class="image-field">
+    <div class="image-field form-full">
       <label class="image-label">{{ ts.t('admin.image') }}</label>
       @if (imagePreview()) {
         <div class="image-preview">
@@ -78,8 +78,7 @@
       }
       <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" class="file-input-hidden" />
       <button type="button" class="file-btn" (click)="fileInput.click()">
-        <mat-icon>upload</mat-icon>
-        {{ ts.t('admin.chooseFile') }}
+        <mat-icon>add_a_photo</mat-icon>
       </button>
       @if (imageError()) {
         <mat-error class="image-error">{{ imageError() }}</mat-error>

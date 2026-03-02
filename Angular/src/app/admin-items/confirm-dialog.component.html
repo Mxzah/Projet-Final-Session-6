@@ -13,7 +13,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-stroked-button mat-dialog-close class="btn-cancel">Annuler</button>
+  <button mat-stroked-button mat-dialog-close class="btn-cancel">{{ ts.t('admin.cancel') }}</button>
   <button mat-flat-button (click)="confirm()" [class]="data.confirmClass">
     {{ data.confirmLabel }}
   </button>

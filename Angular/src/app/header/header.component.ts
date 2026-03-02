@@ -54,4 +54,22 @@ export class HeaderComponent {
   isClient(): boolean {
     return this.authService.getCurrentUser()?.type === 'Client';
   }
+
+  getRoleIcon(): string {
+    switch (this.authService.getCurrentUser()?.type) {
+      case 'Administrator': return 'admin_panel_settings';
+      case 'Waiter': return 'room_service';
+      case 'Cook': return 'soup_kitchen';
+      default: return 'person';
+    }
+  }
+
+  getRoleLabel(): string {
+    switch (this.authService.getCurrentUser()?.type) {
+      case 'Administrator': return this.ts.t('header.roleAdmin');
+      case 'Waiter': return this.ts.t('header.roleWaiter');
+      case 'Cook': return this.ts.t('header.roleCook');
+      default: return this.ts.t('header.roleClient');
+    }
+  }
 }

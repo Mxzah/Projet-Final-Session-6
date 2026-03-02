@@ -142,6 +142,39 @@
     color: #fff !important;
 }
 
+/* Role indicator */
+.role-indicator {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: #fff;
+    gap: 0.35rem;
+    line-height: 1;
+}
+
+.role-icon {
+    font-size: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.role-prefix {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.role-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
 /* Mobile menu - full screen below header */
 .mobile-menu {
     display: none;
@@ -216,5 +249,18 @@
         line-height: 44px !important;
         font-size: 0.95rem !important;
         color: #fff !important;
+    }
+
+    .role-indicator-mobile {
+        flex-direction: row;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        margin-top: 0.25rem;
+    }
+
+    .role-indicator-mobile .role-label {
+        font-size: 0.8rem;
     }
 }

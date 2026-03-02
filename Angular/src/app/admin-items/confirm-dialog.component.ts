@@ -27,7 +27,8 @@ export interface ConfirmDialogData {
 export class ConfirmDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfirmDialogComponent, boolean>,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
+    public ts: TranslationService
   ) {}
 
   confirm(): void {
