@@ -32,6 +32,17 @@ module Api
       end
     end
 
+    # DELETE /api/categories/:id
+    def destroy
+      category = Category.find(params[:id])
+
+      if category.destroy
+        render_success(data: nil, errors: [])
+      else
+        render_error(category.errors.full_messages)
+      end
+    end
+
     # PATCH /api/categories/reorder
     def reorder
       ids = params.require(:ids)

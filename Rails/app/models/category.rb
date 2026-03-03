@@ -19,12 +19,18 @@ class Category < ApplicationRecord
     scope = scope.where.not(id: id) if persisted?
     return unless scope.exists?
 
+    offset = self.class.maximum(:position).to_i + 1000
+
+    # Déplacer le record courant vers une position temporaire pour libérer l'espace
+    self.class.where(id: id).update_all(position: offset + 999) if persisted?
+
     # Décaler toutes les catégories à cette position ou après
-    shift_scope = self.class.where("position >= ?", position)
+    shift_scope = self.class.where("position >= ? AND position < ?", position, offset)
     shift_scope = shift_scope.where.not(id: id) if persisted?
-    shift_scope.order(position: :desc).each do |cat|
-      cat.update_column(:position, cat.position + 1)
-    end
+    shift_scope.update_all("position = position + #{offset}")
+
+    # Remettre les positions décalées à +1 de leur position originale
+    self.class.where("position >= ?", offset).where.not(id: id).update_all("position = position - #{offset} + 1")
   end
 
   def cleanup_availabilities
