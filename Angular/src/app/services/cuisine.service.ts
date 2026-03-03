@@ -40,7 +40,7 @@ export class CuisineService {
 
   // Advances the line to the next status (all kitchen staff)
   nextStatus(lineId: number): Observable<ApiResponse<CuisineOrderLine[]>> {
-    return this.api.put<CuisineOrderLine[]>(`/api/kitchen/order_lines/${lineId}/next_status`, {});
+    return this.api.patch<CuisineOrderLine[]>(`/api/kitchen/order_lines/${lineId}/next_status`, {});
   }
 
   // Edit quantity/note (waiter/admin only)
@@ -48,7 +48,7 @@ export class CuisineService {
     quantity?: number;
     note?: string;
   }): Observable<ApiResponse<CuisineOrderLine[]>> {
-    return this.api.put<CuisineOrderLine[]>(`/api/kitchen/order_lines/${lineId}`, { order_line: data });
+    return this.api.patch<CuisineOrderLine[]>(`/api/kitchen/order_lines/${lineId}`, { order_line: data });
   }
 
   // Delete line (waiter/admin only)

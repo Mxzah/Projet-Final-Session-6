@@ -35,7 +35,7 @@ export class UserService {
   }
 
   updateUser(id: number, data: Record<string, any>): Observable<UserInfo> {
-    return this.apiService.put<UserInfo>(`/api/users/${id}`, { user: data }).pipe(
+    return this.apiService.patch<UserInfo>(`/api/users/${id}`, { user: data }).pipe(
       map(response => response.data!)
     );
   }

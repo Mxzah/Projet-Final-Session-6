@@ -24,7 +24,7 @@ Rails.application.routes.draw do
     resources :items, only: [ :index, :show, :create, :update, :destroy ] do
       member do
         delete :hard, action: :hard_destroy
-        put :restore, action: :restore
+        patch :restore, action: :restore
       end
       resources :availabilities, only: [ :index, :create, :update, :destroy ],
                 controller: "item_availabilities"
@@ -52,14 +52,14 @@ Rails.application.routes.draw do
 
     resources :vibes, only: [ :index, :create, :update, :destroy ] do
       member do
-        put :restore
+        patch :restore
       end
     end
     get "kitchen/orders", to: "cuisine#orders"
     post "kitchen/orders/:id/release", to: "cuisine#release_order"
     post "kitchen/orders/:id/assign_server", to: "cuisine#assign_server"
-    put "kitchen/order_lines/:id/next_status", to: "cuisine#next_status"
-    put "kitchen/order_lines/:id", to: "cuisine#update_line"
+    patch "kitchen/order_lines/:id/next_status", to: "cuisine#next_status"
+    patch "kitchen/order_lines/:id", to: "cuisine#update_line"
     delete "kitchen/order_lines/:id", to: "cuisine#destroy_line"
   end
 

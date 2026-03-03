@@ -37,7 +37,7 @@ export class ItemsService {
 
   updateItem(id: number, data: { name?: string; description?: string; price?: number; category_id?: number; image?: File }): Observable<Item> {
     const formData = this.buildFormData(data);
-    return this.apiService.put<Item>(`/api/items/${id}`, formData).pipe(
+    return this.apiService.patch<Item>(`/api/items/${id}`, formData).pipe(
       map(response => response.data!)
     );
   }
@@ -51,7 +51,7 @@ export class ItemsService {
   }
 
   restoreItem(id: number): Observable<ApiResponse<Item>> {
-    return this.apiService.put<Item>(`/api/items/${id}/restore`, {});
+    return this.apiService.patch<Item>(`/api/items/${id}/restore`, {});
   }
 
   private buildFormData(data: Record<string, any>): FormData {

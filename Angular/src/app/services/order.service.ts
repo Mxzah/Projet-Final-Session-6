@@ -86,7 +86,7 @@ export class OrderService {
     quantity?: number;
     note?: string;
   }): Observable<ApiResponse<OrderLineData[]>> {
-    return this.api.put<OrderLineData[]>(`/api/orders/${orderId}/order_lines/${lineId}`, { order_line: data });
+    return this.api.patch<OrderLineData[]>(`/api/orders/${orderId}/order_lines/${lineId}`, { order_line: data });
   }
 
   deleteOrderLine(orderId: number, lineId: number): Observable<ApiResponse<null>> {
@@ -98,7 +98,7 @@ export class OrderService {
   }
 
   updateOrder(id: number, data: { note?: string }): Observable<ApiResponse<OrderData[]>> {
-    return this.api.put<OrderData[]>(`/api/orders/${id}`, { order: data });
+    return this.api.patch<OrderData[]>(`/api/orders/${id}`, { order: data });
   }
 
   deleteOrder(id: number): Observable<ApiResponse<null>> {

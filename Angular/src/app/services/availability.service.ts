@@ -25,7 +25,7 @@ export class AvailabilityService {
   }
 
   updateAvailability(resource: 'items' | 'tables' | 'combos', id: number, availId: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
-    return this.api.put<AvailabilityEntry>(`${this.base(resource, id)}/${availId}`, { availability: entry })
+    return this.api.patch<AvailabilityEntry>(`${this.base(resource, id)}/${availId}`, { availability: entry })
       .pipe(map(r => r.data!));
   }
 

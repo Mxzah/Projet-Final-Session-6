@@ -83,8 +83,8 @@ export class ApiService {
     );
   }
 
-  put<T>(endpoint: string, body: any): Observable<ApiResponse<T>> {
-    return this.http.put<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, body, {
+  patch<T>(endpoint: string, body: any): Observable<ApiResponse<T>> {
+    return this.http.patch<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, body, {
       withCredentials: true,
       headers: this.getHeaders()
     }).pipe(
@@ -123,8 +123,8 @@ export class ApiService {
     );
   }
 
-  putFormData<T>(endpoint: string, formData: FormData): Observable<ApiResponse<T>> {
-    return this.http.put<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, formData, {
+  patchFormData<T>(endpoint: string, formData: FormData): Observable<ApiResponse<T>> {
+    return this.http.patch<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, formData, {
       withCredentials: true,
       headers: new HttpHeaders().set('X-Locale', this.ts.lang())
     }).pipe(

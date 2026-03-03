@@ -244,7 +244,7 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
     markCleaned(table: TableInfo): void {
         this.cleaningTableId.set(table.id);
 
-        this.apiService.put<TableInfo>(`/api/tables/${table.id}/mark_cleaned`, {
+        this.apiService.patch<TableInfo>(`/api/tables/${table.id}/mark_cleaned`, {
             cleaned_at: new Date().toISOString()
         }).subscribe({
             next: (response) => {
@@ -376,7 +376,7 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         this.isUpdating.set(true);
         this.editErrorMessage.set(null);
 
-        this.apiService.put<TableInfo>(`/api/tables/${editingId}`, {
+        this.apiService.patch<TableInfo>(`/api/tables/${editingId}`, {
             table: {
                 number: editNumber,
                 nb_seats: editCapacity

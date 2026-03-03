@@ -63,9 +63,9 @@ export class ReviewService {
       if (data.rating != null) fd.append('review[rating]', data.rating.toString());
       if (data.comment != null) fd.append('review[comment]', data.comment);
       images.forEach(img => fd.append('review[images][]', img));
-      return this.api.putFormData<ReviewData>(`/api/reviews/${id}`, fd);
+      return this.api.patchFormData<ReviewData>(`/api/reviews/${id}`, fd);
     }
-    return this.api.put<ReviewData>(`/api/reviews/${id}`, { review: data });
+    return this.api.patch<ReviewData>(`/api/reviews/${id}`, { review: data });
   }
 
   deleteReview(id: number): Observable<ApiResponse<null>> {

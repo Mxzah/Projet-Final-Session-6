@@ -31,7 +31,7 @@ export class VibeService {
 
   updateVibe(id: number, data: { name?: string; color?: string; image?: File }): Observable<ApiResponse<VibeData>> {
     const fd = this.buildFormData(data);
-    return this.api.put<VibeData>(`/api/vibes/${id}`, fd);
+    return this.api.patch<VibeData>(`/api/vibes/${id}`, fd);
   }
 
   deleteVibe(id: number): Observable<ApiResponse<VibeData>> {
@@ -39,7 +39,7 @@ export class VibeService {
   }
 
   restoreVibe(id: number): Observable<ApiResponse<VibeData>> {
-    return this.api.put<VibeData>(`/api/vibes/${id}/restore`, {});
+    return this.api.patch<VibeData>(`/api/vibes/${id}/restore`, {});
   }
 
   private buildFormData(data: Record<string, any>): FormData {
