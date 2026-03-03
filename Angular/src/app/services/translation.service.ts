@@ -112,6 +112,20 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.availEndNow': { fr: 'Terminer', en: 'End now' },
   'admin.availCannotDelete': { fr: 'Impossible de supprimer une disponibilité passée.', en: 'Cannot delete a past availability.' },
 
+  // Admin categories
+  'admin.categories.tab': { fr: 'Catégories', en: 'Categories' },
+  'admin.categoriesTitle': { fr: 'Gestion des catégories', en: 'Categories management' },
+  'admin.categoriesSubtitle': { fr: 'Organisez les catégories du menu.', en: 'Organize the menu categories.' },
+  'admin.noCategories': { fr: 'Aucune catégorie.', en: 'No categories.' },
+  'admin.addCategory': { fr: 'Ajouter une catégorie', en: 'Add a category' },
+  'admin.editCategory': { fr: 'Modifier la catégorie', en: 'Edit category' },
+  'admin.deleteCategory': { fr: 'Supprimer la catégorie', en: 'Delete category' },
+  'admin.deleteCategoryConfirm': { fr: 'Voulez-vous vraiment supprimer', en: 'Are you sure you want to delete' },
+  'admin.position': { fr: 'Position', en: 'Position' },
+  'admin.positionRequired': { fr: 'La position est requise.', en: 'Position is required.' },
+  'admin.positionMin': { fr: 'La position doit être 0 ou plus.', en: 'Position must be 0 or greater.' },
+  'admin.positionInteger': { fr: 'La position doit être un nombre entier.', en: 'Position must be an integer.' },
+
   // Admin tabs + combos
   'admin.tables.tab': { fr: 'Tables', en: 'Tables' },
   'admin.items.tab': { fr: 'Items', en: 'Items' },

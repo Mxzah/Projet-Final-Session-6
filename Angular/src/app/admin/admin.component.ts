@@ -18,6 +18,7 @@ export class AdminComponent {
   tabs = [
     { path: 'tables', label: 'admin.tables.tab' },
     { path: 'items', label: 'admin.items.tab' },
+    { path: 'categories', label: 'admin.categories.tab' },
     { path: 'combos', label: 'admin.combos.tab' },
     { path: 'users', label: 'admin.users.tab' },
     { path: 'reviews', label: 'admin.reviews.tab' },

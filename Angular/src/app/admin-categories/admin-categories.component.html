@@ -1,0 +1,53 @@
+<main class="page-admin">
+  <div class="outer-container">
+    <div class="welcome-header">
+      <h2 class="welcome-title">
+        {{ ts.t('admin.categoriesTitle') }}
+        <button mat-mini-fab class="btn-add" [title]="ts.t('admin.addCategory')" (click)="openCreate()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </h2>
+      <p class="welcome-text">{{ ts.t('admin.categoriesSubtitle') }}</p>
+    </div>
+
+    @if (loadError()) {
+      <div class="admin-error">{{ loadError() }}</div>
+    }
+
+    @if (actionError()) {
+      <div class="admin-error">{{ actionError() }}</div>
+    }
+
+    <section class="admin-content">
+      @if (isLoading()) {
+        <div class="loading">
+          <mat-spinner diameter="48"></mat-spinner>
+        </div>
+      }
+
+      @if (!isLoading() && categories().length === 0) {
+        <div class="empty">{{ ts.t('admin.noCategories') }}</div>
+      }
+
+      @if (!isLoading() && categories().length > 0) {
+        <div class="categories-list" cdkDropList (cdkDropListDropped)="drop($event)">
+          @for (cat of categories(); track cat.id) {
+            <div class="category-card" cdkDrag>
+              <div class="category-info">
+                <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
+                <span class="category-position">{{ cat.position }}</span>
+                <span class="category-name">{{ cat.name }}</span>
+              </div>
+              <div class="category-actions">
+                <button mat-icon-button class="action-btn edit" (click)="openEdit(cat)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+              <div class="category-card drag-placeholder" *cdkDragPlaceholder></div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</main>

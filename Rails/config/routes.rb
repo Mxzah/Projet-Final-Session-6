@@ -18,6 +18,9 @@ Rails.application.routes.draw do
     get "tables/:qr_token/qr_code", to: "tables#qr_code"
 
     resources :categories, only: [ :index, :create, :update, :destroy ] do
+      collection do
+        patch :reorder
+      end
       resources :availabilities, only: [ :index, :create, :update, :destroy ],
                 controller: "category_availabilities"
     end
