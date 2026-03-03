@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { VibeService, VibeData } from '../services/vibe.service';
 import { TranslationService } from '../services/translation.service';
 import { ErrorService } from '../services/error.service';
+import { ImageUploadComponent, ImageValidationResult } from '../shared/image-upload/image-upload.component';
 
 export interface VibeFormDialogData {
   vibe: VibeData | null;
@@ -32,6 +33,7 @@ export interface VibeFormDialogResult {
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    ImageUploadComponent,
   ],
   templateUrl: './vibe-form-dialog.component.html',
   styleUrls: ['./vibe-form-dialog.component.css']
@@ -46,7 +48,6 @@ export class VibeFormDialogComponent {
 
   image: File | null = null;
   imagePreview = signal<string | null>(null);
-  imageError = signal('');
   error = signal('');
   loading = signal(false);
 
@@ -68,36 +69,17 @@ export class VibeFormDialogComponent {
     }
   }
 
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    const validTypes = ['image/jpeg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-      this.imageError.set(this.errorService.format(this.errorService.imageError('format', this.ts)));
-      input.value = '';
-      return;
+  onImagesSelected(results: ImageValidationResult[]): void {
+    if (results.length > 0) {
+      this.image = results[0].file;
+      this.imagePreview.set(results[0].preview);
     }
-
-    if (file.size > 5 * 1024 * 1024) {
-      this.imageError.set(this.errorService.format(this.errorService.imageError('size', this.ts)));
-      input.value = '';
-      return;
-    }
-
-    this.imageError.set('');
-    this.image = file;
-
-    const reader = new FileReader();
-    reader.onload = () => this.imagePreview.set(reader.result as string);
-    reader.readAsDataURL(file);
   }
 
   save(): void {
     Object.values(this.form.controls).forEach(c => c.markAsDirty());
 
-    if (this.form.invalid || this.imageError()) return;
+    if (this.form.invalid) return;
 
     this.loading.set(true);
     this.error.set('');

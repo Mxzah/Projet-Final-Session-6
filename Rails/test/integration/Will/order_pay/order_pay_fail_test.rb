@@ -4,6 +4,7 @@ class OrderPayFailTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:valid_user)
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
+    Order.where(client_id: @user.id).destroy_all
     @table = Table.create!(number: 97, nb_seats: 10)
     post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
     @order = JSON.parse(response.body)["data"].first
@@ -34,7 +35,7 @@ class OrderPayFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Order not found"
+    assert_includes json["errors"], "Commande non trouvée"
   end
 
   # Test 3: Lines not all served returns success false
@@ -44,7 +45,7 @@ class OrderPayFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "All items must be 'served' before paying"
+    assert_includes json["errors"], "Tous les articles doivent être 'served' avant de payer"
   end
 
   # Test 4: Negative tip returns success false (lines marked served to bypass that check)
@@ -56,7 +57,7 @@ class OrderPayFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Tip cannot be negative"
+    assert_includes json["errors"], "Le pourboire ne peut pas être négatif"
   end
 
   # Test 5: Tip over 999.99 returns success false (lines marked served to bypass that check)
@@ -68,6 +69,6 @@ class OrderPayFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Tip cannot exceed 999.99"
+    assert_includes json["errors"], "Le pourboire ne peut pas dépasser 999.99"
   end
 end

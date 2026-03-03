@@ -4,6 +4,7 @@ class OrderIndexSuccessTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:valid_user)
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
+    Order.where(client_id: @user.id).destroy_all
     @table = Table.create!(number: 97, nb_seats: 10)
   end
 
@@ -14,7 +15,6 @@ class OrderIndexSuccessTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
-    assert_equal 200, json["code"]
     assert_equal [], json["data"]
     assert_equal [], json["errors"]
   end

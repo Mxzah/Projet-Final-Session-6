@@ -135,6 +135,8 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   // Track if the user has an open order (even without a scanned table)
   hasOpenOrder = signal<boolean>(false);
+  vibeImageUrl = signal<string | null>(null);
+  vibeName = signal<string | null>(null);
 
   constructor(
     private itemsService: ItemsService,
@@ -204,6 +206,9 @@ export class MenuComponent implements OnInit, OnDestroy {
         const openOrder = orders.find((o: any) => !o.ended_at);
         if (openOrder) {
           this.hasOpenOrder.set(true);
+          // Store vibe image for banner
+          this.vibeImageUrl.set(openOrder.vibe_image_url ?? null);
+          this.vibeName.set(openOrder.vibe_name ?? null);
           // Set orderId on cartService so addLine works
           this.cartService.setOrderId(openOrder.id);
           // Load waiting lines into cart from backend
@@ -218,6 +223,11 @@ export class MenuComponent implements OnInit, OnDestroy {
               qr_token: ''
             });
           }
+        } else {
+          // No open order — clear stale table assignment so user must re-scan
+          this.hasOpenOrder.set(false);
+          this.tableService.clearTable();
+          this.cartService.clear();
         }
       }
     });
@@ -496,6 +506,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.cartService.clear();
+    this.tableService.clearTable();
     this.authService.logout().subscribe({
       next: (response) => {
         if (response?.success) {

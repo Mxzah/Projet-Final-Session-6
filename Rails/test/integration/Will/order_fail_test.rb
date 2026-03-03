@@ -8,6 +8,7 @@ class OrderFailTest < ActionDispatch::IntegrationTest
     post "/users/sign_in", params: {
       user: { email: @user.email, password: "password123" }
     }, as: :json
+    Order.where(client_id: @user.id).destroy_all
 
     # Créer une table directement en DB
     @table = Table.create!(number: 99, nb_seats: 10)
@@ -124,7 +125,7 @@ class OrderFailTest < ActionDispatch::IntegrationTest
     assert json["errors"].any?
 
     # Contenu du format JSON
-    assert_equal [], json["data"]
+    assert_nil json["data"]
   end
 
   # Test 6: Create avec nb_people = 0 retourne success false

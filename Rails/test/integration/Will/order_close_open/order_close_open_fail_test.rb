@@ -4,6 +4,7 @@ class OrderCloseOpenFailTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:valid_user)
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
+    Order.where(client_id: @user.id).destroy_all
     @table = Table.create!(number: 97, nb_seats: 10)
   end
 

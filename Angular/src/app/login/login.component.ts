@@ -59,6 +59,9 @@ export class LoginComponent {
           this.tableService.validateAndSavePendingToken().subscribe(() => {
             this.router.navigate(['/form']);
           });
+        } else if (redirectTo === '/form' && !this.tableService.getPendingToken() && !this.tableService.hasTable()) {
+          // No table scanned and no pending token → go to menu (can browse, see history)
+          this.router.navigate(['/menu']);
         } else if (redirectTo === '/menu') {
           // Restore table info from open order for menu navigation
           this.restoreTableAndNavigate(redirectTo);

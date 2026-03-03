@@ -72,7 +72,7 @@ export class TableFormComponent implements OnInit {
   private loadVibes(): void {
     this.orderService.getVibes().subscribe({
       next: (res) => {
-        this.vibes = res.data || [];
+        this.vibes = (res.data || []).filter(v => !v.deleted_at);
         this.vibesLoading = false;
       },
       error: () => {

@@ -101,7 +101,27 @@ h1 {
 }
 
 .vibe-card.archived {
-  opacity: 0.55;
+  background: #f5f5f5 !important;
+  border-color: rgba(27, 26, 23, 0.05) !important;
+  opacity: 0.75;
+}
+
+.vibe-card.archived .vibe-name,
+.vibe-card.archived .vibe-color-row {
+  color: rgba(27, 26, 23, 0.35) !important;
+}
+
+.vibe-card.archived .color-value {
+  color: rgba(27, 26, 23, 0.25) !important;
+}
+
+.vibe-card.archived .vibe-image img {
+  filter: grayscale(100%);
+}
+
+.vibe-card.archived .image-placeholder {
+  filter: grayscale(100%);
+  opacity: 0.5;
 }
 
 .vibe-image {
@@ -137,16 +157,17 @@ h1 {
 
 .archived-badge {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  background: rgba(27, 26, 23, 0.75);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
   color: #fff;
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  letter-spacing: 0.04rem;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
 }
 
 .vibe-body {
@@ -213,11 +234,11 @@ h1 {
 }
 
 .action-btn.restore {
-  color: #2e7d32 !important;
+  color: rgba(27, 26, 23, 0.45) !important;
 }
 
 .action-btn.restore:hover {
-  opacity: 0.8;
+  color: #2e7d32 !important;
 }
 
 @media (max-width: 1024px) {

@@ -29,6 +29,7 @@ export interface OrderData {
   vibe_id: number | null;
   vibe_name: string | null;
   vibe_color: string | null;
+  vibe_image_url: string | null;
   created_at: string;
   ended_at: string | null;
   order_lines: OrderLineData[];
@@ -42,6 +43,7 @@ export interface VibeData {
   id: number;
   name: string;
   color: string;
+  deleted_at: string | null;
 }
 
 @Injectable({
@@ -51,8 +53,16 @@ export class OrderService {
 
   constructor(private api: ApiService) {}
 
-  getOrders(): Observable<ApiResponse<OrderData[]>> {
-    return this.api.get<OrderData[]>('/api/orders');
+  getOrders(filters?: { search?: string; sort?: string; closed?: boolean; total_min?: number | null; total_max?: number | null }): Observable<ApiResponse<OrderData[]>> {
+    let url = '/api/orders';
+    const params: string[] = [];
+    if (filters?.search) params.push(`search=${encodeURIComponent(filters.search)}`);
+    if (filters?.sort && filters.sort !== 'none') params.push(`sort=${filters.sort}`);
+    if (filters?.closed) params.push('closed=true');
+    if (filters?.total_min != null) params.push(`total_min=${filters.total_min}`);
+    if (filters?.total_max != null) params.push(`total_max=${filters.total_max}`);
+    if (params.length) url += '?' + params.join('&');
+    return this.api.get<OrderData[]>(url);
   }
 
   getOrder(id: number): Observable<ApiResponse<OrderData[]>> {

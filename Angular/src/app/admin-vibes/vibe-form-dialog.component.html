@@ -47,20 +47,12 @@
              (input)="form.controls.color.setValue($any($event).target.value)" />
     </div>
 
-    <div class="image-field field-full">
-      <label class="image-label">{{ ts.t('admin.vibes.image') }}</label>
-      @if (imagePreview()) {
-        <div class="image-preview">
-          <img [src]="imagePreview()" alt="Preview" />
-        </div>
-      }
-      <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" class="file-input-hidden" />
-      <button type="button" class="file-btn" (click)="fileInput.click()">
-        <mat-icon>add_a_photo</mat-icon>
-      </button>
-      @if (imageError()) {
-        <mat-error class="image-error">{{ imageError() }}</mat-error>
-      }
+    <div class="field-full">
+      <app-image-upload
+        [previews]="imagePreview() ? [imagePreview()!] : []"
+        [multiple]="false"
+        (imagesSelected)="onImagesSelected($event)">
+      </app-image-upload>
     </div>
   </form>
 </mat-dialog-content>

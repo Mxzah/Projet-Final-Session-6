@@ -4,6 +4,7 @@ class OrderCreateFailTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:valid_user)
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
+    Order.where(client_id: @user.id).destroy_all
     @table = Table.create!(number: 97, nb_seats: 4)
   end
 
@@ -26,7 +27,7 @@ class OrderCreateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_equal [], json["data"]
+    assert_nil json["data"]
     assert json["errors"].any?
   end
 

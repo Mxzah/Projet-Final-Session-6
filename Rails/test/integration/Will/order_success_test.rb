@@ -8,6 +8,7 @@ class OrderSuccessTest < ActionDispatch::IntegrationTest
     post "/users/sign_in", params: {
       user: { email: @user.email, password: "password123" }
     }, as: :json
+    Order.where(client_id: @user.id).destroy_all
 
     # Créer une table directement en DB (pas besoin d'image pour Table)
     @table = Table.create!(number: 99, nb_seats: 10)

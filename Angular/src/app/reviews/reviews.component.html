@@ -6,6 +6,37 @@
     <p class="subtitle">{{ ts.t('reviews.subtitle') }}</p>
   </div>
 
+  <!-- SSF Bar -->
+  <div class="ssf-bar">
+    <mat-form-field class="ssf-search" appearance="outline">
+      <mat-label>{{ ts.t('reviews.searchPlaceholder') }}</mat-label>
+      <input matInput type="text" [value]="searchQuery()" (input)="onSearchInput($event)" />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field class="ssf-sort" appearance="outline">
+      <mat-label>{{ ts.t('reviews.sortLabel') }}</mat-label>
+      <mat-select [value]="sortOrder()" (selectionChange)="onSortChange($event.value)">
+        <mat-option value="newest">{{ ts.t('reviews.sortNewest') }}</mat-option>
+        <mat-option value="oldest">{{ ts.t('reviews.sortOldest') }}</mat-option>
+        <mat-option value="total_desc">{{ ts.t('reviews.sortTotalDesc') }}</mat-option>
+        <mat-option value="total_asc">{{ ts.t('reviews.sortTotalAsc') }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="ssf-filter">
+      <span class="ssf-filter-label">{{ ts.t('reviews.filterLabel') }}</span>
+      <div class="ssf-slider-row">
+        <input #minInput type="number" class="ssf-price-input" min="0" [max]="computedMaxTotal()" [value]="sliderMin()" (change)="onInputMinChange(+$any($event.target).value, minInput)" />
+        <mat-slider min="0" [max]="computedMaxTotal()" step="1" class="ssf-slider">
+          <input matSliderStartThumb [value]="sliderMin()" (valueChange)="onSliderMinChange($event)" />
+          <input matSliderEndThumb [value]="sliderMax()" (valueChange)="onSliderMaxChange($event)" />
+        </mat-slider>
+        <input #maxInput type="number" class="ssf-price-input" min="0" [max]="computedMaxTotal()" [value]="sliderMax()" (change)="onInputMaxChange(+$any($event.target).value, maxInput)" />
+      </div>
+    </div>
+  </div>
+
   @if (isLoading()) {
     <div class="spinner-wrapper">
       <mat-spinner diameter="48" />
@@ -14,7 +45,7 @@
 
   @if (!isLoading() && orders().length === 0) {
     <div class="empty-state">
-      <mat-icon>rate_review</mat-icon>
+      <mat-icon>history</mat-icon>
       <p>{{ ts.t('reviews.noOrders') }}</p>
     </div>
   }
@@ -25,8 +56,30 @@
         <mat-card class="order-card">
           <mat-card-header>
             <div class="order-header">
-              <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
-              <span class="order-date">{{ order.created_at | date:'mediumDate' }}</span>
+              <div class="order-header-left">
+                <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
+                @if (order.vibe_name) {
+                  <span class="vibe-badge" [style.background]="order.vibe_color || '#c86d3f'">
+                    {{ order.vibe_name }}
+                  </span>
+                }
+                @if (order.server_name) {
+                  <span class="server-badge">
+                    <mat-icon class="server-badge-icon">person</mat-icon>
+                    {{ order.server_name }}
+                  </span>
+                }
+              </div>
+              <div class="order-header-right">
+                <span class="order-total">${{ order.adjusted_total.toFixed(2) }}</span>
+                @if (order.tip > 0) {
+                  <span class="tip-badge">
+                    <mat-icon class="tip-icon">volunteer_activism</mat-icon>
+                    ${{ order.tip.toFixed(2) }}
+                  </span>
+                }
+                <span class="order-date">{{ formatDate(order.created_at) }}</span>
+              </div>
             </div>
           </mat-card-header>
 
@@ -35,9 +88,13 @@
               @for (line of order.order_lines; track line.id) {
                 <div class="review-line">
                   <div class="line-info">
+                    @if (line.image_url) {
+                      <img [src]="getImageUrl(line.image_url)" class="line-thumb" />
+                    }
                     <span class="line-name">{{ line.orderable_name }}</span>
-                    <span class="line-type">{{ line.orderable_type }}</span>
+                    <span class="line-type">{{ line.orderable_type === 'Item' ? 'Item' : 'Combo' }}</span>
                     <span class="line-qty">x{{ line.quantity }}</span>
+                    <span class="line-price">${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
                   </div>
                   <div class="line-actions">
                     @if (getReviewForItem(line.orderable_type, line.orderable_id); as review) {
@@ -74,6 +131,7 @@
               @if (order.server_id) {
                 <div class="review-line server-line">
                   <div class="line-info">
+                    <mat-icon class="server-icon">person</mat-icon>
                     <span class="line-name">{{ order.server_name }}</span>
                     <span class="line-type">{{ ts.t('reviews.reviewServer') }}</span>
                   </div>

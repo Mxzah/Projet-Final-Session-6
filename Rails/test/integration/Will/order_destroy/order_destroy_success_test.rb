@@ -4,6 +4,7 @@ class OrderDestroySuccessTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:valid_user)
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
+    Order.where(client_id: @user.id).destroy_all
     @table = Table.create!(number: 97, nb_seats: 10)
     post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
     @order = JSON.parse(response.body)["data"].first

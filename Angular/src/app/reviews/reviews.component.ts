@@ -1,12 +1,16 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { OrderService, OrderData } from '../services/order.service';
@@ -26,6 +30,10 @@ import { environment } from '../../environments/environment';
     MatIconModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSliderModule,
     HeaderComponent
   ],
   templateUrl: './reviews.component.html',
@@ -36,6 +44,18 @@ export class ReviewsComponent implements OnInit {
   reviews = signal<ReviewData[]>([]);
   isLoading = signal(true);
 
+  // SSF state
+  searchQuery = signal('');
+  sortOrder = signal('newest');
+  sliderMin = signal(0);
+  sliderMax = signal(9999);
+  computedMaxTotal = signal(9999);
+  totalMin = signal<number | null>(null);
+  totalMax = signal<number | null>(null);
+
+  private searchTimer: any = null;
+  private maxTotalInitialized = false;
+
   constructor(
     public ts: TranslationService,
     private authService: AuthService,
@@ -43,21 +63,68 @@ export class ReviewsComponent implements OnInit {
     private reviewService: ReviewService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    // First load to compute max total for slider
+    this.orderService.getOrders({ closed: true }).subscribe({
+      next: (res) => {
+        const allOrders = (res.data || []).filter(o => o.ended_at);
+        const maxTotal = Math.ceil(Math.max(...allOrders.map(o => o.adjusted_total), 0));
+        this.computedMaxTotal.set(maxTotal);
+        this.maxTotalInitialized = true;
+
+        const params = this.route.snapshot.queryParams;
+        if (params['search']) this.searchQuery.set(params['search']);
+        if (params['sort']) this.sortOrder.set(params['sort']);
+        if (params['min']) {
+          const min = +params['min'];
+          this.sliderMin.set(min);
+          this.totalMin.set(min > 0 ? min : null);
+        }
+        if (params['max']) {
+          const max = +params['max'];
+          this.sliderMax.set(max);
+          this.totalMax.set(max < maxTotal ? max : null);
+        } else {
+          this.sliderMax.set(maxTotal);
+        }
+
+        this.loadData();
+      },
+      error: () => {
+        this.loadData();
+      }
+    });
   }
 
   loadData(): void {
     this.isLoading.set(true);
-    // Load orders and reviews in parallel
-    this.orderService.getOrders().subscribe({
+    this.orderService.getOrders({
+      search: this.searchQuery() || undefined,
+      sort: this.sortOrder() === 'newest' ? undefined : this.sortOrder(),
+      closed: true,
+      total_min: this.totalMin(),
+      total_max: this.totalMax()
+    }).subscribe({
       next: (res) => {
-        const allOrders = res.data || [];
-        // Only show closed orders (ended_at is set)
-        this.orders.set(allOrders.filter(o => o.ended_at));
+        let allOrders = (res.data || []).filter(o => o.ended_at);
+        // Client-side filter by total (computed field)
+        if (this.totalMin() != null) {
+          allOrders = allOrders.filter(o => o.adjusted_total >= this.totalMin()!);
+        }
+        if (this.totalMax() != null) {
+          allOrders = allOrders.filter(o => o.adjusted_total <= this.totalMax()!);
+        }
+        // Client-side sort for total (computed field)
+        if (this.sortOrder() === 'total_asc') {
+          allOrders.sort((a, b) => a.adjusted_total - b.adjusted_total);
+        } else if (this.sortOrder() === 'total_desc') {
+          allOrders.sort((a, b) => b.adjusted_total - a.adjusted_total);
+        }
+        this.orders.set(allOrders);
         this.loadReviews();
       },
       error: () => {
@@ -76,6 +143,56 @@ export class ReviewsComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  private updateQueryParams(): void {
+    const queryParams: any = {};
+    if (this.searchQuery()) queryParams.search = this.searchQuery();
+    if (this.sortOrder() !== 'newest') queryParams.sort = this.sortOrder();
+    if (this.totalMin() !== null) queryParams.min = this.totalMin();
+    if (this.totalMax() !== null) queryParams.max = this.totalMax();
+    this.router.navigate([], { queryParams, replaceUrl: true });
+  }
+
+  onSearchInput(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.loadData();
+      this.updateQueryParams();
+    }, 350);
+  }
+
+  onSortChange(value: string): void {
+    this.sortOrder.set(value);
+    this.loadData();
+    this.updateQueryParams();
+  }
+
+  onSliderMinChange(value: number): void {
+    this.sliderMin.set(value);
+    this.totalMin.set(value > 0 ? value : null);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => { this.loadData(); this.updateQueryParams(); }, 300);
+  }
+
+  onSliderMaxChange(value: number): void {
+    this.sliderMax.set(value);
+    this.totalMax.set(value < this.computedMaxTotal() ? value : null);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => { this.loadData(); this.updateQueryParams(); }, 300);
+  }
+
+  onInputMinChange(value: number, input: HTMLInputElement): void {
+    const clamped = Math.min(Math.max(value, 0), this.sliderMax());
+    input.value = String(clamped);
+    this.onSliderMinChange(clamped);
+  }
+
+  onInputMaxChange(value: number, input: HTMLInputElement): void {
+    const clamped = Math.min(Math.max(value, this.sliderMin()), this.computedMaxTotal());
+    input.value = String(clamped);
+    this.onSliderMaxChange(clamped);
   }
 
   getReviewForItem(orderableType: string, orderableId: number): ReviewData | null {
@@ -169,6 +286,13 @@ export class ReviewsComponent implements OnInit {
 
   renderStars(rating: number): string {
     return '\u2605'.repeat(rating) + '\u2606'.repeat(5 - rating);
+  }
+
+  formatDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(this.ts.lang() === 'fr' ? 'fr-CA' : 'en-CA', {
+      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
   }
 
   logout(): void {

@@ -11,6 +11,7 @@ import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
 import { OrderLineData, OrderService } from '../services/order.service';
+import { TableService } from '../services/table.service';
 import { TranslationService } from '../services/translation.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -57,6 +58,7 @@ export class OrderComponent implements OnInit {
   isSavingNote = signal(false);
   existingVibeName = signal<string | null>(null);
   existingVibeColor = signal<string | null>(null);
+  existingVibeImageUrl = signal<string | null>(null);
   existingNbPeople = signal<number | null>(null);
 
   /** All order lines from backend */
@@ -83,6 +85,7 @@ export class OrderComponent implements OnInit {
     public ts: TranslationService,
     private authService: AuthService,
     private orderService: OrderService,
+    private tableService: TableService,
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
@@ -116,6 +119,7 @@ export class OrderComponent implements OnInit {
           this.existingNote.set(null);
           this.existingVibeName.set(null);
           this.existingVibeColor.set(null);
+          this.existingVibeImageUrl.set(null);
           this.existingNbPeople.set(null);
           return;
         }
@@ -125,6 +129,7 @@ export class OrderComponent implements OnInit {
         this.existingNote.set(openOrder.note || null);
         this.existingVibeName.set(openOrder.vibe_name ?? null);
         this.existingVibeColor.set(openOrder.vibe_color ?? null);
+        this.existingVibeImageUrl.set(openOrder.vibe_image_url ?? null);
         this.existingNbPeople.set(openOrder.nb_people ?? null);
         this.allLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
         // Sync cart service with waiting lines
@@ -333,6 +338,7 @@ export class OrderComponent implements OnInit {
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
       this.cartService.clear();
+      this.tableService.clearTable();
       this.orderService.deleteOrder(orderId).subscribe({
         next: () => {
           this.authService.logout().subscribe({
@@ -356,6 +362,7 @@ export class OrderComponent implements OnInit {
 
   logout(): void {
     this.cartService.clear();
+    this.tableService.clearTable();
     this.authService.logout().subscribe({
       next: (response) => {
         if (response?.success) {

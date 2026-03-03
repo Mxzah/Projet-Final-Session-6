@@ -28,7 +28,7 @@
     }
     @if (showLogout && isClient()) {
       <button mat-button class="reviews-btn" (click)="goToReviews()">
-        <mat-icon>rate_review</mat-icon>
+        <mat-icon>history</mat-icon>
         {{ ts.t('header.reviews') }}
       </button>
       <span class="header-divider">|</span>
@@ -95,7 +95,7 @@
     }
     @if (showLogout && isClient()) {
       <button mat-button class="reviews-btn" (click)="goToReviews(); toggleMobileMenu()">
-        <mat-icon>rate_review</mat-icon>
+        <mat-icon>history</mat-icon>
         {{ ts.t('header.reviews') }}
       </button>
     }

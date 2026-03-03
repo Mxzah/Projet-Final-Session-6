@@ -15,6 +15,15 @@
   </div>
 </app-header>
 
+@if (vibeImageUrl()) {
+  <div class="vibe-banner">
+    <img [src]="vibeImageUrl()" [alt]="vibeName() || 'Vibe'" class="vibe-banner-img" />
+    <div class="vibe-banner-overlay">
+      <span class="vibe-banner-label">✦ {{ vibeName() }}</span>
+    </div>
+  </div>
+}
+
 <mat-toolbar class="cart-bottom-bar">
   <mat-icon>shopping_cart</mat-icon>
   <span class="cart-bottom-text">{{ cartService.totalItems() }} {{ ts.t('menu.item') }} &bull; CA${{ cartService.subtotal().toFixed(2) }}</span>

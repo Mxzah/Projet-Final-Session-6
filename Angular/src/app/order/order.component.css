@@ -1,5 +1,39 @@
 @import url("../theme.css");
 
+/* ── Vibe banner ── */
+.vibe-banner {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+}
+
+.vibe-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.vibe-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(27, 26, 23, 0.55) 0%, transparent 60%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 0.75rem;
+}
+
+.vibe-banner-label {
+    color: #fff;
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
 /* ── Quit order button (projected into header) ── */
 .quit-order-btn {
   background: linear-gradient(120deg, var(--copper), var(--rust)) !important;

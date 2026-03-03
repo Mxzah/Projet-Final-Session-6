@@ -6,15 +6,15 @@ class VibeIndexFailTest < ActionDispatch::IntegrationTest
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
   end
 
-  # Test 1: Not authenticated returns success false
-  test "index without authentication returns success false" do
+  # Test 1: Vibes index is public — works without authentication
+  test "index without authentication still returns success true" do
     delete "/users/sign_out", as: :json
 
     get "/api/vibes", as: :json
 
     assert_response :ok
     json = JSON.parse(response.body)
-    assert_not json["success"]
-    assert json["errors"].any?
+    assert json["success"]
+    assert_instance_of Array, json["data"]
   end
 end

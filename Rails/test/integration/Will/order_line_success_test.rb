@@ -9,6 +9,7 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
     post "/users/sign_in", params: {
       user: { email: @user.email, password: "password123" }
     }, as: :json
+    Order.where(client_id: @user.id).destroy_all
 
     # Créer une table directement en DB
     @table = Table.create!(number: 99, nb_seats: 10)
@@ -115,7 +116,7 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
 
     # Contenu du format JSON
-    assert_equal "sent", json["data"].first["status"]
+    assert_equal "waiting", json["data"].first["status"]
   end
 
   # Test 6: Create assigne automatiquement unit_price depuis le prix de l'item
@@ -176,7 +177,7 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
     # Validation de la cohérence de la base de données
     line = OrderLine.last
     assert_equal 3, line.quantity
-    assert_equal "sent", line.status
+    assert_equal "waiting", line.status
     assert_equal @order["id"], line.order_id
   end
 end

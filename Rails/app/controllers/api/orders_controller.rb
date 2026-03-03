@@ -6,7 +6,50 @@ module Api
     def index
       orders = Order.where(client_id: current_user.id)
                     .includes(:table, :vibe, :server, order_lines: :orderable)
-                    .order(created_at: :desc)
+
+      # Search by item name, combo name, server name, vibe name, or table number
+      if params[:search].present?
+        term = "%#{params[:search]}%"
+        item_order_ids = OrderLine.joins(:order)
+                             .where(orders: { client_id: current_user.id })
+                             .joins("INNER JOIN items ON items.id = order_lines.orderable_id AND order_lines.orderable_type = 'Item'")
+                             .where("items.name ILIKE ?", term)
+                             .select(:order_id).distinct
+        combo_order_ids = OrderLine.joins(:order)
+                             .where(orders: { client_id: current_user.id })
+                             .joins("INNER JOIN combos ON combos.id = order_lines.orderable_id AND order_lines.orderable_type = 'Combo'")
+                             .where("combos.name ILIKE ?", term)
+                             .select(:order_id).distinct
+        server_order_ids = Order.where(client_id: current_user.id)
+                          .joins("INNER JOIN users ON users.id = orders.server_id")
+                          .where("users.first_name ILIKE :t OR users.last_name ILIKE :t OR CONCAT(users.first_name, ' ', users.last_name) ILIKE :t", t: term)
+                          .select(:id).distinct
+        vibe_order_ids = Order.where(client_id: current_user.id)
+                          .joins(:vibe)
+                          .where("vibes.name ILIKE ?", term)
+                          .select(:id).distinct
+        table_order_ids = Order.where(client_id: current_user.id)
+                          .joins(:table)
+                          .where("CAST(tables.number AS TEXT) ILIKE ?", term)
+                          .select(:id).distinct
+        all_matching_ids = [item_order_ids, combo_order_ids, server_order_ids, vibe_order_ids, table_order_ids].map { |rel| rel.pluck(:id).presence || [] }.flatten.uniq
+        orders = orders.where(id: all_matching_ids)
+      end
+
+      # Filter: only closed orders (history)
+      orders = orders.where.not(ended_at: nil) if params[:closed] == "true"
+
+      # Sort
+      case params[:sort]
+      when "oldest"
+        orders = orders.order(created_at: :asc)
+      when "total_asc"
+        orders = orders.order(created_at: :desc) # sorted client-side for computed total
+      when "total_desc"
+        orders = orders.order(created_at: :desc) # sorted client-side for computed total
+      else
+        orders = orders.order(created_at: :desc)
+      end
 
       render json: {
         success: true,
@@ -124,6 +167,7 @@ module Api
     # Add image_url to each order line (needs controller context for url_for)
     def order_with_images(order)
       data = order.as_json
+      data[:vibe_image_url] = order.vibe&.image&.attached? ? url_for(order.vibe.image) : nil
       data[:order_lines] = order.order_lines.map do |line|
         ld = line.as_json
         ld[:image_url] = line.orderable&.respond_to?(:image) && line.orderable&.image&.attached? ? url_for(line.orderable.image) : nil
