@@ -7,14 +7,19 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'header.logout': { fr: 'Déconnexion', en: 'Logout' },
   'header.login': { fr: 'Connexion', en: 'Login' },
   'header.quit': { fr: 'Menu', en: 'Menu' },
-  'header.reviews': { fr: 'Historique', en: 'History' },
+  'header.history': { fr: 'Historique', en: 'History' },
+  'header.myReviews': { fr: 'Mes avis', en: 'My Reviews' },
   'header.admin': { fr: 'Admin', en: 'Admin' },
   'header.kitchen': { fr: 'Cuisine', en: 'Kitchen' },
+  'header.server': { fr: 'Serveur', en: 'Server' },
   'header.loggedAs': { fr: 'Connecté en tant que', en: 'Logged in as' },
   'header.roleAdmin': { fr: 'Admin', en: 'Admin' },
   'header.roleWaiter': { fr: 'Serveur', en: 'Waiter' },
   'header.roleCook': { fr: 'Cuisinier', en: 'Cook' },
   'header.roleClient': { fr: 'Client', en: 'Client' },
+
+  // Common
+  'common.backToMenu': { fr: 'Revenir au menu', en: 'Back to menu' },
 
   // Menu page
   'menu.categories': { fr: 'Catégories', en: 'Categories' },
@@ -280,7 +285,8 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'order.cartRemoveInfo': { fr: "Cet article sera retiré de votre panier (non envoyé au serveur).", en: 'This item will be removed from your cart (not yet sent to the server).' },
   'order.editError': { fr: 'Erreur lors de la modification.', en: 'Error during modification.' },
   'order.deleteError': { fr: 'Erreur lors de la suppression.', en: 'Error during deletion.' },
-  'order.serverNotImplemented': { fr: 'Serveur pas encore implémenté', en: 'Server not yet implemented' },
+  'order.noServerYet': { fr: 'En attente d\'attribution', en: 'Not yet assigned' },
+  'order.serverAssigned': { fr: 'Serveur assigné', en: 'Assigned server' },
   'order.editNote': { fr: 'Modifier la note', en: 'Edit note' },
   'order.noteSaved': { fr: 'Note sauvegardée', en: 'Note saved' },
   'order.saveNote': { fr: 'Sauvegarder la note', en: 'Save note' },
@@ -315,6 +321,25 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'cuisine.releaseTable': { fr: 'Libérer la table', en: 'Release table' },
   'cuisine.releaseConfirm': { fr: 'Voulez-vous fermer cette commande et libérer la table ?', en: 'Do you want to close this order and release the table?' },
   'cuisine.assignMe': { fr: "M'assigner", en: 'Assign me' },
+  'cuisine.noServerBlocked': { fr: 'En attente d\'un serveur…', en: 'Waiting for a server…' },
+  'cuisine.waitingServer': { fr: 'En attente du serveur', en: 'Waiting for server' },
+
+  // Server page
+  'server.eyebrow': { fr: 'Espace serveur', en: 'Server area' },
+  'server.title': { fr: 'Service', en: 'Service' },
+  'server.subtitle': { fr: 'Gérez vos tables et commandes assignées.', en: 'Manage your assigned tables and orders.' },
+  'server.loadError': { fr: 'Impossible de charger les commandes.', en: 'Could not load orders.' },
+  'server.unassignedTitle': { fr: 'Commandes à assigner', en: 'Orders to assign' },
+  'server.myOrdersTitle': { fr: 'Mes tables', en: 'My tables' },
+  'server.noUnassigned': { fr: 'Aucune commande en attente d\'assignation.', en: 'No orders waiting for assignment.' },
+  'server.noMyOrders': { fr: 'Aucune table assignée pour le moment.', en: 'No tables assigned yet.' },
+  'server.assignMe': { fr: "M'assigner", en: 'Assign me' },
+  'server.releaseTable': { fr: 'Libérer la table', en: 'Release table' },
+  'server.releaseConfirm': { fr: 'Voulez-vous fermer cette commande et libérer la table ?', en: 'Do you want to close this order and release the table?' },
+  'server.cleanTable': { fr: 'Nettoyer la table', en: 'Clean table' },
+  'server.cleanConfirm': { fr: 'La commande est payée. Voulez-vous nettoyer et libérer la table ?', en: 'The order is paid. Do you want to clean and release the table?' },
+  'server.paid': { fr: 'Payée', en: 'Paid' },
+  'server.markServed': { fr: 'Servir', en: 'Serve' },
 
   // Admin users
   'admin.users.tab': { fr: 'Utilisateurs', en: 'Users' },
@@ -432,6 +457,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'pay.tipLabel': { fr: 'Pourboire (CA$)', en: 'Tip (CA$)' },
   'pay.tipNegative': { fr: 'Le pourboire ne peut pas être négatif.', en: 'Tip cannot be negative.' },
   'pay.tipMax': { fr: 'Le pourboire ne peut pas dépasser 999,99 CA$.', en: 'Tip cannot exceed CA$999.99.' },
+  'pay.tipInvalid': { fr: 'Valeur invalide — chiffres seulement.', en: 'Invalid value — numbers only.' },
   'pay.grandTotal': { fr: 'Total', en: 'Grand Total' },
   'pay.confirm': { fr: 'Payer et terminer', en: 'Pay and finish' },
   'pay.processing': { fr: 'Traitement...', en: 'Processing...' },
@@ -445,9 +471,17 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'pay.reviewNow': { fr: 'Donner un avis maintenant', en: 'Leave a review now' },
   'pay.reviewLater': { fr: 'Plus tard — Quitter', en: 'Later — Quit' },
 
+  // History page (client)
+  'history.title': { fr: 'Historique des commandes', en: 'Order History' },
+  'history.subtitle': { fr: 'Consultez vos commandes passées.', en: 'Browse your past orders.' },
+  'history.noOrders': { fr: 'Aucune commande passée.', en: 'No past orders.' },
+  'history.employeeDiscount': { fr: 'Rabais employé', en: 'Employee discount' },
+
   // Reviews page (client)
-  'reviews.title': { fr: 'Historique & Avis', en: 'History & Reviews' },
-  'reviews.subtitle': { fr: 'Consultez vos commandes passées et laissez un avis.', en: 'Browse your past orders and leave a review.' },
+  'reviews.title': { fr: 'Mes avis', en: 'My Reviews' },
+  'reviews.subtitle': { fr: 'Consultez et gérez vos avis.', en: 'Browse and manage your reviews.' },
+  'reviews.noReviews': { fr: 'Vous n\'avez laissé aucun avis.', en: 'You haven\'t left any reviews.' },
+  'reviews.typeServer': { fr: 'Serveur', en: 'Server' },
   'reviews.searchPlaceholder': { fr: 'Rechercher une commande...', en: 'Search an order...' },
   'reviews.sortLabel': { fr: 'Trier', en: 'Sort' },
   'reviews.sortNewest': { fr: 'Plus récent', en: 'Newest' },
@@ -466,7 +500,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'reviews.updated': { fr: 'Avis modifié avec succès', en: 'Review updated successfully' },
   'reviews.deleted': { fr: 'Avis supprimé avec succès', en: 'Review deleted successfully' },
   'reviews.reviewServer': { fr: 'Évaluer le serveur', en: 'Review server' },
-  'reviews.noOrders': { fr: 'Aucune commande passée à évaluer.', en: 'No past orders to review.' },
+
   'reviews.filterLabel': { fr: 'Prix total', en: 'Total price' },
   'reviews.stars': { fr: 'étoiles', en: 'stars' },
   'reviews.photos': { fr: 'Photos', en: 'Photos' },

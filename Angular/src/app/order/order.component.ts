@@ -60,6 +60,7 @@ export class OrderComponent implements OnInit {
   existingVibeColor = signal<string | null>(null);
   existingVibeImageUrl = signal<string | null>(null);
   existingNbPeople = signal<number | null>(null);
+  existingServerName = signal<string | null>(null);
 
   /** All order lines from backend */
   private allLines = signal<DisplayOrderLine[]>([]);
@@ -121,6 +122,7 @@ export class OrderComponent implements OnInit {
           this.existingVibeColor.set(null);
           this.existingVibeImageUrl.set(null);
           this.existingNbPeople.set(null);
+          this.existingServerName.set(null);
           return;
         }
 
@@ -131,6 +133,7 @@ export class OrderComponent implements OnInit {
         this.existingVibeColor.set(openOrder.vibe_color ?? null);
         this.existingVibeImageUrl.set(openOrder.vibe_image_url ?? null);
         this.existingNbPeople.set(openOrder.nb_people ?? null);
+        this.existingServerName.set(openOrder.server_name ?? null);
         this.allLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
         // Sync cart service with waiting lines
         this.cartService.loadFromOrder(openOrder.id);

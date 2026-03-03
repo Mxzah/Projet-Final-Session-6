@@ -53,12 +53,6 @@
             <div class="server-row">
               <mat-icon>person</mat-icon>
               <span>{{ order.server_name ?? ts.t('cuisine.noServer') }}</span>
-              @if (canManageLines() && !order.server_id) {
-                <button mat-flat-button class="assign-btn" (click)="assignMe(order)">
-                  <mat-icon>person_add</mat-icon>
-                  {{ ts.t('cuisine.assignMe') }}
-                </button>
-              }
               @if (order.vibe_name) {
                 <span class="vibe-badge"
                   [style.background-color]="order.vibe_color + '22'"
@@ -73,13 +67,6 @@
               <mat-icon>schedule</mat-icon>
               <span>{{ ts.t('cuisine.orderedAt') }} {{ formatOrderTime(order.created_at) }}</span>
             </div>
-            @if (canManageLines()) {
-              <button mat-flat-button class="release-btn"
-                      (click)="confirmReleaseOrder(order)">
-                <mat-icon>logout</mat-icon>
-                {{ ts.t('cuisine.releaseTable') }}
-              </button>
-            }
           </mat-card-header>
 
           @if (order.note) {
@@ -115,14 +102,20 @@
                       {{ getStatusLabel(line.status) }}
                     </span>
 
-                    <!-- Next-status button (all kitchen staff, one click) -->
-                    @if (getNextStatus(line.status)) {
+                    <!-- Next-status button (kitchen: up to ready, NOT served) -->
+                    @if (getNextStatus(line.status) && getNextStatus(line.status) !== 'served' && order.server_id) {
                       <button mat-flat-button class="btn-next-status"
                         [disabled]="advancingLineIds.has(line.id)"
                         (click)="advanceStatus(line)">
                         <mat-icon>arrow_forward</mat-icon>
                         {{ getStatusLabel(getNextStatus(line.status)!) }}
                       </button>
+                    }
+                    @if (!order.server_id) {
+                      <span class="no-server-msg">{{ ts.t('cuisine.noServerBlocked') }}</span>
+                    }
+                    @if (line.status === 'ready') {
+                      <span class="no-server-msg" style="color: #2e7d32; font-style: italic;">{{ ts.t('cuisine.waitingServer') }}</span>
                     }
 
                     <!-- Edit & Delete (waiter and admin only) -->

@@ -405,6 +405,14 @@ mat-card-content {
   color: #757575;
 }
 
+.no-server-msg {
+  font-size: 0.78rem;
+  color: var(--rust);
+  font-style: italic;
+  opacity: 0.7;
+  padding: 0.2rem 0.5rem;
+}
+
 /* ── Spinner color ── */
 ::ng-deep .mat-mdc-progress-spinner circle {
   stroke: var(--copper) !important;

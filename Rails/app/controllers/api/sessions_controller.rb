@@ -35,6 +35,8 @@ module Api
       case user.type
       when "Cook"
         "/kitchen"
+      when "Waiter"
+        "/server"
       when "Administrator"
         "/admin/tables"
       else

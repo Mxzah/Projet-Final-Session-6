@@ -27,9 +27,13 @@
       </button>
     }
     @if (showLogout && isClient()) {
-      <button mat-button class="reviews-btn" (click)="goToReviews()">
+      <button mat-button class="reviews-btn" (click)="goToHistory()">
         <mat-icon>history</mat-icon>
-        {{ ts.t('header.reviews') }}
+        {{ ts.t('header.history') }}
+      </button>
+      <button mat-button class="reviews-btn" (click)="goToReviews()">
+        <mat-icon>rate_review</mat-icon>
+        {{ ts.t('header.myReviews') }}
       </button>
       <span class="header-divider">|</span>
     }
@@ -44,6 +48,13 @@
       <button mat-button class="quit-btn" (click)="kitchenClick.emit()">
         <mat-icon>restaurant</mat-icon>
         {{ ts.t('header.kitchen') }}
+      </button>
+      <span class="header-divider">|</span>
+    }
+    @if (showServer) {
+      <button mat-button class="quit-btn" (click)="serverClick.emit()">
+        <mat-icon>room_service</mat-icon>
+        {{ ts.t('header.server') }}
       </button>
       <span class="header-divider">|</span>
     }
@@ -94,9 +105,13 @@
       </button>
     }
     @if (showLogout && isClient()) {
-      <button mat-button class="reviews-btn" (click)="goToReviews(); toggleMobileMenu()">
+      <button mat-button class="reviews-btn" (click)="goToHistory(); toggleMobileMenu()">
         <mat-icon>history</mat-icon>
-        {{ ts.t('header.reviews') }}
+        {{ ts.t('header.history') }}
+      </button>
+      <button mat-button class="reviews-btn" (click)="goToReviews(); toggleMobileMenu()">
+        <mat-icon>rate_review</mat-icon>
+        {{ ts.t('header.myReviews') }}
       </button>
     }
     @if (showLogout && showAdmin && authService.isAdmin()) {
@@ -109,6 +124,12 @@
       <button mat-button class="quit-btn" (click)="kitchenClick.emit(); toggleMobileMenu()">
         <mat-icon>restaurant</mat-icon>
         {{ ts.t('header.kitchen') }}
+      </button>
+    }
+    @if (showServer) {
+      <button mat-button class="quit-btn" (click)="serverClick.emit(); toggleMobileMenu()">
+        <mat-icon>room_service</mat-icon>
+        {{ ts.t('header.server') }}
       </button>
     }
     @if (showQuitMenu) {

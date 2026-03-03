@@ -30,11 +30,21 @@ module Api
         return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.order_line_not_found")] }, status: :ok
       end
 
+      # Block status advance if no server is assigned to the order
+      unless line.order.server_id.present?
+        return render json: { success: false, data: nil, errors: ["Un serveur doit être assigné avant de changer le statut"] }, status: :ok
+      end
+
       current_index = OrderLine::STATUS_ORDER[line.status]
       next_s = OrderLine::STATUSES[current_index + 1]
 
       unless next_s
         return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.already_at_final_status")] }, status: :ok
+      end
+
+      # Kitchen staff cannot advance to 'served' — only the server can do that
+      if next_s == 'served'
+        return render json: { success: false, data: nil, errors: ["Seul le serveur peut marquer un plat comme servi"] }, status: :ok
       end
 
       if line.update(status: next_s)
@@ -212,6 +222,7 @@ module Api
         vibe_name: order.vibe&.name,
         vibe_color: order.vibe&.color,
         table_number: order.table&.number,
+        server_id: order.server_id,
         server_name: order.server ? "#{order.server.first_name} #{order.server.last_name}" : nil,
         created_at: order.created_at,
         order_lines: lines

@@ -1,40 +1,14 @@
 <app-header (logoutClick)="logout()"></app-header>
 
 <div class="page">
+  <button class="back-btn" (click)="goToMenu()">
+    <mat-icon>arrow_back</mat-icon>
+    {{ ts.t('common.backToMenu') }}
+  </button>
+
   <div class="page-header">
     <h1>{{ ts.t('reviews.title') }}</h1>
     <p class="subtitle">{{ ts.t('reviews.subtitle') }}</p>
-  </div>
-
-  <!-- SSF Bar -->
-  <div class="ssf-bar">
-    <mat-form-field class="ssf-search" appearance="outline">
-      <mat-label>{{ ts.t('reviews.searchPlaceholder') }}</mat-label>
-      <input matInput type="text" [value]="searchQuery()" (input)="onSearchInput($event)" />
-      <mat-icon matPrefix>search</mat-icon>
-    </mat-form-field>
-
-    <mat-form-field class="ssf-sort" appearance="outline">
-      <mat-label>{{ ts.t('reviews.sortLabel') }}</mat-label>
-      <mat-select [value]="sortOrder()" (selectionChange)="onSortChange($event.value)">
-        <mat-option value="newest">{{ ts.t('reviews.sortNewest') }}</mat-option>
-        <mat-option value="oldest">{{ ts.t('reviews.sortOldest') }}</mat-option>
-        <mat-option value="total_desc">{{ ts.t('reviews.sortTotalDesc') }}</mat-option>
-        <mat-option value="total_asc">{{ ts.t('reviews.sortTotalAsc') }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <div class="ssf-filter">
-      <span class="ssf-filter-label">{{ ts.t('reviews.filterLabel') }}</span>
-      <div class="ssf-slider-row">
-        <input #minInput type="number" class="ssf-price-input" min="0" [max]="computedMaxTotal()" [value]="sliderMin()" (change)="onInputMinChange(+$any($event.target).value, minInput)" />
-        <mat-slider min="0" [max]="computedMaxTotal()" step="1" class="ssf-slider">
-          <input matSliderStartThumb [value]="sliderMin()" (valueChange)="onSliderMinChange($event)" />
-          <input matSliderEndThumb [value]="sliderMax()" (valueChange)="onSliderMaxChange($event)" />
-        </mat-slider>
-        <input #maxInput type="number" class="ssf-price-input" min="0" [max]="computedMaxTotal()" [value]="sliderMax()" (change)="onInputMaxChange(+$any($event.target).value, maxInput)" />
-      </div>
-    </div>
   </div>
 
   @if (isLoading()) {
@@ -43,129 +17,52 @@
     </div>
   }
 
-  @if (!isLoading() && orders().length === 0) {
+  @if (!isLoading() && reviews().length === 0) {
     <div class="empty-state">
-      <mat-icon>history</mat-icon>
-      <p>{{ ts.t('reviews.noOrders') }}</p>
+      <mat-icon>rate_review</mat-icon>
+      <p>{{ ts.t('reviews.noReviews') }}</p>
     </div>
   }
 
-  @if (!isLoading() && orders().length > 0) {
-    <div class="orders-list">
-      @for (order of orders(); track order.id) {
-        <mat-card class="order-card">
+  @if (!isLoading() && reviews().length > 0) {
+    <div class="reviews-grid">
+      @for (review of reviews(); track review.id) {
+        <mat-card class="review-card">
           <mat-card-header>
-            <div class="order-header">
-              <div class="order-header-left">
-                <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
-                @if (order.vibe_name) {
-                  <span class="vibe-badge" [style.background]="order.vibe_color || '#c86d3f'">
-                    {{ order.vibe_name }}
-                  </span>
-                }
-                @if (order.server_name) {
-                  <span class="server-badge">
-                    <mat-icon class="server-badge-icon">person</mat-icon>
-                    {{ order.server_name }}
-                  </span>
-                }
+            <div class="review-header">
+              <div class="review-header-left">
+                <mat-icon class="reviewable-icon">{{ review.reviewable_type === 'User' ? 'person' : (review.reviewable_type === 'Combo' ? 'restaurant_menu' : 'restaurant') }}</mat-icon>
+                <span class="reviewable-name">{{ review.reviewable_name }}</span>
+                <span class="reviewable-type">{{ getReviewableTypeLabel(review.reviewable_type) }}</span>
               </div>
-              <div class="order-header-right">
-                <span class="order-total">${{ order.adjusted_total.toFixed(2) }}</span>
-                @if (order.tip > 0) {
-                  <span class="tip-badge">
-                    <mat-icon class="tip-icon">volunteer_activism</mat-icon>
-                    ${{ order.tip.toFixed(2) }}
-                  </span>
-                }
-                <span class="order-date">{{ formatDate(order.created_at) }}</span>
+              <div class="review-header-right">
+                <span class="stars">{{ renderStars(review.rating) }}</span>
+                <span class="review-date">{{ formatDate(review.created_at) }}</span>
               </div>
             </div>
           </mat-card-header>
 
           <mat-card-content>
-            <div class="lines-list">
-              @for (line of order.order_lines; track line.id) {
-                <div class="review-line">
-                  <div class="line-info">
-                    @if (line.image_url) {
-                      <img [src]="getImageUrl(line.image_url)" class="line-thumb" />
-                    }
-                    <span class="line-name">{{ line.orderable_name }}</span>
-                    <span class="line-type">{{ line.orderable_type === 'Item' ? 'Item' : 'Combo' }}</span>
-                    <span class="line-qty">x{{ line.quantity }}</span>
-                    <span class="line-price">${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
-                  </div>
-                  <div class="line-actions">
-                    @if (getReviewForItem(line.orderable_type, line.orderable_id); as review) {
-                      <div class="existing-review">
-                        <span class="stars">{{ renderStars(review.rating) }}</span>
-                        @if (review.image_urls && review.image_urls.length > 0) {
-                          <div class="review-images">
-                            @for (url of review.image_urls; track url) {
-                              <img [src]="getImageUrl(url)" class="review-thumb" />
-                            }
-                          </div>
-                        }
-                        <button mat-stroked-button class="btn-review"
-                                (click)="openReviewDialog(line.orderable_type, line.orderable_id, line.orderable_name, review)">
-                          <mat-icon>edit</mat-icon>
-                          {{ ts.t('reviews.editReview') }}
-                        </button>
-                        <button mat-icon-button class="btn-delete-review"
-                                (click)="confirmDelete(review)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </div>
-                    } @else {
-                      <button mat-stroked-button class="btn-review"
-                              (click)="openReviewDialog(line.orderable_type, line.orderable_id, line.orderable_name)">
-                        <mat-icon>rate_review</mat-icon>
-                        {{ ts.t('reviews.leaveReview') }}
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
+            @if (review.comment) {
+              <p class="review-comment">{{ review.comment }}</p>
+            }
 
-              @if (order.server_id) {
-                <div class="review-line server-line">
-                  <div class="line-info">
-                    <mat-icon class="server-icon">person</mat-icon>
-                    <span class="line-name">{{ order.server_name }}</span>
-                    <span class="line-type">{{ ts.t('reviews.reviewServer') }}</span>
-                  </div>
-                  <div class="line-actions">
-                    @if (getReviewForServer(order.server_id); as review) {
-                      <div class="existing-review">
-                        <span class="stars">{{ renderStars(review.rating) }}</span>
-                        @if (review.image_urls && review.image_urls.length > 0) {
-                          <div class="review-images">
-                            @for (url of review.image_urls; track url) {
-                              <img [src]="getImageUrl(url)" class="review-thumb" />
-                            }
-                          </div>
-                        }
-                        <button mat-stroked-button class="btn-review"
-                                (click)="openReviewDialog('User', order.server_id, order.server_name!, review)">
-                          <mat-icon>edit</mat-icon>
-                          {{ ts.t('reviews.editReview') }}
-                        </button>
-                        <button mat-icon-button class="btn-delete-review"
-                                (click)="confirmDelete(review)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </div>
-                    } @else {
-                      <button mat-stroked-button class="btn-review"
-                              (click)="openReviewDialog('User', order.server_id, order.server_name!)">
-                        <mat-icon>rate_review</mat-icon>
-                        {{ ts.t('reviews.reviewServer') }}
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
+            @if (review.image_urls && review.image_urls.length > 0) {
+              <div class="review-images">
+                @for (url of review.image_urls; track url) {
+                  <img [src]="getImageUrl(url)" class="review-img" />
+                }
+              </div>
+            }
+
+            <div class="review-actions">
+              <button mat-stroked-button class="btn-edit" (click)="openEditDialog(review)">
+                <mat-icon>edit</mat-icon>
+                {{ ts.t('reviews.editReview') }}
+              </button>
+              <button mat-icon-button class="btn-delete" (click)="confirmDelete(review)">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
           </mat-card-content>
         </mat-card>

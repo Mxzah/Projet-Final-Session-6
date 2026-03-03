@@ -64,6 +64,15 @@ Rails.application.routes.draw do
     patch "kitchen/order_lines/:id/next_status", to: "cuisine#next_status"
     patch "kitchen/order_lines/:id", to: "cuisine#update_line"
     delete "kitchen/order_lines/:id", to: "cuisine#destroy_line"
+
+    # Server (waiter) dashboard
+    get "server/orders", to: "server#orders"
+    post "server/orders/:id/assign", to: "server#assign"
+    post "server/orders/:id/release", to: "server#release"
+    post "server/orders/:id/clean", to: "server#clean"
+    patch "server/order_lines/:id/serve", to: "server#serve_line"
+    patch "server/order_lines/:id", to: "server#update_line"
+    delete "server/order_lines/:id", to: "server#destroy_line"
   end
 
   match "*url", to: "angular#index", via: :get

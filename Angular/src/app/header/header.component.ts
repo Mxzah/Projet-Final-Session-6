@@ -21,10 +21,12 @@ export class HeaderComponent {
   @Input() showLogin = false;
   @Input() showAdmin = true;
   @Input() showKitchen = false;
+  @Input() showServer = false;
   @Input() showQuitMenu = false;
   @Output() logoutClick = new EventEmitter<void>();
   @Output() loginClick = new EventEmitter<void>();
   @Output() kitchenClick = new EventEmitter<void>();
+  @Output() serverClick = new EventEmitter<void>();
   @Output() quitMenuClick = new EventEmitter<void>();
 
   mobileMenuOpen = signal(false);
@@ -45,6 +47,10 @@ export class HeaderComponent {
 
   goToAdmin(): void {
     this.router.navigate(['/admin', 'tables']);
+  }
+
+  goToHistory(): void {
+    this.router.navigate(['/history']);
   }
 
   goToReviews(): void {

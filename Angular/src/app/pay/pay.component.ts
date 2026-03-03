@@ -78,6 +78,10 @@ export class PayComponent implements OnInit {
   // Retourne true si valide, false sinon
   validateTip(): boolean {
     const val = this.tip();
+    if (isNaN(val)) {
+      this.tipError.set(this.ts.t('pay.tipInvalid'));
+      return false;
+    }
     if (val < 0) {
       this.tipError.set(this.ts.t('pay.tipNegative'));
       return false;
@@ -93,8 +97,11 @@ export class PayComponent implements OnInit {
   // Appelé chaque fois que l'utilisateur modifie le champ pourboire
   onTipChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const val = parseFloat(input.value) || 0;
-    this.tip.set(val);
+    // Remove anything that isn't a digit or a single decimal point
+    const sanitized = input.value.replace(/[^0-9.]/g, '').replace(/^(\d*\.?\d*).*$/, '$1');
+    input.value = sanitized;
+    const val = sanitized === '' ? 0 : parseFloat(sanitized);
+    this.tip.set(isNaN(val) ? 0 : val);
     this.validateTip();
   }
 

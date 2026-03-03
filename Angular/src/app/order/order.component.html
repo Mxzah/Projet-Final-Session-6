@@ -49,7 +49,11 @@
           }
           <div class="server-info">
             <mat-icon>person</mat-icon>
-            <span>{{ ts.t('order.server') }}: <strong>{{ ts.t('order.serverNotImplemented') }}</strong></span>
+            @if (existingServerName()) {
+              <span>{{ ts.t('order.server') }}: <strong>{{ existingServerName() }}</strong></span>
+            } @else {
+              <span>{{ ts.t('order.server') }}: <em>{{ ts.t('order.noServerYet') }}</em></span>
+            }
           </div>
         </div>
         <button mat-raised-button color="primary" (click)="onAddItems()">

@@ -1,0 +1,256 @@
+<app-header
+  (logoutClick)="logout()"
+  [showQuitMenu]="authService.isAdmin()"
+  (quitMenuClick)="goBack()">
+</app-header>
+
+<div class="page">
+  <div class="page-header">
+    <p class="eyebrow">{{ ts.t('server.eyebrow') }}</p>
+    <h1>{{ ts.t('server.title') }}</h1>
+    <p class="subtitle">{{ ts.t('server.subtitle') }}</p>
+  </div>
+
+  @if (loading) {
+    <div class="spinner-wrapper">
+      <mat-spinner diameter="48" />
+    </div>
+  }
+
+  @if (error) {
+    <div class="error-msg">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error }}</span>
+      <button mat-button (click)="loadOrders()">{{ ts.t('cuisine.retry') }}</button>
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <!-- ═══════════ Section 1: Unassigned Orders ═══════════ -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon class="section-icon unassigned-icon">group_add</mat-icon>
+        <h2>{{ ts.t('server.unassignedTitle') }}</h2>
+        <span class="section-count">{{ unassignedOrders.length }}</span>
+      </div>
+
+      @if (unassignedOrders.length === 0) {
+        <div class="empty-section">
+          <mat-icon>check_circle</mat-icon>
+          <p>{{ ts.t('server.noUnassigned') }}</p>
+        </div>
+      }
+
+      @if (unassignedOrders.length > 0) {
+        <div class="orders-grid">
+          @for (order of unassignedOrders; track order.id) {
+            <mat-card class="order-card unassigned-card">
+              <mat-card-header>
+                <div class="card-title-row">
+                  <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
+                  <span class="people-badge">
+                    <mat-icon>people</mat-icon>{{ order.nb_people }} {{ ts.t('cuisine.people') }}
+                  </span>
+                </div>
+                @if (order.vibe_name) {
+                  <div class="vibe-row">
+                    <span class="vibe-badge"
+                      [style.background-color]="order.vibe_color + '22'"
+                      [style.color]="order.vibe_color">
+                      ✦ {{ order.vibe_name }}
+                    </span>
+                  </div>
+                }
+                <div class="order-time">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ ts.t('cuisine.orderedAt') }} {{ formatOrderTime(order.created_at) }}</span>
+                </div>
+              </mat-card-header>
+
+              @if (order.note) {
+                <div class="order-note">
+                  <mat-icon>sticky_note_2</mat-icon>
+                  <span>{{ order.note }}</span>
+                </div>
+              }
+
+              <mat-divider />
+
+              <mat-card-content>
+                <p class="lines-label">{{ ts.t('cuisine.linesLabel') }}</p>
+                <div class="lines-list">
+                  @for (line of order.order_lines; track line.id) {
+                    <div class="line-row">
+                      <div class="line-info">
+                        <div class="line-top">
+                          <span class="line-name">{{ line.orderable_name }}</span>
+                          <span class="line-qty">x{{ line.quantity }}</span>
+                        </div>
+                        @if (line.note) {
+                          <div class="line-note">
+                            <mat-icon>sticky_note_2</mat-icon>
+                            <span>{{ line.note }}</span>
+                          </div>
+                        }
+                      </div>
+                      <div class="line-right">
+                        <span class="status-chip {{ getStatusClass(line.status) }}">
+                          {{ getStatusLabel(line.status) }}
+                        </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="card-action-row">
+                  <button mat-flat-button class="assign-btn" (click)="assignOrder(order)">
+                    <mat-icon>person_add</mat-icon>
+                    {{ ts.t('server.assignMe') }}
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ═══════════ Section 2: My Orders ═══════════ -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon class="section-icon mine-icon">assignment_ind</mat-icon>
+        <h2>{{ ts.t('server.myOrdersTitle') }}</h2>
+        <span class="section-count">{{ myOrders.length }}</span>
+      </div>
+
+      @if (myOrders.length === 0) {
+        <div class="empty-section">
+          <mat-icon>inbox</mat-icon>
+          <p>{{ ts.t('server.noMyOrders') }}</p>
+        </div>
+      }
+
+      @if (myOrders.length > 0) {
+        <div class="orders-grid">
+          @for (order of myOrders; track order.id) {
+            <mat-card class="order-card mine-card" [class.paid-card]="isOrderPaid(order)">
+              <mat-card-header>
+                <div class="card-title-row">
+                  <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
+                  <span class="people-badge">
+                    <mat-icon>people</mat-icon>{{ order.nb_people }} {{ ts.t('cuisine.people') }}
+                  </span>
+                  @if (isOrderPaid(order)) {
+                    <span class="paid-badge">
+                      <mat-icon>payments</mat-icon>
+                      {{ ts.t('server.paid') }}
+                    </span>
+                  }
+                </div>
+                @if (order.vibe_name) {
+                  <div class="vibe-row">
+                    <span class="vibe-badge"
+                      [style.background-color]="order.vibe_color + '22'"
+                      [style.color]="order.vibe_color">
+                      ✦ {{ order.vibe_name }}
+                    </span>
+                  </div>
+                }
+                <div class="order-time">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ ts.t('cuisine.orderedAt') }} {{ formatOrderTime(order.created_at) }}</span>
+                </div>
+              </mat-card-header>
+
+              @if (order.note) {
+                <div class="order-note">
+                  <mat-icon>sticky_note_2</mat-icon>
+                  <span>{{ order.note }}</span>
+                </div>
+              }
+
+              @if (order.tip > 0) {
+                <div class="order-tip">
+                  <mat-icon>volunteer_activism</mat-icon>
+                  <span>{{ ts.t('cuisine.tipDisplay') }}{{ order.tip.toFixed(2) }}</span>
+                </div>
+              }
+
+              <mat-divider />
+
+              <mat-card-content>
+                <p class="lines-label">{{ ts.t('cuisine.linesLabel') }}</p>
+                <div class="lines-list">
+                  @for (line of order.order_lines; track line.id) {
+                    <div class="line-row">
+                      <div class="line-info">
+                        <div class="line-top">
+                          <span class="line-name">{{ line.orderable_name }}</span>
+                          <span class="line-qty">x{{ line.quantity }}</span>
+                        </div>
+                        @if (line.note) {
+                          <div class="line-note">
+                            <mat-icon>sticky_note_2</mat-icon>
+                            <span>{{ line.note }}</span>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="line-right">
+                        <span class="status-chip {{ getStatusClass(line.status) }}">
+                          {{ getStatusLabel(line.status) }}
+                        </span>
+
+                        @if (line.status === 'ready' && !isOrderPaid(order)) {
+                          <button mat-flat-button class="btn-serve"
+                            [disabled]="advancingLineIds.has(line.id)"
+                            (click)="serveLine(line)">
+                            <mat-icon>room_service</mat-icon>
+                            {{ ts.t('server.markServed') }}
+                          </button>
+                        }
+
+                        @if (!isOrderPaid(order)) {
+                          <div class="line-actions">
+                            @if (canEditLine(line)) {
+                              <button mat-icon-button class="action-btn edit"
+                                [title]="ts.t('cuisine.modify')"
+                                (click)="openEditLine(line)">
+                                <mat-icon>edit</mat-icon>
+                              </button>
+                            }
+                            @if (canDeleteLine(line)) {
+                              <button mat-icon-button class="action-btn delete"
+                                [title]="ts.t('cuisine.delete')"
+                                (click)="confirmDeleteLine(line)">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="card-action-row">
+                  @if (isOrderPaid(order)) {
+                    <button mat-flat-button class="clean-btn" (click)="confirmReleaseOrder(order)">
+                      <mat-icon>cleaning_services</mat-icon>
+                      {{ ts.t('server.cleanTable') }}
+                    </button>
+                  } @else {
+                    <button mat-flat-button class="release-btn" (click)="confirmReleaseOrder(order)">
+                      <mat-icon>logout</mat-icon>
+                      {{ ts.t('server.releaseTable') }}
+                    </button>
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

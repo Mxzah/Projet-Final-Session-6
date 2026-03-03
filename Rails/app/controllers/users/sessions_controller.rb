@@ -52,6 +52,8 @@ class Users::SessionsController < Devise::SessionsController
     case user.type
     when "Cook"
       "/kitchen"
+    when "Waiter"
+      "/server"
     when "Administrator"
       "/admin/tables"
     else

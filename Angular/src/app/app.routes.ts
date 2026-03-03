@@ -3,6 +3,7 @@ import { guestGuard } from './guards/guest.guard';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { cuisineGuard } from './guards/cuisine.guard';
+import { serverGuard } from './guards/server.guard';
 
 export const routes: Routes = [
     { path: '', loadComponent: () => import('./menu/menu.component').then(m => m.MenuComponent) },
@@ -28,7 +29,9 @@ export const routes: Routes = [
     { path: 'menu', loadComponent: () => import('./menu/menu.component').then(m => m.MenuComponent) },
     { path: 'order', loadComponent: () => import('./order/order.component').then(m => m.OrderComponent), canActivate: [authGuard] },
     { path: 'pay', loadComponent: () => import('./pay/pay.component').then(m => m.PayComponent), canActivate: [authGuard] },
+    { path: 'history', loadComponent: () => import('./history/history.component').then(m => m.HistoryComponent), canActivate: [authGuard] },
     { path: 'reviews', loadComponent: () => import('./reviews/reviews.component').then(m => m.ReviewsComponent), canActivate: [authGuard] },
     { path: 'kitchen', loadComponent: () => import('./cuisine/cuisine.component').then(m => m.CuisineComponent), canActivate: [cuisineGuard] },
+    { path: 'server', loadComponent: () => import('./server-page/server-page.component').then(m => m.ServerPageComponent), canActivate: [serverGuard] },
     { path: '**', loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

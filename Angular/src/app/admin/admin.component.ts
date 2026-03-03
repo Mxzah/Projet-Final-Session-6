@@ -35,6 +35,10 @@ export class AdminComponent {
     this.router.navigate(['/kitchen']);
   }
 
+  goToServer(): void {
+    this.router.navigate(['/server']);
+  }
+
   goToMenu(): void {
     this.router.navigate(['/menu']);
   }
