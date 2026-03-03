@@ -28,7 +28,8 @@ import { HeaderComponent } from '../header/header.component';
 import { SsfSidebarComponent } from '../shared/ssf-sidebar/ssf-sidebar.component';
 import { SsfBarComponent } from '../shared/ssf-bar/ssf-bar.component';
 import { Item, Category } from './menu.models';
-import { ConfirmDialogComponent, ConfirmDialogData, EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/confirm-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
+import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
 
 const COMBOS_CATEGORY_ID = -999;
 

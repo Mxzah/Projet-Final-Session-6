@@ -13,7 +13,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ReviewService, ReviewData } from '../services/review.service';
 import { TranslationService } from '../services/translation.service';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { environment } from '../../environments/environment';
 
 @Component({
