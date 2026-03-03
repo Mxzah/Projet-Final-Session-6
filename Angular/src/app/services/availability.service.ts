@@ -4,32 +4,34 @@ import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { AvailabilityEntry } from '../menu/menu.models';
 
+type AvailableResource = 'items' | 'tables' | 'combos';
+
 @Injectable({
   providedIn: 'root'
 })
 export class AvailabilityService {
   constructor(private api: ApiService) {}
 
-  private base(resource: 'items' | 'tables' | 'combos', id: number) {
+  private base(resource: AvailableResource, id: number) {
     return `/api/${resource}/${id}/availabilities`;
   }
 
-  getAvailabilities(resource: 'items' | 'tables' | 'combos', id: number): Observable<AvailabilityEntry[]> {
+  getAvailabilities(resource: AvailableResource, id: number): Observable<AvailabilityEntry[]> {
     return this.api.get<AvailabilityEntry[]>(this.base(resource, id))
       .pipe(map(r => r.data!));
   }
 
-  createAvailability(resource: 'items' | 'tables' | 'combos', id: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
+  createAvailability(resource: AvailableResource, id: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
     return this.api.post<AvailabilityEntry>(this.base(resource, id), { availability: entry })
       .pipe(map(r => r.data!));
   }
 
-  updateAvailability(resource: 'items' | 'tables' | 'combos', id: number, availId: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
+  updateAvailability(resource: AvailableResource, id: number, availId: number, entry: Omit<AvailabilityEntry, 'id'>): Observable<AvailabilityEntry> {
     return this.api.patch<AvailabilityEntry>(`${this.base(resource, id)}/${availId}`, { availability: entry })
       .pipe(map(r => r.data!));
   }
 
-  deleteAvailability(resource: 'items' | 'tables' | 'combos', id: number, availId: number): Observable<void> {
+  deleteAvailability(resource: AvailableResource, id: number, availId: number): Observable<void> {
     return this.api.delete<null>(`${this.base(resource, id)}/${availId}`)
       .pipe(map(() => void 0));
   }

@@ -1,5 +1,5 @@
 module Api
-  class AdminController < ApplicationController
+  class AdminController < ApiController
     before_action :authenticate_user!
     before_action :require_admin!
 
@@ -8,11 +8,7 @@ module Api
     def require_admin!
       return if current_user&.type == "Administrator"
 
-      render json: {
-        success: false,
-        data: nil,
-        errors: [ I18n.t("controllers.admin.access_restricted") ]
-      }, status: :ok
+      render_error(I18n.t("controllers.admin.access_restricted"))
     end
   end
 end

@@ -7,11 +7,7 @@ module Api
     def index
       categories = Category.order(:position)
 
-      render json: {
-        success: true,
-        data: categories.map { |c| category_json(c) },
-        errors: []
-      }, status: :ok
+      render_success(data: categories.map { |c| category_json(c) }, errors: [])
     end
 
     # POST /api/categories
@@ -19,17 +15,9 @@ module Api
       category = Category.new(category_params)
 
       if category.save
-        render json: {
-          success: true,
-          data: category_json(category),
-          errors: []
-        }, status: :created
+        render_success(data: category_json(category), errors: [])
       else
-        render json: {
-          success: false,
-          data: nil,
-          errors: category.errors.full_messages
-        }, status: :unprocessable_entity
+        render_error(category.errors.full_messages)
       end
     end
 

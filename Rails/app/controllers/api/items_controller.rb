@@ -44,20 +44,12 @@ module Api
         items = items.joins(:category).order("categories.position ASC, items.name ASC")
       end
 
-      render json: {
-        success: true,
-        data: items.map { |i| item_json(i) },
-        errors: []
-      }, status: :ok
+      render_success(data: items.map { |i| item_json(i) }, errors: [])
     end
 
     # GET /api/items/:id
     def show
-      render json: {
-        success: true,
-        data: item_json(@item),
-        errors: []
-      }, status: :ok
+      render_success(data: item_json(@item), errors: [])
     end
 
     # POST /api/items
@@ -65,34 +57,18 @@ module Api
       item = Item.new(item_params)
 
       if item.save
-        render json: {
-          success: true,
-          data: item_json(item),
-          errors: []
-        }, status: :ok
+        render_success(data: item_json(item), errors: [])
       else
-        render json: {
-          success: false,
-          data: nil,
-          errors: item.errors.full_messages
-        }, status: :ok
+        render_error(item.errors.full_messages)
       end
     end
 
     # PATCH/PUT /api/items/:id
     def update
       if @item.update(item_params)
-        render json: {
-          success: true,
-          data: item_json(@item),
-          errors: []
-        }, status: :ok
+        render_success(data: item_json(@item), errors: [])
       else
-        render json: {
-          success: false,
-          data: nil,
-          errors: @item.errors.full_messages
-        }, status: :ok
+        render_error(@item.errors.full_messages)
       end
     end
 
@@ -100,43 +76,27 @@ module Api
     def destroy
       archived_item = @item.soft_delete!
 
-      render json: {
-        success: true,
-        data: item_json(archived_item),
-        errors: []
-      }, status: :ok
+      render_success(data: item_json(archived_item), errors: [])
     end
 
     # DELETE /api/items/:id/hard (hard delete)
     def hard_destroy
       if @item.order_lines.any? || @item.combo_items.any?
-        render json: {
-          success: false,
-          data: nil,
-          errors: [ I18n.t("controllers.items.cannot_hard_delete") ]
-        }, status: :ok
+        render_error(I18n.t("controllers.items.cannot_hard_delete"))
         return
       end
 
       item_data = item_json(@item)
       @item.destroy
 
-      render json: {
-        success: true,
-        data: item_data,
-        errors: []
-      }, status: :ok
+      render_success(data: item_data, errors: [])
     end
 
     # PATCH /api/items/:id/restore
     def restore
       @item.update(deleted_at: nil)
 
-      render json: {
-        success: true,
-        data: item_json(@item),
-        errors: []
-      }, status: :ok
+      render_success(data: item_json(@item), errors: [])
     end
 
     private
@@ -147,11 +107,7 @@ module Api
 
     def reject_if_archived
       if @item.deleted_at.present?
-        render json: {
-          success: false,
-          data: nil,
-          errors: [ I18n.t("controllers.items.cannot_update_archived") ]
-        }, status: :ok
+        render_error(I18n.t("controllers.items.cannot_update_archived"))
       end
     end
 
