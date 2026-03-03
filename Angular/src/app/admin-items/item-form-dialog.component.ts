@@ -14,6 +14,7 @@ import { TranslationService } from '../services/translation.service';
 import { ErrorService } from '../services/error.service';
 import { AvailabilityService } from '../services/availability.service';
 import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
+import { ImageUploadComponent, ImageValidationResult } from '../shared/image-upload/image-upload.component';
 
 export interface ItemFormDialogData {
   item: Item | null;       // null = création, Item = modification
@@ -39,7 +40,8 @@ export interface ItemFormDialogResult {
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    AvailabilityListComponent
+    AvailabilityListComponent,
+    ImageUploadComponent
   ],
   templateUrl: './item-form-dialog.component.html',
   styleUrls: ['./item-form-dialog.component.css']
@@ -56,12 +58,12 @@ export class ItemFormDialogComponent {
   });
 
   image: File | null = null;
-  imagePreview = signal<string | null>(null);
-  imageError = signal('');
+  imagePreviews = signal<string[]>([]);
   error = signal('');
   loading = signal(false);
 
   @ViewChild(AvailabilityListComponent) availabilityList?: AvailabilityListComponent;
+  @ViewChild(ImageUploadComponent) imageUpload?: ImageUploadComponent;
 
   availabilities = signal<AvailabilityEntry[]>([]);
   private originalAvailabilities: AvailabilityEntry[] = [];
@@ -84,7 +86,9 @@ export class ItemFormDialogComponent {
         price: data.item.price,
         category_id: data.item.category_id
       });
-      this.imagePreview.set(data.item.image_url || null);
+      if (data.item.image_url) {
+        this.imagePreviews.set([data.item.image_url]);
+      }
 
       this.availabilityService.getAvailabilities('items', data.item.id).subscribe({
         next: (entries) => {
@@ -102,42 +106,20 @@ export class ItemFormDialogComponent {
     }
   }
 
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    const validTypes = ['image/jpeg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-      this.imageError.set(this.errorService.format(this.errorService.imageError('format', this.ts)));
-      input.value = '';
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      this.imageError.set(this.errorService.format(this.errorService.imageError('size', this.ts)));
-      input.value = '';
-      return;
-    }
-
-    this.imageError.set('');
-    this.image = file;
-
-    const reader = new FileReader();
-    reader.onload = () => this.imagePreview.set(reader.result as string);
-    reader.readAsDataURL(file);
+  onImagesSelected(results: ImageValidationResult[]): void {
+    this.image = results[0].file;
+    this.imagePreviews.set([results[0].preview]);
   }
 
   save(): void {
     Object.values(this.form.controls).forEach(c => c.markAsDirty());
     this.availabilityList?.markAllDirty();
 
-    if (this.isCreating && !this.image && !this.imageError()) {
-      this.imageError.set(this.errorService.format(this.errorService.imageError('required', this.ts)));
+    if (this.isCreating && !this.image && !this.imageUpload?.hasError()) {
+      this.imageUpload?.setError(this.errorService.format(this.errorService.imageError('required', this.ts)));
     }
 
-    if (this.form.invalid || this.imageError() || !(this.availabilityList?.isValid ?? true)) return;
+    if (this.form.invalid || this.imageUpload?.hasError() || !(this.availabilityList?.isValid ?? true)) return;
 
     this.loading.set(true);
     this.error.set('');

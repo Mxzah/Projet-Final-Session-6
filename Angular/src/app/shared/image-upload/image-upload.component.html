@@ -1,0 +1,24 @@
+<div class="image-field">
+  <label class="image-label">{{ ts.t('admin.image') }}</label>
+  <input
+    #fileInput
+    type="file"
+    accept="image/jpeg,image/png"
+    [multiple]="multiple"
+    (change)="onFilesSelected($event)"
+    class="file-input-hidden" />
+  @if (previews.length > 0) {
+    @for (preview of previews; track preview) {
+      <div class="image-preview clickable" (click)="fileInput.click()">
+        <img [src]="preview" alt="Aperçu" />
+      </div>
+    }
+  } @else {
+    <button type="button" class="file-btn" (click)="fileInput.click()">
+      <mat-icon>add_a_photo</mat-icon>
+    </button>
+  }
+  @if (error()) {
+    <mat-error class="image-error">{{ error() }}</mat-error>
+  }
+</div>

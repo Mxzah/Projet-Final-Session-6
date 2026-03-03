@@ -19,6 +19,7 @@ import { AvailabilityEntry } from '../menu/menu.models';
 import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 import { ErrorService } from '../services/error.service';
 import { TranslationService } from '../services/translation.service';
+import { ImageUploadComponent, ImageValidationResult } from '../shared/image-upload/image-upload.component';
 
 @Component({
     selector: 'app-admin-combos',
@@ -35,7 +36,8 @@ import { TranslationService } from '../services/translation.service';
         MatProgressSpinnerModule,
         MatSlideToggleModule,
         MatTooltipModule,
-        AvailabilityListComponent
+        AvailabilityListComponent,
+        ImageUploadComponent
     ],
     templateUrl: './admin-combos.component.html',
     styleUrls: ['./admin-combos.component.css']
@@ -125,8 +127,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
 
     // Image for create combo
     createImage = signal<File | null>(null);
-    createImagePreview = signal<string | null>(null);
-    createImageError = signal('');
+    createImagePreviews = signal<string[]>([]);
 
     // Add item to combo form
     isAddingItem = signal(false);
@@ -325,8 +326,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         this.isCreating.set(true);
         this.createAvailabilities.set([]);
         this.createImage.set(null);
-        this.createImagePreview.set(null);
-        this.createImageError.set('');
+        this.createImagePreviews.set([]);
         this.createForm.reset({
             name: '',
             description: '',
@@ -342,35 +342,12 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         this.actionError.set('');
         this.createAvailabilities.set([]);
         this.createImage.set(null);
-        this.createImagePreview.set(null);
-        this.createImageError.set('');
+        this.createImagePreviews.set([]);
     }
 
-    onImageSelected(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        if (!file) return;
-
-        const validTypes = ['image/jpeg', 'image/png'];
-        if (!validTypes.includes(file.type)) {
-            this.createImageError.set(this.errorService.format(this.errorService.imageError('format', this.ts)));
-            input.value = '';
-            return;
-        }
-
-        const maxSize = 5 * 1024 * 1024;
-        if (file.size > maxSize) {
-            this.createImageError.set(this.errorService.format(this.errorService.imageError('size', this.ts)));
-            input.value = '';
-            return;
-        }
-
-        this.createImageError.set('');
-        this.createImage.set(file);
-
-        const reader = new FileReader();
-        reader.onload = () => this.createImagePreview.set(reader.result as string);
-        reader.readAsDataURL(file);
+    onImagesSelected(results: ImageValidationResult[]): void {
+        this.createImage.set(results[0].file);
+        this.createImagePreviews.set([results[0].preview]);
     }
 
     clampPrice(event: Event): void {

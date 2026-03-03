@@ -207,22 +207,10 @@
             }
           </mat-form-field>
 
-          <div class="image-field">
-            <label class="image-label">{{ ts.t('admin.image') }}</label>
-            @if (createImagePreview()) {
-              <div class="image-preview">
-                <img [src]="createImagePreview()" alt="Aperçu" />
-              </div>
-            }
-            <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" class="file-input-hidden" />
-            <button type="button" class="file-btn" (click)="fileInput.click()">
-              <mat-icon>upload</mat-icon>
-              {{ ts.t('admin.chooseFile') }}
-            </button>
-            @if (createImageError()) {
-              <mat-error class="image-error">{{ createImageError() }}</mat-error>
-            }
-          </div>
+          <app-image-upload
+            [previews]="createImagePreviews()"
+            (imagesSelected)="onImagesSelected($event)">
+          </app-image-upload>
 
           <app-availability-list
             #createAvailList

@@ -52,14 +52,6 @@ MODULE 1 — Header
      - Un séparateur « | » est affiché entre Déconnexion et Quitter
      - Clic sur « Quitter » : Retour à la page précédente (ex: /menu)
 
-1.8  Changement de langue
-     - Clic sur le bouton « FR » dans le header
-     - Un menu déroulant apparaît avec « Français » et « English »
-     - Clic sur « English » : L'interface passe en anglais (labels, boutons, textes)
-     - Le bouton affiche maintenant « EN »
-     - Clic sur « EN » puis « Français » : L'interface revient en français
-     - Rafraîchir la page : La langue choisie est conservée (localStorage)
-
 
 ================================================================================
 MODULE 2 — Navigation par catégories
@@ -571,38 +563,5 @@ les tables et les combos. Les tests ci-dessous s'appliquent aux trois types.
      - Aucune erreur n'est affichée (la fin est optionnelle)
      - La ressource reste visible dans le menu indéfiniment à partir de la
        date de début
-
-================================================================================
-MODULE 13 — Traduction (admin-items)
-================================================================================
-
-13.1 Traduction en anglais
-     Avec admin@restoqr.ca : password123
-     - Changer la langue à « English » via le header
-     - Le titre passe à « Items Management »
-     - Les boutons passent en anglais (Add, Save, Cancel, Delete, Archive,
-       Restore)
-     - Les labels des champs passent en anglais (Name, Description, Price,
-       Category, Image)
-     - Les messages de validation passent en anglais
-     - Les titres et messages des modals passent en anglais (Delete item,
-       Archive item, Restore item)
-     - Le badge « ARCHIVÉ » passe à « ARCHIVED »
-     - Le badge « INDISPONIBLE » passe à « UNAVAILABLE »
-     - Les labels de disponibilités passent en anglais (Start, End (optional),
-       Description, Availabilities)
-     - Les messages de validation des disponibilités passent en anglais
-     - Le titre de la sidebar « Catégories » passe à « Categories »
-     - Les labels SSF passent en anglais (Search, Sort by price, Price min,
-       Price max)
-
-13.2 Traduction en français
-     - Changer la langue à « Français » via le header
-     - Tous les textes reviennent en français
-
-13.3 Persistance de la langue
-     - Changer la langue à « English »
-     - Rafraîchir la page
-     - L'interface reste en anglais
 
 ================================================================================
