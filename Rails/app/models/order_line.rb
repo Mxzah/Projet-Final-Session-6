@@ -1,9 +1,9 @@
 class OrderLine < ApplicationRecord
   # Enum for status — provides scopes (.sent, .served) and query methods (.sent?, .served?)
-  enum :status, { sent: "sent", in_preparation: "in_preparation", ready: "ready", served: "served" }, default: :sent, validate: true
+  enum :status, { waiting: "waiting", sent: "sent", in_preparation: "in_preparation", ready: "ready", served: "served" }, default: :waiting, validate: true
 
   # Constants for sequential status logic
-  STATUSES = %w[sent in_preparation ready served].freeze
+  STATUSES = %w[waiting sent in_preparation ready served].freeze
   STATUS_ORDER = STATUSES.each_with_index.to_h.freeze
 
   belongs_to :order
@@ -44,7 +44,7 @@ class OrderLine < ApplicationRecord
   private
 
   def status_must_follow_sequence
-    # Status must follow the sequential order: sent → in_preparation → ready → served
+    # Status must follow the sequential order: waiting → sent → in_preparation → ready → served
     return unless persisted? && status_was.present?
 
     old_index = STATUS_ORDER[status_was]
@@ -53,7 +53,7 @@ class OrderLine < ApplicationRecord
     return unless old_index && new_index
 
     if new_index != old_index + 1
-      errors.add(:status, "must follow sequential order (sent → in_preparation → ready → served)")
+      errors.add(:status, "must follow sequential order (waiting → sent → in_preparation → ready → served)")
     end
   end
 
@@ -68,9 +68,9 @@ class OrderLine < ApplicationRecord
   end
 
   def cannot_modify_unless_sent
-    # A line can only have quantity/note changed if its status is 'sent'
-    return unless status_was != "sent" && (quantity_changed? || note_changed? || orderable_id_changed?)
+    # A line can only have quantity/note changed if its status is 'waiting' or 'sent'
+    return unless !%w[waiting sent].include?(status_was) && (quantity_changed? || note_changed? || orderable_id_changed?)
 
-    errors.add(:base, "can only be modified when status is 'sent'")
+    errors.add(:base, "can only be modified when status is 'waiting' or 'sent'")
   end
 end

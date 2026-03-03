@@ -21,6 +21,7 @@ export class AdminComponent {
     { path: 'combos', label: 'admin.combos.tab' },
     { path: 'users', label: 'admin.users.tab' },
     { path: 'reviews', label: 'admin.reviews.tab' },
+    { path: 'vibes', label: 'admin.vibes.tab' },
   ];
 
   constructor(

@@ -91,7 +91,7 @@ module Api
       order.tip = tip_value
       order.ended_at = Time.current
 
-      if order.save(validate: false)
+      if order.save(validate: false) #ici le false
         render json: { success: true, data: [ order.reload.as_json ], errors: [] }, status: :ok
       else
         render json: { success: false, data: nil, errors: order.errors.full_messages }, status: :ok

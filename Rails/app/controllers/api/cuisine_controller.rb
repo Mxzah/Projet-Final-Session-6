@@ -188,7 +188,9 @@ module Api
     end
 
     def order_json(order, items_map, combos_map)
-      lines = order.order_lines.map do |l|
+      # Kitchen only sees lines that have been sent (not waiting)
+      visible_lines = order.order_lines.reject { |l| l.status == 'waiting' }
+      lines = visible_lines.map do |l|
         orderable = find_orderable(l.orderable_type, l.orderable_id, items_map, combos_map)
         {
           id: l.id,

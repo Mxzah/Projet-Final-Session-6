@@ -39,6 +39,7 @@ Rails.application.routes.draw do
 
     resources :orders, only: [ :index, :show, :create, :update, :destroy ] do
       resources :order_lines, only: [ :index, :create, :update, :destroy ]
+      post 'order_lines/send_lines', to: 'order_lines#send_lines'
       member do
         post :pay
       end
@@ -49,7 +50,11 @@ Rails.application.routes.draw do
 
     get "current_user", to: "sessions#current_user"
 
-    resources :vibes, only: [ :index ]
+    resources :vibes, only: [ :index, :create, :update, :destroy ] do
+      member do
+        put :restore
+      end
+    end
     get "kitchen/orders", to: "cuisine#orders"
     post "kitchen/orders/:id/release", to: "cuisine#release_order"
     post "kitchen/orders/:id/assign_server", to: "cuisine#assign_server"

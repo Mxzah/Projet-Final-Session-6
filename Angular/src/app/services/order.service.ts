@@ -93,6 +93,10 @@ export class OrderService {
     return this.api.delete<null>(`/api/orders/${orderId}/order_lines/${lineId}`);
   }
 
+  sendOrderLines(orderId: number): Observable<ApiResponse<OrderLineData[]>> {
+    return this.api.post<OrderLineData[]>(`/api/orders/${orderId}/order_lines/send_lines`, {});
+  }
+
   updateOrder(id: number, data: { note?: string }): Observable<ApiResponse<OrderData[]>> {
     return this.api.put<OrderData[]>(`/api/orders/${id}`, { order: data });
   }

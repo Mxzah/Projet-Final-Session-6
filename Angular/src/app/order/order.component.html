@@ -53,7 +53,7 @@
         <h2 class="section-title">{{ ts.t('order.linesTitle') }}</h2>
 
         @for (line of lines(); track $index) {
-          <mat-card class="order-line-card" [class.pending-line]="line.status === 'pending'" appearance="outlined">
+          <mat-card class="order-line-card" [class.pending-line]="line.status === 'waiting'" appearance="outlined">
             <mat-card-content class="line-content">
               <div class="line-main">
                 @if (line.image_url) {
@@ -64,7 +64,7 @@
                 <div class="line-info">
                   <div class="line-head">
                     <h3 class="line-name">{{ line.name }}</h3>
-                    @if (line.status !== 'pending') {
+                    @if (line.status !== 'waiting') {
                       <span class="status-chip {{ getStatusClass(line.status) }}">{{ getStatusLabel(line.status) }}</span>
                     } @else {
                       <span class="pending-badge">{{ ts.t('order.pendingBadge') }}</span>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
@@ -13,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ThankYouDialogComponent, ThankYouDialogResult } from './thank-you-dialog.component';
 
 @Component({
   selector: 'app-pay',
@@ -26,6 +28,7 @@ import { MatInputModule } from '@angular/material/input';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatDialogModule,
   ],
   templateUrl: './pay.component.html',
   styleUrls: ['./pay.component.css']
@@ -43,7 +46,8 @@ export class PayComponent implements OnInit {
     private orderService: OrderService,
     private cartService: CartService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   // Appelé automatiquement au chargement de la page
@@ -110,6 +114,7 @@ export class PayComponent implements OnInit {
           this.cartService.clear();
           this.paid.set(true);
           this.isPaying.set(false);
+          this.openThankYouDialog();
         } else {
           const msg = (res.errors as string[])?.join(', ') || this.ts.t('pay.error');
           this.snackBar.open(msg, 'OK', { duration: 5000 });
@@ -133,6 +138,30 @@ export class PayComponent implements OnInit {
       error: () => {
         localStorage.removeItem('currentUser');
         this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  private openThankYouDialog(): void {
+    const ref = this.dialog.open<ThankYouDialogComponent, any, ThankYouDialogResult>(
+      ThankYouDialogComponent,
+      {
+        data: {
+          title: this.ts.t('pay.thankYouTitle'),
+          message: this.ts.t('pay.thankYouMsg'),
+          reviewLabel: this.ts.t('pay.reviewNow'),
+          quitLabel: this.ts.t('pay.reviewLater'),
+        },
+        width: '400px',
+        maxHeight: '90vh',
+        disableClose: true,
+      }
+    );
+    ref.afterClosed().subscribe(result => {
+      if (result === 'review') {
+        this.goToReviews();
+      } else {
+        this.skipReview();
       }
     });
   }

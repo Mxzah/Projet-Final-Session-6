@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
@@ -48,7 +48,6 @@ interface DisplayOrderLine {
 })
 export class OrderComponent implements OnInit {
   openOrderId = signal<number | null>(null);
-  private serverLines = signal<DisplayOrderLine[]>([]);
   isSending = signal<boolean>(false);
 
   existingNote = signal<string | null>(null);
@@ -59,27 +58,23 @@ export class OrderComponent implements OnInit {
   existingVibeColor = signal<string | null>(null);
   existingNbPeople = signal<number | null>(null);
 
-  private pendingLines = computed<DisplayOrderLine[]>(() =>
-    this.cartService.lines().map((line, index) => ({
-      id: -1 - index,
-      quantity: line.quantity,
-      unit_price: line.unit_price,
-      note: line.note,
-      status: 'pending',
-      name: line.name,
-      image_url: line.image_url || null
-    }))
-  );
+  /** All order lines from backend */
+  private allLines = signal<DisplayOrderLine[]>([]);
 
-  lines = computed<DisplayOrderLine[]>(() => [...this.serverLines(), ...this.pendingLines()]);
+  /** Waiting lines = the "cart" (not yet sent) */
+  waitingLines = computed(() => this.allLines().filter(l => l.status === 'waiting'));
+  /** Sent/in-progress/ready/served lines */
+  sentLines = computed(() => this.allLines().filter(l => l.status !== 'waiting'));
+
+  lines = computed<DisplayOrderLine[]>(() => [...this.sentLines(), ...this.waitingLines()]);
   subtotal = computed(() => this.lines().reduce((sum, line) => sum + line.unit_price * line.quantity, 0));
   totalItems = computed(() => this.lines().reduce((sum, line) => sum + line.quantity, 0));
-  pendingCount = computed(() => this.cartService.lines().length);
+  pendingCount = computed(() => this.waitingLines().length);
   canPay = computed(() =>
     this.openOrderId() !== null &&
     this.pendingCount() === 0 &&
-    this.serverLines().length > 0 &&
-    this.serverLines().every(l => l.status === 'served')
+    this.sentLines().length > 0 &&
+    this.sentLines().every(l => l.status === 'served')
   );
 
   constructor(
@@ -116,7 +111,7 @@ export class OrderComponent implements OnInit {
 
         if (!openOrder) {
           this.openOrderId.set(null);
-          this.serverLines.set([]);
+          this.allLines.set([]);
           this.existingNote.set(null);
           this.existingVibeName.set(null);
           this.existingVibeColor.set(null);
@@ -125,21 +120,25 @@ export class OrderComponent implements OnInit {
         }
 
         this.openOrderId.set(openOrder.id);
+        this.cartService.setOrderId(openOrder.id);
         this.existingNote.set(openOrder.note || null);
         this.existingVibeName.set(openOrder.vibe_name ?? null);
         this.existingVibeColor.set(openOrder.vibe_color ?? null);
         this.existingNbPeople.set(openOrder.nb_people ?? null);
-        this.serverLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
+        this.allLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
+        // Sync cart service with waiting lines
+        this.cartService.loadFromOrder(openOrder.id);
       },
       error: () => {
         this.openOrderId.set(null);
-        this.serverLines.set([]);
+        this.allLines.set([]);
       }
     });
   }
 
   getStatusClass(status: string): string {
     const classes: Record<string, string> = {
+      waiting: 'status-waiting',
       sent: 'status-sent',
       in_preparation: 'status-prep',
       ready: 'status-ready',
@@ -150,6 +149,7 @@ export class OrderComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     const keys: Record<string, string> = {
+      waiting: 'order.status.waiting',
       sent: 'order.status.sent',
       in_preparation: 'order.status.inPreparation',
       ready: 'order.status.ready',
@@ -159,13 +159,12 @@ export class OrderComponent implements OnInit {
   }
 
   canModifyLine(line: DisplayOrderLine): boolean {
-    return line.status === 'sent' || line.status === 'pending';
+    return line.status === 'waiting' || line.status === 'sent';
   }
 
   // ── Edit order line ──
 
   openEditLine(line: DisplayOrderLine): void {
-    const isCart = line.id < 0;
     const data: EditOrderLineDialogData = {
       itemName: line.name,
       quantity: line.quantity,
@@ -177,32 +176,33 @@ export class OrderComponent implements OnInit {
     );
     ref.afterClosed().subscribe(result => {
       if (!result) return;
-
-      if (isCart) {
-        const cartIndex = (-line.id) - 1;
-        this.cartService.updateLine(cartIndex, { quantity: result.quantity, note: result.note });
-        return;
-      }
-
       const orderId = this.openOrderId();
       if (!orderId) return;
 
-      this.orderService.updateOrderLine(orderId, line.id, {
-        quantity: result.quantity,
-        note: result.note
-      }).subscribe({
-        next: () => this.loadOpenOrder(),
-        error: () => {
-          this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
-        }
-      });
+      if (line.status === 'waiting') {
+        // Waiting lines: update via cart service (backend-backed)
+        this.cartService.updateLine(line.id, { quantity: result.quantity, note: result.note }, (ok) => {
+          if (ok) this.loadOpenOrder();
+          else this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
+        });
+      } else {
+        // Already-sent lines: update directly
+        this.orderService.updateOrderLine(orderId, line.id, {
+          quantity: result.quantity,
+          note: result.note
+        }).subscribe({
+          next: () => this.loadOpenOrder(),
+          error: () => {
+            this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
+          }
+        });
+      }
     });
   }
 
   // ── Delete order line ──
 
   confirmDeleteLine(line: DisplayOrderLine): void {
-    const isCart = line.id < 0;
     const data: ConfirmDialogData = {
       title: this.ts.t('order.deleteLine'),
       message: this.ts.t('order.deleteLineConfirm'),
@@ -217,38 +217,39 @@ export class OrderComponent implements OnInit {
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
 
-      if (isCart) {
-        const cartIndex = (-line.id) - 1;
-        this.cartService.removeLine(cartIndex);
-        return;
-      }
-
-      const orderId = this.openOrderId();
-      if (!orderId) return;
-
-      this.orderService.deleteOrderLine(orderId, line.id).subscribe({
-        next: (res: any) => {
-          if (res.success) {
-            this.loadOpenOrder();
-          } else {
-            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.deleteError');
-            this.snackBar.open(msg, 'OK', { duration: 5000 });
+      if (line.status === 'waiting') {
+        // Waiting lines: delete via cart service (backend-backed)
+        this.cartService.removeLine(line.id, (ok) => {
+          if (ok) this.loadOpenOrder();
+          else this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
+        });
+      } else {
+        const orderId = this.openOrderId();
+        if (!orderId) return;
+        this.orderService.deleteOrderLine(orderId, line.id).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.loadOpenOrder();
+            } else {
+              const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.deleteError');
+              this.snackBar.open(msg, 'OK', { duration: 5000 });
+            }
+          },
+          error: () => {
+            this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
           }
-        },
-        error: () => {
-          this.snackBar.open(this.ts.t('order.deleteError'), 'OK', { duration: 5000 });
-        }
-      });
+        });
+      }
     });
   }
 
   // ── Send order lines ──
 
   onSend(): void {
-    const linesToCreate = this.cartService.lines();
     const orderId = this.openOrderId();
+    const waitingCount = this.waitingLines().length;
 
-    if (linesToCreate.length === 0 || this.isSending()) return;
+    if (waitingCount === 0 || this.isSending()) return;
 
     if (!orderId) {
       this.snackBar.open(this.ts.t('order.noOrderRedirect'), 'OK', { duration: 4000 });
@@ -258,16 +259,7 @@ export class OrderComponent implements OnInit {
 
     this.isSending.set(true);
 
-    const requests = linesToCreate.map(line =>
-      this.orderService.createOrderLine(orderId, {
-        quantity: line.quantity,
-        note: line.note,
-        orderable_type: line.orderable_type,
-        orderable_id: line.orderable_id
-      })
-    );
-
-    forkJoin(requests).subscribe({
+    this.orderService.sendOrderLines(orderId).subscribe({
       next: () => {
         this.cartService.clear();
         this.loadOpenOrder();

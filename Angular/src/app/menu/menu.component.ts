@@ -194,7 +194,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     if (this.searchTimer) clearTimeout(this.searchTimer);
   }
 
-  // Check if the user already has an open order — if so, restore table info
+  // Check if the user already has an open order — if so, restore table info and cart
   private checkOpenOrder(): void {
     if (!this.authService.isAuthenticated()) return;
     this.orderService.getOrders().subscribe({
@@ -203,6 +203,10 @@ export class MenuComponent implements OnInit, OnDestroy {
         const openOrder = orders.find((o: any) => !o.ended_at);
         if (openOrder) {
           this.hasOpenOrder.set(true);
+          // Set orderId on cartService so addLine works
+          this.cartService.setOrderId(openOrder.id);
+          // Load waiting lines into cart from backend
+          this.cartService.loadFromOrder(openOrder.id);
           // Restore table info so the menu works without re-scanning
           if (!this.tableService.hasTable()) {
             this.tableService.setCurrentTable({
@@ -384,6 +388,10 @@ export class MenuComponent implements OnInit, OnDestroy {
       quantity: this.modalQuantity(),
       note: this.modalNote(),
       image_url: item.image_url || null
+    }, (success) => {
+      if (!success) {
+        this.errorMessage.set(this.ts.t('order.sendError'));
+      }
     });
     this.closeModal();
   }
@@ -415,6 +423,10 @@ export class MenuComponent implements OnInit, OnDestroy {
       quantity: this.modalQuantity(),
       note: this.modalNote(),
       image_url: combo.image_url || null
+    }, (success) => {
+      if (!success) {
+        this.errorMessage.set(this.ts.t('order.sendError'));
+      }
     });
     this.closeModal();
   }
@@ -439,7 +451,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  // ── Delete cart line (removes from in-memory cart, no hard delete) ──
+  // ── Edit/Delete cart line (backend-backed) ──
 
   openEditCartLine(index: number): void {
     const line: CartLine = this.cartService.lines()[index];
@@ -456,7 +468,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     );
     ref.afterClosed().subscribe(result => {
       if (!result) return;
-      this.cartService.updateLine(index, { quantity: result.quantity, note: result.note });
+      this.cartService.updateLine(line.id, { quantity: result.quantity, note: result.note });
     });
   }
 
@@ -477,7 +489,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     );
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      this.cartService.removeLine(index);
+      this.cartService.removeLine(line.id);
     });
   }
 

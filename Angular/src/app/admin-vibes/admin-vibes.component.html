@@ -1,0 +1,68 @@
+<div class="page-header">
+  <h1>
+    {{ ts.t('admin.vibes.title') }}
+    <button mat-mini-fab class="btn-add" [title]="ts.t('admin.vibes.add')" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </h1>
+  <p class="subtitle">{{ ts.t('admin.vibes.subtitle') }}</p>
+</div>
+
+@if (actionError()) {
+  <div class="admin-error">{{ actionError() }}</div>
+}
+
+@if (isLoading()) {
+  <div class="spinner-wrapper">
+    <mat-spinner diameter="48" />
+  </div>
+}
+
+@if (!isLoading() && vibes().length === 0) {
+  <div class="empty-state">
+    <mat-icon>palette</mat-icon>
+    <p>{{ ts.t('admin.vibes.noVibes') }}</p>
+  </div>
+}
+
+@if (!isLoading() && vibes().length > 0) {
+  <div class="vibes-grid">
+    @for (vibe of vibes(); track vibe.id) {
+      <mat-card class="vibe-card" [class.archived]="vibe.deleted_at">
+        <div class="vibe-image">
+          @if (vibe.image_url) {
+            <img [src]="vibe.image_url" [alt]="vibe.name" />
+          } @else {
+            <div class="image-placeholder" [style.background]="vibe.color + '33'">
+              <span class="color-dot-big" [style.background]="vibe.color"></span>
+            </div>
+          }
+          @if (vibe.deleted_at) {
+            <div class="archived-badge">{{ ts.t('admin.archived') }}</div>
+          }
+        </div>
+        <mat-card-content class="vibe-body">
+          <mat-card-title class="vibe-name">{{ vibe.name }}</mat-card-title>
+          <div class="vibe-color-row">
+            <span class="color-dot" [style.background]="vibe.color"></span>
+            <span class="color-value">{{ vibe.color }}</span>
+          </div>
+        </mat-card-content>
+        <mat-card-actions class="vibe-actions">
+          @if (vibe.deleted_at) {
+            <button mat-icon-button class="action-btn restore" [title]="ts.t('admin.restoreBtn')" (click)="confirmRestore(vibe)">
+              <mat-icon>unarchive</mat-icon>
+            </button>
+          } @else {
+            <button mat-icon-button class="action-btn edit" [title]="ts.t('admin.editBtn')" (click)="openEdit(vibe)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn delete" [title]="ts.t('admin.deleteBtn')" (click)="confirmDelete(vibe)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+}

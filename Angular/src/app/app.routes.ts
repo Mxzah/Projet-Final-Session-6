@@ -21,6 +21,7 @@ export const routes: Routes = [
             { path: 'combos', loadComponent: () => import('./admin-combos/admin-combos.component').then(m => m.AdminCombosComponent) },
             { path: 'users', loadComponent: () => import('./admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
             { path: 'reviews', loadComponent: () => import('./admin-reviews/admin-reviews.component').then(m => m.AdminReviewsComponent) },
+            { path: 'vibes', loadComponent: () => import('./admin-vibes/admin-vibes.component').then(m => m.AdminVibesComponent) },
         ]
     },
     { path: 'menu', loadComponent: () => import('./menu/menu.component').then(m => m.MenuComponent) },
