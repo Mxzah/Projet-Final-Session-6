@@ -475,6 +475,157 @@ MODULE 11 — Désarchivage d'un item
        une disponibilité est active
 
 ================================================================================
+================================================================================
+                 Page : Administration des catégories (admin-categories)
+================================================================================
+
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca   / password123
+  - Client   : client@restoqr.ca  / password123
+
+================================================================================
+MODULE 13 — Affichage de la liste des catégories
+================================================================================
+
+13.1 Chargement initial
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/categories
+     - Un spinner de chargement s'affiche pendant le chargement
+     - Une fois chargé, les catégories s'affichent en liste verticale de cartes
+     - Le titre « Gestion des catégories » est affiché en haut
+
+13.2 Affichage des cartes
+     - Chaque carte affiche :
+       - Une icône de glisser-déposer (drag_indicator) à gauche
+       - Un badge circulaire avec le numéro de position
+       - Le nom de la catégorie en gras
+       - Un bouton « modifier » (icône edit) à droite
+
+13.3 État vide
+     - Si aucune catégorie n'existe, le message « Aucune catégorie. » s'affiche
+
+13.4 Accès non autorisé
+     - Accéder à /admin/categories sans être connecté : Redirection vers /login
+     - Accéder à /admin/categories avec un compte client : Redirection vers /menu
+
+================================================================================
+MODULE 14 — Création d'une catégorie
+================================================================================
+
+14.1 Ouverture de la modal de création
+     Avec admin@restoqr.ca : password123
+     - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
+     - Le titre de la modal est « Ajouter une catégorie »
+     - Le champ « Nom » est vide
+     - Le bouton « Ajouter » est visible
+
+14.2 Validation — Nom requis
+     - Laisser le champ « Nom » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « Le nom est requis. »
+
+14.3 Validation — Nom trop long
+     - Entrer un nom de plus de 100 caractères
+     - Message d'erreur : « Le nom ne doit pas dépasser 100 caractères. »
+
+14.4 Validation — Nom espaces seulement
+     - Entrer uniquement des espaces dans le champ « Nom »
+     - Message d'erreur : « Le nom ne peut pas être composé uniquement d'espaces. »
+
+14.5 Validation — Nom déjà existant
+     - Entrer un nom de catégorie existante (ex: « Entrées »)
+     - Clic sur « Ajouter » : Le serveur retourne une erreur
+     - Un message d'erreur s'affiche dans la modal
+
+14.6 Création réussie
+     - Entrer un nom valide (ex: « Boissons »)
+     - Clic sur « Ajouter »
+     - La modal se ferme
+     - La nouvelle catégorie apparaît dans la liste à la dernière position
+
+14.7 Annulation
+     - Remplir le champ « Nom » puis cliquer sur « Annuler »
+     - La modal se ferme, aucune catégorie n'est créée
+
+================================================================================
+MODULE 15 — Modification d'une catégorie
+================================================================================
+
+15.1 Ouverture de la modal de modification
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « edit » d'une catégorie existante
+     - La modal s'ouvre avec le titre « Modifier la catégorie »
+     - Le champ « Nom » est pré-rempli avec le nom actuel
+     - Le bouton « Enregistrer » est visible
+
+15.2 Validations
+     - Mêmes validations que la création (14.2 à 14.5)
+
+15.3 Modification réussie
+     - Modifier le nom de la catégorie
+     - Clic sur « Enregistrer »
+     - La modal se ferme
+     - La catégorie affiche le nouveau nom dans la liste
+
+15.4 Annulation
+     - Modifier le nom puis cliquer sur « Annuler »
+     - La modal se ferme, la catégorie n'est pas modifiée
+
+================================================================================
+MODULE 16 — Suppression d'une catégorie
+================================================================================
+
+16.1 Ouverture de la modal de confirmation
+     Avec admin@restoqr.ca : password123
+     - Clic sur l'icône « delete » d'une catégorie
+     - Une modal de confirmation s'ouvre
+     - Le titre est « Supprimer la catégorie »
+     - Le message demande de confirmer la suppression avec le nom de la catégorie
+
+16.2 Suppression réussie (catégorie sans items)
+     - Clic sur le bouton de confirmation
+     - La modal se ferme
+     - La catégorie disparaît définitivement de la liste
+
+16.3 Suppression refusée (catégorie avec items)
+     - Clic sur l'icône « delete » d'une catégorie qui contient des items
+       (ex: « Entrées »)
+     - Clic sur le bouton de confirmation
+     - Un message d'erreur s'affiche indiquant que la catégorie ne peut pas être
+       supprimée car des items dépendants existent
+     - La catégorie reste dans la liste, inchangée
+
+16.4 Annulation
+     - Clic sur « Annuler » : La modal se ferme, la catégorie est inchangée
+
+================================================================================
+MODULE 17 — Réorganisation par glisser-déposer (drag and drop)
+================================================================================
+
+17.1 Glisser une catégorie
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/categories
+     - Cliquer et maintenir sur l'icône de glisser (drag_indicator) d'une catégorie
+     - La carte devient déplaçable et suit le curseur
+     - Un espace réservé (placeholder) avec bordure pointillée apparaît à la
+       position de destination
+
+17.2 Déposer pour réorganiser
+     - Glisser une catégorie vers une nouvelle position et relâcher
+     - La liste se réorganise avec les nouvelles positions
+     - Les badges de position se mettent à jour automatiquement
+     - Le nouvel ordre est envoyé au serveur
+
+17.3 Persistance de l'ordre
+     - Réorganiser les catégories par drag and drop
+     - Recharger la page (F5)
+     - Les catégories s'affichent dans le nouvel ordre sauvegardé
+
+17.4 Échec de la réorganisation
+     - Si le serveur retourne une erreur lors du reorder, la liste est rafraîchie
+       depuis le serveur pour revenir à l'ordre précédent
+     - Un message d'erreur s'affiche
+
+================================================================================
 MODULE 12 — Gestion des disponibilités (items, tables, combos)
 ================================================================================
 

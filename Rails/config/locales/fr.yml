@@ -89,6 +89,9 @@ fr:
         other: "Articles du combo"
     # Noms des attributs
     attributes:
+      category:
+        name: "Nom"
+        position: "Position"
       combo:
         name: "Nom"
         description: "Description"

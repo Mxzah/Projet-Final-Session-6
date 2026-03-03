@@ -84,11 +84,15 @@ export class CategoryFormDialogComponent {
         if (res.data) {
           this.dialogRef.close({ categories: res.data });
         } else {
-          this.error.set((res.errors ?? []).join(', '));
+          const msg = (res.errors ?? []).join(', ');
+          this.form.controls.name.setErrors({ serverError: msg });
+          this.form.controls.name.markAsDirty();
         }
       },
       error: (err) => {
-        this.error.set(this.errorService.format(this.errorService.fromApiError(err)));
+        const msg = this.errorService.format(this.errorService.fromApiError(err));
+        this.form.controls.name.setErrors({ serverError: msg });
+        this.form.controls.name.markAsDirty();
         this.loading.set(false);
       }
     });

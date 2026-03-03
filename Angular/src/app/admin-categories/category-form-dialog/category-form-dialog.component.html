@@ -6,10 +6,6 @@
 </h2>
 
 <mat-dialog-content>
-  @if (error()) {
-    <div class="dialog-error">{{ error() }}</div>
-  }
-
   <form id="categoryForm" [formGroup]="form" (ngSubmit)="save()" class="form-grid">
     <mat-form-field appearance="outline" class="field-full">
       <mat-label>{{ ts.t('admin.name') }}</mat-label>
@@ -22,6 +18,8 @@
             {{ ts.t('admin.nameMaxLength') }}
           } @else if (form.controls.name.errors['pattern']) {
             {{ ts.t('admin.nameWhitespace') }}
+          } @else if (form.controls.name.errors['serverError']) {
+            {{ form.controls.name.errors['serverError'] }}
           }
         </mat-error>
       }
