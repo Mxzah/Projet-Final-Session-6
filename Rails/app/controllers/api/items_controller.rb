@@ -19,6 +19,13 @@ module Api
                        now, now
                      )
                      .distinct
+
+        # Exclure les items dont la catégorie n'a aucune disponibilité active
+        available_category_ids = Category.joins(:availabilities)
+                                        .where("availabilities.start_at <= ? AND (availabilities.end_at IS NULL OR availabilities.end_at > ?)", now, now)
+                                        .distinct
+                                        .pluck(:id)
+        items = items.where(category_id: available_category_ids)
       end
 
       # Search

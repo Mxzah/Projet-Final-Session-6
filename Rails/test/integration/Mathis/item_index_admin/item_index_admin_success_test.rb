@@ -218,4 +218,65 @@ class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
     ids = json["data"].map { |i| i["id"] }
     assert_not_includes ids, @item_archived.id
   end
+
+  # Test 12: admin=true retourne les items même si leur catégorie n'a pas d'availability active
+  test "admin=true retourne un item dont la catégorie n'a aucune availability" do
+    category_desserts = categories(:desserts)
+
+    # Vérifier que la catégorie desserts n'a aucune availability
+    assert_equal 0, Availability.where(available_type: "Category", available_id: category_desserts.id).count
+
+    # Créer un item dans la catégorie desserts
+    item_dessert = Item.new(
+      name: "Crème brûlée",
+      description: "Dessert classique",
+      price: 9.99,
+      category: category_desserts
+    )
+    item_dessert.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    item_dessert.save!
+
+    get "/api/items", params: { admin: true }
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    ids = json["data"].map { |i| i["id"] }
+    assert_includes ids, item_dessert.id, "En mode admin, l'item devrait apparaître même si sa catégorie n'a pas d'availability"
+  end
+
+  # Test 13: Sans admin=true, un item dans une catégorie sans availability est exclu
+  test "sans admin=true l'item est exclu si sa catégorie n'a aucune availability" do
+    category_desserts = categories(:desserts)
+
+    # Créer un item dans la catégorie desserts avec sa propre availability active
+    item_dessert = Item.new(
+      name: "Tiramisu",
+      description: "Dessert italien",
+      price: 11.50,
+      category: category_desserts
+    )
+    item_dessert.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    item_dessert.save!
+
+    Availability.create!(
+      available_type: "Item",
+      available_id:   item_dessert.id,
+      start_at:       Time.current.beginning_of_minute,
+      end_at:         nil
+    )
+
+    # L'item existe et a une availability active, mais sa catégorie n'en a pas
+    assert Item.exists?(item_dessert.id)
+    assert Availability.where(available_type: "Item", available_id: item_dessert.id)
+                       .where("start_at <= ?", Time.current).exists?
+    assert_equal 0, Availability.where(available_type: "Category", available_id: category_desserts.id)
+                                .where("start_at <= ? AND (end_at IS NULL OR end_at > ?)", Time.current, Time.current).count
+
+    get "/api/items"
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    ids = json["data"].map { |i| i["id"] }
+    assert_not_includes ids, item_dessert.id, "L'item ne devrait pas apparaître si sa catégorie n'a pas d'availability active"
+  end
 end

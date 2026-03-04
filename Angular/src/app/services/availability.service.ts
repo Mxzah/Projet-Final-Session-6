@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { AvailabilityEntry } from '../menu/menu.models';
 
-type AvailableResource = 'items' | 'tables' | 'combos';
+type AvailableResource = 'items' | 'tables' | 'combos' | 'categories';
 
 @Injectable({
   providedIn: 'root'

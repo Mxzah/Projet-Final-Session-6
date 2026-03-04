@@ -94,7 +94,7 @@ combo_two_create_open:
 category_one_availability:
   available_type: Category
   available: entrees
-  start_at: <%= 2.hours.from_now %>
+  start_at: <%= 2.hours.ago %>
   end_at: <%= 1.day.from_now %>
   description: "Disponibilité catégorie 1"
   created_at: <%= Time.current %>
@@ -105,6 +105,14 @@ category_one_availability_two:
   start_at: <%= 3.days.from_now %>
   end_at: <%= 4.days.from_now %>
   description: "Autre période catégorie 1"
+  created_at: <%= Time.current %>
+
+category_two_availability:
+  available_type: Category
+  available: plats
+  start_at: <%= 2.hours.ago %>
+  end_at: <%= 1.day.from_now %>
+  description: "Disponibilité catégorie plats"
   created_at: <%= Time.current %>
 
 category_two_create_full:

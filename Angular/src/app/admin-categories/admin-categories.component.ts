@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,18 +26,48 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confir
   templateUrl: './admin-categories.component.html',
   styleUrls: ['./admin-categories.component.css']
 })
-export class AdminCategoriesComponent implements OnInit {
+export class AdminCategoriesComponent implements OnInit, OnDestroy {
   categories = signal<Category[]>([]);
   isLoading = signal(true);
   loadError = signal('');
   actionError = signal('');
 
+  private now = signal(Date.now());
+  private nowInterval?: ReturnType<typeof setInterval>;
+
+  unavailableIds = computed(() => {
+    const now = this.now();
+    return new Set(
+      this.categories()
+        .filter(cat => {
+          if (!cat.availabilities || cat.availabilities.length === 0) return true;
+          return !cat.availabilities.some(a => {
+            const start = new Date(a.start_at).getTime();
+            const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
+            return start <= now && now < end;
+          });
+        })
+        .map(cat => cat.id)
+    );
+  });
+
   constructor(
     private categoriesService: CategoriesService,
     public ts: TranslationService,
     private errorService: ErrorService,
-    private dialog: MatDialog
-  ) {}
+    private dialog: MatDialog,
+    private ngZone: NgZone
+  ) {
+    this.ngZone.runOutsideAngular(() => {
+      this.nowInterval = setInterval(() => {
+        this.ngZone.run(() => this.now.set(Date.now()));
+      }, 60_000);
+    });
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.nowInterval);
+  }
 
   ngOnInit(): void {
     this.loadData();

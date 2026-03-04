@@ -62,12 +62,17 @@ MODULE 2 — Navigation par catégories
      - La première catégorie est active par défaut (style surligné)
      - Clic sur une autre catégorie : La page scrolle vers la section correspondante
      - La catégorie cliquée devient active (style surligné)
+     - Si des combos existent, une entrée « Combos » apparaît en dernier dans
+       la sidebar
+     - Clic sur « Combos » : La page scrolle vers la section des combos
 
 2.2  Dropdown mobile (écran < 900px)
      - Réduire la fenêtre sous 900px de largeur
      - La sidebar disparaît, un dropdown de catégories apparaît
      - Le dropdown affiche la catégorie active
      - Sélectionner une autre catégorie : La page scrolle vers la section correspondante
+     - L'entrée « Combos » est également présente dans le dropdown si des combos
+       existent
 
 ================================================================================
 MODULE 3 — Recherche, tri et filtres (SSF)
@@ -126,15 +131,23 @@ MODULE 4 — Affichage du menu
 4.3  Erreur de chargement
      - Si le serveur est inaccessible, un message d'erreur s'affiche dans un bandeau
 
-4.4  Filtrage par disponibilité (utilisateur non connecté ou client)
+4.4  Filtrage par disponibilité des items (utilisateur non connecté ou client)
      - Seuls les items ayant au moins une disponibilité actuellement active
        (start_at <= maintenant ET (end_at IS NULL OU end_at > maintenant)) sont visibles
      - Un item sans aucune disponibilité n'apparaît PAS dans le menu
      - Un item dont toutes les disponibilités sont passées n'apparaît PAS dans le menu
 
-4.5  Filtrage par disponibilité (utilisateur admin — page /menu)
+4.5  Filtrage par disponibilité des catégories
+     - Les items d'une catégorie sans aucune disponibilité active ne sont PAS
+       visibles dans le menu, même si les items eux-mêmes ont des disponibilités
+       actives
+     - Seuls les items appartenant à une catégorie ayant au moins une
+       disponibilité active sont affichés
+
+4.6  Filtrage par disponibilité (utilisateur admin — page /menu)
      - Même comportement que pour un client : seuls les items disponibles
-       sont visibles dans le menu, même pour un admin connecté
+       appartenant à des catégories disponibles sont visibles dans le menu,
+       même pour un admin connecté
 
 ================================================================================
 MODULE 5 — Modal d'item
@@ -494,17 +507,25 @@ MODULE 13 — Affichage de la liste des catégories
      - Une fois chargé, les catégories s'affichent en liste verticale de cartes
      - Le titre « Gestion des catégories » est affiché en haut
 
-13.2 Affichage des cartes
+13.2 Affichage des cartes (catégorie disponible)
      - Chaque carte affiche :
        - Une icône de glisser-déposer (drag_indicator) à gauche
        - Un badge circulaire avec le numéro de position
        - Le nom de la catégorie en gras
        - Un bouton « modifier » (icône edit) à droite
 
-13.3 État vide
+13.3 Affichage des cartes (catégorie indisponible)
+     - Les catégories sans aucune disponibilité active apparaissent avec un
+       style grisé (fond #f5f5f5, opacité réduite)
+     - Le nom et le badge de position sont atténués
+     - Un badge « INDISPONIBLE » rouge est affiché à côté du nom
+     - Le bouton « modifier » reste visible
+     - Les items de cette catégorie ne sont PAS visibles sur la page /menu
+
+13.4 État vide
      - Si aucune catégorie n'existe, le message « Aucune catégorie. » s'affiche
 
-13.4 Accès non autorisé
+13.5 Accès non autorisé
      - Accéder à /admin/categories sans être connecté : Redirection vers /login
      - Accéder à /admin/categories avec un compte client : Redirection vers /menu
 
@@ -517,6 +538,7 @@ MODULE 14 — Création d'une catégorie
      - Clic sur le bouton « + » à côté du titre : La modal s'ouvre
      - Le titre de la modal est « Ajouter une catégorie »
      - Le champ « Nom » est vide
+     - La section « Disponibilités » est visible avec un bouton « + »
      - Le bouton « Ajouter » est visible
 
 14.2 Validation — Nom requis
@@ -536,13 +558,16 @@ MODULE 14 — Création d'une catégorie
      - Clic sur « Ajouter » : Le serveur retourne une erreur
      - Un message d'erreur s'affiche dans la modal
 
-14.6 Création réussie
+14.6 Validation — Disponibilités
+     - Voir les validations du MODULE 12 (12.3 à 12.8)
+
+14.7 Création réussie
      - Entrer un nom valide (ex: « Boissons »)
      - Clic sur « Ajouter »
      - La modal se ferme
      - La nouvelle catégorie apparaît dans la liste à la dernière position
 
-14.7 Annulation
+14.8 Annulation
      - Remplir le champ « Nom » puis cliquer sur « Annuler »
      - La modal se ferme, aucune catégorie n'est créée
 
@@ -555,10 +580,12 @@ MODULE 15 — Modification d'une catégorie
      - Clic sur l'icône « edit » d'une catégorie existante
      - La modal s'ouvre avec le titre « Modifier la catégorie »
      - Le champ « Nom » est pré-rempli avec le nom actuel
+     - La section « Disponibilités » est visible avec les disponibilités
+       existantes pré-chargées
      - Le bouton « Enregistrer » est visible
 
 15.2 Validations
-     - Mêmes validations que la création (14.2 à 14.5)
+     - Mêmes validations que la création (14.2 à 14.6)
 
 15.3 Modification réussie
      - Modifier le nom de la catégorie
@@ -571,37 +598,10 @@ MODULE 15 — Modification d'une catégorie
      - La modal se ferme, la catégorie n'est pas modifiée
 
 ================================================================================
-MODULE 16 — Suppression d'une catégorie
+MODULE 16 — Réorganisation par glisser-déposer (drag and drop)
 ================================================================================
 
-16.1 Ouverture de la modal de confirmation
-     Avec admin@restoqr.ca : password123
-     - Clic sur l'icône « delete » d'une catégorie
-     - Une modal de confirmation s'ouvre
-     - Le titre est « Supprimer la catégorie »
-     - Le message demande de confirmer la suppression avec le nom de la catégorie
-
-16.2 Suppression réussie (catégorie sans items)
-     - Clic sur le bouton de confirmation
-     - La modal se ferme
-     - La catégorie disparaît définitivement de la liste
-
-16.3 Suppression refusée (catégorie avec items)
-     - Clic sur l'icône « delete » d'une catégorie qui contient des items
-       (ex: « Entrées »)
-     - Clic sur le bouton de confirmation
-     - Un message d'erreur s'affiche indiquant que la catégorie ne peut pas être
-       supprimée car des items dépendants existent
-     - La catégorie reste dans la liste, inchangée
-
-16.4 Annulation
-     - Clic sur « Annuler » : La modal se ferme, la catégorie est inchangée
-
-================================================================================
-MODULE 17 — Réorganisation par glisser-déposer (drag and drop)
-================================================================================
-
-17.1 Glisser une catégorie
+16.1 Glisser une catégorie
      Avec admin@restoqr.ca : password123
      - Se connecter et accéder à /admin/categories
      - Cliquer et maintenir sur l'icône de glisser (drag_indicator) d'une catégorie
@@ -609,33 +609,34 @@ MODULE 17 — Réorganisation par glisser-déposer (drag and drop)
      - Un espace réservé (placeholder) avec bordure pointillée apparaît à la
        position de destination
 
-17.2 Déposer pour réorganiser
+16.2 Déposer pour réorganiser
      - Glisser une catégorie vers une nouvelle position et relâcher
      - La liste se réorganise avec les nouvelles positions
      - Les badges de position se mettent à jour automatiquement
      - Le nouvel ordre est envoyé au serveur
 
-17.3 Persistance de l'ordre
+16.3 Persistance de l'ordre
      - Réorganiser les catégories par drag and drop
      - Recharger la page (F5)
      - Les catégories s'affichent dans le nouvel ordre sauvegardé
 
-17.4 Échec de la réorganisation
+16.4 Échec de la réorganisation
      - Si le serveur retourne une erreur lors du reorder, la liste est rafraîchie
        depuis le serveur pour revenir à l'ordre précédent
      - Un message d'erreur s'affiche
 
 ================================================================================
-MODULE 12 — Gestion des disponibilités (items, tables, combos)
+MODULE 12 — Gestion des disponibilités (items, tables, combos, catégories)
 ================================================================================
 
 Note : Les disponibilités fonctionnent de manière identique pour les items,
-les tables et les combos. Les tests ci-dessous s'appliquent aux trois types.
+les tables, les combos et les catégories. Les tests ci-dessous s'appliquent
+aux quatre types.
 
 12.1 Affichage de la section Disponibilités
      Avec admin@restoqr.ca : password123
-     - Ouvrir la modal de création ou de modification d'un item, d'une table
-       ou d'un combo
+     - Ouvrir la modal de création ou de modification d'un item, d'une table,
+       d'un combo ou d'une catégorie
      - La section « Disponibilités » est visible sous le formulaire principal
      - Un bouton « + » (icône add) est présent à droite du titre « Disponibilités »
 
@@ -673,43 +674,63 @@ les tables et les combos. Les tests ci-dessous s'appliquent aux trois types.
      - Le bouton « Ajouter » / « Enregistrer » reste désactivé tant que le
        chevauchement existe
 
-12.9 Suppression d'une disponibilité
-     - Clic sur l'icône « delete » (poubelle) à droite d'une ligne :
+12.9 Suppression d'une disponibilité (future)
+     - Clic sur l'icône « delete » (poubelle) à droite d'une disponibilité future :
        La ligne disparaît immédiatement du formulaire
 
-12.10 Sauvegarde des disponibilités (création)
+12.10 Suppression impossible d'une disponibilité passée
+     - Une disponibilité dont la date de fin est passée affiche un bouton
+       « delete » grisé et désactivé
+     - Un tooltip « Impossible de supprimer une disponibilité passée » est
+       affiché au survol
+
+12.11 Bouton « Terminer » (disponibilité active)
+     - Une disponibilité actuellement active (start_at <= maintenant ET
+       end_at IS NULL ou end_at > maintenant) affiche un bouton « Terminer »
+       (icône stop_circle) à la place du bouton « delete »
+     - Clic sur « Terminer » : La date de fin est automatiquement définie à
+       l'instant présent (arrondi à la minute)
+     - La disponibilité passe au statut « passée »
+     - Clic sur « Enregistrer » : La modification est sauvegardée au serveur
+     - La ressource passe en « INDISPONIBLE » dans le panneau admin si elle
+       n'a plus aucune autre disponibilité active
+
+12.12 Sauvegarde des disponibilités (création)
      - Ajouter une ou plusieurs disponibilités valides dans la modal de création
      - Clic sur « Ajouter »
-     - L'item / la table / le combo est créé, puis les disponibilités sont
-       enregistrées en base
+     - L'item / la table / le combo / la catégorie est créé, puis les
+       disponibilités sont enregistrées en base
      - La modal se ferme
 
-12.11 Sauvegarde des disponibilités (modification)
-     - Ouvrir la modal d'un item, d'une table ou d'un combo existant ayant
-       des disponibilités
+12.13 Sauvegarde des disponibilités (modification)
+     - Ouvrir la modal d'un item, d'une table, d'un combo ou d'une catégorie
+       existant ayant des disponibilités
      - Les disponibilités existantes sont pré-chargées dans le formulaire
      - Modifier une date, ajouter une nouvelle ligne, supprimer une ligne existante
      - Clic sur « Enregistrer »
      - Seules les changements sont envoyés (créations, modifications, suppressions)
      - La modal se ferme
 
-12.12 Impact sur le menu — Ressource sans disponibilité
-     - Un item / une table / un combo sans aucune disponibilité enregistrée
-       apparaît avec le badge « INDISPONIBLE » dans le panneau admin
+12.14 Impact sur le menu — Ressource sans disponibilité
+     - Un item / une table / un combo / une catégorie sans aucune disponibilité
+       enregistrée apparaît avec le badge « INDISPONIBLE » dans le panneau admin
      - Cette ressource n'est PAS visible sur la page /menu
+     - Pour une catégorie indisponible : tous ses items sont également exclus
+       du menu, même s'ils ont eux-mêmes des disponibilités actives
 
-12.13 Impact sur le menu — Ressource avec disponibilité active
-     - Un item / une table / un combo ayant au moins une disponibilité dont
-       start_at <= maintenant et end_at IS NULL ou end_at > maintenant
-       apparaît normalement dans le menu
+12.15 Impact sur le menu — Ressource avec disponibilité active
+     - Un item / une table / un combo / une catégorie ayant au moins une
+       disponibilité dont start_at <= maintenant et end_at IS NULL ou
+       end_at > maintenant apparaît normalement dans le menu
      - Dans le panneau admin, sa carte n'affiche aucun badge
 
-12.14 Impact sur le menu — Ressource avec disponibilité future uniquement
-     - Un item / une table / un combo dont toutes les disponibilités ont un
-       start_at dans le futur n'est PAS visible dans le menu
+12.16 Impact sur le menu — Ressource avec disponibilité future uniquement
+     - Un item / une table / un combo / une catégorie dont toutes les
+       disponibilités ont un start_at dans le futur n'est PAS visible dans
+       le menu
      - Dans le panneau admin, sa carte affiche le badge « INDISPONIBLE »
 
-12.15 Fin optionnelle (disponibilité ouverte)
+12.17 Fin optionnelle (disponibilité ouverte)
      - Ajouter une disponibilité sans remplir le champ « Fin »
      - Aucune erreur n'est affichée (la fin est optionnelle)
      - La ressource reste visible dans le menu indéfiniment à partir de la

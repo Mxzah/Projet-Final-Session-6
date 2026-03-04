@@ -266,7 +266,10 @@ export class MenuComponent implements OnInit, OnDestroy {
             });
           }
         }
-        const categories = [...catMap.values()];
+        const categories: Category[] = [...catMap.values()];
+        if (combos.length > 0) {
+          categories.push({ id: COMBOS_CATEGORY_ID, name: this.ts.t('menu.combosCategory'), position: categories.length });
+        }
         this.categories.set(categories);
         if (categories.length > 0 && !categories.find(c => c.id === this.activeCategory())) {
           this.activeCategory.set(categories[0].id);

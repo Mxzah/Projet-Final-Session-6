@@ -75,4 +75,52 @@ class ItemIndexSuccessTest < ActionDispatch::IntegrationTest
     assert prices.all? { |p| p >= 10 }, "Un prix est inférieur à 10"
     assert prices.all? { |p| p <= 16 }, "Un prix est supérieur à 16"
   end
+
+  # Test 6: Un item dont la catégorie a une availability active apparaît dans le menu
+  test "item avec catégorie disponible apparaît dans le menu public" do
+    delete "/users/sign_out", as: :json
+
+    get "/api/items"
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert json["success"]
+
+    # La catégorie entrees a une availability active (fixture category_one_availability)
+    ids = json["data"].map { |i| i["id"] }
+    assert_includes ids, @item["id"], "L'item dans une catégorie disponible devrait apparaître"
+  end
+
+  # Test 7: Un item dont la catégorie n'a aucune availability active est exclu du menu
+  test "item avec catégorie indisponible est exclu du menu public" do
+    category_desserts = categories(:desserts)
+
+    # Créer un item dans la catégorie desserts (sans availability de catégorie)
+    post "/api/items", params: {
+      item: { name: "Gâteau chocolat", description: "Fondant", price: 12.99, category_id: category_desserts.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+    }
+    item_dessert = JSON.parse(response.body)["data"]
+
+    # Ajouter une availability active sur l'item lui-même
+    Availability.create!(
+      available_type: "Item",
+      available_id:   item_dessert["id"],
+      start_at:       Time.current.beginning_of_minute,
+      end_at:         nil
+    )
+
+    # Vérifier que la catégorie desserts n'a aucune availability active
+    now = Time.current
+    assert_equal 0, Availability.where(available_type: "Category", available_id: category_desserts.id)
+                                .where("start_at <= ? AND (end_at IS NULL OR end_at > ?)", now, now).count
+
+    delete "/users/sign_out", as: :json
+
+    get "/api/items"
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    ids = json["data"].map { |i| i["id"] }
+    assert_not_includes ids, item_dessert["id"], "L'item dans une catégorie sans availability ne devrait pas apparaître"
+  end
 end

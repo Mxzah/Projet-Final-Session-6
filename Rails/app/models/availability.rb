@@ -17,7 +17,7 @@ class Availability < ApplicationRecord
 
   def start_at_not_in_past
     return unless start_at.present?
-    return if persisted? && !start_at_changed?
+    return if persisted? && start_at_was.present? && start_at.beginning_of_minute == start_at_was.beginning_of_minute
     errors.add(:start_at, I18n.t("activerecord.errors.models.availability.attributes.start_at.in_past")) if start_at < Time.current.beginning_of_minute
   end
 
@@ -28,6 +28,7 @@ class Availability < ApplicationRecord
 
   def minimum_duration
     return unless end_at.present? && start_at.present?
+    return if persisted? && start_at < Time.current
     if (end_at - start_at) < MINIMUM_DURATION
       errors.add(:end_at, "la durée minimale est de 1 heure")
     end

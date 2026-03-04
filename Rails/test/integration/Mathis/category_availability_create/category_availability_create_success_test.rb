@@ -6,9 +6,8 @@ class CategoryAvailabilityCreateSuccessTest < ActionDispatch::IntegrationTest
     @fixture_full = availabilities(:category_two_create_full)
     @fixture_open = availabilities(:category_two_create_open)
 
-    # Supprimer les fixtures pour pouvoir les recréer via POST
-    @fixture_full.destroy!
-    @fixture_open.destroy!
+    # Supprimer toutes les availabilities de la catégorie pour pouvoir les recréer via POST
+    @category.availabilities.destroy_all
 
     sign_in users(:admin_user)
   end

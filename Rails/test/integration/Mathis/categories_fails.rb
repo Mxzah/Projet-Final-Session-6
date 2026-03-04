@@ -16,7 +16,7 @@ class CategoriesFailsTest < ActionDispatch::IntegrationTest
     # Code http
     assert_no_difference "Category.count" do
       post "/api/categories", params: {
-        category: { position: 5 }
+        category: { name: "" }
       }, as: :json
     end
     assert_response :ok
@@ -33,7 +33,7 @@ class CategoriesFailsTest < ActionDispatch::IntegrationTest
     # Code http
     assert_no_difference "Category.count" do
       post "/api/categories", params: {
-        category: { name: "   ", position: 5 }
+        category: { name: "   " }
       }, as: :json
     end
     assert_response :ok
@@ -50,7 +50,7 @@ class CategoriesFailsTest < ActionDispatch::IntegrationTest
     # Code http
     assert_no_difference "Category.count" do
       post "/api/categories", params: {
-        category: { name: "A" * 101, position: 5 }
+        category: { name: "A" * 101 }
       }, as: :json
     end
     assert_response :ok
@@ -67,24 +67,7 @@ class CategoriesFailsTest < ActionDispatch::IntegrationTest
     # Code http
     assert_no_difference "Category.count" do
       post "/api/categories", params: {
-        category: { name: "Entrées", position: 5 }
-      }, as: :json
-    end
-    assert_response :ok
-
-    # Format json valide
-    json = JSON.parse(response.body)
-
-    # Contenu du format json
-    assert_not json["success"]
-    assert_not_empty json["errors"]
-  end
-
-  test "create avec position négative retourne success false" do
-    # Code http
-    assert_no_difference "Category.count" do
-      post "/api/categories", params: {
-        category: { name: "Boissons", position: -1 }
+        category: { name: "Entrées" }
       }, as: :json
     end
     assert_response :ok
@@ -104,7 +87,7 @@ class CategoriesFailsTest < ActionDispatch::IntegrationTest
     # Code http
     assert_no_difference "Category.count" do
       post "/api/categories", params: {
-        category: { name: "Boissons", position: 5 }
+        category: { name: "Boissons" }
       }, as: :json
     end
     assert_response :ok
@@ -123,7 +106,7 @@ class CategoriesFailsTest < ActionDispatch::IntegrationTest
     # Code http
     assert_no_difference "Category.count" do
       post "/api/categories", params: {
-        category: { name: "Boissons", position: 5 }
+        category: { name: "Boissons" }
       }, as: :json
     end
 

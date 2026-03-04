@@ -145,6 +145,8 @@ categories_data = [
   { name: 'Pâtes & Risottos', position: 3 }
 ]
 
+unavailable_category_name = 'Pâtes & Risottos'
+
 categories = {}
 categories_data.each do |cd|
   cat = Category.find_or_create_by!(name: cd[:name]) do |c|
@@ -152,7 +154,22 @@ categories_data.each do |cd|
   end
   categories[cd[:name]] = cat
   puts "- #{cat.name} (position: #{cat.position})"
+
+  next if cd[:name] == unavailable_category_name
+  unless Availability.exists?(available_type: 'Category', available_id: cat.id)
+    a = Availability.new(
+      available_type: 'Category',
+      available_id:   cat.id,
+      start_at:       1.day.ago,
+      end_at:         6.months.from_now,
+      description:    "Catégorie #{cat.name} disponible"
+    )
+    a.save(validate: false)
+    puts "  → Disponibilité ajoutée"
+  end
 end
+
+puts "- Catégorie '#{unavailable_category_name}' laissée sans disponibilité (unavailable)"
 
 # Create items
 puts "\nCreating items..."

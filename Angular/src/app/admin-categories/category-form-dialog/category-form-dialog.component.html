@@ -26,6 +26,12 @@
     </mat-form-field>
 
   </form>
+
+  <app-availability-list
+    [availabilities]="availabilities()"
+    [disabled]="loading()"
+    (availabilitiesChange)="availabilities.set($event)">
+  </app-availability-list>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

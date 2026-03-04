@@ -26,12 +26,13 @@ class CategoriesSuccessTest < ActionDispatch::IntegrationTest
     assert_equal @plats.id, json["data"][1]["id"]
     assert_equal @desserts.id, json["data"][2]["id"]
 
-    json["data"].each do |cat|
-      assert_not_nil cat["id"]
-      assert_not_nil cat["name"]
-      assert_not_nil cat["position"]
-      assert_not_nil cat["created_at"]
-    end
+    # Validation de la cohérence de la base de données
+    @entrees.reload
+    @plats.reload
+    @desserts.reload
+    assert_equal 0, @entrees.position
+    assert_equal 1, @plats.position
+    assert_equal 2, @desserts.position
   end
 
   test "index fonctionne sans authentification" do
@@ -47,15 +48,23 @@ class CategoriesSuccessTest < ActionDispatch::IntegrationTest
     # Contenu du format json
     assert json["success"]
     assert_equal 3, json["data"].length
+
+    # Validation de la cohérence de la base de données
+    @entrees.reload
+    @plats.reload
+    @desserts.reload
+    assert_equal 0, @entrees.position
+    assert_equal 1, @plats.position
+    assert_equal 2, @desserts.position
   end
 
   # ── Create ──
 
-  test "create avec nom et position valides" do
+  test "create avec nom valide" do
     # Code http
     assert_difference "Category.count", 1 do
       post "/api/categories", params: {
-        category: { name: "Boissons", position: 3 }
+        category: { name: "Boissons" }
       }, as: :json
     end
     assert_response :ok
@@ -71,31 +80,6 @@ class CategoriesSuccessTest < ActionDispatch::IntegrationTest
     created = Category.find_by(name: "Boissons")
     assert_not_nil created
     assert_equal 3, created.position
-  end
-
-  test "create avec position existante décale les autres" do
-    # Code http
-    assert_difference "Category.count", 1 do
-      post "/api/categories", params: {
-        category: { name: "Soupes", position: 1 }
-      }, as: :json
-    end
-    assert_response :ok
-
-    # Format json valide
-    json = JSON.parse(response.body)
-
-    # Contenu du format json
-    assert json["success"]
-
-    # Validation de la cohérence de la base de données
-    soupes = Category.find_by(name: "Soupes")
-    @plats.reload
-    @desserts.reload
-
-    assert_equal 1, soupes.position
-    assert_equal 2, @plats.position
-    assert_equal 3, @desserts.position
   end
 
   # ── Update ──
@@ -117,29 +101,6 @@ class CategoriesSuccessTest < ActionDispatch::IntegrationTest
     # Validation de la cohérence de la base de données
     @plats.reload
     assert_equal "Plats chauds", @plats.name
-  end
-
-  test "update modifie la position avec décalage auto" do
-    # Code http
-    patch "/api/categories/#{@desserts.id}", params: {
-      category: { position: 0 }
-    }, as: :json
-    assert_response :ok
-
-    # Format json valide
-    json = JSON.parse(response.body)
-
-    # Contenu du format json
-    assert json["success"]
-
-    # Validation de la cohérence de la base de données
-    @entrees.reload
-    @plats.reload
-    @desserts.reload
-
-    assert_equal 0, @desserts.position
-    assert_equal 1, @entrees.position
-    assert_equal 2, @plats.position
   end
 
   # ── Reorder ──

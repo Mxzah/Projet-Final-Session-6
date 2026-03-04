@@ -192,6 +192,32 @@
     color: var(--rust);
 }
 
+/* ── Unavailable ── */
+
+.category-card.unavailable {
+    background: #f5f5f5 !important;
+    border-color: rgba(27, 26, 23, 0.05) !important;
+    opacity: 0.75;
+}
+
+.category-card.unavailable .category-name,
+.category-card.unavailable .category-position {
+    color: rgba(27, 26, 23, 0.35) !important;
+}
+
+.unavailable-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    color: #b91c1c;
+    background: rgba(220, 53, 69, 0.08);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 600px) {

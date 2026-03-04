@@ -5,17 +5,18 @@ module Api
 
     # GET /api/categories
     def index
-      categories = Category.order(:position)
+      categories = Category.includes(:availabilities).order(:position)
 
-      render_success(data: categories.map { |c| category_json(c) }, errors: [])
+      render_success(data: categories.as_json, errors: [])
     end
 
     # POST /api/categories
     def create
       category = Category.new(category_params)
+      category.position = (Category.maximum(:position) || -1) + 1
 
       if category.save
-        render_success(data: Category.order(:position).map { |c| category_json(c) }, errors: [])
+        render_success(data: Category.includes(:availabilities).order(:position).as_json, errors: [])
       else
         render_error(category.errors.full_messages)
       end
@@ -26,7 +27,7 @@ module Api
       category = Category.find(params[:id])
 
       if category.update(category_params)
-        render_success(data: Category.order(:position).map { |c| category_json(c) }, errors: [])
+        render_success(data: Category.includes(:availabilities).order(:position).as_json, errors: [])
       else
         render_error(category.errors.full_messages)
       end
@@ -57,17 +58,13 @@ module Api
         end
       end
 
-      render_success(data: Category.order(:position).map { |c| category_json(c) }, errors: [])
+      render_success(data: Category.includes(:availabilities).order(:position).as_json, errors: [])
     end
 
     private
 
     def category_params
-      params.require(:category).permit(:name, :position)
-    end
-
-    def category_json(category)
-      category.as_json(only: [ :id, :name, :position, :created_at ])
+      params.require(:category).permit(:name)
     end
   end
 end

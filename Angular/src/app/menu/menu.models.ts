@@ -2,6 +2,7 @@ export interface Category {
   id: number;
   name: string;
   position: number;
+  availabilities?: AvailabilityEntry[];
 }
 
 export interface AvailabilityEntry {
