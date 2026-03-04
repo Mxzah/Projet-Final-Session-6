@@ -69,9 +69,9 @@
           <mat-card class="order-line-card" [class.pending-line]="line.status === 'waiting'" appearance="outlined">
             <mat-card-content class="line-content">
               <div class="line-main">
-                @if (line.image_url) {
+                @if (line.image?.url) {
                   <div class="line-image">
-                    <img [src]="line.image_url" [alt]="line.name" loading="lazy" />
+                    <img [src]="line.image!.url" [alt]="line.name" loading="lazy" />
                   </div>
                 }
                 <div class="line-info">

@@ -30,8 +30,8 @@
     @for (vibe of vibes(); track vibe.id) {
       <mat-card class="vibe-card" [class.archived]="vibe.deleted_at">
         <div class="vibe-image">
-          @if (vibe.image_url) {
-            <img [src]="vibe.image_url" [alt]="vibe.name" />
+          @if (vibe.image?.url) {
+            <img [src]="vibe.image!.url" [alt]="vibe.name" />
           } @else {
             <div class="image-placeholder" [style.background]="vibe.color + '33'">
               <span class="color-dot-big" [style.background]="vibe.color"></span>

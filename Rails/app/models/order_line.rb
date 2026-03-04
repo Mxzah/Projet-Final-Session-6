@@ -9,8 +9,8 @@ class OrderLine < ApplicationRecord
   belongs_to :order
   belongs_to :orderable, polymorphic: true
 
-  # Scope: order lines belonging to open (not ended) orders
-  scope :open, -> { joins(:order).where(orders: { ended_at: nil, deleted_at: nil }) }
+  before_validation :assign_unit_price, on: :create
+  before_destroy :ensure_deletable
 
   validates :quantity, presence: true,
                        numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 50 }
@@ -72,5 +72,18 @@ class OrderLine < ApplicationRecord
     return unless status_was == 'served' && (quantity_changed? || note_changed? || orderable_id_changed?)
 
     errors.add(:base, "can only be modified when status is not yet 'served'")
+  end
+
+  def assign_unit_price
+    return unless orderable.present?
+
+    self.unit_price = orderable.price
+  end
+
+  def ensure_deletable
+    return if waiting? || sent? || in_preparation?
+
+    errors.add(:base, "cannot be deleted when status is #{status}")
+    throw :abort
   end
 end

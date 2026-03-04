@@ -165,7 +165,7 @@ module Api
         id: table.id,
         number: table.number,
         capacity: table.nb_seats,
-        status: table.orders.where("ended_at IS NULL OR server_id IS NOT NULL").any? ? "occupied" : "available",
+        status: (table.cleaned_at.nil? ? table.orders.any? : table.orders.where("created_at > ?", table.cleaned_at).any?) ? "occupied" : "available",
         qr_token: table.temporary_code,
         availabilities: table.availabilities.map { |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }

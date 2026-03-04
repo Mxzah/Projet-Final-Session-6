@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { OrderService, OrderLineData } from './order.service';
+import { OrderService, OrderLineData, ImageData } from './order.service';
 
 export interface CartLine {
   id: number;              // backend order_line id
@@ -10,7 +10,7 @@ export interface CartLine {
   unit_price: number;
   quantity: number;
   note: string;
-  image_url: string | null;
+  image: ImageData | null;
 }
 
 @Injectable({
@@ -62,8 +62,8 @@ export class CartService {
       orderable_id: line.orderable_id
     }).subscribe({
       next: (res) => {
-        if (res.success && res.data?.[0]) {
-          const created = res.data[0];
+        if (res.success && res.data) {
+          const created = res.data as any;
           this.lines.update(lines => [...lines, {
             id: created.id,
             orderable_type: created.orderable_type,
@@ -73,7 +73,7 @@ export class CartService {
             unit_price: created.unit_price,
             quantity: created.quantity,
             note: created.note,
-            image_url: created.image_url || line.image_url
+            image: created.image || line.image
           }]);
           callback?.(true);
         } else {
@@ -143,7 +143,7 @@ export class CartService {
       unit_price: l.unit_price,
       quantity: l.quantity,
       note: l.note,
-      image_url: l.image_url || null
+      image: l.image || null
     };
   }
 }

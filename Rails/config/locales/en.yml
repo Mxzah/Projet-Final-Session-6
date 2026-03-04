@@ -90,7 +90,11 @@ en:
     cuisine:
       unauthorized: "Access restricted to kitchen staff"
       order_line_not_found: "Order line not found"
+      order_not_found: "Order not found"
+      order_already_closed: "Order is already closed"
       already_at_final_status: "Already at final status"
+      server_not_assigned: "A server must be assigned before changing the status"
+      only_server_can_serve: "Only the server can mark a dish as served"
       cannot_modify_line: "Cannot modify line with status '%{status}'. Lines cannot be modified once served."
       cannot_delete_line: "Cannot delete line with status '%{status}'. Only 'sent' or 'in_preparation' lines can be deleted."
     orders:
@@ -102,6 +106,7 @@ en:
     order_lines:
       order_not_found: "Order not found"
       not_found: "Order line not found"
+      no_waiting_lines: "No waiting lines to send"
       cannot_modify: "Cannot modify line with status: %{status}. Only 'sent' lines can be modified."
       cannot_delete: "Cannot delete line with status: %{status}. Only 'sent' lines can be deleted."
     server:

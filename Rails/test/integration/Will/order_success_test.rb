@@ -2,81 +2,53 @@ require "test_helper"
 
 class OrderSuccessTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:valid_user)
+    @user  = users(:valid_user)
+    @table = tables(:table_one)
 
-    # Connexion
-    post "/users/sign_in", params: {
-      user: { email: @user.email, password: "password123" }
-    }, as: :json
-    Order.where(client_id: @user.id).destroy_all
-
-    # Créer une table directement en DB (pas besoin d'image pour Table)
-    @table = Table.create!(number: 99, nb_seats: 10)
+    post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
+    OrderLine.joins(:order).where(orders: { client_id: @user.id }).delete_all
+    Order.where(client_id: @user.id).delete_all
   end
 
   # ══════════════════════════════════════════
-  # INDEX - GET /api/orders
+  # INDEX — GET /api/orders
   # ══════════════════════════════════════════
 
-  # Test 1: Index retourne 200 et success true quand aucune commande
-  test "index retourne status 200 et success true" do
+  test "index retourne 200 et success true" do
     get "/api/orders", as: :json
 
-    # Code HTTP
     assert_response :ok
-
-    # Format JSON valide
     json = JSON.parse(response.body)
     assert json["success"]
     assert_instance_of Array, json["data"]
-    assert_instance_of Array, json["errors"]
+    assert_equal [],          json["errors"]
   end
 
-  # Test 2: Index retourne un tableau vide si aucune commande
   test "index retourne tableau vide si aucune commande" do
     get "/api/orders", as: :json
 
-    assert_response :ok
     json = JSON.parse(response.body)
-
-    # Contenu du format JSON
     assert json["success"]
     assert_equal [], json["data"]
   end
 
-  # Test 3: Index retourne les commandes du client connecté
-  test "index retourne les commandes appartenant au client connecté" do
-    # Créer une commande
-    post "/api/orders", params: {
-      order: { nb_people: 2, table_id: @table.id }
-    }, as: :json
+  test "index retourne les commandes du client après création" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
 
     get "/api/orders", as: :json
 
     json = JSON.parse(response.body)
     assert json["success"]
-
-    # Contenu: au moins 1 commande
     assert json["data"].length >= 1
-
-    # Validation: toutes les commandes appartiennent au bon client
-    json["data"].each do |order|
-      assert_equal @user.id, order["client_id"]
-    end
+    assert_equal @user.id, json["data"].first["client_id"]
   end
 
-  # Test 4: Index retourne les bons champs dans chaque commande
   test "index retourne les champs attendus dans chaque commande" do
-    post "/api/orders", params: {
-      order: { nb_people: 3, table_id: @table.id, note: "Test note" }
-    }, as: :json
+    post "/api/orders", params: { order: { nb_people: 3, table_id: @table.id, note: "Test index" } }, as: :json
 
     get "/api/orders", as: :json
 
-    json = JSON.parse(response.body)
-    order = json["data"].first
-
-    # Contenu du format JSON
+    order = JSON.parse(response.body)["data"].first
     assert order.key?("id")
     assert order.key?("nb_people")
     assert order.key?("note")
@@ -86,130 +58,192 @@ class OrderSuccessTest < ActionDispatch::IntegrationTest
     assert order.key?("order_lines")
     assert order.key?("created_at")
     assert order.key?("total")
+    assert order.key?("vibe_image")
+  end
+
+  test "index filtre les commandes fermées avec le paramètre closed=true" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    post "/api/orders/close_open", as: :json
+
+    get "/api/orders?closed=true", as: :json
+
+    json = JSON.parse(response.body)
+    assert json["success"]
+    assert json["data"].length >= 1
+    assert_not_nil json["data"].first["ended_at"]
   end
 
   # ══════════════════════════════════════════
-  # SHOW - GET /api/orders/:id
+  # SHOW — GET /api/orders/:id
   # ══════════════════════════════════════════
 
-  # Test 5: Show retourne 200 et success true
-  test "show retourne status 200 et success true" do
-    post "/api/orders", params: {
-      order: { nb_people: 2, table_id: @table.id }
-    }, as: :json
-    order_id = JSON.parse(response.body)["data"].first["id"]
+  test "show retourne 200 et success true" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
 
     get "/api/orders/#{order_id}", as: :json
 
-    # Code HTTP
     assert_response :ok
-
-    # Format JSON valide
     json = JSON.parse(response.body)
     assert json["success"]
-    assert_instance_of Array, json["data"]
+    assert_instance_of Hash, json["data"]
   end
 
-  # Test 6: Show retourne la bonne commande avec ses données
   test "show retourne les données correctes de la commande" do
-    post "/api/orders", params: {
-      order: { nb_people: 4, table_id: @table.id, note: "Sans gluten" }
-    }, as: :json
-    order_id = JSON.parse(response.body)["data"].first["id"]
+    post "/api/orders", params: { order: { nb_people: 4, table_id: @table.id, note: "Sans gluten" } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
 
     get "/api/orders/#{order_id}", as: :json
 
-    json = JSON.parse(response.body)
-    order = json["data"].first
+    order = JSON.parse(response.body)["data"]
+    assert_equal order_id,       order["id"]
+    assert_equal 4,              order["nb_people"]
+    assert_equal "Sans gluten",  order["note"]
+    assert_equal @table.id,      order["table_id"]
+    assert_equal @table.number,  order["table_number"]
+    assert_equal @user.id,       order["client_id"]
+  end
 
-    # Contenu du format JSON
-    assert_equal order_id, order["id"]
-    assert_equal 4, order["nb_people"]
-    assert_equal "Sans gluten", order["note"]
+  # ══════════════════════════════════════════
+  # CREATE — POST /api/orders
+  # ══════════════════════════════════════════
+
+  test "create retourne 200 et success true" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert json["success"]
+    assert_instance_of Hash, json["data"]
+    assert_equal [],         json["errors"]
+  end
+
+  test "create retourne les champs corrects" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+
+    order = JSON.parse(response.body)["data"]
+    assert_equal 2,         order["nb_people"]
     assert_equal @table.id, order["table_id"]
-    assert_equal @table.number, order["table_number"]
-    assert_equal @user.id, order["client_id"]
+    assert_equal @user.id,  order["client_id"]
+    assert_nil              order["ended_at"]
   end
 
-  # ══════════════════════════════════════════
-  # CREATE - POST /api/orders
-  # ══════════════════════════════════════════
+  test "create avec note retourne la note dans la réponse" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id, note: "Allergie noix" } }, as: :json
 
-  # Test 7: Create avec champs valides retourne success true
-  test "create avec nb_people et table_id valides retourne success true" do
-    post "/api/orders", params: {
-      order: { nb_people: 2, table_id: @table.id }
-    }, as: :json
-
-    # Code HTTP
-    assert_response :ok
-
-    # Format JSON valide
-    json = JSON.parse(response.body)
-    assert json["success"]
-    assert_instance_of Array, json["data"]
-
-    # Contenu du format JSON
-    assert_equal 2, json["data"].first["nb_people"]
-    assert_equal @table.id, json["data"].first["table_id"]
+    assert_equal "Allergie noix", JSON.parse(response.body)["data"]["note"]
   end
 
-
-  # Test 9: Create avec une note valide
-  test "create avec une note valide crée la commande avec la note" do
-    post "/api/orders", params: {
-      order: { nb_people: 2, table_id: @table.id, note: "Allergie aux noix" }
-    }, as: :json
-
-    assert_response :ok
-    json = JSON.parse(response.body)
-    assert json["success"]
-
-    # Contenu du format JSON
-    assert_equal "Allergie aux noix", json["data"].first["note"]
-  end
-
-  # Test 10: Create sauvegarde la commande en DB
   test "create sauvegarde la commande en base de données" do
     assert_difference "Order.count", 1 do
-      post "/api/orders", params: {
-        order: { nb_people: 2, table_id: @table.id }
-      }, as: :json
+      post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
     end
   end
 
   # ══════════════════════════════════════════
-  # CLOSE OPEN - POST /api/orders/close_open
+  # UPDATE — PUT /api/orders/:id
   # ══════════════════════════════════════════
 
-  # Test 11: Close_open ferme toutes les commandes ouvertes
-  test "close_open ferme toutes les commandes ouvertes du client" do
-    # Créer une commande ouverte
-    post "/api/orders", params: {
-      order: { nb_people: 2, table_id: @table.id }
-    }, as: :json
-    order_id = JSON.parse(response.body)["data"].first["id"]
+  test "update retourne 200 et success true avec note mise à jour" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
 
-    post "/api/orders/close_open", as: :json
+    put "/api/orders/#{order_id}", params: { order: { note: "Extra pain" } }, as: :json
 
-    # Code HTTP
     assert_response :ok
-
-    # Format JSON valide
     json = JSON.parse(response.body)
     assert json["success"]
-
-    # Validation de la cohérence de la base de données
-    order = Order.unscoped.find(order_id)   # cherche totue sans filtre
-    assert_not_nil order.ended_at
+    assert_equal "Extra pain", json["data"]["note"]
   end
 
-  # Test 12: Close_open retourne success true même si aucune commande ouverte
-  test "close_open retourne success true si aucune commande ouverte" do
+  test "update persiste la note en base de données" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
+
+    put "/api/orders/#{order_id}", params: { order: { note: "Menu végétarien" } }, as: :json
+
+    assert_equal "Menu végétarien", Order.find(order_id).note
+  end
+
+  # ══════════════════════════════════════════
+  # PAY — POST /api/orders/:id/pay
+  # ══════════════════════════════════════════
+
+  test "pay retourne 200 et success true pour commande sans lignes" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
+
+    post "/api/orders/#{order_id}/pay", params: { tip: 5.0 }, as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert json["success"]
+    assert_instance_of Hash, json["data"]
+  end
+
+  test "pay ferme la commande (ended_at renseigné)" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
+
+    post "/api/orders/#{order_id}/pay", params: { tip: 0 }, as: :json
+
+    assert_not_nil Order.unscoped.find(order_id).ended_at
+  end
+
+  test "pay sauvegarde le tip correct" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
+
+    post "/api/orders/#{order_id}/pay", params: { tip: 12.5 }, as: :json
+
+    assert_equal 12.5, Order.unscoped.find(order_id).tip.to_f
+  end
+
+  # ══════════════════════════════════════════
+  # CLOSE_OPEN — POST /api/orders/close_open
+  # ══════════════════════════════════════════
+
+  test "close_open ferme toutes les commandes ouvertes du client" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
+
     post "/api/orders/close_open", as: :json
 
     assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
+    assert_not_nil Order.unscoped.find(order_id).ended_at
+  end
+
+  test "close_open retourne success true même si aucune commande ouverte" do
+    post "/api/orders/close_open", as: :json
+
+    assert_response :ok
+    assert JSON.parse(response.body)["success"]
+  end
+
+  # ══════════════════════════════════════════
+  # DESTROY — DELETE /api/orders/:id
+  # ══════════════════════════════════════════
+
+  test "destroy retourne 200 et success true" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
+
+    delete "/api/orders/#{order_id}", as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert json["success"]
+    assert_equal [], json["data"]
+  end
+
+  test "destroy supprime la commande de la base de données" do
+    post "/api/orders", params: { order: { nb_people: 2, table_id: @table.id } }, as: :json
+    order_id = JSON.parse(response.body)["data"]["id"]
+
+    assert_difference "Order.unscoped.count", -1 do
+      delete "/api/orders/#{order_id}", as: :json
+    end
   end
 end

@@ -7,7 +7,7 @@ export interface VibeData {
   name: string;
   color: string;
   deleted_at: string | null;
-  image_url: string | null;
+  image: { url: string; filename: string; content_type: string; byte_size: number } | null;
   in_use: boolean;
 }
 

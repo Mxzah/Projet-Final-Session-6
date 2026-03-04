@@ -19,6 +19,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
+import { ImageData } from '../services/order.service';
 
 interface DisplayOrderLine {
   id: number;
@@ -27,7 +28,7 @@ interface DisplayOrderLine {
   note: string;
   status: string;
   name: string;
-  image_url: string | null;
+  image: ImageData | null;
 }
 
 @Component({
@@ -104,7 +105,7 @@ export class OrderComponent implements OnInit {
       note: line.note,
       status: line.status,
       name: line.orderable_name || `${line.orderable_type} #${line.orderable_id}`,
-      image_url: line.image_url || null
+      image: line.image || null
     };
   }
 
@@ -131,7 +132,7 @@ export class OrderComponent implements OnInit {
         this.existingNote.set(openOrder.note || null);
         this.existingVibeName.set(openOrder.vibe_name ?? null);
         this.existingVibeColor.set(openOrder.vibe_color ?? null);
-        this.existingVibeImageUrl.set(openOrder.vibe_image_url ?? null);
+        this.existingVibeImageUrl.set(openOrder.vibe_image?.url ?? null);
         this.existingNbPeople.set(openOrder.nb_people ?? null);
         this.existingServerName.set(openOrder.server_name ?? null);
         this.allLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));

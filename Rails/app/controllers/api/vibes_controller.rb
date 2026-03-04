@@ -2,34 +2,31 @@ module Api
   class VibesController < AdminController
     skip_before_action :authenticate_user!, only: [ :index ]
     skip_before_action :require_admin!, only: [ :index ]
-    before_action :set_vibe, only: [ :update, :destroy ]
+    before_action :set_vibe, only: [ :update, :destroy, :restore ]
 
     # GET /api/vibes
     def index
       base = current_user&.type == "Administrator" ? Vibe.unscoped.order(name: :asc) : Vibe.all.order(name: :asc)
-      render json: {
-        success: true,
-        data: base.map { |v| vibe_json(v) },
-        errors: []
-      }, status: :ok
+      vibes = base.includes(:orders)
+      render_success(data: vibes.map { |v| vibe_json(v) }, errors: [])
     end
 
     # POST /api/vibes
     def create
       vibe = Vibe.new(vibe_params)
       if vibe.save
-        render json: { success: true, data: vibe_json(vibe), errors: [] }, status: :ok
+        render_success(data: vibe_json(vibe), errors: [])
       else
-        render json: { success: false, data: nil, errors: vibe.errors.full_messages }, status: :ok
+        render_error(vibe.errors.full_messages)
       end
     end
 
     # PUT /api/vibes/:id
     def update
       if @vibe.update(vibe_params)
-        render json: { success: true, data: vibe_json(@vibe), errors: [] }, status: :ok
+        render_success(data: vibe_json(@vibe), errors: [])
       else
-        render json: { success: false, data: nil, errors: @vibe.errors.full_messages }, status: :ok
+        render_error(@vibe.errors.full_messages)
       end
     end
 
@@ -37,19 +34,18 @@ module Api
     def destroy
       if @vibe.orders.any?
         @vibe.soft_delete!
-        render json: { success: true, data: vibe_json(@vibe), errors: [] }, status: :ok
+        render_success(data: vibe_json(@vibe), errors: [])
       else
         data = vibe_json(@vibe)
         @vibe.destroy
-        render json: { success: true, data: data, errors: [] }, status: :ok
+        render_success(data: data, errors: [])
       end
     end
 
     # PUT /api/vibes/:id/restore
     def restore
-      @vibe = Vibe.unscoped.find(params[:id])
       @vibe.update(deleted_at: nil)
-      render json: { success: true, data: vibe_json(@vibe), errors: [] }, status: :ok
+      render_success(data: vibe_json(@vibe), errors: [])
     end
 
     private
@@ -68,8 +64,8 @@ module Api
         name: vibe.name,
         color: vibe.color,
         deleted_at: vibe.deleted_at,
-        image_url: vibe.image.attached? ? url_for(vibe.image) : nil,
-        in_use: vibe.orders.exists?
+        image: vibe.image.attached? ? { url: url_for(vibe.image), filename: vibe.image.blob.filename.to_s, content_type: vibe.image.blob.content_type, byte_size: vibe.image.blob.byte_size } : nil,
+        in_use: vibe.orders.loaded? ? vibe.orders.any? : vibe.orders.exists?
       }
     end
   end

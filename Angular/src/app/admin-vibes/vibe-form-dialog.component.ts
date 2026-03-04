@@ -65,7 +65,7 @@ export class VibeFormDialogComponent {
         name: data.vibe.name,
         color: data.vibe.color
       });
-      this.imagePreview.set(data.vibe.image_url || null);
+      this.imagePreview.set(data.vibe.image?.url || null);
     }
   }
 

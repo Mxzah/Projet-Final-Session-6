@@ -913,3 +913,12 @@ else
 end
 
 puts "\nAll seeds created!"
+
+# Mark tables with no open orders as cleaned so they show as "available" in /admin/tables
+puts "\nInitializing cleaned_at on idle tables..."
+Table.all.each do |t|
+  next if t.orders.where(ended_at: nil).any?  # active session → stays occupied
+  next if t.cleaned_at.present?               # already marked → skip
+  t.update_columns(cleaned_at: Time.current)
+  puts "- Table ##{t.number} marked as cleaned"
+end

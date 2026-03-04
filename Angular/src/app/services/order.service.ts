@@ -2,6 +2,13 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService, ApiResponse } from './api.service';
 
+export interface ImageData {
+  url: string;
+  filename: string;
+  content_type: string;
+  byte_size: number;
+}
+
 export interface OrderLineData {
   id: number;
   quantity: number;
@@ -12,7 +19,7 @@ export interface OrderLineData {
   orderable_id: number;
   orderable_name: string;
   orderable_description: string;
-  image_url: string | null;
+  image: ImageData | null;
   created_at: string;
 }
 
@@ -29,7 +36,7 @@ export interface OrderData {
   vibe_id: number | null;
   vibe_name: string | null;
   vibe_color: string | null;
-  vibe_image_url: string | null;
+  vibe_image: ImageData | null;
   created_at: string;
   ended_at: string | null;
   order_lines: OrderLineData[];
@@ -65,8 +72,8 @@ export class OrderService {
     return this.api.get<OrderData[]>(url);
   }
 
-  getOrder(id: number): Observable<ApiResponse<OrderData[]>> {
-    return this.api.get<OrderData[]>(`/api/orders/${id}`);
+  getOrder(id: number): Observable<ApiResponse<OrderData>> {
+    return this.api.get<OrderData>(`/api/orders/${id}`);
   }
 
   createOrder(data: {
@@ -75,8 +82,8 @@ export class OrderService {
     table_id: number;
     vibe_id?: number | null;
     tip?: number | null;
-  }): Observable<ApiResponse<OrderData[]>> {
-    return this.api.post<OrderData[]>('/api/orders', { order: data });
+  }): Observable<ApiResponse<OrderData>> {
+    return this.api.post<OrderData>('/api/orders', { order: data });
   }
 
   getOrderLines(orderId: number): Observable<ApiResponse<OrderLineData[]>> {
@@ -88,15 +95,15 @@ export class OrderService {
     note: string;
     orderable_type: string;
     orderable_id: number;
-  }): Observable<ApiResponse<OrderLineData[]>> {
-    return this.api.post<OrderLineData[]>(`/api/orders/${orderId}/order_lines`, { order_line: data });
+  }): Observable<ApiResponse<OrderLineData>> {
+    return this.api.post<OrderLineData>(`/api/orders/${orderId}/order_lines`, { order_line: data });
   }
 
   updateOrderLine(orderId: number, lineId: number, data: {
     quantity?: number;
     note?: string;
-  }): Observable<ApiResponse<OrderLineData[]>> {
-    return this.api.patch<OrderLineData[]>(`/api/orders/${orderId}/order_lines/${lineId}`, { order_line: data });
+  }): Observable<ApiResponse<OrderLineData>> {
+    return this.api.patch<OrderLineData>(`/api/orders/${orderId}/order_lines/${lineId}`, { order_line: data });
   }
 
   deleteOrderLine(orderId: number, lineId: number): Observable<ApiResponse<null>> {
@@ -107,8 +114,8 @@ export class OrderService {
     return this.api.post<OrderLineData[]>(`/api/orders/${orderId}/order_lines/send_lines`, {});
   }
 
-  updateOrder(id: number, data: { note?: string }): Observable<ApiResponse<OrderData[]>> {
-    return this.api.patch<OrderData[]>(`/api/orders/${id}`, { order: data });
+  updateOrder(id: number, data: { note?: string }): Observable<ApiResponse<OrderData>> {
+    return this.api.patch<OrderData>(`/api/orders/${id}`, { order: data });
   }
 
   deleteOrder(id: number): Observable<ApiResponse<null>> {
@@ -119,8 +126,8 @@ export class OrderService {
     return this.api.post<any>('/api/orders/close_open', {});
   }
 
-  payOrder(orderId: number, tip: number): Observable<ApiResponse<OrderData[]>> {
-    return this.api.post<OrderData[]>(`/api/orders/${orderId}/pay`, { tip });
+  payOrder(orderId: number, tip: number): Observable<ApiResponse<OrderData>> {
+    return this.api.post<OrderData>(`/api/orders/${orderId}/pay`, { tip });
   }
 
   getAssignedWaiter(): Observable<ApiResponse<{ id: number; name: string }[]>> {

@@ -1,12 +1,14 @@
 module Api
-  class CuisineController < ApplicationController
+  class CuisineController < ApiController
     before_action :authenticate_user!
     before_action :authorize_kitchen_staff!
+    before_action :set_line,  only: [ :next_status, :update_line, :destroy_line ]
+    before_action :set_order, only: [ :release_order, :assign_server ]
 
     # GET /api/kitchen/orders
     def orders
       active_orders = Order.where(ended_at: nil)
-                           .includes(:table, :client, :server, :order_lines, :vibe)
+                           .includes(:table, :client, :server, :vibe, order_lines: :orderable)
                            .order(created_at: :asc)
 
       all_lines = active_orders.flat_map(&:order_lines)
@@ -15,156 +17,80 @@ module Api
       items_map  = Item.where(id: item_ids).index_by(&:id)
       combos_map = Combo.where(id: combo_ids).index_by(&:id)
 
-      render json: {
-        success: true,
-        data: active_orders.map { |o| order_json(o, items_map, combos_map) },
-        errors: []
-      }, status: :ok
+      render_success(data: active_orders.map { |o| order_json(o, items_map, combos_map) }, errors: [])
     end
 
     # PUT /api/kitchen/order_lines/:id/next_status  (all kitchen staff)
     def next_status
-      line = OrderLine.find_by(id: params[:id])
-
-      unless line
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.order_line_not_found")] }, status: :ok
+      unless @line.order.server_id.present?
+        return render_error(I18n.t("controllers.cuisine.server_not_assigned"))
       end
 
-      # Block status advance if no server is assigned to the order
-      unless line.order.server_id.present?
-        return render json: { success: false, data: nil, errors: ["Un serveur doit être assigné avant de changer le statut"] }, status: :ok
-      end
-
-      current_index = OrderLine::STATUS_ORDER[line.status]
+      current_index = OrderLine::STATUS_ORDER[@line.status]
       next_s = OrderLine::STATUSES[current_index + 1]
 
       unless next_s
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.already_at_final_status")] }, status: :ok
+        return render_error(I18n.t("controllers.cuisine.already_at_final_status"))
       end
 
-      # Kitchen staff cannot advance to 'served' — only the server can do that
       if next_s == 'served'
-        return render json: { success: false, data: nil, errors: ["Seul le serveur peut marquer un plat comme servi"] }, status: :ok
+        return render_error(I18n.t("controllers.cuisine.only_server_can_serve"))
       end
 
-      if line.update(status: next_s)
-        render json: {
-          success: true,
-          data: [line_json(line.reload)],
-          errors: []
-        }, status: :ok
+      if @line.update(status: next_s)
+        render_success(data: line_json(@line.reload), errors: [])
       else
-        render json: {
-          success: false,
-          data: nil,
-          errors: line.errors.full_messages
-        }, status: :ok
+        render_error(@line.errors.full_messages)
       end
     end
 
     # PUT /api/kitchen/order_lines/:id  (waiter/admin only - quantity and note)
     def update_line
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.unauthorized")] }, status: :ok unless senior_staff?
+      return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
 
-      line = OrderLine.find_by(id: params[:id])
-
-      unless line
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.order_line_not_found")] }, status: :ok
-      end
-
-      if line.status == 'served'
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.cannot_modify_line", status: line.status)] }, status: :ok
-      end
-
-      if line.update(line_update_params)
-        render json: {
-          success: true,
-          data: [line_json(line.reload)],
-          errors: []
-        }, status: :ok
+      if @line.update(line_update_params)
+        render_success(data: line_json(@line.reload), errors: [])
       else
-        render json: {
-          success: false,
-          data: nil,
-          errors: line.errors.full_messages
-        }, status: :ok
+        render_error(@line.errors.full_messages)
       end
     end
 
-    # DELETE /api/kitchen/order_lines/:id  (waiter/admin only - hard delete, status must be 'sent')
+    # DELETE /api/kitchen/order_lines/:id  (waiter/admin only - hard delete)
     def destroy_line
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.unauthorized")] }, status: :ok unless senior_staff?
+      return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
 
-      line = OrderLine.find_by(id: params[:id])
-
-      unless line
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.order_line_not_found")] }, status: :ok
+      if @line.destroy
+        render_success(data: [], errors: [])
+      else
+        render_error(@line.errors.full_messages)
       end
-
-      unless %w[sent in_preparation].include?(line.status)
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.cannot_delete_line", status: line.status)] }, status: :ok
-      end
-
-      line.destroy
-
-      render json: {
-        success: true,
-        data: [],
-        errors: []
-      }, status: :ok
     end
 
     # POST /api/kitchen/orders/:id/release  (waiter/admin only — close order, free table)
     def release_order
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.unauthorized")] }, status: :ok unless senior_staff?
+      return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
 
-      order = Order.find_by(id: params[:id])
-
-      unless order
-        return render json: { success: false, data: nil, errors: ["Order not found"] }, status: :ok
+      if @order.ended_at.present?
+        return render_error(I18n.t("controllers.cuisine.order_already_closed"))
       end
 
-      if order.ended_at.present?
-        return render json: { success: false, data: nil, errors: ["Order already closed"] }, status: :ok
-      end
-
-      order.update!(ended_at: Time.current)
-
-      render json: {
-        success: true,
-        data: [],
-        errors: []
-      }, status: :ok
+      @order.update!(ended_at: Time.current)
+      render_success(data: [], errors: [])
     end
 
     # POST /api/kitchen/orders/:id/assign_server  (waiter/admin only)
     def assign_server
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.unauthorized")] }, status: :ok unless senior_staff?
+      return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
 
-      order = Order.find_by(id: params[:id])
-
-      unless order
-        return render json: { success: false, data: nil, errors: ["Order not found"] }, status: :ok
-      end
-
-      order.update!(server_id: current_user.id)
-
-      render json: {
-        success: true,
-        data: [],
-        errors: []
-      }, status: :ok
+      @order.update!(server: current_user)
+      render_success(data: [], errors: [])
     end
 
     private
 
     def authorize_kitchen_staff!
       unless %w[Administrator Waiter Cook].include?(current_user.type)
-        render json: {
-          success: false,
-          data: nil,
-          errors: [I18n.t("controllers.cuisine.unauthorized")]
-        }, status: :ok
+        render_error(I18n.t("controllers.cuisine.unauthorized"))
       end
     end
 
@@ -178,7 +104,6 @@ module Api
     end
 
     def line_json(line)
-      orderable = find_orderable_by_type(line.orderable_type, line.orderable_id)
       {
         id: line.id,
         quantity: line.quantity,
@@ -187,14 +112,18 @@ module Api
         status: line.status,
         orderable_type: line.orderable_type,
         orderable_id: line.orderable_id,
-        orderable_name: orderable&.name
+        orderable_name: line.orderable&.name
       }
     end
 
-    def find_orderable_by_type(type, id)
-      return nil unless type.present? && id.present?
-      return nil unless %w[Item Combo].include?(type)
-      type.constantize.find_by(id: id)
+    def set_order
+      @order = Order.find_by(id: params[:id])
+      render_error(I18n.t("controllers.cuisine.order_not_found")) unless @order
+    end
+
+    def set_line
+      @line = OrderLine.find_by(id: params[:id])
+      render_error(I18n.t("controllers.cuisine.order_line_not_found")) unless @line
     end
 
     def order_json(order, items_map, combos_map)

@@ -124,8 +124,8 @@
               @for (line of order.order_lines; track line.id) {
                 <div class="order-line">
                   <div class="line-info">
-                    @if (line.image_url) {
-                      <img [src]="getImageUrl(line.image_url)" class="line-thumb" />
+                    @if (line.image?.url) {
+                      <img [src]="getImageUrl(line.image!.url)" class="line-thumb" />
                     }
                     <span class="line-name">{{ line.orderable_name }}</span>
                     <span class="line-type">{{ line.orderable_type === 'Item' ? 'Item' : 'Combo' }}</span>

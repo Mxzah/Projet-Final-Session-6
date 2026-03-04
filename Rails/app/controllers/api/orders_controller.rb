@@ -1,39 +1,33 @@
 module Api
-  class OrdersController < ApplicationController
+  class OrdersController < ApiController
     before_action :authenticate_user!
+    before_action :set_order, only: [ :show, :update, :pay, :destroy ]
 
     # GET /api/orders — All orders for the current user
     def index
-      orders = Order.where(client_id: current_user.id)
-                    .includes(:table, :vibe, :server, order_lines: :orderable)
+      orders = current_user.orders_as_client
+                             .includes(:table, :vibe, :server, order_lines: :orderable)
 
       # Search by item name, combo name, server name, vibe name, or table number
       if params[:search].present?
         term = "%#{params[:search]}%"
-        item_order_ids = OrderLine.joins(:order)
-                             .where(orders: { client_id: current_user.id })
-                             .joins("INNER JOIN items ON items.id = order_lines.orderable_id AND order_lines.orderable_type = 'Item'")
-                             .where("items.name ILIKE ?", term)
-                             .select(:order_id).distinct
-        combo_order_ids = OrderLine.joins(:order)
-                             .where(orders: { client_id: current_user.id })
-                             .joins("INNER JOIN combos ON combos.id = order_lines.orderable_id AND order_lines.orderable_type = 'Combo'")
-                             .where("combos.name ILIKE ?", term)
-                             .select(:order_id).distinct
-        server_order_ids = Order.where(client_id: current_user.id)
-                          .joins("INNER JOIN users ON users.id = orders.server_id")
-                          .where("users.first_name ILIKE :t OR users.last_name ILIKE :t OR CONCAT(users.first_name, ' ', users.last_name) ILIKE :t", t: term)
-                          .select(:id).distinct
-        vibe_order_ids = Order.where(client_id: current_user.id)
-                          .joins(:vibe)
-                          .where("vibes.name ILIKE ?", term)
-                          .select(:id).distinct
-        table_order_ids = Order.where(client_id: current_user.id)
-                          .joins(:table)
-                          .where("CAST(tables.number AS TEXT) ILIKE ?", term)
-                          .select(:id).distinct
-        all_matching_ids = [item_order_ids, combo_order_ids, server_order_ids, vibe_order_ids, table_order_ids].map { |rel| rel.pluck(:id).presence || [] }.flatten.uniq
-        orders = orders.where(id: all_matching_ids)
+        matching_ids = current_user.orders_as_client
+          .joins("LEFT JOIN order_lines item_lines  ON item_lines.order_id  = orders.id AND item_lines.orderable_type  = 'Item'")
+          .joins("LEFT JOIN items  ON items.id  = item_lines.orderable_id")
+          .joins("LEFT JOIN order_lines combo_lines ON combo_lines.order_id = orders.id AND combo_lines.orderable_type = 'Combo'")
+          .joins("LEFT JOIN combos ON combos.id = combo_lines.orderable_id")
+          .joins("LEFT JOIN users  servers ON servers.id = orders.server_id")
+          .joins("LEFT JOIN vibes  ON vibes.id  = orders.vibe_id")
+          .joins("LEFT JOIN tables ON tables.id = orders.table_id")
+          .where(
+            "items.name ILIKE :t OR combos.name ILIKE :t OR vibes.name ILIKE :t " \
+            "OR CAST(tables.number AS TEXT) ILIKE :t " \
+            "OR servers.first_name ILIKE :t OR servers.last_name ILIKE :t " \
+            "OR CONCAT(servers.first_name, ' ', servers.last_name) ILIKE :t",
+            t: term
+          )
+          .distinct.pluck(:id)
+        orders = orders.where(id: matching_ids)
       end
 
       # Filter: only closed orders (history)
@@ -51,107 +45,62 @@ module Api
         orders = orders.order(created_at: :desc)
       end
 
-      render json: {
-        success: true,
-        data: orders.map { |o| order_with_images(o) },
-        errors: []
-      }, status: :ok
+      render_success(data: orders.map { |o| order_with_images(o) }, errors: [])
     end
 
     # GET /api/orders/:id — Show one order for the current user
     def show
-      order = Order.includes(:table, :vibe, :server, order_lines: :orderable)
-                   .find_by!(id: params[:id], client_id: current_user.id)
-
-      render json: {
-        success: true,
-        data: [ order_with_images(order) ],
-        errors: []
-      }, status: :ok
+      render_success(data: order_with_images(@order), errors: [])
     end
 
     # POST /api/orders
     def create
       order = Order.new(order_params)
-      order.client_id = current_user.id
+      order.client = current_user
 
       if order.save
-        render json: { success: true, data: [ order.as_json ], errors: [] }, status: :ok
+        render_success(data: order.as_json, errors: [])
       else
-        render json: { success: false, data: nil, errors: order.errors.full_messages }, status: :ok
+        render_error(order.errors.full_messages)
       end
     end
 
     # POST /api/orders/close_open — Close all open orders for the current user
     def close_open
-      Order.open.where(client_id: current_user.id).each { |o| o.update(ended_at: Time.current) }
+      current_user.orders_as_client.open.each { |o| o.update(ended_at: Time.current) }
 
-      render json: { success: true, data: [], errors: [] }, status: :ok
+      render_success(data: [], errors: [])
     end
 
     # PUT /api/orders/:id
     def update
-      order = Order.find_by(id: params[:id], client_id: current_user.id)
-
-      unless order
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.orders.not_found")] }, status: :ok
-      end
-
-      if order.update(order_update_params)
-        render json: { success: true, data: [ order.reload.as_json ], errors: [] }, status: :ok
+      if @order.update(order_update_params)
+        render_success(data: @order.reload.as_json, errors: [])
       else
-        render json: { success: false, data: nil, errors: order.errors.full_messages }, status: :ok
+        render_error(@order.errors.full_messages)
       end
     end
 
     # POST /api/orders/:id/pay
     def pay
-      order = Order.find_by(id: params[:id], client_id: current_user.id)
-
-      unless order
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.orders.not_found")] }, status: :ok
+      unless @order.order_lines.all?(&:served?)
+        return render_error(I18n.t("controllers.orders.not_all_served"))
       end
 
-      if order.ended_at.present?
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.orders.already_closed")] }, status: :ok
-      end
+      @order.tip = params[:tip].to_f
+      @order.ended_at = Time.current
 
-      # All lines must be served before paying (uses enum query method)
-      unless order.order_lines.all?(&:served?)
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.orders.not_all_served")] }, status: :ok
-      end
-
-      tip_value = params[:tip].to_f
-
-      if tip_value < 0
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.orders.tip_negative")] }, status: :ok
-      end
-
-      if tip_value > 999.99
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.orders.tip_too_high")] }, status: :ok
-      end
-
-      order.tip = tip_value
-      order.ended_at = Time.current
-
-      if order.save(validate: false) #ici le false
-        render json: { success: true, data: [ order.reload.as_json ], errors: [] }, status: :ok
+      if @order.save
+        render_success(data: @order.reload.as_json, errors: [])
       else
-        render json: { success: false, data: nil, errors: order.errors.full_messages }, status: :ok
+        render_error(@order.errors.full_messages)
       end
     end
 
     # DELETE /api/orders/:id (hard delete, dependent: :destroy handles order_lines)
     def destroy
-      order = Order.find_by(id: params[:id], client_id: current_user.id)
-
-      unless order
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.orders.not_found")] }, status: :ok
-      end
-
-      order.destroy
-
-      render json: { success: true, data: [], errors: [] }, status: :ok
+      @order.destroy
+      render_success(data: [], errors: [])
     end
 
     private
@@ -164,13 +113,36 @@ module Api
       params.require(:order).permit(:note)
     end
 
-    # Add image_url to each order line (needs controller context for url_for)
+    def set_order
+      @order = current_user.orders_as_client
+                           .includes(:table, :vibe, :server, order_lines: :orderable)
+                           .find_by(id: params[:id])
+      render_error(I18n.t("controllers.orders.not_found")) unless @order
+    end
+
+    # Add image data (hash format) to order and each order line
     def order_with_images(order)
       data = order.as_json
-      data[:vibe_image_url] = order.vibe&.image&.attached? ? url_for(order.vibe.image) : nil
+      data[:vibe_image] = if order.vibe&.image&.attached?
+        blob = order.vibe.image.blob
+        {
+          url:          url_for(order.vibe.image),
+          filename:     blob.filename.to_s,
+          content_type: blob.content_type,
+          byte_size:    blob.byte_size
+        }
+      end
       data[:order_lines] = order.order_lines.map do |line|
         ld = line.as_json
-        ld[:image_url] = line.orderable&.respond_to?(:image) && line.orderable&.image&.attached? ? url_for(line.orderable.image) : nil
+        if line.orderable&.respond_to?(:image) && line.orderable&.image&.attached?
+          blob = line.orderable.image.blob
+          ld[:image] = {
+            url:          url_for(line.orderable.image),
+            filename:     blob.filename.to_s,
+            content_type: blob.content_type,
+            byte_size:    blob.byte_size
+          }
+        end
         ld
       end
       data

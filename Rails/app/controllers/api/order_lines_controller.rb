@@ -1,95 +1,61 @@
 module Api
-  class OrderLinesController < ApplicationController
+  class OrderLinesController < ApiController
     before_action :authenticate_user!
+    before_action :set_order
+    before_action :set_line, only: [ :update, :destroy ]
 
     # GET /api/orders/:order_id/order_lines
     def index
-      order = Order.find_by!(id: params[:order_id], client_id: current_user.id)
-      lines = order.order_lines.includes(:orderable).order(created_at: :asc)
+      lines = @order.order_lines.includes(:orderable).order(created_at: :asc)
 
-      render json: {
-        success: true,
-        data: lines.map { |l| line_with_image(l) },
-        errors: []
-      }, status: :ok
+      render_success(data: lines.map { |l| line_with_image(l) }, errors: [])
     end
 
     # POST /api/orders/:order_id/order_lines
     def create
-      order = Order.find_by!(id: params[:order_id], client_id: current_user.id)
-
-      line = order.order_lines.build(line_params)
-      line.status = "waiting"
-
-      # Assign the unit_price from the Item or Combo
-      if line.orderable_type.present? && line.orderable_id.present?
-        orderable = find_orderable(line.orderable_type, line.orderable_id)
-        line.unit_price = orderable.price if orderable
-      end
+      line = @order.order_lines.build(line_params)
 
       if line.save
-        render json: { success: true, data: [ line_with_image(line) ], errors: [] }, status: :ok
+        render_success(data: line_with_image(line), errors: [])
       else
-        render json: { success: false, data: nil, errors: line.errors.full_messages }, status: :ok
+        render_error(line.errors.full_messages)
       end
     end
 
     # PUT /api/orders/:order_id/order_lines/:id
     def update
-      order = Order.find_by(id: params[:order_id], client_id: current_user.id)
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.order_not_found")] }, status: :ok unless order
-
-      line = order.order_lines.find_by(id: params[:id])
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.not_found")] }, status: :ok unless line
-
-      # Only 'waiting' or 'sent' lines can be modified (uses enum query method)
-      unless line.waiting? || line.sent?
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.cannot_modify", status: line.status)] }, status: :ok
-      end
-
-      if line.update(line_update_params)
-        render json: { success: true, data: [ line_with_image(line.reload) ], errors: [] }, status: :ok
+      if @line.update(line_update_params)
+        render_success(data: line_with_image(@line.reload), errors: [])
       else
-        render json: { success: false, data: nil, errors: line.errors.full_messages }, status: :ok
+        render_error(@line.errors.full_messages)
       end
     end
 
     # DELETE /api/orders/:order_id/order_lines/:id (hard delete)
     def destroy
-      order = Order.find_by(id: params[:order_id], client_id: current_user.id)
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.order_not_found")] }, status: :ok unless order
-
-      line = order.order_lines.find_by(id: params[:id])
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.not_found")] }, status: :ok unless line
-
-      # Only 'waiting' or 'sent' lines can be deleted
-      unless line.waiting? || line.sent?
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.cannot_delete", status: line.status)] }, status: :ok
+      unless @line.waiting? || @line.sent?
+        return render_error(I18n.t("controllers.order_lines.cannot_delete", status: @line.status))
       end
 
-      line.destroy
-      render json: { success: true, data: [], errors: [] }, status: :ok
+      if @line.destroy
+        render_success(data: [], errors: [])
+      else
+        render_error(@line.errors.full_messages)
+      end
     end
 
     # POST /api/orders/:order_id/order_lines/send_lines
     # Batch update all 'waiting' lines to 'sent'
     def send_lines
-      order = Order.find_by(id: params[:order_id], client_id: current_user.id)
-      return render json: { success: false, data: nil, errors: [I18n.t("controllers.order_lines.order_not_found")] }, status: :ok unless order
-
-      waiting_lines = order.order_lines.where(status: "waiting")
+      waiting_lines = @order.order_lines.waiting
 
       if waiting_lines.empty?
-        return render json: { success: false, data: nil, errors: ["No waiting lines to send"] }, status: :ok
+        return render_error(I18n.t("controllers.order_lines.no_waiting_lines"))
       end
 
       waiting_lines.update_all(status: "sent")
 
-      render json: {
-        success: true,
-        data: order.order_lines.reload.includes(:orderable).map { |l| line_with_image(l) },
-        errors: []
-      }, status: :ok
+      render_success(data: @order.order_lines.reload.includes(:orderable).map { |l| line_with_image(l) }, errors: [])
     end
 
     private
@@ -102,17 +68,28 @@ module Api
       params.require(:order_line).permit(:quantity, :note)
     end
 
-    # Find the Item or Combo to assign unitprice
-    def find_orderable(type, id)
-      return nil unless type.present? && id.present?
-      return nil unless %w[Item Combo].include?(type)
-      type.constantize.find_by(id: id)
+    def set_order
+      @order = current_user.orders_as_client.find_by(id: params[:order_id])
+      render_error(I18n.t("controllers.order_lines.order_not_found")) unless @order
     end
 
-    # Add image_url to line data (needs controller context for url_for)
+    def set_line
+      @line = @order.order_lines.find_by(id: params[:id])
+      render_error(I18n.t("controllers.order_lines.not_found")) unless @line
+    end
+
+    # Add image data (hash format) to line
     def line_with_image(line)
       data = line.as_json
-      data[:image_url] = line.orderable&.respond_to?(:image) && line.orderable&.image&.attached? ? url_for(line.orderable.image) : nil
+      if line.orderable&.respond_to?(:image) && line.orderable&.image&.attached?
+        blob = line.orderable.image.blob
+        data[:image] = {
+          url:          url_for(line.orderable.image),
+          filename:     blob.filename.to_s,
+          content_type: blob.content_type,
+          byte_size:    blob.byte_size
+        }
+      end
       data
     end
   end

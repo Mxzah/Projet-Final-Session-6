@@ -207,7 +207,7 @@ export class MenuComponent implements OnInit, OnDestroy {
         if (openOrder) {
           this.hasOpenOrder.set(true);
           // Store vibe image for banner
-          this.vibeImageUrl.set(openOrder.vibe_image_url ?? null);
+          this.vibeImageUrl.set(openOrder.vibe_image?.url ?? null);
           this.vibeName.set(openOrder.vibe_name ?? null);
           // Set orderId on cartService so addLine works
           this.cartService.setOrderId(openOrder.id);
@@ -401,7 +401,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       unit_price: item.price,
       quantity: this.modalQuantity(),
       note: this.modalNote(),
-      image_url: item.image_url || null
+      image: null
     }, (success) => {
       if (!success) {
         this.errorMessage.set(this.ts.t('order.sendError'));
@@ -436,7 +436,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       unit_price: combo.price,
       quantity: this.modalQuantity(),
       note: this.modalNote(),
-      image_url: combo.image_url || null
+      image: null
     }, (success) => {
       if (!success) {
         this.errorMessage.set(this.ts.t('order.sendError'));

@@ -136,7 +136,7 @@ export class PayComponent implements OnInit {
   }
 
   goToReviews(): void {
-    this.router.navigate(['/reviews']);
+    this.router.navigate(['/history']);
   }
 
   skipReview(): void {
