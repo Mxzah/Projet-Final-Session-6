@@ -133,7 +133,7 @@
       @if (myOrders.length > 0) {
         <div class="orders-grid">
           @for (order of myOrders; track order.id) {
-            <mat-card class="order-card mine-card" [class.paid-card]="isOrderPaid(order)">
+            <mat-card class="order-card mine-card" [class.paid-card]="isOrderClosed(order)">
               <mat-card-header>
                 <div class="card-title-row">
                   <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
@@ -144,6 +144,12 @@
                     <span class="paid-badge">
                       <mat-icon>payments</mat-icon>
                       {{ ts.t('server.paid') }}
+                    </span>
+                  }
+                  @if (isOrderReleased(order)) {
+                    <span class="released-badge">
+                      <mat-icon>logout</mat-icon>
+                      {{ ts.t('server.released') }}
                     </span>
                   }
                 </div>
@@ -201,7 +207,7 @@
                           {{ getStatusLabel(line.status) }}
                         </span>
 
-                        @if (line.status === 'ready' && !isOrderPaid(order)) {
+                        @if (line.status === 'ready' && !isOrderClosed(order)) {
                           <button mat-flat-button class="btn-serve"
                             [disabled]="advancingLineIds.has(line.id)"
                             (click)="serveLine(line)">
@@ -210,7 +216,7 @@
                           </button>
                         }
 
-                        @if (!isOrderPaid(order)) {
+                        @if (!isOrderClosed(order)) {
                           <div class="line-actions">
                             @if (canEditLine(line)) {
                               <button mat-icon-button class="action-btn edit"
@@ -234,7 +240,7 @@
                 </div>
 
                 <div class="card-action-row">
-                  @if (isOrderPaid(order)) {
+                  @if (isOrderClosed(order)) {
                     <button mat-flat-button class="clean-btn" (click)="confirmReleaseOrder(order)">
                       <mat-icon>cleaning_services</mat-icon>
                       {{ ts.t('server.cleanTable') }}

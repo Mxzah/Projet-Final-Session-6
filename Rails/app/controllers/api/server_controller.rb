@@ -42,11 +42,11 @@ module Api
       order = Order.find_by(id: params[:id])
 
       unless order
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.order_line_not_found")] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.order_not_found")] }, status: :ok
       end
 
       if order.server_id.present?
-        return render json: { success: false, data: nil, errors: ["Un serveur est déjà assigné à cette commande"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.already_assigned")] }, status: :ok
       end
 
       order.update!(server_id: current_user.id)
@@ -54,35 +54,46 @@ module Api
       render json: { success: true, data: [], errors: [] }, status: :ok
     end
 
-    # POST /api/server/orders/:id/release — close order and free table
+    # POST /api/server/orders/:id/release
+    # Appelé quand le serveur clique "Libérer la table" pour une commande non payée.
+    # - Ferme la commande (ended_at = maintenant)
+    # - Marque server_released = true pour afficher le badge "Libérée" dans /serve
+    # - NE libère PAS la table : server_id est gardé, donc la table reste occupée
+    # - Le client est déconnecté côté Angular car ended_at est présent
+    # La table devient disponible seulement après l'appel à "clean"
     def release
       order = Order.find_by(id: params[:id])
 
       unless order
-        return render json: { success: false, data: nil, errors: ["Commande introuvable"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.order_not_found")] }, status: :ok
       end
 
-      # Must be assigned to current user
       unless order.server_id == current_user.id || current_user.type == "Administrator"
-        return render json: { success: false, data: nil, errors: ["Vous n'êtes pas assigné à cette commande"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.not_assigned")] }, status: :ok
       end
 
-      order.update_columns(ended_at: Time.current) unless order.ended_at.present?
-      # NOTE: server_id is intentionally kept so it appears in the client's order history
+      unless order.ended_at.present?
+        order.update_columns(ended_at: Time.current, server_released: true)
+      end
+      # server_id est gardé intentionnellement pour que la commande apparaisse dans l'historique du client
 
       render json: { success: true, data: [], errors: [] }, status: :ok
     end
 
-    # POST /api/server/orders/:id/clean — called after payment, removes from dashboard
+    # POST /api/server/orders/:id/clean
+    # Appelé quand le serveur clique "Nettoyer la table" (après paiement OU après libération).
+    # - Met server_id = nil : c'est ça qui libère vraiment la table et la rend disponible
+    # - La commande disparaît du dashboard /serve
+    # - La table redevient disponible pour un nouveau client
     def clean
       order = Order.find_by(id: params[:id])
 
       unless order
-        return render json: { success: false, data: nil, errors: ["Commande introuvable"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.order_not_found")] }, status: :ok
       end
 
       unless order.server_id == current_user.id || current_user.type == "Administrator"
-        return render json: { success: false, data: nil, errors: ["Vous n'êtes pas assigné à cette commande"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.not_assigned")] }, status: :ok
       end
 
       order.update_columns(server_id: nil)
@@ -95,16 +106,16 @@ module Api
       line = OrderLine.find_by(id: params[:id])
 
       unless line
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.order_line_not_found")] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.line_not_found")] }, status: :ok
       end
 
       order = line.order
       unless order.server_id == current_user.id || current_user.type == "Administrator"
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.unauthorized")] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.not_assigned")] }, status: :ok
       end
 
       unless line.status == "ready"
-        return render json: { success: false, data: nil, errors: ["Seul un plat prêt peut être marqué comme servi"] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.line_not_ready")] }, status: :ok
       end
 
       if line.update(status: "served")
@@ -119,17 +130,17 @@ module Api
       line = OrderLine.find_by(id: params[:id])
 
       unless line
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.order_line_not_found")] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.line_not_found")] }, status: :ok
       end
 
       # Must be the assigned server or admin
       order = line.order
       unless order.server_id == current_user.id || current_user.type == "Administrator"
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.unauthorized")] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.not_assigned")] }, status: :ok
       end
 
       if line.status == "served"
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.cannot_modify_line", status: line.status)] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.cannot_modify_line", status: line.status)] }, status: :ok
       end
 
       if line.update(line_update_params)
@@ -144,16 +155,16 @@ module Api
       line = OrderLine.find_by(id: params[:id])
 
       unless line
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.order_line_not_found")] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.line_not_found")] }, status: :ok
       end
 
       order = line.order
       unless order.server_id == current_user.id || current_user.type == "Administrator"
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.unauthorized")] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.not_assigned")] }, status: :ok
       end
 
       unless %w[sent in_preparation].include?(line.status)
-        return render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.cannot_delete_line", status: line.status)] }, status: :ok
+        return render json: { success: false, data: nil, errors: [I18n.t("controllers.server.cannot_delete_line", status: line.status)] }, status: :ok
       end
 
       line.destroy
@@ -164,7 +175,7 @@ module Api
 
     def authorize_server_staff!
       unless %w[Administrator Waiter].include?(current_user.type)
-        render json: { success: false, data: nil, errors: [I18n.t("controllers.cuisine.unauthorized")] }, status: :ok
+        render json: { success: false, data: nil, errors: [I18n.t("controllers.server.unauthorized")] }, status: :ok
       end
     end
 
@@ -215,6 +226,7 @@ module Api
         server_name: order.server ? "#{order.server.first_name} #{order.server.last_name}" : nil,
         created_at: order.created_at,
         ended_at: order.ended_at,
+        server_released: order.server_released,
         order_lines: lines
       }
     end

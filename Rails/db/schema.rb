@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_02_190334) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_04_170417) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -110,6 +110,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_190334) do
     t.integer "nb_people", null: false
     t.string "note"
     t.bigint "server_id"
+    t.boolean "server_released", default: false, null: false
     t.bigint "table_id", null: false
     t.decimal "tip", precision: 5, scale: 2
     t.bigint "vibe_id"

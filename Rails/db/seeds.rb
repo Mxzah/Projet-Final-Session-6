@@ -219,15 +219,25 @@ end
 puts "\nCreating vibes..."
 
 vibes_data = [
-  { name: 'Fête',  color: '#FFB347' },
-  { name: 'Date',  color: '#FF6B9D' },
-  { name: 'Mort',  color: '#2C3E50' }
+  { name: 'Fête',  color: '#FFB347', image: 'vibe_fete.jpg' },
+  { name: 'amour', color: '#FF6B9D', image: 'vibe_amour.jpg' },
+  { name: 'Mort',  color: '#2C3E50', image: 'vibe_mort.jpg' }
 ]
 
 vibes = {}
 vibes_data.each do |vd|
   vibe = Vibe.find_or_create_by!(name: vd[:name]) do |v|
     v.color = vd[:color]
+  end
+  unless vibe.image.attached?
+    image_path = images_dir.join(vd[:image])
+    if File.exist?(image_path)
+      vibe.image.attach(
+        io: File.open(image_path),
+        filename: vd[:image],
+        content_type: 'image/jpeg'
+      )
+    end
   end
   vibes[vd[:name]] = vibe
   puts "- #{vibe.name} (#{vibe.color})"

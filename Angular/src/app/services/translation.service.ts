@@ -339,6 +339,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'server.cleanTable': { fr: 'Nettoyer la table', en: 'Clean table' },
   'server.cleanConfirm': { fr: 'La commande est payée. Voulez-vous nettoyer et libérer la table ?', en: 'The order is paid. Do you want to clean and release the table?' },
   'server.paid': { fr: 'Payée', en: 'Paid' },
+  'server.released': { fr: 'Libérée', en: 'Released' },
   'server.markServed': { fr: 'Servir', en: 'Serve' },
 
   // Admin users

@@ -36,7 +36,7 @@ import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDia
 })
 export class ServerPageComponent implements OnInit {
   unassignedOrders: CuisineOrder[] = [];
-  myOrders: (CuisineOrder & { ended_at?: string | null })[] = [];
+  myOrders: (CuisineOrder & { ended_at?: string | null; server_released?: boolean })[] = [];
   loading = true;
   error: string | null = null;
   actionError = '';
@@ -250,8 +250,24 @@ export class ServerPageComponent implements OnInit {
     });
   }
 
-  isOrderPaid(order: any): boolean {
+  // Commande fermée = ended_at est présent.
+  // Ça arrive quand le client paie OU quand le serveur libère la table.
+  // La table n'est PAS encore disponible — le serveur doit d'abord cliquer "Nettoyer la table".
+  isOrderClosed(order: any): boolean {
     return !!order.ended_at;
+  }
+
+  // Commande payée par le client = ended_at présent ET server_released est false.
+  // Affiche le badge bleu "Payée" sur la carte dans /serve.
+  isOrderPaid(order: any): boolean {
+    return !!order.ended_at && !order.server_released;
+  }
+
+  // Table libérée par le serveur (sans paiement) = server_released est true.
+  // Affiche le badge orange "Libérée" sur la carte dans /serve.
+  // La table devient disponible seulement après le clic sur "Nettoyer la table" (server_id → null).
+  isOrderReleased(order: any): boolean {
+    return !!order.server_released;
   }
 
   allLinesServed(order: CuisineOrder): boolean {

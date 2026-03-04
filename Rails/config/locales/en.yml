@@ -104,3 +104,12 @@ en:
       not_found: "Order line not found"
       cannot_modify: "Cannot modify line with status: %{status}. Only 'sent' lines can be modified."
       cannot_delete: "Cannot delete line with status: %{status}. Only 'sent' lines can be deleted."
+    server:
+      unauthorized: "Access restricted to servers and administrators"
+      order_not_found: "Order not found"
+      already_assigned: "A server is already assigned to this order"
+      not_assigned: "You are not assigned to this order"
+      line_not_found: "Order line not found"
+      line_not_ready: "Only a ready dish can be marked as served"
+      cannot_modify_line: "Cannot modify line with status '%{status}'. Lines cannot be modified once served."
+      cannot_delete_line: "Cannot delete line with status '%{status}'. Only 'sent' or 'in_preparation' lines can be deleted."

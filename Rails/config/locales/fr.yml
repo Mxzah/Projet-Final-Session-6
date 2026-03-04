@@ -140,3 +140,12 @@ fr:
       not_found: "Ligne de commande non trouvée"
       cannot_modify: "Impossible de modifier la ligne avec le statut : %{status}. Seules les lignes 'sent' peuvent être modifiées."
       cannot_delete: "Impossible de supprimer la ligne avec le statut : %{status}. Seules les lignes 'sent' peuvent être supprimées."
+    server:
+      unauthorized: "Accès réservé aux serveurs et administrateurs"
+      order_not_found: "Commande introuvable"
+      already_assigned: "Un serveur est déjà assigné à cette commande"
+      not_assigned: "Vous n'êtes pas assigné à cette commande"
+      line_not_found: "Ligne de commande non trouvée"
+      line_not_ready: "Seul un plat prêt peut être marqué comme servi"
+      cannot_modify_line: "Impossible de modifier la ligne avec le statut '%{status}'. Les lignes ne peuvent pas être modifiées une fois servies."
+      cannot_delete_line: "Impossible de supprimer la ligne avec le statut '%{status}'. Seules les lignes 'sent' ou 'in_preparation' peuvent être supprimées."
