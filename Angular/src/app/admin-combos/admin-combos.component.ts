@@ -1,53 +1,36 @@
-import { Component, OnInit, OnDestroy, NgZone, ViewChild, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { CombosService, Combo } from '../services/combos.service';
 import { ComboItemsService, ComboItem } from '../services/combo-items.service';
 import { ItemsService } from '../services/items.service';
 import { Item } from '../menu/menu.models';
-import { AvailabilityService } from '../services/availability.service';
-import { AvailabilityEntry } from '../menu/menu.models';
-import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 import { ErrorService } from '../services/error.service';
 import { TranslationService } from '../services/translation.service';
-import { ImageUploadComponent, ImageValidationResult } from '../shared/image-upload/image-upload.component';
+import { ComboFormDialogComponent, ComboFormDialogResult } from './combo-form-dialog/combo-form-dialog.component';
+import { AddItemDialogComponent, AddItemDialogResult } from './add-item-dialog/add-item-dialog.component';
 
 @Component({
     selector: 'app-admin-combos',
     standalone: true,
     imports: [
         CommonModule,
-        ReactiveFormsModule,
         MatCardModule,
         MatButtonModule,
         MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
         MatProgressSpinnerModule,
-        MatSlideToggleModule,
-        MatTooltipModule,
-        AvailabilityListComponent,
-        ImageUploadComponent
+        MatTooltipModule
     ],
     templateUrl: './admin-combos.component.html',
     styleUrls: ['./admin-combos.component.css']
 })
 export class AdminCombosComponent implements OnInit, OnDestroy {
-    @ViewChild('createAvailList') createAvailList?: AvailabilityListComponent;
-
     combos = signal<Combo[]>([]);
-    createAvailabilities = signal<AvailabilityEntry[]>([]);
-    showDeleted = signal(false);
 
     // Selected combo for detail view
     selectedCombo = signal<Combo | null>(null);
@@ -122,42 +105,12 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     loadError = signal('');
     actionError = signal('');
 
-    isCreating = signal(false);
-    isSaving = signal(false);
-
-    // Image for create combo
-    createImage = signal<File | null>(null);
-    createImagePreviews = signal<string[]>([]);
-
-    // Add item to combo form
-    isAddingItem = signal(false);
-    isSavingItem = signal(false);
-    itemSearchTerm = signal('');
-
-    // Filtered items based on search term
-    filteredItems = computed(() => {
-        const search = this.itemSearchTerm().toLowerCase().trim();
-        if (!search) return this.items();
-        return this.items().filter(item => item.name.toLowerCase().includes(search));
-    });
-
-    createForm = new FormGroup({
-        name: new FormControl('', [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)]),
-        description: new FormControl('', [Validators.maxLength(255)]),
-        price: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01), Validators.max(9999.99)])
-    });
-
-    addItemForm = new FormGroup({
-        item_id: new FormControl<number | null>(null, [Validators.required]),
-        quantity: new FormControl<number | null>(1, [Validators.required, Validators.min(1), Validators.max(10)])
-    });
-
     constructor(
         private combosService: CombosService,
         private comboItemsService: ComboItemsService,
         private itemsService: ItemsService,
-        private availabilityService: AvailabilityService,
         private errorService: ErrorService,
+        private dialog: MatDialog,
         private ngZone: NgZone,
         public ts: TranslationService
     ) {
@@ -176,7 +129,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         this.isLoading.set(true);
         this.loadError.set('');
 
-        this.combosService.getCombos({ admin: true, include_deleted: this.showDeleted() }).subscribe({
+        this.combosService.getCombos({ admin: true, include_deleted: true }).subscribe({
             next: (combos) => {
                 this.combos.set(combos);
                 this.isLoading.set(false);
@@ -186,16 +139,6 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
                 this.isLoading.set(false);
             }
         });
-    }
-
-    toggleShowDeleted(): void {
-        this.showDeleted.update(v => !v);
-        this.loadCombos();
-    }
-
-    toggleShowDeletedDetail(): void {
-        this.showDeleted.update(v => !v);
-        this.loadComboItemsAndItems();
     }
 
     // ── Combo Detail View ──
@@ -208,7 +151,6 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     backToList(): void {
         this.selectedCombo.set(null);
         this.comboItems.set([]);
-        this.isAddingItem.set(false);
         this.actionError.set('');
     }
 
@@ -223,7 +165,7 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
             }
         };
 
-        this.comboItemsService.getComboItems(this.showDeleted()).subscribe({
+        this.comboItemsService.getComboItems(true).subscribe({
             next: (data) => {
                 this.comboItems.set(data);
                 finish();
@@ -246,57 +188,37 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
         });
     }
 
-    // ── Add Item to Combo ──
-    openAddItem(): void {
-        this.actionError.set('');
-        this.isAddingItem.set(true);
-        this.itemSearchTerm.set('');
-        this.addItemForm.reset({ item_id: null, quantity: 1 });
-        this.addItemForm.markAsPristine();
-        this.addItemForm.markAsUntouched();
-    }
-
-    onItemSearchInput(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        this.itemSearchTerm.set(input.value);
-    }
-
-    onSelectOpened(): void {
-        this.itemSearchTerm.set('');
-    }
-
-    cancelAddItem(): void {
-        this.isAddingItem.set(false);
-        this.isSavingItem.set(false);
-        this.actionError.set('');
-    }
-
-    saveAddItem(): void {
-        Object.values(this.addItemForm.controls).forEach(c => {
-            c.markAsDirty();
-            c.markAsTouched();
+    // ── Create Combo (mat-dialog) ──
+    openCreate(): void {
+        const dialogRef = this.dialog.open(ComboFormDialogComponent, {
+            width: '520px',
+            data: { combo: null }
         });
-        if (this.addItemForm.invalid || this.isSavingItem()) return;
 
+        dialogRef.afterClosed().subscribe((result?: ComboFormDialogResult) => {
+            if (result?.created) {
+                this.combos.update(list => [result.created!, ...list]);
+            }
+        });
+    }
+
+    // ── Add Item to Combo (mat-dialog) ──
+    openAddItem(): void {
         const combo = this.selectedCombo();
         if (!combo) return;
 
-        const values = this.addItemForm.getRawValue();
-        const item_id = Number(values.item_id);
-        const quantity = Number(values.quantity);
+        const dialogRef = this.dialog.open(AddItemDialogComponent, {
+            width: '440px',
+            data: {
+                comboId: combo.id,
+                items: this.items(),
+                unavailableItemIds: this.unavailableItemIds()
+            }
+        });
 
-        this.actionError.set('');
-        this.isSavingItem.set(true);
-
-        this.comboItemsService.createComboItem({ combo_id: combo.id, item_id, quantity }).subscribe({
-            next: (created) => {
-                this.comboItems.update(list => [created, ...list]);
-                this.isSavingItem.set(false);
-                this.isAddingItem.set(false);
-            },
-            error: (err) => {
-                this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
-                this.isSavingItem.set(false);
+        dialogRef.afterClosed().subscribe((result?: AddItemDialogResult) => {
+            if (result?.created) {
+                this.comboItems.update(list => [result.created!, ...list]);
             }
         });
     }
@@ -304,108 +226,14 @@ export class AdminCombosComponent implements OnInit, OnDestroy {
     deleteComboItem(comboItem: ComboItem): void {
         this.comboItemsService.deleteComboItem(comboItem.id).subscribe({
             next: () => {
-                if (this.showDeleted()) {
-                    // Reload to get the item with deleted_at set
-                    this.comboItemsService.getComboItems(true).subscribe({
-                        next: (data) => this.comboItems.set(data),
-                        error: () => { }
-                    });
-                } else {
-                    this.comboItems.update(list => list.filter(ci => ci.id !== comboItem.id));
-                }
-            },
-            error: (err) => {
-                this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
-            }
-        });
-    }
-
-    // ── Create Combo ──
-    openCreate(): void {
-        this.actionError.set('');
-        this.isCreating.set(true);
-        this.createAvailabilities.set([]);
-        this.createImage.set(null);
-        this.createImagePreviews.set([]);
-        this.createForm.reset({
-            name: '',
-            description: '',
-            price: null
-        });
-        this.createForm.markAsPristine();
-        this.createForm.markAsUntouched();
-    }
-
-    cancelCreate(): void {
-        this.isCreating.set(false);
-        this.isSaving.set(false);
-        this.actionError.set('');
-        this.createAvailabilities.set([]);
-        this.createImage.set(null);
-        this.createImagePreviews.set([]);
-    }
-
-    onImagesSelected(results: ImageValidationResult[]): void {
-        this.createImage.set(results[0].file);
-        this.createImagePreviews.set([results[0].preview]);
-    }
-
-    clampPrice(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const value = parseFloat(input.value);
-        if (value > 9999.99) {
-            input.value = '9999.99';
-            this.createForm.controls.price.setValue(9999.99);
-        } else if (value < 0) {
-            input.value = '0';
-            this.createForm.controls.price.setValue(0);
-        }
-    }
-
-    clampQuantity(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const value = parseInt(input.value, 10);
-        if (value > 10) {
-            input.value = '10';
-            this.addItemForm.controls.quantity.setValue(10);
-        } else if (value < 1) {
-            input.value = '1';
-            this.addItemForm.controls.quantity.setValue(1);
-        }
-    }
-
-    saveCreate(): void {
-        Object.values(this.createForm.controls).forEach(control => control.markAsDirty());
-        if (this.createForm.invalid || this.isSaving()) return;
-
-        const values = this.createForm.getRawValue();
-        const name = values.name?.trim() ?? '';
-        const description = values.description?.trim() ?? '';
-        const price = Number(values.price);
-
-        this.actionError.set('');
-        this.isSaving.set(true);
-
-        const payload: { name: string; description?: string; price: number; image?: File } = { name, description, price };
-        const image = this.createImage();
-        if (image) payload.image = image;
-
-        this.combosService.createCombo(payload).subscribe({
-            next: (created) => {
-                this.combos.update(list => [created, ...list]);
-                this.availabilityService.syncAvailabilities(
-                    this.createAvailabilities(), [],
-                    (e) => this.availabilityService.createAvailability('combos', created.id, e),
-                    (id, e) => this.availabilityService.updateAvailability('combos', created.id, id, e),
-                    (id) => this.availabilityService.deleteAvailability('combos', created.id, id)
-                ).subscribe({
-                    next: () => { this.isSaving.set(false); this.isCreating.set(false); },
-                    error: () => { this.isSaving.set(false); this.isCreating.set(false); }
+                // Reload to get the item with deleted_at set
+                this.comboItemsService.getComboItems(true).subscribe({
+                    next: (data) => this.comboItems.set(data),
+                    error: () => { }
                 });
             },
             error: (err) => {
                 this.actionError.set(this.errorService.format(this.errorService.fromApiError(err)));
-                this.isSaving.set(false);
             }
         });
     }

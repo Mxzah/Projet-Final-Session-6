@@ -341,6 +341,15 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'server.paid': { fr: 'Payée', en: 'Paid' },
   'server.released': { fr: 'Libérée', en: 'Released' },
   'server.markServed': { fr: 'Servir', en: 'Serve' },
+  'server.tablesTitle': { fr: 'Tables du restaurant', en: 'Restaurant tables' },
+  'server.noTables': { fr: 'Aucune table disponible.', en: 'No tables available.' },
+  'server.showQr': { fr: 'Montrer le QR', en: 'Show QR' },
+  'server.qrPresented': { fr: 'QR présenté', en: 'QR presented' },
+  'server.tableAvailable': { fr: 'Disponible', en: 'Available' },
+  'server.tableOccupied': { fr: 'Occupée', en: 'Occupied' },
+  'server.seats': { fr: 'places', en: 'seats' },
+  'server.scanInstruction': { fr: 'Le client qui scannera ce QR code vous sera automatiquement assigné.', en: 'The client who scans this QR code will be automatically assigned to you.' },
+  'server.tablesLoadError': { fr: 'Impossible de charger les tables.', en: 'Could not load tables.' },
 
   // Admin users
   'admin.users.tab': { fr: 'Utilisateurs', en: 'Users' },

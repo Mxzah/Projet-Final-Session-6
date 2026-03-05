@@ -24,6 +24,10 @@ class ComboItemDestroySuccessTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
+
+    # Validation BD : soft delete
+    combo_item = ComboItem.unscoped.find(@combo_item["id"])
+    assert_not_nil combo_item.deleted_at
   end
 
   # Test 2: Après suppression, le combo item n'est plus dans la liste

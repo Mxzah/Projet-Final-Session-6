@@ -225,18 +225,9 @@ Avec admin@restoqr.ca : password123
 - Accéder à /admin/combos : Un spinner de chargement s'affiche pendant le chargement
 - Une fois chargé : Les combos s'affichent en grille
 - Chaque carte affiche : nom, description, prix, image (ou icône par défaut si pas d'image)
+- Les combos supprimés sont affichés par défaut avec un badge « Supprimé »
 - Clic sur une carte de combo : Le panneau de détail du combo s'ouvre
 - Si aucun combo n'existe : Le message « Aucun combo pour le moment » s'affiche
-
-================================================================================
-Toggle « Afficher les supprimés » (combos)
-================================================================================
-
-Avec admin@restoqr.ca : password123
-
-- Activer le toggle « Afficher les supprimés » : Les combos soft-deletés apparaissent dans la liste
-- Les combos supprimés affichent un badge « Supprimé »
-- Désactiver le toggle : Les combos supprimés disparaissent de la liste
 
 ================================================================================
 Badge « Indisponible » sur les combos
@@ -348,19 +339,9 @@ Suppression d'un article du combo
 
 Avec admin@restoqr.ca : password123
 
-- Clic sur l'icône de suppression (poubelle) d'un article : L'article est soft-deleté et disparaît de la liste
-- L'article supprimé n'affiche plus le bouton supprimer
-
-================================================================================
-Toggle « Afficher les supprimés » (combo items)
-================================================================================
-
-Avec admin@restoqr.ca : password123
-
-- Activer le toggle « Afficher les supprimés » dans la vue détail : Les articles soft-deletés apparaissent
-- Les articles supprimés affichent un badge « Supprimé »
+- Clic sur l'icône de suppression (poubelle) d'un article : L'article est soft-deleté
+- Les articles supprimés sont affichés par défaut avec un badge « Supprimé »
 - Les articles supprimés n'ont pas de bouton supprimer
-- Désactiver le toggle : Les articles supprimés disparaissent de la liste
 
 ================================================================================
 Combos dans le menu client
@@ -397,42 +378,5 @@ Avec client@restoqr.ca : password123
 - Le bouton « Ajouter au panier » affiche le total (prix combo × quantité)
 - Clic sur « Ajouter au panier » : Le combo est ajouté au panier avec la bonne quantité et les instructions
 - Fermer la modal : Aucun ajout au panier
-
-================================================================================
-Traduction (admin-combos et menu combos)
-================================================================================
-
-Avec admin@restoqr.ca : password123
-
-- Changer la langue à « English » via le header :
-  - Le titre passe à « Combos »
-  - Le sous-titre passe à « Create and list combos. »
-  - « Aucun combo pour le moment. » → « No combo for now. »
-  - « Afficher les supprimés » → « Show deleted »
-  - « Supprimé » → « Deleted »
-  - « Créer un combo » → « Create combo »
-  - « Le nom est requis » → « Name is required »
-  - « Maximum 100 caractères. » → « Maximum 100 characters. »
-  - « Le nom ne peut pas être vide. » → « Name cannot be empty. »
-  - « Maximum 255 caractères. » → « Maximum 255 characters. »
-  - « Le prix doit être supérieur à 0. » → « Price must be greater than 0. »
-  - « Le prix ne peut pas dépasser 9999.99 $. » → « Price cannot exceed $9999.99. »
-  - « Création... » → « Creating... »
-  - « Ajouter un article » → « Add item »
-  - « Ajouter un article au combo » → « Add item to combo »
-  - « Aucun article dans ce combo. » → « No items in this combo. »
-  - « L'item est requis. » → « Item is required. »
-  - « La quantité est requise. » → « Quantity is required. »
-  - « La quantité doit être au moins 1. » → « Quantity must be at least 1. »
-  - « La quantité ne peut pas dépasser 10. » → « Quantity cannot exceed 10. »
-  - « Valeur des articles » → « Items value »
-  - « Prix du combo » → « Combo price »
-  - « Économie » → « Savings »
-  - « Rechercher un article... » → « Search item... »
-  - « Ce combo inclut : » → « This combo includes: »
-  - « Ce combo n'a aucune disponibilité en cours. » → « This combo has no active availability. »
-
-- Changer la langue à « Français » : Tous les textes reviennent en français
-- Changer la langue ET rafraîchir la page : La langue persiste
 
 ================================================================================

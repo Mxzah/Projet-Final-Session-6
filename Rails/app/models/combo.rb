@@ -7,6 +7,20 @@ class Combo < ApplicationRecord
 
   has_one_attached :image
 
+  include Rails.application.routes.url_helpers
+
+  def image_url
+    image.attached? ? url_for(image) : nil
+  end
+
+  def as_json(options = {})
+    super(options.reverse_merge(
+      only: [ :id, :name, :description, :price, :created_at, :deleted_at ],
+      methods: [ :image_url ],
+      include: { availabilities: { only: [ :id, :start_at, :end_at, :description ] } }
+    )).tap { |h| h["price"] = h["price"].to_f if h.key?("price") }
+  end
+
   validates :name, presence: true, length: { maximum: 100 }
   validate :name_not_only_whitespace
   validates :description, length: { maximum: 255 }

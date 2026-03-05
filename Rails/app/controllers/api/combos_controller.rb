@@ -5,14 +5,14 @@ module Api
 
     # GET /api/combos?search=…&sort=asc|desc&price_min=…&price_max=…&include_deleted=true
     def index
-      combos = if params[:include_deleted] == "true" && current_user&.is_a?(Administrator)
+      combos = if params[:include_deleted] == "true" && current_user&.type == "Administrator"
                  Combo.unscoped.includes(:availabilities)
       else
                  Combo.includes(:availabilities)
       end
 
       # Filtrer par disponibilité active (sauf admin avec include_deleted ou admin=true)
-      unless current_user&.is_a?(Administrator) && (params[:admin] == "true" || params[:include_deleted] == "true")
+      unless current_user&.type == "Administrator" && (params[:admin] == "true" || params[:include_deleted] == "true")
         now = Time.current
         combos = combos.joins(:availabilities)
                        .where(
@@ -45,28 +45,16 @@ module Api
         combos = combos.order(created_at: :desc)
       end
 
-      render json: {
-        success: true,
-        data: combos.map { |combo| combo_json(combo) },
-        errors: []
-      }, status: :ok
+      render_success(data: combos.map(&:as_json), errors: [])
     end
 
     def create
       combo = Combo.new(combo_params)
 
       if combo.save
-        render json: {
-          success: true,
-          data: combo_json(combo),
-          errors: []
-        }, status: :ok
+        render_success(data: combo.as_json, errors: [])
       else
-        render json: {
-          success: false,
-          data: nil,
-          errors: combo.errors.full_messages
-        }, status: :ok
+        render_error(combo.errors.full_messages)
       end
     end
 
@@ -74,21 +62,6 @@ module Api
 
     def combo_params
       params.require(:combo).permit(:name, :description, :price, :image)
-    end
-
-    def combo_json(combo)
-      {
-        id: combo.id,
-        name: combo.name,
-        description: combo.description,
-        price: combo.price.to_f,
-        image_url: combo.image.attached? ? url_for(combo.image) : nil,
-        created_at: combo.created_at,
-        deleted_at: combo.deleted_at,
-        availabilities: combo.availabilities.map { |a|
-          { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
-        }
-      }
     end
   end
 end

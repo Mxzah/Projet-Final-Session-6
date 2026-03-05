@@ -19,6 +19,12 @@ class ComboCreateSuccessTest < ActionDispatch::IntegrationTest
     assert_equal "Menu Dégustation", json["data"]["name"]
     assert_equal "Entrée, plat, dessert", json["data"]["description"]
     assert_equal 59.99, json["data"]["price"]
+
+    # Validation BD
+    combo = Combo.find(json["data"]["id"])
+    assert_equal "Menu Dégustation", combo.name
+    assert_equal "Entrée, plat, dessert", combo.description
+    assert_equal 59.99, combo.price.to_f
   end
 
   # Test 2: POST /api/combos sans description (optionnelle)
@@ -31,6 +37,12 @@ class ComboCreateSuccessTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert json["success"]
     assert_nil json["data"]["description"]
+
+    # Validation BD
+    combo = Combo.find(json["data"]["id"])
+    assert_equal "Combo Sans Desc", combo.name
+    assert_nil combo.description
+    assert_equal 25.99, combo.price.to_f
   end
 
   # Test 3: POST /api/combos avec prix minimum (0.01)
@@ -43,6 +55,10 @@ class ComboCreateSuccessTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 0.01, json["data"]["price"]
+
+    # Validation BD
+    combo = Combo.find(json["data"]["id"])
+    assert_equal 0.01, combo.price.to_f
   end
 
   # Test 4: POST /api/combos avec prix maximum (9999.99)
@@ -68,6 +84,10 @@ class ComboCreateSuccessTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 100, json["data"]["name"].length
+
+    # Validation BD
+    combo = Combo.find(json["data"]["id"])
+    assert_equal long_name, combo.name
   end
 
   # Test 6: POST /api/combos avec description de 255 caractères (limite)
@@ -81,5 +101,9 @@ class ComboCreateSuccessTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 255, json["data"]["description"].length
+
+    # Validation BD
+    combo = Combo.find(json["data"]["id"])
+    assert_equal long_desc, combo.description
   end
 end

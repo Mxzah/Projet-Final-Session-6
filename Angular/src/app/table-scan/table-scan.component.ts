@@ -30,6 +30,12 @@ export class TableScanComponent implements OnInit {
 
         this.tableService.setPendingToken(qrToken);
 
+        // Extract server_id from query params (e.g. /table/:token?s=123)
+        const serverId = this.route.snapshot.queryParamMap.get('s');
+        if (serverId) {
+            this.tableService.setPendingServerId(serverId);
+        }
+
         if (this.authService.isAuthenticated()) {
             this.tableService.validateAndSavePendingToken().subscribe(() => {
                 this.router.navigate(['/form']);

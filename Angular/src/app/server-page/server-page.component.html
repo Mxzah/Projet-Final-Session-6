@@ -25,6 +25,93 @@
     </div>
   }
 
+  <!-- ═══════════ Section 0: Restaurant Tables (QR Codes) ═══════════ -->
+  <div class="section tables-section">
+    <div class="section-header">
+      <mat-icon class="section-icon tables-icon">qr_code_2</mat-icon>
+      <h2>{{ ts.t('server.tablesTitle') }}</h2>
+      @if (!tablesLoading) {
+        <span class="section-count">{{ tables.length }}</span>
+      }
+    </div>
+
+    @if (tablesLoading) {
+      <div class="spinner-wrapper">
+        <mat-spinner diameter="36" />
+      </div>
+    }
+
+    @if (tablesError) {
+      <div class="error-msg">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ tablesError }}</span>
+        <button mat-button (click)="loadTables()">{{ ts.t('cuisine.retry') }}</button>
+      </div>
+    }
+
+    @if (!tablesLoading && !tablesError) {
+      @if (tables.length === 0) {
+        <div class="empty-section">
+          <mat-icon>table_restaurant</mat-icon>
+          <p>{{ ts.t('server.noTables') }}</p>
+        </div>
+      }
+
+      @if (tables.length > 0) {
+        <div class="tables-grid">
+          @for (table of tables; track table.id) {
+            <mat-card class="table-card" [class.table-available]="isTableAvailable(table)" [class.table-occupied]="!isTableAvailable(table)">
+              <mat-card-header>
+                <div class="table-card-title-row">
+                  <span class="table-number-badge">
+                    <mat-icon>table_restaurant</mat-icon>
+                    {{ ts.t('cuisine.table') }} {{ table.number }}
+                  </span>
+                  <span class="table-status-badge" [class.available]="isTableAvailable(table)" [class.occupied]="!isTableAvailable(table)">
+                    {{ isTableAvailable(table) ? ts.t('server.tableAvailable') : ts.t('server.tableOccupied') }}
+                  </span>
+                </div>
+                <div class="table-meta">
+                  <span class="table-seats">
+                    <mat-icon>people</mat-icon>
+                    {{ table.capacity }} {{ ts.t('server.seats') }}
+                  </span>
+                </div>
+              </mat-card-header>
+              <mat-card-content>
+                <button mat-flat-button class="show-qr-btn" (click)="presentQr(table)"
+                  [matTooltip]="ts.t('server.scanInstruction')">
+                  <mat-icon>qr_code</mat-icon>
+                  {{ ts.t('server.showQr') }}
+                </button>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    }
+
+    <!-- QR Overlay -->
+    @if (presentedTableId) {
+      <div class="qr-overlay" (click)="closePresentedQr()">
+        <div class="qr-modal" (click)="$event.stopPropagation()">
+          <button mat-icon-button class="qr-modal-close" (click)="closePresentedQr()">
+            <mat-icon>close</mat-icon>
+          </button>
+          @if (getPresentedTable(); as table) {
+            <h3>{{ ts.t('cuisine.table') }} {{ table.number }}</h3>
+            <p class="qr-instruction">{{ ts.t('server.scanInstruction') }}</p>
+            <div id="presented-qr-container" class="qr-container"></div>
+            <p class="qr-presented-label">
+              <mat-icon>check_circle</mat-icon>
+              {{ ts.t('server.qrPresented') }}
+            </p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
   @if (!loading && !error) {
     <!-- ═══════════ Section 1: Unassigned Orders ═══════════ -->
     <div class="section">

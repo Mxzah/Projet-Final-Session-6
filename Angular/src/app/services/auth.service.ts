@@ -4,6 +4,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
 export interface UserData {
+  id: number;
   email: string;
   first_name: string;
   last_name: string;

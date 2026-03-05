@@ -48,7 +48,7 @@ export class TableFormComponent implements OnInit {
     private orderService: OrderService,
     public ts: TranslationService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.table = this.tableService.getCurrentTable();
@@ -97,11 +97,17 @@ export class TableFormComponent implements OnInit {
     this.isSubmitting.set(true);
     this.apiError.set(null);
 
+    // Check for server_id from QR code scan
+    const pendingServerId = this.tableService.getPendingServerId();
+    const serverIdNum = pendingServerId ? parseInt(pendingServerId, 10) : null;
+    this.tableService.clearPendingServerId();
+
     this.orderService.createOrder({
       nb_people: guestCount!,
       note: '',
       table_id: table.id,
-      vibe_id: vibeId ?? null
+      vibe_id: vibeId ?? null,
+      server_id: serverIdNum
     }).subscribe({
       next: () => {
         this.router.navigate(['/menu']);

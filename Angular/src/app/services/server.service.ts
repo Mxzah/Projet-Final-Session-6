@@ -3,6 +3,15 @@ import { Observable } from 'rxjs';
 import { ApiService, ApiResponse } from './api.service';
 import { CuisineOrderLine, CuisineOrder } from './cuisine.service';
 
+export interface ServerTable {
+  id: number;
+  number: number;
+  capacity: number;
+  status: string;
+  qr_token: string;
+  availabilities?: { id: number; start_at: string; end_at?: string | null }[];
+}
+
 export interface ServerOrdersResponse {
   unassigned: CuisineOrder[];
   mine: (CuisineOrder & { ended_at?: string | null })[];
@@ -13,7 +22,11 @@ export interface ServerOrdersResponse {
 })
 export class ServerService {
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService) { }
+
+  getTables(): Observable<ApiResponse<ServerTable[]>> {
+    return this.api.get<ServerTable[]>('/api/server/tables');
+  }
 
   getOrders(): Observable<ApiResponse<ServerOrdersResponse>> {
     return this.api.get<ServerOrdersResponse>('/api/server/orders');

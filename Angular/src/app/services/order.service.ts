@@ -58,7 +58,7 @@ export interface VibeData {
 })
 export class OrderService {
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService) { }
 
   getOrders(filters?: { search?: string; sort?: string; closed?: boolean; total_min?: number | null; total_max?: number | null }): Observable<ApiResponse<OrderData[]>> {
     let url = '/api/orders';
@@ -82,6 +82,7 @@ export class OrderService {
     table_id: number;
     vibe_id?: number | null;
     tip?: number | null;
+    server_id?: number | null;
   }): Observable<ApiResponse<OrderData>> {
     return this.api.post<OrderData>('/api/orders', { order: data });
   }

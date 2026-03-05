@@ -66,6 +66,7 @@ Rails.application.routes.draw do
     delete "kitchen/order_lines/:id", to: "cuisine#destroy_line"
 
     # Server (waiter) dashboard
+    get "server/tables", to: "server#tables"
     get "server/orders", to: "server#orders"
     post "server/orders/:id/assign", to: "server#assign"
     post "server/orders/:id/release", to: "server#release"

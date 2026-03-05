@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -9,13 +9,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ServerService, ServerOrdersResponse } from '../services/server.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ServerService, ServerOrdersResponse, ServerTable } from '../services/server.service';
 import { CuisineOrder, CuisineOrderLine } from '../services/cuisine.service';
 import { AuthService } from '../services/auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { TranslationService } from '../services/translation.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
+import QRCodeStyling from 'styled-qr-code';
 
 @Component({
   selector: 'app-server-page',
@@ -29,17 +31,25 @@ import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDia
     MatButtonModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     HeaderComponent
   ],
   templateUrl: './server-page.component.html',
   styleUrls: ['./server-page.component.css']
 })
-export class ServerPageComponent implements OnInit {
+export class ServerPageComponent implements OnInit, AfterViewChecked {
   unassignedOrders: CuisineOrder[] = [];
   myOrders: (CuisineOrder & { ended_at?: string | null; server_released?: boolean })[] = [];
   loading = true;
   error: string | null = null;
   actionError = '';
+
+  // Tables with QR codes
+  tables: ServerTable[] = [];
+  tablesLoading = true;
+  tablesError: string | null = null;
+  presentedTableId: number | null = null;
+  private qrRenderedForTable: number | null = null;
 
   readonly statuses = ['sent', 'in_preparation', 'ready', 'served'];
   advancingLineIds = new Set<number>();
@@ -53,10 +63,17 @@ export class ServerPageComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadOrders();
+    this.loadTables();
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.presentedTableId && this.presentedTableId !== this.qrRenderedForTable) {
+      this.renderPresentedQr();
+    }
   }
 
   loadOrders(): void {
@@ -272,6 +289,77 @@ export class ServerPageComponent implements OnInit {
 
   allLinesServed(order: CuisineOrder): boolean {
     return order.order_lines.length > 0 && order.order_lines.every(l => l.status === 'served');
+  }
+
+  // ── Tables with QR codes ──
+  loadTables(): void {
+    this.tablesLoading = true;
+    this.tablesError = null;
+    this.serverService.getTables().subscribe({
+      next: (res) => {
+        this.tables = res.data ?? [];
+        this.tablesLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.tablesError = this.ts.t('server.tablesLoadError');
+        this.tablesLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getTableQrUrl(table: ServerTable): string {
+    const base = window.location.origin.replace(/\/+$/, '');
+    const userId = this.authService.getCurrentUser()?.id;
+    return `${base}/table/${table.qr_token}${userId ? '?s=' + userId : ''}`;
+  }
+
+  presentQr(table: ServerTable): void {
+    this.presentedTableId = table.id;
+    this.qrRenderedForTable = null; // force re-render
+  }
+
+  closePresentedQr(): void {
+    this.presentedTableId = null;
+    this.qrRenderedForTable = null;
+  }
+
+  getPresentedTable(): ServerTable | null {
+    return this.tables.find(t => t.id === this.presentedTableId) ?? null;
+  }
+
+  isTableAvailable(table: ServerTable): boolean {
+    if (!table.availabilities || table.availabilities.length === 0) return false;
+    const now = Date.now();
+    return table.availabilities.some(a => {
+      const start = new Date(a.start_at).getTime();
+      const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
+      return start <= now && now < end;
+    });
+  }
+
+  private renderPresentedQr(): void {
+    const table = this.getPresentedTable();
+    if (!table) return;
+    const container = document.getElementById('presented-qr-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    const qrCode = new QRCodeStyling({
+      width: 280,
+      height: 280,
+      type: 'canvas',
+      data: this.getTableQrUrl(table),
+      margin: 10,
+      dotsOptions: { color: '#8a3f24', type: 'rounded' as any },
+      backgroundOptions: { color: '#fbf8f2' },
+      cornersSquareOptions: { type: 'extra-rounded' as any, color: '#1b1a17' },
+      cornersDotOptions: { type: 'dot' as any, color: '#1b1a17' },
+      qrOptions: { errorCorrectionLevel: 'M' }
+    });
+    qrCode.append(container);
+    this.qrRenderedForTable = table.id;
   }
 
   goBack(): void {

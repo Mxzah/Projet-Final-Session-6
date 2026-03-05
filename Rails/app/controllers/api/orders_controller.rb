@@ -58,6 +58,14 @@ module Api
       order = Order.new(order_params)
       order.client = current_user
 
+      # Validate server_id is actually a Waiter if provided
+      if order.server_id.present?
+        waiter = User.find_by(id: order.server_id)
+        unless waiter&.type == "Waiter"
+          order.server_id = nil
+        end
+      end
+
       if order.save
         render_success(data: order.as_json, errors: [])
       else
@@ -106,7 +114,7 @@ module Api
     private
 
     def order_params
-      params.require(:order).permit(:nb_people, :note, :table_id, :vibe_id, :tip)
+      params.require(:order).permit(:nb_people, :note, :table_id, :vibe_id, :tip, :server_id)
     end
 
     def order_update_params

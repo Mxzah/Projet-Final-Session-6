@@ -64,6 +64,18 @@ export class TableService {
         sessionStorage.removeItem('pendingQrToken');
     }
 
+    setPendingServerId(serverId: string): void {
+        sessionStorage.setItem('pendingServerId', serverId);
+    }
+
+    getPendingServerId(): string | null {
+        return sessionStorage.getItem('pendingServerId');
+    }
+
+    clearPendingServerId(): void {
+        sessionStorage.removeItem('pendingServerId');
+    }
+
     setOrderPreferences(nbPeople: number, vibeId: number | null): void {
         sessionStorage.setItem('orderPreferences', JSON.stringify({ nb_people: nbPeople, vibe_id: vibeId }));
     }

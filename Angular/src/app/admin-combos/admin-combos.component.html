@@ -10,16 +10,13 @@
           </button>
         </h2>
         <p class="welcome-text">{{ ts.t('admin.combos.subtitle') }}</p>
-        <div class="show-deleted-toggle">
-          <mat-slide-toggle [checked]="showDeleted()" (change)="toggleShowDeleted()">{{ ts.t('admin.combos.showDeleted') }}</mat-slide-toggle>
-        </div>
       </div>
 
       @if (loadError()) {
         <div class="admin-error">{{ loadError() }}</div>
       }
 
-      @if (actionError() && !isCreating()) {
+      @if (actionError()) {
         <div class="admin-error">{{ actionError() }}</div>
       }
 
@@ -78,9 +75,6 @@
           </button>
         </h2>
         <p class="welcome-text">{{ ts.t('admin.comboItems.detailSubtitle') }}</p>
-        <div class="show-deleted-toggle">
-          <mat-slide-toggle [checked]="showDeleted()" (change)="toggleShowDeletedDetail()">{{ ts.t('admin.comboItems.showDeleted') }}</mat-slide-toggle>
-        </div>
       </div>
 
       <!-- Price comparison section -->
@@ -103,7 +97,7 @@
         </div>
       }
 
-      @if (actionError() && !isAddingItem()) {
+      @if (actionError()) {
         <div class="admin-error">{{ actionError() }}</div>
       }
 
@@ -149,147 +143,3 @@
     }
   </div>
 </main>
-
-@if (isCreating()) {
-  <div class="modal-overlay">
-    <mat-card class="modal modal-create">
-      <button mat-icon-button class="modal-close" (click)="cancelCreate()">
-        <mat-icon>close</mat-icon>
-      </button>
-
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ ts.t('admin.combos.createTitle') }}</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        @if (actionError()) {
-          <div class="modal-error">{{ actionError() }}</div>
-        }
-
-        <form [formGroup]="createForm" (ngSubmit)="saveCreate()">
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.name') }}</mat-label>
-            <input matInput formControlName="name" maxlength="100" />
-            @if (createForm.controls.name.dirty && createForm.controls.name.errors) {
-              <mat-error>
-                @if (createForm.controls.name.errors['required']) {
-                  {{ ts.t('admin.nameRequired') }}
-                } @else if (createForm.controls.name.errors['maxlength']) {
-                  {{ ts.t('admin.combos.nameMaxLength') }}
-                } @else if (createForm.controls.name.errors['pattern']) {
-                  {{ ts.t('admin.combos.nameWhitespace') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.description') }}</mat-label>
-            <textarea matInput rows="3" formControlName="description" maxlength="255"></textarea>
-            @if (createForm.controls.description.dirty && createForm.controls.description.errors?.['maxlength']) {
-              <mat-error>{{ ts.t('admin.combos.descMaxLength') }}</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.price') }}</mat-label>
-            <input matInput type="number" step="0.01" min="0" max="9999.99" formControlName="price" (input)="clampPrice($event)" />
-            @if (createForm.controls.price.dirty && createForm.controls.price.errors) {
-              <mat-error>
-                @if (createForm.controls.price.errors['required']) {
-                  {{ ts.t('admin.priceRequired') }}
-                } @else if (createForm.controls.price.errors['min']) {
-                  {{ ts.t('admin.combos.priceMin') }}
-                } @else if (createForm.controls.price.errors['max']) {
-                  {{ ts.t('admin.combos.priceMax') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <app-image-upload
-            [previews]="createImagePreviews()"
-            (imagesSelected)="onImagesSelected($event)">
-          </app-image-upload>
-
-          <app-availability-list
-            #createAvailList
-            [availabilities]="createAvailabilities()"
-            [disabled]="isSaving()"
-            (availabilitiesChange)="createAvailabilities.set($event)">
-          </app-availability-list>
-
-          <mat-card-actions class="modal-actions">
-            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelCreate()">{{ ts.t('admin.cancel') }}</button>
-            <button mat-flat-button type="submit" class="btn-primary" [disabled]="isSaving()">
-              {{ isSaving() ? ts.t('admin.combos.creating') : ts.t('tables.create') }}
-            </button>
-          </mat-card-actions>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  </div>
-}
-
-@if (isAddingItem()) {
-  <div class="modal-overlay">
-    <mat-card class="modal modal-add-item">
-      <button mat-icon-button class="modal-close" (click)="cancelAddItem()">
-        <mat-icon>close</mat-icon>
-      </button>
-
-      <mat-card-header>
-        <mat-card-title class="modal-title">{{ ts.t('admin.comboItems.addTitle') }}</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        @if (actionError()) {
-          <div class="modal-error">{{ actionError() }}</div>
-        }
-
-        <form [formGroup]="addItemForm" (ngSubmit)="saveAddItem()">
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.comboItems.item') }}</mat-label>
-            <mat-select formControlName="item_id" (opened)="onSelectOpened()">
-              <div class="select-search-wrapper">
-                <input matInput type="text" class="select-search-input" [placeholder]="ts.t('admin.comboItems.searchItem')" (input)="onItemSearchInput($event)" (keydown.space)="$event.stopPropagation()" (click)="$event.stopPropagation()" />
-              </div>
-              @for (item of filteredItems(); track item.id) {
-                <mat-option [value]="item.id" [disabled]="unavailableItemIds().has(item.id)" [class.unavailable-option]="unavailableItemIds().has(item.id)">{{ item.name }}</mat-option>
-              }
-              @if (filteredItems().length === 0) {
-                <mat-option disabled>{{ ts.t('admin.comboItems.noItemsFound') }}</mat-option>
-              }
-            </mat-select>
-            @if ((addItemForm.controls.item_id.dirty || addItemForm.controls.item_id.touched) && addItemForm.controls.item_id.errors?.['required']) {
-              <mat-error>{{ ts.t('admin.comboItems.itemRequired') }}</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="modal-field-full">
-            <mat-label>{{ ts.t('admin.comboItems.quantity') }}</mat-label>
-            <input matInput type="number" min="1" max="10" formControlName="quantity" (input)="clampQuantity($event)" />
-            @if ((addItemForm.controls.quantity.dirty || addItemForm.controls.quantity.touched) && addItemForm.controls.quantity.errors) {
-              <mat-error>
-                @if (addItemForm.controls.quantity.errors['required']) {
-                  {{ ts.t('admin.comboItems.quantityRequired') }}
-                } @else if (addItemForm.controls.quantity.errors['min']) {
-                  {{ ts.t('admin.comboItems.quantityMin') }}
-                } @else if (addItemForm.controls.quantity.errors['max']) {
-                  {{ ts.t('admin.comboItems.quantityMax') }}
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-card-actions class="modal-actions">
-            <button mat-stroked-button type="button" class="btn-cancel" (click)="cancelAddItem()">{{ ts.t('admin.cancel') }}</button>
-            <button mat-flat-button type="submit" class="btn-primary" [disabled]="isSavingItem()">
-              {{ isSavingItem() ? ts.t('admin.comboItems.adding') : ts.t('admin.comboItems.add') }}
-            </button>
-          </mat-card-actions>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  </div>
-}

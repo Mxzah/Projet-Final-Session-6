@@ -25,6 +25,12 @@ class ComboItemCreateSuccessTest < ActionDispatch::IntegrationTest
     assert_equal @combo.id, json["data"]["combo_id"]
     assert_equal @item1.id, json["data"]["item_id"]
     assert_equal 2, json["data"]["quantity"]
+
+    # Validation BD
+    combo_item = ComboItem.find(json["data"]["id"])
+    assert_equal @combo.id, combo_item.combo_id
+    assert_equal @item1.id, combo_item.item_id
+    assert_equal 2, combo_item.quantity
   end
 
   # Test 2: POST /api/combo_items avec quantité minimum (1)
@@ -37,6 +43,10 @@ class ComboItemCreateSuccessTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 1, json["data"]["quantity"]
+
+    # Validation BD
+    combo_item = ComboItem.find(json["data"]["id"])
+    assert_equal 1, combo_item.quantity
   end
 
   # Test 3: POST /api/combo_items avec quantité maximum (10)
@@ -49,6 +59,10 @@ class ComboItemCreateSuccessTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 10, json["data"]["quantity"]
+
+    # Validation BD
+    combo_item = ComboItem.find(json["data"]["id"])
+    assert_equal 10, combo_item.quantity
   end
 
   # Test 4: POST /api/combo_items retourne les noms combo et item

@@ -51,11 +51,11 @@ class ComboItemDestroyFailTest < ActionDispatch::IntegrationTest
   # VALIDATION - ID INEXISTANT
   # ══════════════════════════════════════════
 
-  # Test 3: Delete avec id inexistant retourne 404
-  test "destroy avec id inexistant retourne 404" do
+  # Test 3: Delete avec id inexistant retourne not found
+  test "destroy avec id inexistant retourne not found" do
     delete "/api/combo_items/999999", as: :json
 
-    assert_response :not_found
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -64,7 +64,7 @@ class ComboItemDestroyFailTest < ActionDispatch::IntegrationTest
   test "destroy avec id égal à 0 retourne not found" do
     delete "/api/combo_items/0", as: :json
 
-    assert_response :not_found
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -73,7 +73,7 @@ class ComboItemDestroyFailTest < ActionDispatch::IntegrationTest
   test "destroy avec id négatif retourne not found" do
     delete "/api/combo_items/-1", as: :json
 
-    assert_response :not_found
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end

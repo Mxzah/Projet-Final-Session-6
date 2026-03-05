@@ -5,6 +5,12 @@ module Api
     before_action :set_order, only: [ :assign, :release, :clean ]
     before_action :set_line,  only: [ :serve_line, :update_line, :destroy_line ]
 
+    # GET /api/server/tables — returns all tables with QR tokens for the server to present
+    def tables
+      tables = Table.includes(:availabilities).order(:number)
+      render_success(data: tables.map { |t| server_table_json(t) }, errors: [])
+    end
+
     # GET /api/server/orders — returns { unassigned: [...], mine: [...] }
     def orders
       base = Order.where(ended_at: nil)
@@ -73,7 +79,7 @@ module Api
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
-      @order.table.update_columns(cleaned_at: Time.current)
+      @order.table.mark_cleaned!
 
       render_success(data: [], errors: [])
     end
@@ -199,6 +205,19 @@ module Api
       return items_map[id]  if type == "Item"
       return combos_map[id] if type == "Combo"
       nil
+    end
+
+    def server_table_json(table)
+      {
+        id: table.id,
+        number: table.number,
+        capacity: table.nb_seats,
+        status: (table.cleaned_at.nil? ? table.orders.any? : table.orders.where("created_at > ?", table.cleaned_at).any?) ? "occupied" : "available",
+        qr_token: table.temporary_code,
+        availabilities: table.availabilities.map { |a|
+          { id: a.id, start_at: a.start_at, end_at: a.end_at }
+        }
+      }
     end
   end
 end
