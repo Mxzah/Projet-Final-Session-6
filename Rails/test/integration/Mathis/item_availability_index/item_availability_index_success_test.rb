@@ -28,7 +28,7 @@ class ItemAvailabilityIndexSuccessTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
-    assert_equal 2, json["data"].length
-    assert_equal 2, Availability.where(available_type: "Item", available_id: @item.id).count
+    assert_equal 3, json["data"].length
+    assert_equal 3, Availability.where(available_type: "Item", available_id: @item.id).count
   end
 end

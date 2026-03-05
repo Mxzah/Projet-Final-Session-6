@@ -51,12 +51,6 @@ module Api
     end
 
     # POST /api/server/orders/:id/release
-    # Appelé quand le serveur clique "Libérer la table" pour une commande non payée.
-    # - Ferme la commande (ended_at = maintenant)
-    # - Marque server_released = true pour afficher le badge "Libérée" dans /serve
-    # - NE libère PAS la table : server_id est gardé, donc la table reste occupée
-    # - Le client est déconnecté côté Angular car ended_at est présent
-    # La table devient disponible seulement après l'appel à "clean"
     def release
       unless @order.server_id == current_user.id || current_user.type == "Administrator"
         return render_error(I18n.t("controllers.server.not_assigned"))
@@ -70,10 +64,6 @@ module Api
     end
 
     # POST /api/server/orders/:id/clean
-    # Appelé quand le serveur clique "Nettoyer la table" (après paiement OU après libération).
-    # - Met server_id = nil : c'est ça qui libère vraiment la table et la rend disponible
-    # - La commande disparaît du dashboard /serve
-    # - La table redevient disponible pour un nouveau client
     def clean
       unless @order.server_id == current_user.id || current_user.type == "Administrator"
         return render_error(I18n.t("controllers.server.not_assigned"))
@@ -109,6 +99,10 @@ module Api
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
+      if @line.status == "served"
+        return render_error(I18n.t("controllers.server.cannot_modify_line", status: @line.status))
+      end
+
       if @line.update(line_update_params)
         render_success(data: line_json(@line.reload), errors: [])
       else
@@ -121,6 +115,10 @@ module Api
       order = @line.order
       unless order.server_id == current_user.id || current_user.type == "Administrator"
         return render_error(I18n.t("controllers.server.not_assigned"))
+      end
+
+      unless %w[sent in_preparation].include?(@line.status)
+        return render_error(I18n.t("controllers.server.cannot_delete_line", status: @line.status))
       end
 
       if @line.destroy

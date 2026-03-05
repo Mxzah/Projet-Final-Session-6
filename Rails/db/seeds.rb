@@ -285,7 +285,7 @@ unless tartare && magret && filet && petoncle && carpaccio
 end
 
 # Clean up existing open demo orders on each re-seed to avoid stale order lines
-demo_client_ids = [client1&.id, client2&.id, client3&.id, marie&.id].compact
+demo_client_ids = [ client1&.id, client2&.id, client3&.id, marie&.id ].compact
 Order.where(client_id: demo_client_ids, ended_at: nil).destroy_all
 puts "- Cleaned up existing open demo orders"
 

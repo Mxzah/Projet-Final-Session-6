@@ -42,7 +42,7 @@ Rails.application.routes.draw do
 
     resources :orders, only: [ :index, :show, :create, :update, :destroy ] do
       resources :order_lines, only: [ :index, :create, :update, :destroy ]
-      post 'order_lines/send_lines', to: 'order_lines#send_lines'
+      post "order_lines/send_lines", to: "order_lines#send_lines"
       member do
         post :pay
       end

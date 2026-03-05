@@ -9,12 +9,12 @@ class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
     @item_three = items(:item_three)   # Salade César, 16.99$, entrees
 
     # Attacher une image aux fixtures
-    [@item_one, @item_two, @item_three].each do |item|
+    [ @item_one, @item_two, @item_three ].each do |item|
       item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
     end
 
     # Créer des availabilities actives (start_at maintenant, pas de end_at)
-    [@item_one, @item_two, @item_three].each do |item|
+    [ @item_one, @item_two, @item_three ].each do |item|
       Availability.create!(
         available_type: "Item",
         available_id:   item.id,

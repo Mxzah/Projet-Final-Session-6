@@ -24,6 +24,10 @@ module Api
 
     # PUT /api/orders/:order_id/order_lines/:id
     def update
+      unless @line.waiting? || @line.sent?
+        return render_error(I18n.t("controllers.order_lines.cannot_modify", status: @line.status))
+      end
+
       if @line.update(line_update_params)
         render_success(data: line_with_image(@line.reload), errors: [])
       else

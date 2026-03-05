@@ -10,8 +10,8 @@ class ItemAvailabilityUpdateSuccessTest < ActionDispatch::IntegrationTest
   end
 
   test "update avec des valeurs valides retourne success true" do
-    new_start = 3.hours.from_now
-    new_end = 2.days.from_now
+    new_start = 5.days.from_now
+    new_end = 6.days.from_now
 
     put "/api/items/#{@item.id}/availabilities/#{@availability.id}", params: {
       availability: { start_at: new_start, end_at: new_end, description: "Après mise à jour" }

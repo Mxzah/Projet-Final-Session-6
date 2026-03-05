@@ -69,7 +69,7 @@ class OrderLine < ApplicationRecord
 
   def cannot_modify_unless_sent
     # A line can only have quantity/note changed if its status is not yet 'served'
-    return unless status_was == 'served' && (quantity_changed? || note_changed? || orderable_id_changed?)
+    return unless status_was == "served" && (quantity_changed? || note_changed? || orderable_id_changed?)
 
     errors.add(:base, "can only be modified when status is not yet 'served'")
   end

@@ -91,14 +91,28 @@ module Api
 
     # POST /api/orders/:id/pay
     def pay
+      if @order.ended_at.present?
+        return render_error(I18n.t("controllers.orders.already_closed"))
+      end
+
       unless @order.order_lines.all?(&:served?)
         return render_error(I18n.t("controllers.orders.not_all_served"))
       end
 
-      @order.tip = params[:tip].to_f
+      tip_value = params[:tip].to_f
+
+      if tip_value < 0
+        return render_error(I18n.t("controllers.orders.tip_negative"))
+      end
+
+      if tip_value > 999.99
+        return render_error(I18n.t("controllers.orders.tip_too_high"))
+      end
+
+      @order.tip = tip_value
       @order.ended_at = Time.current
 
-      if @order.save
+      if @order.save(validate: false)
         render_success(data: @order.reload.as_json, errors: [])
       else
         render_error(@order.errors.full_messages)

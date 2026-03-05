@@ -12,8 +12,8 @@ module Api
                            .order(created_at: :asc)
 
       all_lines = active_orders.flat_map(&:order_lines)
-      item_ids  = all_lines.select { |l| l.orderable_type == 'Item' }.map(&:orderable_id).uniq
-      combo_ids = all_lines.select { |l| l.orderable_type == 'Combo' }.map(&:orderable_id).uniq
+      item_ids  = all_lines.select { |l| l.orderable_type == "Item" }.map(&:orderable_id).uniq
+      combo_ids = all_lines.select { |l| l.orderable_type == "Combo" }.map(&:orderable_id).uniq
       items_map  = Item.where(id: item_ids).index_by(&:id)
       combos_map = Combo.where(id: combo_ids).index_by(&:id)
 
@@ -33,7 +33,7 @@ module Api
         return render_error(I18n.t("controllers.cuisine.already_at_final_status"))
       end
 
-      if next_s == 'served'
+      if next_s == "served"
         return render_error(I18n.t("controllers.cuisine.only_server_can_serve"))
       end
 
@@ -48,6 +48,10 @@ module Api
     def update_line
       return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
 
+      if @line.status == "served"
+        return render_error(I18n.t("controllers.cuisine.cannot_modify_line", status: @line.status))
+      end
+
       if @line.update(line_update_params)
         render_success(data: line_json(@line.reload), errors: [])
       else
@@ -58,6 +62,10 @@ module Api
     # DELETE /api/kitchen/order_lines/:id  (waiter/admin only - hard delete)
     def destroy_line
       return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
+
+      unless %w[sent in_preparation].include?(@line.status)
+        return render_error(I18n.t("controllers.cuisine.cannot_delete_line", status: @line.status))
+      end
 
       if @line.destroy
         render_success(data: [], errors: [])
@@ -128,7 +136,7 @@ module Api
 
     def order_json(order, items_map, combos_map)
       # Kitchen only sees lines that have been sent (not waiting)
-      visible_lines = order.order_lines.reject { |l| l.status == 'waiting' }
+      visible_lines = order.order_lines.reject { |l| l.status == "waiting" }
       lines = visible_lines.map do |l|
         orderable = find_orderable(l.orderable_type, l.orderable_id, items_map, combos_map)
         {
@@ -160,8 +168,8 @@ module Api
 
     def find_orderable(type, id, items_map, combos_map)
       return nil unless type.present? && id.present?
-      return items_map[id]  if type == 'Item'
-      return combos_map[id] if type == 'Combo'
+      return items_map[id]  if type == "Item"
+      return combos_map[id] if type == "Combo"
       nil
     end
   end
