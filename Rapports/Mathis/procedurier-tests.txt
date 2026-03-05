@@ -488,6 +488,116 @@ MODULE 11 — Désarchivage d'un item
        une disponibilité est active
 
 ================================================================================
+MODULE 12 — Gestion des disponibilités (items, tables, combos, catégories)
+================================================================================
+
+Note : Les disponibilités fonctionnent de manière identique pour les items,
+les tables, les combos et les catégories. Les tests ci-dessous s'appliquent
+aux quatre types.
+
+12.1 Affichage de la section Disponibilités
+     Avec admin@restoqr.ca : password123
+     - Ouvrir la modal de création ou de modification d'un item, d'une table,
+       d'un combo ou d'une catégorie
+     - La section « Disponibilités » est visible sous le formulaire principal
+     - Un bouton « + » (icône add) est présent à droite du titre « Disponibilités »
+
+12.2 Ajout d'une disponibilité
+     - Clic sur le bouton « + » : Une nouvelle ligne apparaît avec 3 champs :
+       « Début », « Fin (optionnel) », « Description »
+     - Les champs sont de type datetime-local (saisie manuelle ou calendrier natif)
+
+12.3 Validation — Date de début requise
+     - Laisser le champ « Début » vide et cliquer sur « Ajouter »
+     - Message d'erreur : « La date de début est requise. »
+
+12.4 Validation — Date de début dans le passé
+     - Entrer une date de début antérieure à la minute courante
+     - Message d'erreur : « La date de début doit être dans le futur. »
+     - Note : une date égale à la minute courante est acceptée
+
+12.5 Validation — Date de fin invalide
+     - Entrer une date de fin antérieure ou égale à la date de début
+     - Message d'erreur : « La fin doit être après le début. »
+
+12.6 Validation — Durée minimale
+     - Entrer une date de fin moins d'une heure après la date de début
+     - Message d'erreur : « Durée d'écart minimale : 1 heure. »
+
+12.7 Validation — Description espaces seulement
+     - Entrer uniquement des espaces dans le champ « Description »
+     - Message d'erreur : « La description ne peut pas être composée uniquement
+       d'espaces. »
+
+12.8 Validation — Chevauchement de périodes
+     - Ajouter deux disponibilités dont les périodes se chevauchent
+     - Un message d'erreur « Cette période chevauche une autre disponibilité. »
+       apparaît sous chacune des lignes en conflit
+     - Le bouton « Ajouter » / « Enregistrer » reste désactivé tant que le
+       chevauchement existe
+
+12.9 Suppression d'une disponibilité (future)
+     - Clic sur l'icône « delete » (poubelle) à droite d'une disponibilité future :
+       La ligne disparaît immédiatement du formulaire
+
+12.10 Suppression impossible d'une disponibilité passée
+     - Une disponibilité dont la date de fin est passée affiche un bouton
+       « delete » grisé et désactivé
+     - Un tooltip « Impossible de supprimer une disponibilité passée » est
+       affiché au survol
+
+12.11 Bouton « Terminer » (disponibilité active)
+     - Une disponibilité actuellement active (start_at <= maintenant ET
+       end_at IS NULL ou end_at > maintenant) affiche un bouton « Terminer »
+       (icône stop_circle) à la place du bouton « delete »
+     - Clic sur « Terminer » : La date de fin est automatiquement définie à
+       l'instant présent (arrondi à la minute)
+     - La disponibilité passe au statut « passée »
+     - Clic sur « Enregistrer » : La modification est sauvegardée au serveur
+     - La ressource passe en « INDISPONIBLE » dans le panneau admin si elle
+       n'a plus aucune autre disponibilité active
+
+12.12 Sauvegarde des disponibilités (création)
+     - Ajouter une ou plusieurs disponibilités valides dans la modal de création
+     - Clic sur « Ajouter »
+     - L'item / la table / le combo / la catégorie est créé, puis les
+       disponibilités sont enregistrées en base
+     - La modal se ferme
+
+12.13 Sauvegarde des disponibilités (modification)
+     - Ouvrir la modal d'un item, d'une table, d'un combo ou d'une catégorie
+       existant ayant des disponibilités
+     - Les disponibilités existantes sont pré-chargées dans le formulaire
+     - Modifier une date, ajouter une nouvelle ligne, supprimer une ligne existante
+     - Clic sur « Enregistrer »
+     - Seules les changements sont envoyés (créations, modifications, suppressions)
+     - La modal se ferme
+
+12.14 Impact sur le menu — Ressource sans disponibilité
+     - Un item / une table / un combo / une catégorie sans aucune disponibilité
+       enregistrée apparaît avec le badge « INDISPONIBLE » dans le panneau admin
+     - Cette ressource n'est PAS visible sur la page /menu
+     - Pour une catégorie indisponible : tous ses items sont également exclus
+       du menu, même s'ils ont eux-mêmes des disponibilités actives
+
+12.15 Impact sur le menu — Ressource avec disponibilité active
+     - Un item / une table / un combo / une catégorie ayant au moins une
+       disponibilité dont start_at <= maintenant et end_at IS NULL ou
+       end_at > maintenant apparaît normalement dans le menu
+     - Dans le panneau admin, sa carte n'affiche aucun badge
+
+12.16 Impact sur le menu — Ressource avec disponibilité future uniquement
+     - Un item / une table / un combo / une catégorie dont toutes les
+       disponibilités ont un start_at dans le futur n'est PAS visible dans
+       le menu
+     - Dans le panneau admin, sa carte affiche le badge « INDISPONIBLE »
+
+12.17 Fin optionnelle (disponibilité ouverte)
+     - Ajouter une disponibilité sans remplir le champ « Fin »
+     - Aucune erreur n'est affichée (la fin est optionnelle)
+     - La ressource reste visible dans le menu indéfiniment à partir de la
+       date de début
+
 ================================================================================
                  Page : Administration des catégories (admin-categories)
 ================================================================================
@@ -624,116 +734,5 @@ MODULE 16 — Réorganisation par glisser-déposer (drag and drop)
      - Si le serveur retourne une erreur lors du reorder, la liste est rafraîchie
        depuis le serveur pour revenir à l'ordre précédent
      - Un message d'erreur s'affiche
-
-================================================================================
-MODULE 12 — Gestion des disponibilités (items, tables, combos, catégories)
-================================================================================
-
-Note : Les disponibilités fonctionnent de manière identique pour les items,
-les tables, les combos et les catégories. Les tests ci-dessous s'appliquent
-aux quatre types.
-
-12.1 Affichage de la section Disponibilités
-     Avec admin@restoqr.ca : password123
-     - Ouvrir la modal de création ou de modification d'un item, d'une table,
-       d'un combo ou d'une catégorie
-     - La section « Disponibilités » est visible sous le formulaire principal
-     - Un bouton « + » (icône add) est présent à droite du titre « Disponibilités »
-
-12.2 Ajout d'une disponibilité
-     - Clic sur le bouton « + » : Une nouvelle ligne apparaît avec 3 champs :
-       « Début », « Fin (optionnel) », « Description »
-     - Les champs sont de type datetime-local (saisie manuelle ou calendrier natif)
-
-12.3 Validation — Date de début requise
-     - Laisser le champ « Début » vide et cliquer sur « Ajouter »
-     - Message d'erreur : « La date de début est requise. »
-
-12.4 Validation — Date de début dans le passé
-     - Entrer une date de début antérieure à la minute courante
-     - Message d'erreur : « La date de début doit être dans le futur. »
-     - Note : une date égale à la minute courante est acceptée
-
-12.5 Validation — Date de fin invalide
-     - Entrer une date de fin antérieure ou égale à la date de début
-     - Message d'erreur : « La fin doit être après le début. »
-
-12.6 Validation — Durée minimale
-     - Entrer une date de fin moins d'une heure après la date de début
-     - Message d'erreur : « Durée d'écart minimale : 1 heure. »
-
-12.7 Validation — Description espaces seulement
-     - Entrer uniquement des espaces dans le champ « Description »
-     - Message d'erreur : « La description ne peut pas être composée uniquement
-       d'espaces. »
-
-12.8 Validation — Chevauchement de périodes
-     - Ajouter deux disponibilités dont les périodes se chevauchent
-     - Un message d'erreur « Cette période chevauche une autre disponibilité. »
-       apparaît sous chacune des lignes en conflit
-     - Le bouton « Ajouter » / « Enregistrer » reste désactivé tant que le
-       chevauchement existe
-
-12.9 Suppression d'une disponibilité (future)
-     - Clic sur l'icône « delete » (poubelle) à droite d'une disponibilité future :
-       La ligne disparaît immédiatement du formulaire
-
-12.10 Suppression impossible d'une disponibilité passée
-     - Une disponibilité dont la date de fin est passée affiche un bouton
-       « delete » grisé et désactivé
-     - Un tooltip « Impossible de supprimer une disponibilité passée » est
-       affiché au survol
-
-12.11 Bouton « Terminer » (disponibilité active)
-     - Une disponibilité actuellement active (start_at <= maintenant ET
-       end_at IS NULL ou end_at > maintenant) affiche un bouton « Terminer »
-       (icône stop_circle) à la place du bouton « delete »
-     - Clic sur « Terminer » : La date de fin est automatiquement définie à
-       l'instant présent (arrondi à la minute)
-     - La disponibilité passe au statut « passée »
-     - Clic sur « Enregistrer » : La modification est sauvegardée au serveur
-     - La ressource passe en « INDISPONIBLE » dans le panneau admin si elle
-       n'a plus aucune autre disponibilité active
-
-12.12 Sauvegarde des disponibilités (création)
-     - Ajouter une ou plusieurs disponibilités valides dans la modal de création
-     - Clic sur « Ajouter »
-     - L'item / la table / le combo / la catégorie est créé, puis les
-       disponibilités sont enregistrées en base
-     - La modal se ferme
-
-12.13 Sauvegarde des disponibilités (modification)
-     - Ouvrir la modal d'un item, d'une table, d'un combo ou d'une catégorie
-       existant ayant des disponibilités
-     - Les disponibilités existantes sont pré-chargées dans le formulaire
-     - Modifier une date, ajouter une nouvelle ligne, supprimer une ligne existante
-     - Clic sur « Enregistrer »
-     - Seules les changements sont envoyés (créations, modifications, suppressions)
-     - La modal se ferme
-
-12.14 Impact sur le menu — Ressource sans disponibilité
-     - Un item / une table / un combo / une catégorie sans aucune disponibilité
-       enregistrée apparaît avec le badge « INDISPONIBLE » dans le panneau admin
-     - Cette ressource n'est PAS visible sur la page /menu
-     - Pour une catégorie indisponible : tous ses items sont également exclus
-       du menu, même s'ils ont eux-mêmes des disponibilités actives
-
-12.15 Impact sur le menu — Ressource avec disponibilité active
-     - Un item / une table / un combo / une catégorie ayant au moins une
-       disponibilité dont start_at <= maintenant et end_at IS NULL ou
-       end_at > maintenant apparaît normalement dans le menu
-     - Dans le panneau admin, sa carte n'affiche aucun badge
-
-12.16 Impact sur le menu — Ressource avec disponibilité future uniquement
-     - Un item / une table / un combo / une catégorie dont toutes les
-       disponibilités ont un start_at dans le futur n'est PAS visible dans
-       le menu
-     - Dans le panneau admin, sa carte affiche le badge « INDISPONIBLE »
-
-12.17 Fin optionnelle (disponibilité ouverte)
-     - Ajouter une disponibilité sans remplir le champ « Fin »
-     - Aucune erreur n'est affichée (la fin est optionnelle)
-     - La ressource reste visible dans le menu indéfiniment à partir de la
-       date de début
 
 ================================================================================
