@@ -51,7 +51,7 @@ export class CuisineComponent implements OnInit {
     private location: Location,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar // Affiche une notification temporaire en bas de l'écran (ex: message d'erreur)
   ) {}
 
   ngOnInit(): void {

@@ -10,9 +10,11 @@ Identifiants utilisés :
   - Serveur   : server@restoqr.ca     / password123
   - Admin     : admin@restoqr.ca      / password123
 
+
 ================================================================================
 MODULE 1 — Panier dans /menu (cart.service)
 ================================================================================
+  Fichiers : (aucun test d'intégration — logique en mémoire côté Angular)
 
 1.1  Ajout d'un item au panier
      Avec client@restoqr.ca : password123
@@ -54,6 +56,7 @@ MODULE 1 — Panier dans /menu (cart.service)
 ================================================================================
 MODULE 2 — Page /form — Sélection du vibe et création de la commande
 ================================================================================
+  Fichiers : order_success_test.rb · order_create_fail_test.rb
 
 2.1  Accès à la page /form
      Avec client@restoqr.ca : password123
@@ -94,6 +97,7 @@ MODULE 2 — Page /form — Sélection du vibe et création de la commande
 ================================================================================
 MODULE 3 — Page /order — État vide
 ================================================================================
+  Fichiers : order_success_test.rb · order_index_fail_test.rb · order_show_fail_test.rb
 
 3.1  Page vide sans commande active
      Avec client@restoqr.ca : password123
@@ -118,6 +122,8 @@ MODULE 3 — Page /order — État vide
 ================================================================================
 MODULE 4 — Page /order — Affichage et gestion des lignes
 ================================================================================
+  Fichiers : order_line_success_test.rb · order_line_create_fail_test.rb
+             order_line_update_fail_test.rb · order_line_destroy_fail_test.rb
 
 4.1  En-tête de la commande
      - Le titre « Votre commande » est visible
@@ -155,6 +161,8 @@ MODULE 4 — Page /order — Affichage et gestion des lignes
 ================================================================================
 MODULE 5 — Page /order — Envoi et paiement
 ================================================================================
+  Fichiers : order_line_success_test.rb · order_line_send_lines_fail_test.rb
+             order_line_index_fail_test.rb
 
 5.1  Bouton Envoyer désactivé si panier vide
      - Le bouton « Envoyer » est grisé si aucune ligne « En attente »
@@ -175,6 +183,7 @@ MODULE 5 — Page /order — Envoi et paiement
 ================================================================================
 MODULE 6 — Page /pay — Paiement fictif et fermeture de commande
 ================================================================================
+  Fichiers : order_success_test.rb · order_pay_fail_test.rb
 
 6.1  Accès à la page /pay
      Avec client@restoqr.ca : password123
@@ -202,6 +211,7 @@ MODULE 6 — Page /pay — Paiement fictif et fermeture de commande
 ================================================================================
 MODULE 7 — Page /history — Historique des commandes passées
 ================================================================================
+  Fichiers : order_success_test.rb · order_close_open_fail_test.rb
 
 7.1  Accès à la page /history
      Avec client@restoqr.ca : password123
@@ -246,6 +256,10 @@ MODULE 7 — Page /history — Historique des commandes passées
 ================================================================================
 MODULE 8 — Page /server — Tableau de bord du serveur
 ================================================================================
+  Fichiers : server_success_test.rb · server_fail_test.rb
+             server_assign_fail_test.rb · server_release_fail_test.rb
+             server_clean_fail_test.rb · server_serve_line_fail_test.rb
+             server_update_line_fail_test.rb · server_destroy_line_fail_test.rb
 
 8.1  Accès à la page /server
      Avec server@restoqr.ca : password123
@@ -289,19 +303,28 @@ MODULE 8 — Page /server — Tableau de bord du serveur
 8.8  Libérer une commande (non payée)
      - Cliquer sur « Libérer la table »
      - Appel API : POST /api/server/orders/:id/release
-     - La commande revient dans « Commandes non assignées »
+     - La commande reste dans « Mes commandes » avec un badge « Libérée »
+       (server_released = true, ended_at = maintenant)
+     - La table reste occupée : le client est déconnecté mais
+       la table n'est disponible qu'après « Nettoyer »
+     - Aucune nouvelle commande ne peut être créée sur cette table
+       tant que le serveur n'a pas nettoyé
 
-8.9  Nettoyer une table (commande payée)
-     - Une commande payée (ended_at présent) reste visible dans
+8.9  Nettoyer une table (après paiement ou libération)
+     - Une commande fermée (ended_at présent) reste visible dans
        « Mes commandes » avec le bouton « Nettoyer la table »
      - Cliquer sur « Nettoyer la table »
      - Appel API : POST /api/server/orders/:id/clean
-     - La commande disparaît du tableau de bord
+     - La commande disparaît immédiatement du tableau de bord
+     - La table devient disponible (cleaned_at mis à jour)
+     - Le nom du serveur reste enregistré dans la commande
+       et est visible dans /history
 
 
 ================================================================================
 MODULE 9 — Page /kitchen — Tableau de bord cuisine
 ================================================================================
+  Fichiers : (couvert par les tests de Mathis)
 
 9.1  Accès à la page /kitchen
      Avec cook@restoqr.ca : password123
@@ -337,6 +360,9 @@ MODULE 9 — Page /kitchen — Tableau de bord cuisine
 ================================================================================
 MODULE 10 — Page /admin/vibes — Gestion CRUD des ambiances
 ================================================================================
+  Fichiers : vibe_success_test.rb · vibe_index_fail_test.rb
+             vibe_create_fail_test.rb · vibe_update_fail_test.rb
+             vibe_destroy_fail_test.rb · vibe_restore_fail_test.rb
 
 10.1 Accès à la page /admin/vibes
      Avec admin@restoqr.ca : password123
@@ -395,6 +421,8 @@ MODULE 10 — Page /admin/vibes — Gestion CRUD des ambiances
 ================================================================================
 MODULE 11 — Hard delete vs Soft delete
 ================================================================================
+  Fichiers : order_line_destroy_fail_test.rb · server_destroy_line_fail_test.rb
+             vibe_destroy_fail_test.rb · vibe_restore_fail_test.rb
 
 11.1  Lignes de commande — Hard delete
       - Depuis /order : DELETE /api/orders/:order_id/order_lines/:id
