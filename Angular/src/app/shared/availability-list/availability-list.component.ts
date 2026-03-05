@@ -55,7 +55,7 @@ function makeEndValidator(getGroup: () => FormGroup | null) {
     const startDate = new Date(start);
     const endDate = new Date(control.value);
     if (endDate <= startDate) return { endBeforeStart: true };
-    if (endDate.getTime() - startDate.getTime() < 60 * 60 * 1000) return { minDuration: true };
+    if (!(group as any)._endedNow && endDate.getTime() - startDate.getTime() < 60 * 60 * 1000) return { minDuration: true };
     return null;
   };
 }
@@ -187,6 +187,7 @@ export class AvailabilityListComponent implements OnChanges {
   }
 
   endNow(group: FormGroup): void {
+    (group as any)._endedNow = true;
     const now = this.toDatetimeLocal(new Date().toISOString());
     group.get('end_at')?.setValue(now);
     group.get('end_at')?.markAsDirty();
