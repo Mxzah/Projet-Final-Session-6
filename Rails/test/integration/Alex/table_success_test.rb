@@ -9,19 +9,19 @@ class TableSuccessTest < ActionDispatch::IntegrationTest
       user: { email: @admin.email, password: "password123" }
     }, as: :json
 
-    # Créer des tables pour les tests
+    # Créer des tables pour les tests (numéros uniques pour éviter conflit avec fixtures)
     post "/api/tables", params: {
-      table: { number: 1, nb_seats: 2 }
+      table: { number: 101, nb_seats: 2 }
     }, as: :json
     @table1 = JSON.parse(response.body)["data"]
 
     post "/api/tables", params: {
-      table: { number: 2, nb_seats: 6 }
+      table: { number: 102, nb_seats: 6 }
     }, as: :json
     @table2 = JSON.parse(response.body)["data"]
 
     post "/api/tables", params: {
-      table: { number: 3, nb_seats: 10 }
+      table: { number: 103, nb_seats: 10 }
     }, as: :json
     @table3 = JSON.parse(response.body)["data"]
   end
@@ -267,7 +267,7 @@ class TableSuccessTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     table = json["data"].find { |t| t["id"] == @table1["id"] }
     assert_not_nil table
-    assert_equal 1, table["number"]
+    assert_equal 101, table["number"]
     assert_equal 2, table["capacity"]
     assert_includes %w[available occupied], table["status"]
     assert_not_nil table["qr_token"]

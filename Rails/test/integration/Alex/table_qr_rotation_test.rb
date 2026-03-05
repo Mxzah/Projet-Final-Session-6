@@ -6,6 +6,9 @@ class TableQrRotationTest < ActionDispatch::IntegrationTest
     @waiter = users(:waiter_user)
     @client = users(:valid_user)
 
+    # Fermer la commande ouverte du client (fixture) pour éviter la validation "already has an open order"
+    orders(:open_order).update_columns(ended_at: Time.current)
+
     post "/users/sign_in", params: {
       user: { email: @admin.email, password: "password123" }
     }, as: :json

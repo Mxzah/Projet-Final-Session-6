@@ -21,7 +21,7 @@ class ServerAssignFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "Unauthorized"
+    assert_includes json["errors"], "Accès réservé au personnel de cuisine"
 
     # Database state: unchanged
     @unassigned_order.reload
@@ -52,7 +52,7 @@ class ServerAssignFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "Order already has a server assigned"
+    assert_includes json["errors"], "Un serveur est déjà assigné à cette commande"
   end
 
   # Order is already closed
@@ -66,7 +66,7 @@ class ServerAssignFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "Order is already closed"
+    assert_includes json["errors"], I18n.t("controllers.cuisine.order_already_closed")
   end
 
   # Order not found
@@ -80,6 +80,6 @@ class ServerAssignFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "Order not found"
+    assert_includes json["errors"], "Commande introuvable"
   end
 end

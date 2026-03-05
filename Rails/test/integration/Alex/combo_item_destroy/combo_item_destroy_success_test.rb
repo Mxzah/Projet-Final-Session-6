@@ -50,10 +50,8 @@ class ComboItemDestroySuccessTest < ActionDispatch::IntegrationTest
     delete "/api/combo_items/#{@combo_item['id']}", as: :json
     assert JSON.parse(response.body)["success"]
 
-    get "/api/combos", as: :json
-    json = JSON.parse(response.body)
-    combo_ids = json["data"].map { |c| c["id"] }
-    assert_includes combo_ids, combo_id
+    # Vérifier directement en BD que le combo existe toujours
+    assert Combo.exists?(combo_id)
   end
 
   # Test 4: Suppression d'un combo item ne supprime pas l'item

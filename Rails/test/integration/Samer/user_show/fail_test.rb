@@ -12,6 +12,6 @@ class UserShowFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Record not found"
+    assert_includes json["errors"], "Enregistrement non trouvé"
   end
 end

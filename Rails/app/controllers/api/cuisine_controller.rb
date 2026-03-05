@@ -90,8 +90,16 @@ module Api
     def assign_server
       return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
 
+      if @order.ended_at.present?
+        return render_error(I18n.t("controllers.cuisine.order_already_closed"))
+      end
+
+      if @order.server_id.present?
+        return render_error(I18n.t("controllers.server.already_assigned"))
+      end
+
       @order.update!(server: current_user)
-      render_success(data: [], errors: [])
+      render_success(data: [ { server_id: @order.server_id, server_name: "#{current_user.first_name} #{current_user.last_name}" } ], errors: [])
     end
 
     private

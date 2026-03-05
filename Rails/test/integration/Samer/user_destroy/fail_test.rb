@@ -36,7 +36,7 @@ class UserDestroyFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Record not found"
+    assert_includes json["errors"], "Enregistrement non trouvé"
   end
 
   test "delete as client returns success false" do
@@ -46,6 +46,6 @@ class UserDestroyFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Access restricted to administrators"
+    assert_includes json["errors"], "Accès réservé aux administrateurs"
   end
 end

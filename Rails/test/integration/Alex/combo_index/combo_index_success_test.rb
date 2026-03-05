@@ -6,6 +6,9 @@ class ComboIndexSuccessTest < ActionDispatch::IntegrationTest
     @combo1 = combos(:combo_one)
     @combo2 = combos(:combo_two)
     @combo3 = combos(:combo_three)
+
+    # Créer une availability active pour que les combos apparaissent sans être connecté
+    Availability.create!(available: @combo3, start_at: Time.current, end_at: 1.day.from_now)
   end
 
   # Test 1: GET /api/combos sans être connecté retourne la liste

@@ -25,7 +25,7 @@ class Combo < ApplicationRecord
   validate :name_not_only_whitespace
   validates :description, length: { maximum: 255 }
   validate :description_not_only_whitespace
-  validates :price, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 9999.99 }
+  validates :price, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 9999.99 }
   validate :image_content_type_validation
   validate :image_size_validation
 

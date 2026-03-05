@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::API
   before_action :set_locale
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
+  rescue_from ActionController::ParameterMissing, with: :render_parameter_missing
 
   private
 
@@ -14,6 +15,14 @@ class ApplicationController < ActionController::API
       success: false,
       data: nil,
       errors: [ I18n.t("controllers.common.not_found") ]
+    }, status: :ok
+  end
+
+  def render_parameter_missing(exception)
+    render json: {
+      success: false,
+      data: nil,
+      errors: [ exception.message ]
     }, status: :ok
   end
 end

@@ -57,7 +57,7 @@ class UserUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Record not found"
+    assert_includes json["errors"], "Enregistrement non trouvé"
   end
 
   test "admin cannot update their own account" do
@@ -77,6 +77,6 @@ class UserUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Access restricted to administrators"
+    assert_includes json["errors"], "Accès réservé aux administrateurs"
   end
 end

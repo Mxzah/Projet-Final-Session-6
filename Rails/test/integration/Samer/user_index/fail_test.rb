@@ -12,7 +12,7 @@ class UserIndexFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Access restricted to administrators"
+    assert_includes json["errors"], "Accès réservé aux administrateurs"
   end
 
   test "search with no results returns empty array" do

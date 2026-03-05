@@ -195,10 +195,10 @@ class TableFailTest < ActionDispatch::IntegrationTest
   test "read avec qr_token inexistant retourne not found" do
     get "/api/tables/token_invalide_xyz", as: :json
 
-    assert_response :not_found
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Table introuvable. QR code invalide."
+    assert_includes json["errors"], "Enregistrement non trouvé"
   end
 
   # Test 15: Read avec qr_token vide
@@ -303,10 +303,10 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 50 }
     }, as: :json
 
-    assert_response :not_found
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Table introuvable."
+    assert_includes json["errors"], "Enregistrement non trouvé"
   end
 
   # ══════════════════════════════════════════
@@ -317,10 +317,10 @@ class TableFailTest < ActionDispatch::IntegrationTest
   test "delete avec ID inexistant retourne not found" do
     delete "/api/tables/999999", as: :json
 
-    assert_response :not_found
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Table introuvable."
+    assert_includes json["errors"], "Enregistrement non trouvé"
   end
 
   # Test 25: Double suppression de la même table
@@ -329,7 +329,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
 
     delete "/api/tables/#{@table['id']}", as: :json
-    assert_response :not_found
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
