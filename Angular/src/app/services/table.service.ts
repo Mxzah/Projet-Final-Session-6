@@ -8,6 +8,9 @@ export interface TableData {
     capacity: number;
     status: string;
     qr_token: string;
+    has_open_order?: boolean;
+    open_order_server_id?: number | null;
+    open_order_vibe_id?: number | null;
     availabilities?: { id: number; start_at: string; end_at?: string | null }[];
 }
 

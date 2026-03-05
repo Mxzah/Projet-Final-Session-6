@@ -161,12 +161,16 @@ module Api
     end
 
     def table_json(table)
+      open_order = table.orders.find_by(ended_at: nil)
       {
         id: table.id,
         number: table.number,
         capacity: table.nb_seats,
-        status: (table.cleaned_at.nil? ? table.orders.any? : table.orders.where("created_at > ?", table.cleaned_at).any?) ? "occupied" : "available",
+        status: open_order ? "occupied" : "available",
         qr_token: table.temporary_code,
+        has_open_order: open_order.present?,
+        open_order_server_id: open_order&.server_id,
+        open_order_vibe_id: open_order&.vibe_id,
         availabilities: table.availabilities.map { |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
         }

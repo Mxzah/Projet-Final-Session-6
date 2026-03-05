@@ -652,10 +652,6 @@ mat-card-content {
   color: #c62828;
 }
 
-.table-meta {
-  margin-top: 0.3rem;
-}
-
 .table-seats {
   display: inline-flex;
   align-items: center;
@@ -668,6 +664,28 @@ mat-card-content {
   font-size: 1rem;
   width: 1rem;
   height: 1rem;
+}
+
+.table-server {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--copper);
+  font-weight: 500;
+}
+
+.table-server mat-icon {
+  font-size: 0.95rem;
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.table-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.3rem;
 }
 
 .show-qr-btn {
@@ -735,6 +753,16 @@ mat-card-content {
   justify-content: center;
   align-items: center;
   margin: 0 auto 1rem;
+}
+
+.qr-url-label {
+  font-size: 0.75rem;
+  color: rgba(27, 26, 23, 0.5);
+  word-break: break-all;
+  text-align: center;
+  margin: 0 0 0.75rem;
+  padding: 0 0.5rem;
+  font-family: monospace;
 }
 
 .qr-presented-label {

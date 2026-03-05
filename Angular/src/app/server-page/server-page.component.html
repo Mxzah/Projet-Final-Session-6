@@ -76,6 +76,12 @@
                     <mat-icon>people</mat-icon>
                     {{ table.capacity }} {{ ts.t('server.seats') }}
                   </span>
+                  @if (table.server_name && !isTableAvailable(table)) {
+                    <span class="table-server">
+                      <mat-icon>badge</mat-icon>
+                      {{ table.server_name }}
+                    </span>
+                  }
                 </div>
               </mat-card-header>
               <mat-card-content>
@@ -102,6 +108,7 @@
             <h3>{{ ts.t('cuisine.table') }} {{ table.number }}</h3>
             <p class="qr-instruction">{{ ts.t('server.scanInstruction') }}</p>
             <div id="presented-qr-container" class="qr-container"></div>
+            <p class="qr-url-label">{{ getTableQrUrl(table) }}</p>
             <p class="qr-presented-label">
               <mat-icon>check_circle</mat-icon>
               {{ ts.t('server.qrPresented') }}
@@ -113,113 +120,24 @@
   </div>
 
   @if (!loading && !error) {
-    <!-- ═══════════ Section 1: Unassigned Orders ═══════════ -->
-    <div class="section">
-      <div class="section-header">
-        <mat-icon class="section-icon unassigned-icon">group_add</mat-icon>
-        <h2>{{ ts.t('server.unassignedTitle') }}</h2>
-        <span class="section-count">{{ unassignedOrders.length }}</span>
-      </div>
-
-      @if (unassignedOrders.length === 0) {
-        <div class="empty-section">
-          <mat-icon>check_circle</mat-icon>
-          <p>{{ ts.t('server.noUnassigned') }}</p>
-        </div>
-      }
-
-      @if (unassignedOrders.length > 0) {
-        <div class="orders-grid">
-          @for (order of unassignedOrders; track order.id) {
-            <mat-card class="order-card unassigned-card">
-              <mat-card-header>
-                <div class="card-title-row">
-                  <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
-                  <span class="people-badge">
-                    <mat-icon>people</mat-icon>{{ order.nb_people }} {{ ts.t('cuisine.people') }}
-                  </span>
-                </div>
-                @if (order.vibe_name) {
-                  <div class="vibe-row">
-                    <span class="vibe-badge"
-                      [style.background-color]="order.vibe_color + '22'"
-                      [style.color]="order.vibe_color">
-                      ✦ {{ order.vibe_name }}
-                    </span>
-                  </div>
-                }
-                <div class="order-time">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ ts.t('cuisine.orderedAt') }} {{ formatOrderTime(order.created_at) }}</span>
-                </div>
-              </mat-card-header>
-
-              @if (order.note) {
-                <div class="order-note">
-                  <mat-icon>sticky_note_2</mat-icon>
-                  <span>{{ order.note }}</span>
-                </div>
-              }
-
-              <mat-divider />
-
-              <mat-card-content>
-                <p class="lines-label">{{ ts.t('cuisine.linesLabel') }}</p>
-                <div class="lines-list">
-                  @for (line of order.order_lines; track line.id) {
-                    <div class="line-row">
-                      <div class="line-info">
-                        <div class="line-top">
-                          <span class="line-name">{{ line.orderable_name }}</span>
-                          <span class="line-qty">x{{ line.quantity }}</span>
-                        </div>
-                        @if (line.note) {
-                          <div class="line-note">
-                            <mat-icon>sticky_note_2</mat-icon>
-                            <span>{{ line.note }}</span>
-                          </div>
-                        }
-                      </div>
-                      <div class="line-right">
-                        <span class="status-chip {{ getStatusClass(line.status) }}">
-                          {{ getStatusLabel(line.status) }}
-                        </span>
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <div class="card-action-row">
-                  <button mat-flat-button class="assign-btn" (click)="assignOrder(order)">
-                    <mat-icon>person_add</mat-icon>
-                    {{ ts.t('server.assignMe') }}
-                  </button>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          }
-        </div>
-      }
-    </div>
-
-    <!-- ═══════════ Section 2: My Orders ═══════════ -->
+    <!-- ═══════════ Mes commandes ═══════════ -->
     <div class="section">
       <div class="section-header">
         <mat-icon class="section-icon mine-icon">assignment_ind</mat-icon>
         <h2>{{ ts.t('server.myOrdersTitle') }}</h2>
-        <span class="section-count">{{ myOrders.length }}</span>
+        <span class="section-count">{{ groupedOrders.length }}</span>
       </div>
 
-      @if (myOrders.length === 0) {
+      @if (groupedOrders.length === 0) {
         <div class="empty-section">
           <mat-icon>inbox</mat-icon>
           <p>{{ ts.t('server.noMyOrders') }}</p>
         </div>
       }
 
-      @if (myOrders.length > 0) {
+      @if (groupedOrders.length > 0) {
         <div class="orders-grid">
-          @for (order of myOrders; track order.id) {
+          @for (order of groupedOrders; track order.table_id) {
             <mat-card class="order-card mine-card" [class.paid-card]="isOrderClosed(order)">
               <mat-card-header>
                 <div class="card-title-row">

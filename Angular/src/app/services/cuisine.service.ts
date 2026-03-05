@@ -21,6 +21,7 @@ export interface CuisineOrder {
   vibe_name: string | null;
   vibe_color: string | null;
   table_number: number;
+  table_id: number;
   server_id: number | null;
   server_name: string | null;
   created_at: string;
@@ -32,7 +33,7 @@ export interface CuisineOrder {
 })
 export class CuisineService {
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService) { }
 
   getActiveOrders(): Observable<ApiResponse<CuisineOrder[]>> {
     return this.api.get<CuisineOrder[]>('/api/kitchen/orders');

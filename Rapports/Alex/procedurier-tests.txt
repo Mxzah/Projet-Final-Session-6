@@ -380,3 +380,188 @@ Avec client@restoqr.ca : password123
 - Fermer la modal : Aucun ajout au panier
 
 ================================================================================
+
+
+================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+              Page : Panneau serveur — Tables et QR codes (/serve)
+================================================================================
+
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca   / password123
+  - Client   : client@restoqr.ca  / password123
+  - Serveur  : waiter@restoqr.ca  / password123
+  - Marie    : marie@restoqr.ca   / password123
+  - Cuisinier: cook@restoqr.ca    / password123
+
+================================================================================
+MODULE 8 — Accès au panneau serveur (/serve)
+================================================================================
+
+8.1  Accès avec un compte serveur
+     Avec waiter@restoqr.ca : password123
+     - Se connecter et accéder à /serve
+     - Le panneau serveur s'affiche avec les sections « Mes tables » et « Mes commandes »
+
+8.2  Accès avec un compte admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /serve
+     - Le panneau serveur s'affiche correctement (admin + waiter ont accès)
+
+8.3  Accès avec un compte client
+     Avec client@restoqr.ca : password123
+     - Se connecter et accéder à /serve
+     - Redirection automatique (accès refusé)
+
+8.4  Accès avec un compte cuisinier
+     Avec cook@restoqr.ca : password123
+     - Se connecter et accéder à /serve
+     - Redirection automatique (accès refusé)
+
+8.5  Accès sans être connecté
+     - Ouvrir directement /serve sans être connecté
+     - Redirection vers /login
+
+================================================================================
+MODULE 9 — Section « Mes tables » (liste des tables avec QR codes)
+================================================================================
+
+9.1  Chargement initial
+     Avec waiter@restoqr.ca : password123
+     - Se connecter et accéder à /serve
+     - Un spinner s'affiche pendant le chargement des tables
+     - Une fois chargé, les tables s'affichent en grille avec le compteur
+
+9.2  Affichage des cartes de table
+     - Chaque carte affiche : numéro de table, capacité (places), statut
+     - Le statut est « Disponible » (vert) ou « Occupée » (rouge)
+     - Un bouton « Afficher le QR code » est visible sur chaque carte
+
+9.3  Nom du serveur sur table occupée
+     - Une table occupée par une commande avec serveur assigné affiche
+       le nom du serveur (ex : « Marie Dupont ») avec une icône badge
+     - Une table disponible n'affiche pas de nom de serveur
+
+9.4  Tables triées par numéro
+     - Les tables sont affichées triées par numéro croissant
+
+9.5  Modal QR code
+     - Clic sur « Afficher le QR code » d'une table
+     - Un overlay modal s'ouvre avec :
+       · Le numéro de la table
+       · Le QR code stylisé
+       · L'URL complète sous le QR (ex: http://…/table/TOKEN?s=SERVER_ID)
+       · Un bouton de fermeture (X)
+     - Le QR code contient l'URL avec le paramètre ?s= du serveur connecté
+
+9.6  Fermeture modal QR
+     - Clic sur le bouton « X » : La modal se ferme
+     - Clic sur l'overlay (zone grisée) : La modal se ferme
+
+================================================================================
+MODULE 10 — Assignation automatique du serveur via QR code
+================================================================================
+
+10.1 Scan du QR code avec paramètre ?s=
+     Avec client@restoqr.ca : password123
+     - Scanner (ou ouvrir l'URL) d'un QR code contenant ?s=<server_id>
+     - La page de scan s'ouvre et valide le token
+     - Le server_id est stocké en session (sessionStorage)
+     - Redirection vers le formulaire (/form)
+
+10.2 Création de commande avec server_id
+     Avec client@restoqr.ca : password123
+     - Après avoir scanné un QR avec ?s=<waiter_id>
+     - Remplir le formulaire et envoyer la commande
+     - La commande est créée avec server_id = le serveur du QR code
+     - Vérifiable en base de données
+
+10.3 server_id invalide (non-Waiter) est ignoré
+     - Si l'URL contient ?s=<client_id> (un client, pas un serveur)
+     - La commande est créée avec server_id = null
+     - Aucune erreur affichée
+
+10.4 server_id inexistant est ignoré
+     - Si l'URL contient ?s=999999 (ID inexistant)
+     - La commande est créée avec server_id = null
+     - Aucune erreur affichée
+
+================================================================================
+MODULE 11 — Jonction d'un client à une table occupée
+================================================================================
+
+11.1 Scan d'une table déjà occupée
+     Avec alice@restoqr.ca : password123
+     - Scanner le QR code d'une table qui a déjà une commande ouverte
+     - Le client est automatiquement ajouté à la table (commande créée
+       avec le même serveur et le même vibe que la commande existante)
+     - Redirection directe vers /menu (pas de formulaire)
+
+11.2 Scan d'une table disponible
+     Avec client@restoqr.ca : password123
+     - Scanner le QR code d'une table sans commande ouverte
+     - Redirection vers le formulaire (/form) — comportement normal
+
+================================================================================
+MODULE 12 — Section « Mes commandes » (groupement par table)
+================================================================================
+
+12.1 Groupement par table
+     Avec waiter@restoqr.ca : password123
+     - Quand plusieurs clients rejoignent la même table,
+       une seule carte est affichée pour cette table
+     - Le nombre de personnes est la somme de toutes les commandes
+     - Les lignes de commande de toutes les commandes sont fusionnées
+
+12.2 Badge « Payée » sur commande fermée
+     - Quand le client paie, la carte affiche un badge bleu « Payée »
+     - Le bouton « Nettoyer la table » apparaît
+
+12.3 Badge « Libérée » sur commande libérée
+     - Quand le serveur libère la table, la carte affiche un badge
+       orange « Libérée »
+     - Le bouton « Nettoyer la table » apparaît
+
+================================================================================
+MODULE 13 — Libération de la table (release)
+================================================================================
+
+13.1 Libérer une table
+     Avec waiter@restoqr.ca : password123
+     - Sur une commande ouverte (non payée), cliquer « Libérer la table »
+     - Une modal de confirmation s'ouvre
+     - Clic sur confirmer : La commande est fermée (ended_at)
+     - Toutes les commandes de la table pour ce serveur sont fermées
+     - La carte passe au style « fermée » avec badge « Libérée »
+
+13.2 Annulation de la libération
+     - Clic sur « Libérer la table » puis « Annuler » dans la modal
+     - La modal se ferme, aucun changement
+
+================================================================================
+MODULE 14 — Nettoyage de la table (clean)
+================================================================================
+
+14.1 Nettoyer après paiement
+     Avec waiter@restoqr.ca : password123
+     - Sur une commande payée (badge « Payée »), cliquer « Nettoyer la table »
+     - Une modal de confirmation s'ouvre
+     - Clic sur confirmer :
+       · Toutes les commandes ouvertes sur la table sont fermées
+       · Le QR code de la table est régénéré (nouveau token)
+       · La table redevient « Disponible » dans la section tables
+       · La carte disparaît de « Mes commandes »
+
+14.2 Nettoyer après libération
+     - Même comportement que 14.1 mais après avoir libéré la table
+
+14.3 Un seul nettoyage par table
+     - Avec 3 clients sur la même table, il y a une seule carte « groupée »
+     - Un seul clic « Nettoyer la table » ferme toutes les commandes
+       et régénère le QR code une seule fois
+
+14.4 Annulation du nettoyage
+     - Clic sur « Nettoyer la table » puis « Annuler » dans la modal
+     - La modal se ferme, aucun changement
+
+================================================================================

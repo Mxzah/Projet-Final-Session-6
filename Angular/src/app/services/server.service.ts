@@ -9,11 +9,11 @@ export interface ServerTable {
   capacity: number;
   status: string;
   qr_token: string;
+  server_name?: string | null;
   availabilities?: { id: number; start_at: string; end_at?: string | null }[];
 }
 
 export interface ServerOrdersResponse {
-  unassigned: CuisineOrder[];
   mine: (CuisineOrder & { ended_at?: string | null })[];
 }
 
@@ -30,10 +30,6 @@ export class ServerService {
 
   getOrders(): Observable<ApiResponse<ServerOrdersResponse>> {
     return this.api.get<ServerOrdersResponse>('/api/server/orders');
-  }
-
-  assignOrder(orderId: number): Observable<ApiResponse<any>> {
-    return this.api.post<any>(`/api/server/orders/${orderId}/assign`, {});
   }
 
   releaseOrder(orderId: number): Observable<ApiResponse<any>> {

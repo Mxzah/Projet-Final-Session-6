@@ -38,8 +38,8 @@ import QRCodeStyling from 'styled-qr-code';
   styleUrls: ['./server-page.component.css']
 })
 export class ServerPageComponent implements OnInit, AfterViewChecked {
-  unassignedOrders: CuisineOrder[] = [];
   myOrders: (CuisineOrder & { ended_at?: string | null; server_released?: boolean })[] = [];
+  groupedOrders: (CuisineOrder & { ended_at?: string | null; server_released?: boolean })[] = [];
   loading = true;
   error: string | null = null;
   actionError = '';
@@ -82,8 +82,8 @@ export class ServerPageComponent implements OnInit, AfterViewChecked {
     this.serverService.getOrders().subscribe({
       next: (response) => {
         const data = response.data as any;
-        this.unassignedOrders = data?.unassigned ?? [];
         this.myOrders = data?.mine ?? [];
+        this.groupedOrders = this.groupOrdersByTable(this.myOrders);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -92,22 +92,6 @@ export class ServerPageComponent implements OnInit, AfterViewChecked {
         this.loading = false;
         this.cdr.detectChanges();
       }
-    });
-  }
-
-  // ── Assign order to me ──
-  assignOrder(order: CuisineOrder): void {
-    this.actionError = '';
-    this.serverService.assignOrder(order.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.loadOrders();
-        } else {
-          const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
-          this.snackBar.open(msg, 'OK', { duration: 5000 });
-        }
-      },
-      error: () => this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 })
     });
   }
 
@@ -135,6 +119,7 @@ export class ServerPageComponent implements OnInit, AfterViewChecked {
         next: (res) => {
           if (res.success) {
             this.loadOrders();
+            this.loadTables();
           } else {
             const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
             this.snackBar.open(msg, 'OK', { duration: 5000 });
@@ -291,6 +276,39 @@ export class ServerPageComponent implements OnInit, AfterViewChecked {
     return order.order_lines.length > 0 && order.order_lines.every(l => l.status === 'served');
   }
 
+  // ── Group orders by table (multiple clients on same table → one card) ──
+  private groupOrdersByTable(orders: any[]): any[] {
+    const groups = new Map<number, any>();
+    for (const order of orders) {
+      const key = order.table_id;
+      if (!groups.has(key)) {
+        groups.set(key, {
+          ...order,
+          nb_people: order.nb_people,
+          order_lines: [...order.order_lines],
+        });
+      } else {
+        const group = groups.get(key)!;
+        group.nb_people += order.nb_people;
+        group.order_lines = [...group.order_lines, ...order.order_lines];
+        group.tip = (group.tip || 0) + (order.tip || 0);
+        if (order.note) {
+          group.note = group.note ? group.note + ' | ' + order.note : order.note;
+        }
+        // If any order is still open, the group is open
+        if (!order.ended_at) {
+          group.ended_at = null;
+          group.server_released = false;
+        }
+        // Use earliest created_at
+        if (new Date(order.created_at) < new Date(group.created_at)) {
+          group.created_at = order.created_at;
+        }
+      }
+    }
+    return Array.from(groups.values());
+  }
+
   // ── Tables with QR codes ──
   loadTables(): void {
     this.tablesLoading = true;
@@ -330,13 +348,7 @@ export class ServerPageComponent implements OnInit, AfterViewChecked {
   }
 
   isTableAvailable(table: ServerTable): boolean {
-    if (!table.availabilities || table.availabilities.length === 0) return false;
-    const now = Date.now();
-    return table.availabilities.some(a => {
-      const start = new Date(a.start_at).getTime();
-      const end = a.end_at ? new Date(a.end_at).getTime() : Infinity;
-      return start <= now && now < end;
-    });
+    return table.status === 'available';
   }
 
   private renderPresentedQr(): void {

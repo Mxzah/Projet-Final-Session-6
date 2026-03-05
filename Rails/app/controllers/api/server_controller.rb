@@ -7,21 +7,17 @@ module Api
 
     # GET /api/server/tables — returns all tables with QR tokens for the server to present
     def tables
-      tables = Table.includes(:availabilities).order(:number)
+      tables = Table.includes(:availabilities, orders: :server).order(:number)
       render_success(data: tables.map { |t| server_table_json(t) }, errors: [])
     end
 
-    # GET /api/server/orders — returns { unassigned: [...], mine: [...] }
+    # GET /api/server/orders — returns { mine: [...] }
     def orders
-      base = Order.where(ended_at: nil)
+      mine = Order.where(ended_at: nil, server: current_user)
                   .includes(:table, :client, :server, :vibe, order_lines: :orderable)
                   .order(created_at: :asc)
 
-      unassigned = base.where(server_id: nil)
-      mine = base.where(server: current_user)
-
-      # Also include my orders that are paid (ended_at set) but not yet "cleaned" (released)
-      # i.e. orders where ended_at is set but server is current user — for the "clean" button
+      # Also include my orders that are paid (ended_at set) but not yet "cleaned"
       # Exclude orders whose table has been cleaned AFTER the order ended (already cleaned)
       paid_mine = Order.where(server: current_user)
                        .where("ended_at > ? AND ended_at IS NOT NULL", 24.hours.ago)
@@ -29,14 +25,14 @@ module Api
                        .order(created_at: :desc)
                        .reject { |o| o.table.cleaned_at.present? && o.table.cleaned_at >= o.ended_at }
 
-      all_orders = (unassigned + mine + paid_mine).uniq(&:id)
+      all_orders = (mine + paid_mine).uniq(&:id)
       all_lines = all_orders.flat_map(&:order_lines)
       item_ids  = all_lines.select { |l| l.orderable_type == "Item" }.map(&:orderable_id).uniq
       combo_ids = all_lines.select { |l| l.orderable_type == "Combo" }.map(&:orderable_id).uniq
       items_map  = Item.where(id: item_ids).index_by(&:id)
       combos_map = Combo.where(id: combo_ids).index_by(&:id)
 
-      render_success(data: { unassigned: unassigned.map { |o| order_json(o, items_map, combos_map) }, mine: (mine + paid_mine).uniq(&:id).map { |o| order_json(o, items_map, combos_map) } }, errors: [])
+      render_success(data: { mine: all_orders.map { |o| order_json(o, items_map, combos_map) } }, errors: [])
     end
 
     # POST /api/server/orders/:id/assign — assign current user as server
@@ -56,20 +52,33 @@ module Api
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
-      unless @order.ended_at.present?
-        @order.update_columns(ended_at: Time.current, server_released: true)
-      end
+      # Close ALL open orders on this table for this server (multiple clients may have joined)
+      table = @order.table
+      table.orders.where(ended_at: nil, server_id: current_user.id).update_all(ended_at: Time.current, server_released: true)
 
       render_success(data: [], errors: [])
     end
 
     # POST /api/server/orders/:id/clean
+    # Appelé quand le serveur clique "Nettoyer la table" (après paiement OU après libération).
+    # - Ferme la commande si pas encore fermée (ended_at)
+    # - Met cleaned_at sur la table + régénère le QR code
+    # - La table redevient disponible pour un nouveau client
     def clean
       unless @order.server_id == current_user.id || current_user.type == "Administrator"
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
-      @order.table.mark_cleaned!
+      # Close ALL open orders on this table (multiple clients may have joined)
+      table = @order.table
+      table.orders.where(ended_at: nil).update_all(ended_at: Time.current)
+
+      # Clean the table and regenerate QR code (once for all orders)
+      table.update!(
+        cleaned_at: Time.current,
+        temporary_code: SecureRandom.hex(16),
+        qr_rotated_at: Time.current
+      )
 
       render_success(data: [], errors: [])
     end
@@ -206,12 +215,15 @@ module Api
     end
 
     def server_table_json(table)
+      open_order = table.orders.detect { |o| o.ended_at.nil? }
+      server = open_order&.server
       {
         id: table.id,
         number: table.number,
         capacity: table.nb_seats,
-        status: (table.cleaned_at.nil? ? table.orders.any? : table.orders.where("created_at > ?", table.cleaned_at).any?) ? "occupied" : "available",
+        status: open_order ? "occupied" : "available",
         qr_token: table.temporary_code,
+        server_name: server ? "#{server.first_name} #{server.last_name}" : nil,
         availabilities: table.availabilities.map { |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at }
         }

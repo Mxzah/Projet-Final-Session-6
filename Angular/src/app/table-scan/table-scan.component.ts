@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TableService } from '../services/table.service';
 import { AuthService } from '../services/auth.service';
+import { OrderService } from '../services/order.service';
 import { HeaderComponent } from '../header/header.component';
 
 @Component({
@@ -17,7 +18,8 @@ export class TableScanComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private tableService: TableService,
-        private authService: AuthService
+        private authService: AuthService,
+        private orderService: OrderService
     ) { }
 
     ngOnInit(): void {
@@ -38,7 +40,27 @@ export class TableScanComponent implements OnInit {
 
         if (this.authService.isAuthenticated()) {
             this.tableService.validateAndSavePendingToken().subscribe(() => {
-                this.router.navigate(['/form']);
+                const table = this.tableService.getCurrentTable();
+
+                // If the table already has an open order, join it directly (skip form)
+                if (table && table.has_open_order) {
+                    const pendingServerId = this.tableService.getPendingServerId();
+                    const serverIdNum = pendingServerId ? parseInt(pendingServerId, 10) : (table.open_order_server_id ?? null);
+                    this.tableService.clearPendingServerId();
+
+                    this.orderService.createOrder({
+                        nb_people: 1,
+                        note: '',
+                        table_id: table.id,
+                        vibe_id: table.open_order_vibe_id ?? null,
+                        server_id: serverIdNum
+                    }).subscribe({
+                        next: () => this.router.navigate(['/menu']),
+                        error: () => this.router.navigate(['/menu'])  // may already have an open order
+                    });
+                } else {
+                    this.router.navigate(['/form']);
+                }
             });
         } else {
             this.router.navigate(['/login']);
