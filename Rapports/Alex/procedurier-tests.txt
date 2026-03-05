@@ -192,173 +192,247 @@ MODULE 7 — Traduction (admin-tables)
                   Page : Administration des combos (admin-combos)
 ================================================================================
 
-================================================================================
-MODULE 8 — Accès à la page admin-combos
-================================================================================
-
-8.1  Accès sans être connecté
-     - Ouvrir directement l'URL /admin/combos sans être connecté
-     - Redirection automatique vers /login
-
-8.2  Accès avec un compte client
-     Avec client@restoqr.ca : password123
-     - Se connecter puis accéder à /admin/combos
-     - Redirection automatique vers /menu
-
-8.3  Accès avec un compte admin
-     Avec admin@restoqr.ca : password123
-     - Se connecter puis accéder à /admin/combos
-     - La page d'administration des combos s'affiche correctement
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca   / password123
+  - Client   : client@restoqr.ca  / password123
+  - Serveur  : waiter@restoqr.ca  / password123
 
 ================================================================================
-MODULE 9 — Affichage de la liste des combos
+Accès à la page /admin/combos
 ================================================================================
 
-9.1  Chargement initial
-     Avec admin@restoqr.ca : password123
-     - Se connecter et accéder à /admin/combos
-     - Un spinner de chargement s'affiche pendant le chargement
-     - Une fois chargé, les combos s'affichent en liste
+- Ouvrir /admin/combos sans être connecté : Redirection vers /login
 
-9.2  Affichage des cartes
-     - Chaque carte affiche : nom, description, prix, image
-     - L'image du combo ou une icône par défaut si pas d'image
-     - Boutons « modifier » et « supprimer »
+Avec client@restoqr.ca : password123
 
-9.3  État vide
-     - Si aucun combo n'existe, le message « Aucun combo pour le moment » s'affiche
+- Se connecter ET accéder à /admin/combos : Redirection vers /menu
 
-================================================================================
-MODULE 10 — Création d'un combo
-================================================================================
+Avec waiter@restoqr.ca : password123
 
-10.1  Ouverture de la modal de création
-     Avec admin@restoqr.ca : password123
-     - Clic sur le bouton « + » : La modal s'ouvre
-     - Le titre de la modal est « Créer un combo »
-     - Les champs sont vides (nom, description, prix)
-     - Bouton « Annuler » et « Créer »
+- Se connecter ET accéder à /admin/combos : Redirection vers /menu
 
-10.2  Validation — Nom requis
-     - Laisser le champ « Nom » vide et cliquer sur « Créer »
-     - Message d'erreur : « Le nom est requis »
+Avec admin@restoqr.ca : password123
 
-10.3  Validation — Nom trop long
-     - Entrer un nom > 100 caractères
-     - Message d'erreur : « Maximum 100 caractères »
-
-10.4  Validation — Nom composé uniquement d'espaces
-     - Entrer des espaces seulement dans le nom
-     - Message d'erreur : « Le nom ne peut pas être vide »
-
-10.5  Validation — Description trop longue
-     - Entrer une description > 255 caractères
-     - Message d'erreur : « Maximum 255 caractères »
-
-10.6  Validation — Prix requis
-     - Laisser le champ « Prix » vide et cliquer sur « Créer »
-     - Message d'erreur : « Le prix est requis »
-
-10.7  Validation — Prix trop petit
-     - Entrer un prix <= 0
-     - Message d'erreur : « Le prix doit être supérieur à 0 »
-
-10.8  Validation — Prix trop grand
-     - Entrer un prix > 9999.99
-     - Message d'erreur : « Le prix ne peut pas dépasser 9999.99 $ »
-
-10.9  Validation — Image trop grande
-     - Sélectionner une image > 5 Mo
-     - Message d'erreur : « L'image doit être inférieure à 5 MB »
-
-10.10 Création réussie
-     - Remplir tous les champs avec des valeurs valides
-     - Clic sur « Créer »
-     - La modal se ferme
-     - Le nouveau combo apparaît dans la liste
-
-10.11 Annulation
-     - Remplir des champs puis cliquer sur « Annuler »
-     - La modal se ferme, aucun combo n'est créé
+- Se connecter ET accéder à /admin/combos : La page d'administration des combos s'affiche
+- L'onglet « Combos » est présent dans la navigation admin
 
 ================================================================================
-MODULE 11 — Gestion des articles d'un combo (combo items)
+Affichage de la liste des combos
 ================================================================================
 
-11.1  Sélection d'un combo
-     Avec admin@restoqr.ca : password123
-     - Cliquer sur un combo dans la liste
-     - Le panneau de détail s'affiche à droite
-     - Le titre indique le nom du combo sélectionné
-     - La liste des articles du combo s'affiche (ou message vide)
+Avec admin@restoqr.ca : password123
 
-11.2  Ajout d'un article au combo
-     - Cliquer sur le bouton « Ajouter un article »
-     - La modal de sélection d'article s'ouvre
-     - Sélectionner un article dans la liste déroulante
-     - Définir la quantité (1-10)
-     - Cliquer sur « Ajouter »
-     - L'article apparaît dans la liste des articles du combo
-
-11.3  Validation — Article requis
-     - Ne pas sélectionner d'article et cliquer sur « Ajouter »
-     - Message d'erreur : « L'article est requis »
-
-11.4  Validation — Quantité trop petite
-     - Entrer une quantité < 1
-     - Message d'erreur : « La quantité doit être >= 1 »
-
-11.5  Validation — Quantité trop grande
-     - Entrer une quantité > 10
-     - Message d'erreur : « La quantité doit être <= 10 »
-
-11.6  Validation — Article en doublon
-     - Ajouter un article déjà présent dans le combo
-     - Message d'erreur : « Cet article existe déjà dans ce combo »
-
-11.7  Suppression d'un article
-     - Cliquer sur l'icône de suppression d'un article
-     - L'article disparaît de la liste
+- Accéder à /admin/combos : Un spinner de chargement s'affiche pendant le chargement
+- Une fois chargé : Les combos s'affichent en grille
+- Chaque carte affiche : nom, description, prix, image (ou icône par défaut si pas d'image)
+- Clic sur une carte de combo : Le panneau de détail du combo s'ouvre
+- Si aucun combo n'existe : Le message « Aucun combo pour le moment » s'affiche
 
 ================================================================================
-MODULE 12 — Combos dans le menu client
+Toggle « Afficher les supprimés » (combos)
 ================================================================================
 
-12.1  Affichage des combos
-     - Accéder au menu sans être connecté
-     - Les combos s'affichent dans la catégorie « Combos »
-     - Chaque combo affiche : nom, description, prix, image
+Avec admin@restoqr.ca : password123
 
-12.2  Recherche de combos
-     - Taper un terme de recherche dans le champ de recherche
-     - Les combos sont filtrés par nom (comme les items)
-
-12.3  Tri par prix
-     - Sélectionner « Prix croissant » ou « Prix décroissant »
-     - Les combos sont triés par prix
-
-12.4  Filtrage par prix
-     - Utiliser les filtres prix min/max
-     - Les combos sont filtrés par prix
-
-12.5  Modal de détail du combo
-     - Cliquer sur un combo
-     - La modal de détail s'ouvre
-     - Les articles inclus dans le combo s'affichent
+- Activer le toggle « Afficher les supprimés » : Les combos soft-deletés apparaissent dans la liste
+- Les combos supprimés affichent un badge « Supprimé »
+- Désactiver le toggle : Les combos supprimés disparaissent de la liste
 
 ================================================================================
-MODULE 13 — Traduction (admin-combos)
+Badge « Indisponible » sur les combos
 ================================================================================
 
-13.1 Traduction en anglais
-     Avec admin@restoqr.ca : password123
-     - Changer la langue à « English » via le header
-     - Les labels passent en anglais (Name, Description, Price)
-     - Les messages de validation passent en anglais
-     - « Cet article existe déjà dans ce combo » → « This item already exists in this combo »
+Avec admin@restoqr.ca : password123
 
-13.2 Traduction en français
-     - Changer la langue à « Français » via le header
-     - Tous les textes reviennent en français
+- Un combo sans disponibilité active : Un badge « Indisponible » s'affiche sur la carte
+- Survol du badge « Indisponible » : Un tooltip affiche « Ce combo n'a aucune disponibilité en cours. »
+- Un combo avec une disponibilité active : Pas de badge « Indisponible »
+
+================================================================================
+Création d'un combo
+================================================================================
+
+Avec admin@restoqr.ca : password123
+
+- Clic sur le bouton « + » à côté du titre : La modal « Créer un combo » s'ouvre
+- Les champs sont vides (nom, description, prix)
+- La section de disponibilités est présente dans la modal
+- Boutons « Annuler » et « Créer » sont visibles
+
+Validations :
+
+- Clic sur « Créer » ET champ « Nom » vide : Message d'erreur « Le nom est requis »
+- Entrer un nom > 100 caractères : Message d'erreur « Maximum 100 caractères »
+- Entrer uniquement des espaces dans le nom : Message d'erreur « Le nom ne peut pas être vide »
+- Entrer une description > 255 caractères : Message d'erreur « Maximum 255 caractères »
+- Clic sur « Créer » ET champ « Prix » vide : Message d'erreur « Le prix est requis »
+- Entrer un prix <= 0 : Message d'erreur « Le prix doit être supérieur à 0 »
+- Entrer un prix > 9999.99 : Message d'erreur « Le prix ne peut pas dépasser 9999.99 $ »
+- Sélectionner une image > 5 Mo : Message d'erreur « L'image doit être inférieure à 5 MB »
+- Sélectionner un fichier non JPEG/PNG (ex: .gif, .pdf) : Le fichier n'est pas accepté (accept="image/jpeg,image/png")
+
+Création réussie :
+
+- Remplir tous les champs valides ET clic sur « Créer » : La modal se ferme, le combo apparaît dans la liste
+- Le bouton affiche « Création... » pendant l'enregistrement
+- Sélectionner une image JPEG ou PNG valide : L'aperçu de l'image s'affiche dans la modal
+
+Disponibilités à la création :
+
+- Ajouter une ou plusieurs plages de disponibilité dans la modal : Les disponibilités sont enregistrées avec le combo
+- Ne pas ajouter de disponibilité : Le combo est créé mais apparaît avec le badge « Indisponible »
+
+Annulation :
+
+- Remplir des champs ET clic sur « Annuler » : La modal se ferme, aucun combo n'est créé
+- Clic sur le bouton « X » de la modal : La modal se ferme, aucun combo n'est créé
+
+================================================================================
+Sélection et détail d'un combo (combo items)
+================================================================================
+
+Avec admin@restoqr.ca : password123
+
+- Clic sur un combo dans la liste : Le panneau de détail s'affiche
+- Le titre indique le nom du combo sélectionné
+- Un bouton retour (flèche) permet de revenir à la liste
+- Le sous-titre affiche « Gérer les articles de ce combo. »
+- Si aucun article : Le message « Aucun article dans ce combo. » s'affiche
+
+================================================================================
+Panneau de comparaison de prix
+================================================================================
+
+Avec admin@restoqr.ca : password123
+
+- Sélectionner un combo qui contient des articles : Le panneau de comparaison de prix s'affiche
+- « Valeur des articles » : La somme des prix individuels des articles × leur quantité
+- « Prix du combo » : Le prix du combo
+- « Économie » : La différence entre la valeur des articles et le prix du combo (si positive)
+- Si la valeur des articles est inférieure ou égale au prix du combo : La ligne « Économie » ne s'affiche pas
+
+================================================================================
+Ajout d'un article au combo
+================================================================================
+
+Avec admin@restoqr.ca : password123
+
+- Clic sur le bouton « + » dans la vue détail : La modal « Ajouter un article au combo » s'ouvre
+- La liste déroulante affiche les articles disponibles
+- Un champ de recherche dans la liste déroulante : Les articles sont filtrés en temps réel
+- Rechercher un article inexistant : Le message « Aucun article trouvé » s'affiche
+- Les articles indisponibles sont grisés et non sélectionnables dans la liste
+
+Validations :
+
+- Clic sur « Ajouter » ET aucun article sélectionné : Message d'erreur « L'item est requis »
+- Clic sur « Ajouter » ET quantité vide : Message d'erreur « La quantité est requise »
+- Entrer une quantité < 1 : Message d'erreur « La quantité doit être au moins 1 »
+- Entrer une quantité > 10 : Message d'erreur « La quantité ne peut pas dépasser 10 »
+- Sélectionner un article déjà présent dans le combo : Message d'erreur du serveur
+
+Ajout réussi :
+
+- Sélectionner un article ET quantité valide (1-10) ET clic sur « Ajouter » : L'article apparaît dans la liste
+- Chaque article affiché montre : image (ou icône par défaut), nom, quantité
+- Le bouton affiche « Ajout... » pendant l'enregistrement
+
+Annulation :
+
+- Remplir des champs ET clic sur « Annuler » : La modal se ferme, aucun article n'est ajouté
+- Clic sur le bouton « X » de la modal : La modal se ferme, aucun article n'est ajouté
+
+================================================================================
+Suppression d'un article du combo
+================================================================================
+
+Avec admin@restoqr.ca : password123
+
+- Clic sur l'icône de suppression (poubelle) d'un article : L'article est soft-deleté et disparaît de la liste
+- L'article supprimé n'affiche plus le bouton supprimer
+
+================================================================================
+Toggle « Afficher les supprimés » (combo items)
+================================================================================
+
+Avec admin@restoqr.ca : password123
+
+- Activer le toggle « Afficher les supprimés » dans la vue détail : Les articles soft-deletés apparaissent
+- Les articles supprimés affichent un badge « Supprimé »
+- Les articles supprimés n'ont pas de bouton supprimer
+- Désactiver le toggle : Les articles supprimés disparaissent de la liste
+
+================================================================================
+Combos dans le menu client
+================================================================================
+
+- Accéder au menu : Les combos s'affichent dans la catégorie « Combos »
+- Chaque carte de combo affiche : nom, description, prix du combo, prix normal barré (somme des articles)
+- L'image du combo s'affiche (ou icône par défaut si pas d'image)
+- Seuls les combos avec une disponibilité active sont visibles
+
+Recherche et filtres :
+
+- Taper un terme dans le champ de recherche : Les combos sont filtrés par nom
+- Sélectionner « Prix croissant » : Les combos sont triés par prix croissant
+- Sélectionner « Prix décroissant » : Les combos sont triés par prix décroissant
+- Définir un prix min et/ou max : Les combos sont filtrés par prix
+
+================================================================================
+Modal de détail du combo (menu client)
+================================================================================
+
+Avec client@restoqr.ca : password123
+
+- Clic sur un combo dans le menu : La modal de détail s'ouvre
+- La modal affiche : image (ou icône), nom, description
+- Section « Ce combo inclut : » : Liste des articles avec quantité (ex: « 2x Burger »)
+- Le prix du combo est affiché
+- Le prix normal total (somme des articles) est affiché
+- Un champ « Instructions spéciales » est disponible (max 255 caractères)
+- Un compteur de caractères s'affiche (ex : « 12/255 »)
+- Sélecteur de quantité avec boutons +/− : Quantité entre 1 et 50
+- Bouton « − » désactivé quand quantité = 1
+- Bouton « + » désactivé quand quantité = 50
+- Le bouton « Ajouter au panier » affiche le total (prix combo × quantité)
+- Clic sur « Ajouter au panier » : Le combo est ajouté au panier avec la bonne quantité et les instructions
+- Fermer la modal : Aucun ajout au panier
+
+================================================================================
+Traduction (admin-combos et menu combos)
+================================================================================
+
+Avec admin@restoqr.ca : password123
+
+- Changer la langue à « English » via le header :
+  - Le titre passe à « Combos »
+  - Le sous-titre passe à « Create and list combos. »
+  - « Aucun combo pour le moment. » → « No combo for now. »
+  - « Afficher les supprimés » → « Show deleted »
+  - « Supprimé » → « Deleted »
+  - « Créer un combo » → « Create combo »
+  - « Le nom est requis » → « Name is required »
+  - « Maximum 100 caractères. » → « Maximum 100 characters. »
+  - « Le nom ne peut pas être vide. » → « Name cannot be empty. »
+  - « Maximum 255 caractères. » → « Maximum 255 characters. »
+  - « Le prix doit être supérieur à 0. » → « Price must be greater than 0. »
+  - « Le prix ne peut pas dépasser 9999.99 $. » → « Price cannot exceed $9999.99. »
+  - « Création... » → « Creating... »
+  - « Ajouter un article » → « Add item »
+  - « Ajouter un article au combo » → « Add item to combo »
+  - « Aucun article dans ce combo. » → « No items in this combo. »
+  - « L'item est requis. » → « Item is required. »
+  - « La quantité est requise. » → « Quantity is required. »
+  - « La quantité doit être au moins 1. » → « Quantity must be at least 1. »
+  - « La quantité ne peut pas dépasser 10. » → « Quantity cannot exceed 10. »
+  - « Valeur des articles » → « Items value »
+  - « Prix du combo » → « Combo price »
+  - « Économie » → « Savings »
+  - « Rechercher un article... » → « Search item... »
+  - « Ce combo inclut : » → « This combo includes: »
+  - « Ce combo n'a aucune disponibilité en cours. » → « This combo has no active availability. »
+
+- Changer la langue à « Français » : Tous les textes reviennent en français
+- Changer la langue ET rafraîchir la page : La langue persiste
 
 ================================================================================
