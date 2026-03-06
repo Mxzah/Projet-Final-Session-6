@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Create tables table
 class CreateTables < ActiveRecord::Migration[8.1]
   def change
     create_table :tables do |t|
@@ -9,8 +12,8 @@ class CreateTables < ActiveRecord::Migration[8.1]
       t.datetime :deleted_at
     end
 
-    add_index :tables, :number, unique: true, name: "uniq_tables_number"
-    add_index :tables, :temporary_code, unique: true, name: "uniq_tables_temporary_code"
-    add_index :tables, :deleted_at, name: "idx_tables_deleted_at"
+    add_index :tables, :number, unique: true, name: 'uniq_tables_number'
+    add_index :tables, :temporary_code, unique: true, name: 'uniq_tables_temporary_code'
+    add_index :tables, :deleted_at, name: 'idx_tables_deleted_at'
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class TableFailTest < ActionDispatch::IntegrationTest
@@ -83,7 +85,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { nb_seats: 4 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -94,7 +96,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 0, nb_seats: 4 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -105,7 +107,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: -1, nb_seats: 4 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -116,7 +118,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 1000, nb_seats: 4 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -127,7 +129,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 1.5, nb_seats: 4 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -138,7 +140,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 100, nb_seats: 6 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -149,7 +151,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 201, nb_seats: 0 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -160,7 +162,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 202, nb_seats: -1 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -171,7 +173,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 203, nb_seats: 21 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -182,7 +184,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 204, nb_seats: 4.5 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -221,7 +223,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 0 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -232,7 +234,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: -5 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -243,7 +245,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 1000 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -259,7 +261,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { number: 100 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -270,7 +272,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { nb_seats: 0 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -281,7 +283,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { nb_seats: -3 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end
@@ -292,7 +294,7 @@ class TableFailTest < ActionDispatch::IntegrationTest
       table: { nb_seats: 21 }
     }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
   end

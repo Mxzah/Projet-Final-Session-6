@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 module Api
+  # CRUD operations for restaurant vibes/ambiances
   class VibesController < AdminController
     skip_before_action :authenticate_user!, only: [ :index ]
     skip_before_action :require_admin!, only: [ :index ]
-    before_action :set_vibe, only: [ :update, :destroy, :restore ]
+    before_action :set_vibe, only: %i[update destroy restore]
 
     # GET /api/vibes
     def index
@@ -64,7 +67,10 @@ module Api
         name: vibe.name,
         color: vibe.color,
         deleted_at: vibe.deleted_at,
-        image: vibe.image.attached? ? { url: url_for(vibe.image), filename: vibe.image.blob.filename.to_s, content_type: vibe.image.blob.content_type, byte_size: vibe.image.blob.byte_size } : nil,
+        image: if vibe.image.attached?
+                 { url: rails_storage_proxy_path(vibe.image), filename: vibe.image.blob.filename.to_s,
+                   content_type: vibe.image.blob.content_type, byte_size: vibe.image.blob.byte_size }
+               end,
         in_use: vibe.orders.loaded? ? vibe.orders.any? : vibe.orders.exists?
       }
     end

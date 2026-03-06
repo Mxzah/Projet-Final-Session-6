@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class UserUpdateFailTest < ActionDispatch::IntegrationTest
@@ -65,7 +67,7 @@ class UserUpdateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "You cannot modify your own account"
+    assert_includes json["errors"], I18n.t("controllers.users.cannot_modify_self")
     @admin.reload
     assert_equal "Admin", @admin.first_name
   end

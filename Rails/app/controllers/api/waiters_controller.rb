@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Api
+  # Waiter self-service endpoints
   class WaitersController < ApplicationController
     before_action :authenticate_user!
 

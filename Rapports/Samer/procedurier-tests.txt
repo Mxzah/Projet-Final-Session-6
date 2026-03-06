@@ -3,8 +3,9 @@
                Pages : Connexion (login) · Inscription (signup) ·
                        Administration des utilisateurs (admin-users) ·
                        Avis clients (reviews) · Avis admin (admin-reviews) ·
-                       Assignation serveur · Rabais employé ·
-                       Navigation backend
+                       Historique (/history) · Assignation serveur ·
+                       Rabais employé · Navigation backend ·
+                       Expiration de session · Navigation header
 ================================================================================
 
 Identifiants utilisés :
@@ -724,10 +725,29 @@ MODULE 12 — Avis clients (/reviews)
      - Réponse : success false, erreur « You can only update your own
        reviews »
 
-12.23 Avis en double (backend)
-     - Tenter de créer un deuxième avis sur le même item/combo/serveur
-       par le même client
-     - Réponse : success false (la base de données empêche le doublon)
+12.23 Avis liés à la commande (order_id)
+     Avec client@restoqr.ca : password123
+     - Sur la page /history, ouvrir le dialog d'avis d'une commande fermée
+     - Laisser un avis sur un item (ex : Tartare de Saumon)
+     - L'avis est créé avec un order_id correspondant à cette commande
+     - Ouvrir une autre commande fermée contenant le même item
+     - Le même item apparaît SANS avis existant (pas de pré-remplissage)
+     - Laisser un avis différent sur ce même item
+     - Les deux avis coexistent en base, chacun lié à sa commande
+
+12.24 Avis serveur sur commandes différentes
+     Avec alice@restoqr.ca : password123
+     - Ouvrir le dialog d'avis d'une commande fermée servie par Marie
+     - Laisser un avis 5 étoiles pour Marie
+     - Ouvrir une autre commande fermée aussi servie par Marie
+     - Marie apparaît SANS avis existant (chaque commande est indépendante)
+     - Laisser un avis 3 étoiles pour Marie
+     - Les deux avis sur Marie coexistent, chacun lié à sa commande
+
+12.25 Compteur d'avis par commande
+     - Sur /history, les badges « Évalué (X) » comptent uniquement
+       les avis liés à cette commande spécifique
+     - Un avis laissé sur une autre commande n'affecte pas le compteur
 
 
 ================================================================================
@@ -791,32 +811,80 @@ MODULE 13 — Administration des avis (/admin/reviews)
      - Sélectionner « Note ↓ »
      - Les avis sont triés par note croissante (1 étoile en haut)
 
-13.12 Suppression d'un avis (admin)
+13.12 Suppression d'un avis avec raison (admin)
      Avec admin@restoqr.ca : password123
      - Cliquer sur l'icône « delete » d'un avis
-     - La modal de confirmation s'ouvre : « Voulez-vous vraiment
-       supprimer cet avis ? »
-     - Le nom de la cible est affiché dans la modal
+     - Une modal s'ouvre avec le titre « Supprimer l'avis »
+     - Un champ textarea « Raison (visible au client) » est visible
+     - Un indice sous le champ : « Si vide, un message par défaut sera
+       affiché. »
+     - Entrer une raison (ex : « Contenu inapproprié »)
      - Cliquer sur « Supprimer »
      - La modal se ferme
-     - Le message « Avis supprimé » s'affiche (snackbar)
-     - L'avis disparaît de la grille
+     - L'avis est soft-deleted (deleted_at défini, deletion_reason sauvée)
+     - L'avis apparaît grisé dans la grille avec le badge « Supprimé »
 
-13.13 Annulation de la suppression (admin)
+13.13 Suppression sans raison (admin)
+     - Cliquer sur l'icône « delete » d'un avis
+     - Laisser le champ raison vide
+     - Cliquer sur « Supprimer »
+     - L'avis est soft-deleted sans raison (deletion_reason = null)
+     - Côté client, un message par défaut sera affiché
+
+13.14 Annulation de la suppression (admin)
      - Cliquer sur l'icône « delete » d'un avis
      - Cliquer sur « Annuler » dans la modal
-     - L'avis reste visible dans la grille
+     - L'avis reste visible dans la grille, non supprimé
 
-13.14 Non-propriétaire ne peut pas supprimer (backend)
+13.15 Filtre par statut — Actifs
+     Avec admin@restoqr.ca : password123
+     - Sélectionner « Actifs » dans le dropdown « Statut »
+     - Seuls les avis non-supprimés s'affichent
+
+13.16 Filtre par statut — Supprimés
+     - Sélectionner « Supprimés » dans le dropdown « Statut »
+     - Seuls les avis supprimés (grisés, avec badge « Supprimé ») s'affichent
+     - La raison de suppression et la date sont visibles sur chaque carte
+     - Le bouton « delete » n'est pas visible sur les avis déjà supprimés
+
+13.17 Filtre par statut — Tous
+     - Sélectionner « Tous » dans le dropdown « Statut »
+     - Tous les avis s'affichent (actifs et supprimés)
+
+13.18 Affichage d'un avis supprimé (carte admin)
+     - Un avis supprimé apparaît grisé (opacité réduite)
+     - Un badge « Supprimé » est affiché en rouge
+     - La date de suppression est affichée
+     - Si une raison est présente, elle est affichée sur la carte
+
+13.19 Avis modéré visible côté client (/history)
+     Avec client@restoqr.ca : password123
+     - Ouvrir /history et cliquer sur « Voir les avis » d'une commande
+       dont un avis a été supprimé par l'admin
+     - L'avis supprimé apparaît en lecture seule avec :
+       · Bannière rouge « Cet avis a été retiré par l'équipe de modération. »
+       · La raison (si fournie) : « Raison : ... »
+       · La date de suppression
+       · Les étoiles et le commentaire en grisé (non modifiables)
+       · Aucun contrôle d'édition (pas de clic sur étoiles, pas de
+         textarea, pas d'upload de photo)
+
+13.20 Badge « Modéré » sur la commande (/history)
+     - Si tous les avis d'une commande sont supprimés, un badge « Modéré »
+       (icône gavel) s'affiche à la place du badge « Évalué »
+     - Si certains avis sont actifs et d'autres supprimés, le badge
+       « Évalué (X) » compte uniquement les avis actifs
+
+13.21 Non-propriétaire ne peut pas supprimer (backend)
      Avec waiter@restoqr.ca : password123
      - Appel API DELETE /api/reviews/:id sur un avis d'un autre utilisateur
      - Réponse : success false, erreur « Unauthorized »
 
-13.15 Utilisateur non authentifié (backend)
+13.22 Utilisateur non authentifié (backend)
      - Accéder à GET /api/reviews sans être connecté
      - Réponse : success false
 
-13.16 Avis inexistant (backend)
+13.23 Avis inexistant (backend)
      - Appel API DELETE /api/reviews/999999
      - Réponse : success false, erreur « Review not found »
 
@@ -912,5 +980,259 @@ MODULE 15 — Navigation backend (redirection après connexion)
 15.5 Endpoint current_user inclut redirect_to
      - Après connexion, appeler GET /api/current_user
      - La réponse inclut le champ redirect_to avec la bonne destination
+
+15.6 Redirection — Serveur vers /server
+     Avec waiter@restoqr.ca : password123
+     - Se connecter
+     - Le backend retourne redirect_to : « /server »
+     - Le frontend redirige automatiquement vers /server
+
+
+================================================================================
+MODULE 16 — Expiration de session (24 heures)
+================================================================================
+
+16.1 Session active pendant 24 heures
+     Avec client@restoqr.ca : password123
+     - Se connecter
+     - La session reste active tant que 24 heures ne sont pas écoulées
+     - Naviguer entre les pages : la session est maintenue
+
+16.2 Expiration automatique
+     - Après 24 heures d'inactivité, effectuer n'importe quelle action
+       (ex : naviguer, charger des données)
+     - Le serveur retourne session_expired: true
+     - L'intercepteur Angular détecte le flag
+     - L'état d'authentification est vidé (clearSession)
+     - Redirection automatique vers /login
+
+16.3 Session créée à la connexion (backend)
+     - Après connexion réussie, la session contient session[:created_at]
+       avec l'horodatage ISO 8601
+     - Le cookie de session a une durée de vie de 24 heures
+
+16.4 Session créée à l'inscription (backend)
+     - Après inscription réussie, session[:created_at] est défini
+     - Le cookie de session a une durée de vie de 24 heures
+
+16.5 Réponse après expiration (backend)
+     - Quand la session a expiré, toute requête API retourne :
+       · success: false
+       · session_expired: true
+       · errors: « Votre session a expiré. Veuillez vous reconnecter. »
+     - Le statut HTTP reste 200
+
+
+================================================================================
+MODULE 17 — Navigation header (Cuisinier et Serveur)
+================================================================================
+
+17.1 Bouton Cuisine (cuisinier connecté)
+     Avec cook@restoqr.ca : password123
+     - Se connecter et accéder à n'importe quelle page
+     - Un bouton « Cuisine » avec l'icône restaurant est visible dans le
+       header (desktop et mobile)
+     - Clic sur « Cuisine » : Redirection vers /kitchen
+     - Le bouton est mis en surbrillance quand on est sur /kitchen
+
+17.2 Bouton Cuisine absent (non-cuisinier)
+     Avec client@restoqr.ca : password123
+     - Se connecter et accéder à /menu
+     - Le bouton « Cuisine » n'est PAS visible dans le header
+
+17.3 Bouton Cuisine absent (admin)
+     Avec admin@restoqr.ca : password123
+     - Se connecter : le bouton « Cuisine » n'est PAS visible
+     - L'admin a déjà son bouton « Admin »
+
+17.4 Bouton Serveur (serveur connecté)
+     Avec waiter@restoqr.ca : password123
+     - Se connecter et accéder à n'importe quelle page
+     - Un bouton « Serveur » avec l'icône room_service est visible dans
+       le header (desktop et mobile)
+     - Clic sur « Serveur » : Redirection vers /server
+     - Le bouton est mis en surbrillance quand on est sur /server
+
+17.5 Bouton Serveur absent (non-serveur)
+     Avec client@restoqr.ca : password123
+     - Se connecter : le bouton « Serveur » n'est PAS visible
+
+17.6 Bouton Serveur absent (admin)
+     Avec admin@restoqr.ca : password123
+     - Se connecter : le bouton « Serveur » n'est PAS visible
+
+17.7 Déconnexion redirige vers /login
+     Avec client@restoqr.ca : password123
+     - Se connecter, accéder à /menu
+     - Cliquer sur « Déconnexion »
+     - Redirection immédiate vers /login
+     - L'état d'authentification est vidé avant l'appel API de déconnexion
+
+
+================================================================================
+MODULE 18 — Historique des commandes (/history)
+================================================================================
+
+18.1 Chargement initial
+     Avec client@restoqr.ca : password123
+     - Se connecter et accéder à /history
+     - Le header est visible
+     - Un bouton « Retour au menu » avec une flèche est visible
+     - Le titre et le sous-titre sont affichés
+     - La barre SSF (recherche, tri, filtre, slider) est visible
+     - Les commandes fermées s'affichent en liste
+
+18.2 Affichage des cartes de commande
+     - Chaque carte affiche :
+       · Badge « Table X » avec le numéro de table
+       · Badge vibe (si présent, avec la couleur du vibe)
+       · Badge serveur avec icône person (si assigné)
+       · Total ajusté en dollars (ex : $106.97)
+       · Badge pourboire en vert (si tip > 0)
+       · Date de la commande
+       · Liste des lignes de commande avec : image, nom, quantité, prix
+       · Ligne de rabais employé (si applicable)
+       · Section avis en bas de la carte
+
+18.3 État vide
+     - Si aucune commande fermée n'existe, un message avec une icône
+       « history » s'affiche
+
+18.4 Recherche
+     - Taper un terme dans la barre de recherche (ex : « Marie »)
+     - Le placeholder « Rechercher une commande... » est centré dans le champ
+     - Seules les commandes correspondantes s'affichent
+     - La recherche fonctionne sur : numéro de table, nom du serveur,
+       nom du vibe, note, total, noms des items, prix des items
+
+18.5 Tri — Plus récent (défaut)
+     - Les commandes sont triées par date décroissante
+
+18.6 Tri — Plus ancien
+     - Sélectionner « Plus ancien » : les commandes sont triées par date
+       croissante
+
+18.7 Tri — Total décroissant
+     - Sélectionner « Total ↓ » : les commandes sont triées du plus
+       cher au moins cher
+
+18.8 Tri — Total croissant
+     - Sélectionner « Total ↑ » : les commandes sont triées du moins
+       cher au plus cher
+
+18.9 Filtre par avis — Tous
+     - Sélectionner « Tous » : toutes les commandes s'affichent
+
+18.10 Filtre par avis — Évalué
+     - Sélectionner « Évalué » : seules les commandes ayant des avis
+       s'affichent
+
+18.11 Filtre par avis — Non évalué
+     - Sélectionner « Non évalué » : seules les commandes sans avis
+       s'affichent
+
+18.12 Slider de prix — Affichage
+     - Deux champs de saisie affichent le minimum et le maximum avec
+       un signe $ (ex : $0 et $239)
+     - Un slider double (range) est visible entre les deux champs
+     - Le label « Prix » est affiché à gauche
+
+18.13 Slider de prix — Filtrage
+     - Déplacer le curseur minimum vers la droite (ex : $50)
+     - Seules les commandes avec un total >= 50 s'affichent
+     - Déplacer le curseur maximum vers la gauche (ex : $150)
+     - Seules les commandes avec un total entre 50 et 150 s'affichent
+     - Les champs de saisie se mettent à jour avec les valeurs du slider
+
+18.14 Slider de prix — Saisie manuelle
+     - Entrer $100 dans le champ minimum
+     - Le slider et la liste se mettent à jour
+     - Entrer $200 dans le champ maximum
+     - Le slider et la liste se mettent à jour
+
+18.15 Dialog d'avis
+     - Cliquer sur « Laisser un avis » sur une commande sans avis
+     - Le dialog s'ouvre avec :
+       · Titre « Évaluer la commande »
+       · Sous-titre avec le numéro de table et la date
+       · Le serveur en premier (si assigné), puis les items
+       · Chaque entrée est un accordéon cliquable
+     - Cliquer sur une entrée pour l'ouvrir :
+       · Sélecteur d'étoiles (1 à 5)
+       · Textarea pour le commentaire (max 500 caractères avec compteur)
+       · Section photos (ajout jusqu'à 3 photos JPG/PNG < 5 Mo)
+     - Le compteur en bas affiche « X / Y évalués »
+     - Cliquer sur « Enregistrer » : les avis sont créés
+     - Snackbar « Avis enregistrés ! »
+
+18.16 Dialog d'avis — Modification
+     - Cliquer sur « Voir les avis » sur une commande déjà évaluée
+     - Les avis existants sont pré-remplis (étoiles, commentaire, photos)
+     - Modifier un avis et cliquer sur « Enregistrer »
+     - Les avis sont mis à jour
+
+18.17 Retour au menu
+     - Cliquer sur le bouton « Retour au menu »
+     - Redirection vers /menu
+
+
+================================================================================
+MODULE 19 — Fermeture de commande par le serveur (server_released)
+================================================================================
+
+19.1 Paiement normal par le client
+     Avec client@restoqr.ca : password123
+     - Payer une commande via le flux normal (POST /api/orders/:id/pay)
+     - La commande est fermée (ended_at défini)
+     - Le champ server_released reste à false
+
+19.2 Libération par le serveur (release)
+     Avec waiter@restoqr.ca : password123
+     - Sur la page /server, cliquer sur « Libérer » une commande
+     - La commande est fermée (ended_at défini)
+     - Le champ server_released est mis à true
+
+19.3 Nettoyage par le serveur (clean)
+     Avec waiter@restoqr.ca : password123
+     - Sur la page /server, cliquer sur « Nettoyer » une commande payée
+     - Si des commandes ouvertes restent sur la table, elles sont fermées
+       avec server_released = true
+
+19.4 Libération depuis la cuisine (release_order)
+     Avec waiter@restoqr.ca : password123
+     - Sur la page /kitchen, cliquer sur « Libérer » une commande
+     - La commande est fermée avec server_released = true
+
+19.5 Champ visible dans la réponse JSON (backend)
+     - Appel GET /api/orders (commandes fermées)
+     - Chaque commande inclut le champ server_released (true ou false)
+     - Permet de distinguer les commandes payées normalement
+       (server_released: false) des commandes fermées par le personnel
+       (server_released: true)
+
+
+================================================================================
+MODULE 20 — Réponses HTTP 200 uniformes
+================================================================================
+
+20.1 Toutes les réponses API retournent HTTP 200
+     - Toutes les routes de l'API retournent le statut HTTP 200
+     - Les erreurs sont communiquées via success: false dans le corps
+       de la réponse JSON
+     - Aucune route ne retourne 201, 401, 422 ou autre code non-200
+
+20.2 Format uniforme des réponses
+     - Succès : { success: true, data: ..., errors: [] }
+     - Erreur : { success: false, data: null, errors: [...] }
+     - Expiration de session : { success: false, session_expired: true,
+       errors: [...] }
+
+20.3 Images servies en HTTP 200 (Active Storage proxy)
+     - Les images des items, combos et vibes sont servies via
+       /rails/active_storage/blobs/proxy/...
+     - Les URLs sont des chemins relatifs (pas de http://localhost:3000)
+     - Le proxy Angular redirige /rails/active_storage vers le backend
+     - Les images retournent HTTP 200 (pas de redirection 302)
+
 
 ================================================================================

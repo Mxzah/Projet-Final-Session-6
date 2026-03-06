@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ServerTablesFailTest < ActionDispatch::IntegrationTest
@@ -13,7 +15,7 @@ class ServerTablesFailTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/tables", params: { table: { number: 501, nb_seats: 4 } }, as: :json
-    assert_response :created
+    assert_response :ok
 
     delete "/users/sign_out", as: :json
   end

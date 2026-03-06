@@ -55,4 +55,8 @@ export class ServerService {
   assignOrder(orderId: number): Observable<ApiResponse<any>> {
     return this.api.post<any>(`/api/server/orders/${orderId}/assign`, {});
   }
+
+  cancelOrder(orderId: number): Observable<ApiResponse<any>> {
+    return this.api.delete<any>(`/api/server/orders/${orderId}/cancel`);
+  }
 }

@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Create categories table
 class CreateCategories < ActiveRecord::Migration[8.1]
   def change
     create_table :categories do |t|
@@ -6,7 +9,7 @@ class CreateCategories < ActiveRecord::Migration[8.1]
       t.datetime :created_at, null: false
     end
 
-    add_index :categories, :name, unique: true, name: "uniq_categories_name"
-    add_index :categories, :position, unique: true, name: "uniq_categories_position"
+    add_index :categories, :name, unique: true, name: 'uniq_categories_name'
+    add_index :categories, :position, unique: true, name: 'uniq_categories_position'
   end
 end

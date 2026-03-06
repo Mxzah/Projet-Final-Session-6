@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file should ensure the existence of records required to run the application in every environment (production,
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
@@ -82,17 +84,17 @@ marie_user&.update_columns(created_at: 2.years.ago - 2.months) # 26 months → 1
 cook_user = Cook.find_by(email: 'cook@restoqr.ca')
 cook_user&.update_columns(created_at: 8.months.ago) # 8 months → 5%
 
-puts "Users created!"
-puts "- Administrator: admin@restoqr.ca"
-puts "- Client: client@restoqr.ca"
-puts "- Client: alice@restoqr.ca"
-puts "- Client: bob@restoqr.ca"
-puts "- Client: demo@restoqr.ca (utilisé pour les commandes demo)"
-puts "- Waiter: waiter@restoqr.ca"
-puts "- Waiter: marie@restoqr.ca"
-puts "- Waiter: jean@restoqr.ca"
-puts "- Cook: cook@restoqr.ca"
-puts "Password for all: password123"
+puts 'Users created!'
+puts '- Administrator: admin@restoqr.ca'
+puts '- Client: client@restoqr.ca'
+puts '- Client: alice@restoqr.ca'
+puts '- Client: bob@restoqr.ca'
+puts '- Client: demo@restoqr.ca (utilisé pour les commandes demo)'
+puts '- Waiter: waiter@restoqr.ca'
+puts '- Waiter: marie@restoqr.ca'
+puts '- Waiter: jean@restoqr.ca'
+puts '- Cook: cook@restoqr.ca'
+puts 'Password for all: password123'
 
 # Create restaurant tables
 puts "\nCreating tables..."
@@ -121,16 +123,17 @@ tables_data.each do |td|
   puts "- Table ##{td[:number]} (#{td[:nb_seats]} places)"
 
   next if td[:number] == unavailable_table_number
-  unless Availability.exists?(available_type: 'Table', available_id: table.id)
-    a = Availability.new(
-      available_type: 'Table',
-      available_id:   table.id,
-      start_at:       1.day.ago,
-      end_at:         6.months.from_now,
-      description:    "Table #{td[:number]} disponible"
-    )
-    a.save(validate: false)
-  end
+
+  next if Availability.exists?(available_type: 'Table', available_id: table.id)
+
+  a = Availability.new(
+    available_type: 'Table',
+    available_id: table.id,
+    start_at: 1.day.ago,
+    end_at: 6.months.from_now,
+    description: "Table #{td[:number]} disponible"
+  )
+  a.save(validate: false)
 end
 
 puts "- Table ##{unavailable_table_number} laissée sans disponibilité (unavailable)"
@@ -156,17 +159,18 @@ categories_data.each do |cd|
   puts "- #{cat.name} (position: #{cat.position})"
 
   next if cd[:name] == unavailable_category_name
-  unless Availability.exists?(available_type: 'Category', available_id: cat.id)
-    a = Availability.new(
-      available_type: 'Category',
-      available_id:   cat.id,
-      start_at:       1.day.ago,
-      end_at:         6.months.from_now,
-      description:    "Catégorie #{cat.name} disponible"
-    )
-    a.save(validate: false)
-    puts "  → Disponibilité ajoutée"
-  end
+
+  next if Availability.exists?(available_type: 'Category', available_id: cat.id)
+
+  a = Availability.new(
+    available_type: 'Category',
+    available_id: cat.id,
+    start_at: 1.day.ago,
+    end_at: 6.months.from_now,
+    description: "Catégorie #{cat.name} disponible"
+  )
+  a.save(validate: false)
+  puts '  → Disponibilité ajoutée'
 end
 
 puts "- Catégorie '#{unavailable_category_name}' laissée sans disponibilité (unavailable)"
@@ -178,20 +182,52 @@ images_dir = Rails.root.join('db', 'images')
 
 items_data = [
   # Entrées
-  { name: 'Tartare de Saumon', description: 'Saumon frais coupé au couteau, avocat, câpres, huile de sésame et chips de won-ton', price: 24.99, category: 'Entrées', image: 'TartareDeSaumon.jpeg' },
-  { name: 'Carpaccio de Bœuf', description: 'Fines tranches de filet de bœuf AAA, roquette, copeaux de parmesan, huile de truffe', price: 22.99, category: 'Entrées', image: 'CarpaccioDeBœufjpg.jpg' },
+  { name: 'Tartare de Saumon',
+    description: 'Saumon frais coupé au couteau, avocat, câpres, ' \
+                 'huile de sésame et chips de won-ton',
+    price: 24.99, category: 'Entrées',
+    image: 'TartareDeSaumon.jpeg' },
+  { name: 'Carpaccio de Bœuf',
+    description: 'Fines tranches de filet de bœuf AAA, roquette, ' \
+                 'copeaux de parmesan, huile de truffe',
+    price: 22.99, category: 'Entrées',
+    image: 'CarpaccioDeBœufjpg.jpg' },
 
   # Poissons & Fruits de mer
-  { name: 'Filet de Bar Grillé', description: 'Bar européen grillé, purée de céleri-rave, beurre blanc au citron et asperges', price: 45.99, category: 'Poissons & Fruits de mer', image: 'FiletdeBarGrille.jpg' },
-  { name: 'Pétoncles Poêlés', description: 'Pétoncles géants, purée de panais, pancetta croustillante et noisettes torréfiées', price: 42.99, category: 'Poissons & Fruits de mer', image: 'PetonclesPoeles.jpg' },
+  { name: 'Filet de Bar Grillé',
+    description: 'Bar européen grillé, purée de céleri-rave, ' \
+                 'beurre blanc au citron et asperges',
+    price: 45.99, category: 'Poissons & Fruits de mer',
+    image: 'FiletdeBarGrille.jpg' },
+  { name: 'Pétoncles Poêlés',
+    description: 'Pétoncles géants, purée de panais, ' \
+                 'pancetta croustillante et noisettes torréfiées',
+    price: 42.99, category: 'Poissons & Fruits de mer',
+    image: 'PetonclesPoeles.jpg' },
 
   # Viandes
-  { name: 'Filet Mignon AAA', description: 'Filet mignon 8oz, sauce au poivre vert, pommes dauphines et légumes de saison', price: 56.99, category: 'Viandes', image: 'FiletMignonAAA.jpg' },
-  { name: 'Magret de Canard', description: 'Magret de canard rôti, sauce aux cerises et porto, purée de patates douces', price: 44.99, category: 'Viandes', image: 'MagretDeCanard.jpg' },
+  { name: 'Filet Mignon AAA',
+    description: 'Filet mignon 8oz, sauce au poivre vert, ' \
+                 'pommes dauphines et légumes de saison',
+    price: 56.99, category: 'Viandes',
+    image: 'FiletMignonAAA.jpg' },
+  { name: 'Magret de Canard',
+    description: 'Magret de canard rôti, sauce aux cerises et porto, ' \
+                 'purée de patates douces',
+    price: 44.99, category: 'Viandes',
+    image: 'MagretDeCanard.jpg' },
 
   # Pâtes & Risottos
-  { name: 'Risotto aux Truffes', description: 'Risotto crémeux au parmesan, copeaux de truffe noire et huile de truffe', price: 36.99, category: 'Pâtes & Risottos', image: 'RisottoAuxTruffes.jpg' },
-  { name: 'Linguine au Homard', description: 'Linguine fraîches, chair de homard, tomates cerises, bisque légère et estragon', price: 44.99, category: 'Pâtes & Risottos', image: 'LinguineAuHomard.jpg' }
+  { name: 'Risotto aux Truffes',
+    description: 'Risotto crémeux au parmesan, copeaux de truffe noire ' \
+                 'et huile de truffe',
+    price: 36.99, category: 'Pâtes & Risottos',
+    image: 'RisottoAuxTruffes.jpg' },
+  { name: 'Linguine au Homard',
+    description: 'Linguine fraîches, chair de homard, tomates cerises, ' \
+                 'bisque légère et estragon',
+    price: 44.99, category: 'Pâtes & Risottos',
+    image: 'LinguineAuHomard.jpg' }
 ]
 
 created_items = []
@@ -220,16 +256,17 @@ end
 puts "\nCreating default availabilities..."
 created_items.each do |item|
   next unless item.id.present?
-  unless Availability.exists?(available_type: 'Item', available_id: item.id)
-    Availability.create!(
-      available_type: 'Item',
-      available_id:   item.id,
-      start_at:       Time.current.beginning_of_minute,
-      end_at:         nil,
-      description:    nil
-    )
-    puts "- Disponibilité ajoutée : #{item.name}"
-  end
+
+  next if Availability.exists?(available_type: 'Item', available_id: item.id)
+
+  Availability.create!(
+    available_type: 'Item',
+    available_id: item.id,
+    start_at: Time.current.beginning_of_minute,
+    end_at: nil,
+    description: nil
+  )
+  puts "- Disponibilité ajoutée : #{item.name}"
 end
 
 # ── Vibes ──────────────────────────────────────────────────────────────────
@@ -237,7 +274,7 @@ puts "\nCreating vibes..."
 
 vibes_data = [
   { name: 'Fête',  color: '#FFB347', image: 'vibe_fete.jpg' },
-  { name: 'amour', color: '#FF6B9D', image: 'vibe_amour.jpg' },
+  { name: 'Amour', color: '#FF6B9D', image: 'vibe_amour.jpg' },
   { name: 'Mort',  color: '#2C3E50', image: 'vibe_mort.jpg' }
 ]
 
@@ -279,7 +316,7 @@ petoncle  = Item.find_by(name: 'Pétoncles Poêlés')
 carpaccio = Item.find_by(name: 'Carpaccio de Bœuf')
 
 unless tartare && magret && filet && petoncle && carpaccio
-  puts "Skipping demo orders — some items not found"
+  puts 'Skipping demo orders — some items not found'
   puts "\nAll seeds created!"
   return
 end
@@ -287,7 +324,7 @@ end
 # Clean up existing open demo orders on each re-seed to avoid stale order lines
 demo_client_ids = [ client1&.id, client2&.id, client3&.id, marie&.id ].compact
 Order.where(client_id: demo_client_ids, ended_at: nil).destroy_all
-puts "- Cleaned up existing open demo orders"
+puts '- Cleaned up existing open demo orders'
 
 # Order 1 — client1, table 3, server marie, vibe Fête
 order1 = Order.find_or_create_by!(client_id: client1.id, ended_at: nil) do |o|
@@ -412,8 +449,8 @@ if magret && linguine
 
   unless combo.image.attached?
     combo.image.attach(
-      io:           File.open(Rails.root.join('db', 'images', 'DuoTerreMer.jpg')),
-      filename:     'DuoTerreMer.jpg',
+      io: File.open(Rails.root.join('db', 'images', 'DuoTerreMer.jpg')),
+      filename: 'DuoTerreMer.jpg',
       content_type: 'image/jpeg'
     )
   end
@@ -430,10 +467,10 @@ if magret && linguine
   unless Availability.exists?(available_type: 'Combo', available_id: combo.id)
     a = Availability.new(
       available_type: 'Combo',
-      available_id:   combo.id,
-      start_at:       2.days.ago,
-      end_at:         1.day.ago,
-      description:    'Disponible le week-end seulement'
+      available_id: combo.id,
+      start_at: 2.days.ago,
+      end_at: 1.day.ago,
+      description: 'Disponible le week-end seulement'
     )
     a.save(validate: false)
     puts "- Availability expirée ajoutée au combo '#{combo.name}' (unavailable)"
@@ -441,7 +478,7 @@ if magret && linguine
 
   puts "- Combo '#{combo.name}' créé avec Magret de Canard + Linguine au Homard"
 else
-  puts "- Skipping combo — items not found"
+  puts '- Skipping combo — items not found'
 end
 
 # ── Combos disponibles ──────────────────────────────────────────────────────
@@ -462,8 +499,8 @@ if filet_mignon && petoncles
 
   unless surf_turf.image.attached?
     surf_turf.image.attach(
-      io:           File.open(Rails.root.join('db', 'images', 'SurfTurfPremium.jpg')),
-      filename:     'SurfTurfPremium.jpg',
+      io: File.open(Rails.root.join('db', 'images', 'SurfTurfPremium.jpg')),
+      filename: 'SurfTurfPremium.jpg',
       content_type: 'image/jpeg'
     )
   end
@@ -487,13 +524,13 @@ if tartare && bar_grille
 
   unless menu_mer.image.attached?
     menu_mer.image.attach(
-      io:           File.open(Rails.root.join('db', 'images', 'MenuFruitsDeMer.jpg')),
-      filename:     'MenuFruitsDeMer.jpg',
+      io: File.open(Rails.root.join('db', 'images', 'MenuFruitsDeMer.jpg')),
+      filename: 'MenuFruitsDeMer.jpg',
       content_type: 'image/jpeg'
     )
   end
 
-  ComboItem.find_or_create_by!(combo: menu_mer, item: tartare)   { |ci| ci.quantity = 1 }
+  ComboItem.find_or_create_by!(combo: menu_mer, item: tartare) { |ci| ci.quantity = 1 }
   ComboItem.find_or_create_by!(combo: menu_mer, item: bar_grille) { |ci| ci.quantity = 1 }
   unless Availability.exists?(available_type: 'Combo', available_id: menu_mer.id)
     a = Availability.new(available_type: 'Combo', available_id: menu_mer.id,
@@ -512,8 +549,8 @@ if carpaccio && risotto
 
   unless menu_prestige.image.attached?
     menu_prestige.image.attach(
-      io:           File.open(Rails.root.join('db', 'images', 'MenuPrestige.jpg')),
-      filename:     'MenuPrestige.jpg',
+      io: File.open(Rails.root.join('db', 'images', 'MenuPrestige.jpg')),
+      filename: 'MenuPrestige.jpg',
       content_type: 'image/jpeg'
     )
   end
@@ -538,19 +575,19 @@ if linguine_id
   now = Time.current
   Item.unscoped.where(id: linguine_id).update_all(deleted_at: now)
   Availability.where(available_type: 'Item', available_id: linguine_id)
-              .where("start_at > ?", now)
+              .where('start_at > ?', now)
               .delete_all
   Availability.where(available_type: 'Item', available_id: linguine_id)
-              .where("start_at <= ? AND (end_at IS NULL OR end_at > ?)", now, now)
+              .where('start_at <= ? AND (end_at IS NULL OR end_at > ?)', now, now)
               .update_all(end_at: now)
-  puts "- Archivé : Linguine au Homard"
+  puts '- Archivé : Linguine au Homard'
 end
 
-puts "Removing availability from Risotto aux Truffes (indisponible)..."
+puts 'Removing availability from Risotto aux Truffes (indisponible)...'
 risotto_id = Item.unscoped.find_by(name: 'Risotto aux Truffes')&.id
 if risotto_id
   Availability.where(available_type: 'Item', available_id: risotto_id).delete_all
-  puts "- Indisponible : Risotto aux Truffes"
+  puts '- Indisponible : Risotto aux Truffes'
 end
 
 # ── Combos et ComboItems supprimés (soft delete) ───────────────────────────
@@ -587,11 +624,11 @@ end
 surf_turf = Combo.find_by(name: 'Surf & Turf Premium')
 
 if surf_turf && tartare_item
-  deleted_ci = ComboItem.unscoped.find_or_create_by!(combo: surf_turf, item: tartare_item) do |ci|
+  ComboItem.unscoped.find_or_create_by!(combo: surf_turf, item: tartare_item) do |ci|
     ci.quantity   = 1
     ci.deleted_at = 2.days.ago
   end
-  puts "- ComboItem supprimé (Tartare de Saumon dans Surf & Turf Premium) créé"
+  puts '- ComboItem supprimé (Tartare de Saumon dans Surf & Turf Premium) créé'
 end
 
 # Un autre combo supprimé
@@ -644,7 +681,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
   Order.unscoped.where(client_id: seeded_client_ids).where.not(ended_at: nil).destroy_all
 
   # Helper: create a closed order bypassing the "one open order" validation
-  seed_closed_order = ->(attrs) {
+  seed_closed_order = lambda { |attrs|
     order = Order.new(attrs.except(:created_at))
     order.save(validate: false)
     order.update_columns(created_at: attrs[:created_at], ended_at: attrs[:ended_at])
@@ -821,71 +858,77 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
 
   reviews_data = [
     # client@restoqr.ca — from closed order 1 (Marie, 3 days ago)
-    { user: client_test, reviewable: tartare_item,    rating: 5,
-      comment: "Incroyablement frais, le meilleur tartare que j'ai mangé! Les chips de won-ton ajoutent une texture parfaite.",
-      ago: 3.days.ago, image: 'TartareDeSaumon.jpeg' },
-    { user: client_test, reviewable: filet_item,      rating: 4,
-      comment: "Très tendre et bien assaisonné, cuisson parfaite. La sauce au poivre vert est un délice.",
-      ago: 3.days.ago, image: 'FiletMignonAAA.jpg' },
-    { user: client_test, reviewable: marie,           rating: 5,
-      comment: "Service impeccable! Marie est toujours souriante et attentionnée, elle a rendu notre soirée d'anniversaire spéciale.",
+    { user: client_test, reviewable: tartare_item, order: closed1, rating: 5,
+      comment: "Incroyablement frais, le meilleur tartare que j'ai mangé! " \
+               'Les chips de won-ton ajoutent une texture parfaite.',
+      ago: 3.days.ago },
+    { user: client_test, reviewable: filet_item, order: closed1, rating: 4,
+      comment: 'Très tendre et bien assaisonné, cuisson parfaite. La sauce au poivre vert est un délice.',
+      ago: 3.days.ago },
+    { user: client_test, reviewable: marie, order: closed1, rating: 5,
+      comment: 'Service impeccable! Marie est toujours souriante et attentionnée, ' \
+               "elle a rendu notre soirée d'anniversaire spéciale.",
       ago: 2.days.ago },
 
     # client@restoqr.ca — from closed order 2 (Jean, 1 week ago)
-    { user: client_test, reviewable: petoncles_item,  rating: 3,
-      comment: "Bons mais un peu trop cuits à mon goût. La purée de panais était cependant excellente.",
-      ago: 6.days.ago, image: 'PetonclesPoeles.jpg' },
-    { user: client_test, reviewable: carpaccio_item,  rating: 4,
+    { user: client_test, reviewable: petoncles_item, order: closed2, rating: 3,
+      comment: 'Bons mais un peu trop cuits à mon goût. La purée de panais était cependant excellente.',
+      ago: 6.days.ago },
+    { user: client_test, reviewable: carpaccio_item, order: closed2, rating: 4,
       comment: "Présentation magnifique, l'huile de truffe relève parfaitement le plat. À recommander!",
-      ago: 6.days.ago, image: 'CarpaccioDeBœufjpg.jpg' },
-    { user: client_test, reviewable: jean,            rating: 4,
-      comment: "Très professionnel, bonnes recommandations de vins. Service rapide et courtois.",
+      ago: 6.days.ago },
+    { user: client_test, reviewable: jean, order: closed2, rating: 4,
+      comment: 'Très professionnel, bonnes recommandations de vins. Service rapide et courtois.',
       ago: 6.days.ago },
 
     # alice@restoqr.ca — from closed order 3 (Marie, 2 days ago)
-    { user: alice, reviewable: bar_item,     rating: 5,
-      comment: "Le bar était cuit à la perfection, un vrai délice! Le beurre blanc au citron est sublime.",
-      ago: 1.day.ago, image: 'FiletdeBarGrille.jpg' },
-    { user: alice, reviewable: magret_item,  rating: 4,
-      comment: "Sauce aux cerises et porto incroyable. Le canard était un peu plus rosé que demandé mais excellent quand même.",
-      ago: 1.day.ago, image: 'MagretDeCanard.jpg' },
-    { user: alice, reviewable: filet_item,   rating: 5,
-      comment: "Meilleur filet mignon en ville! Fondant comme du beurre, les pommes dauphines sont addictives.",
-      ago: 1.day.ago, image: 'FiletMignonAAA.jpg' },
-    { user: alice, reviewable: marie,        rating: 5,
-      comment: "Marie nous a fait sentir comme des VIP! Toujours de bonne humeur, elle connaît le menu par cœur.",
+    { user: alice, reviewable: bar_item, order: closed3, rating: 5,
+      comment: 'Le bar était cuit à la perfection, un vrai délice! Le beurre blanc au citron est sublime.',
+      ago: 1.day.ago },
+    { user: alice, reviewable: magret_item, order: closed3, rating: 4,
+      comment: 'Sauce aux cerises et porto incroyable. Le canard était un peu ' \
+               'plus rosé que demandé mais excellent quand même.',
+      ago: 1.day.ago },
+    { user: alice, reviewable: filet_item, order: closed3, rating: 5,
+      comment: 'Meilleur filet mignon en ville! Fondant comme du beurre, les pommes dauphines sont addictives.',
+      ago: 1.day.ago },
+    { user: alice, reviewable: marie, order: closed3, rating: 5,
+      comment: 'Marie nous a fait sentir comme des VIP! Toujours de bonne humeur, elle connaît le menu par cœur.',
       ago: 1.day.ago },
 
     # alice@restoqr.ca — from closed order 4 (Serveur Test, 5 days ago)
-    { user: alice, reviewable: tartare_item, rating: 4,
+    { user: alice, reviewable: tartare_item, order: closed4, rating: 4,
       comment: "Très bon tartare, portion généreuse. L'huile de sésame apporte une belle originalité.",
       ago: 4.days.ago },
-    { user: alice, reviewable: waiter_test,  rating: 3,
-      comment: "Service correct mais un peu lent ce soir-là. Les plats ont mis du temps à arriver.",
+    { user: alice, reviewable: waiter_test, order: closed4, rating: 3,
+      comment: 'Service correct mais un peu lent ce soir-là. Les plats ont mis du temps à arriver.',
       ago: 4.days.ago }
   ]
 
   # Combo reviews (if combos exist)
   if surf_turf_combo
-    reviews_data << { user: client_test, reviewable: surf_turf_combo, rating: 5,
-      comment: "Combinaison terre et mer extraordinaire! Le filet mignon et les pétoncles se complètent à merveille.",
-      ago: 2.days.ago }
+    reviews_data << { user: client_test, reviewable: surf_turf_combo, order: closed1, rating: 5,
+                      comment: 'Combinaison terre et mer extraordinaire! Le filet mignon ' \
+                               'et les pétoncles se complètent à merveille.',
+                      ago: 2.days.ago }
   end
   if menu_mer_combo
-    reviews_data << { user: client_test, reviewable: menu_mer_combo, rating: 4,
-      comment: "Excellent rapport qualité-prix pour ce menu. Le tartare en entrée suivi du bar grillé, parfait!",
-      ago: 5.days.ago }
+    reviews_data << { user: client_test, reviewable: menu_mer_combo, order: closed2, rating: 4,
+                      comment: 'Excellent rapport qualité-prix pour ce menu. ' \
+                               'Le tartare en entrée suivi du bar grillé, parfait!',
+                      ago: 5.days.ago }
   end
 
   reviews_data.each do |rd|
-    existing = Review.find_by(user: rd[:user], reviewable: rd[:reviewable])
+    existing = Review.find_by(user: rd[:user], reviewable: rd[:reviewable], order: rd[:order])
     next if existing
 
     review = Review.new(
-      user:       rd[:user],
+      user: rd[:user],
       reviewable: rd[:reviewable],
-      rating:     rd[:rating],
-      comment:    rd[:comment]
+      order: rd[:order],
+      rating: rd[:rating],
+      comment: rd[:comment]
     )
     if review.save
       review.update_columns(created_at: rd[:ago], updated_at: rd[:ago])
@@ -900,7 +943,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
         end
       end
       label = rd[:reviewable].is_a?(User) ? rd[:reviewable].first_name : rd[:reviewable].name
-      img_tag = rd[:image] ? " 📷" : ""
+      img_tag = rd[:image] ? ' 📷' : ''
       puts "- #{rd[:user].first_name}: #{rd[:rating]}★ #{rd[:reviewable].class.name} '#{label}'#{img_tag}"
     else
       puts "- SKIPPED #{rd[:reviewable].class.name}: #{review.errors.full_messages.join(', ')}"
@@ -909,7 +952,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
 
   puts "\n#{Review.count} reviews total!"
 else
-  puts "Skipping reviews — required users or items not found"
+  puts 'Skipping reviews — required users or items not found'
 end
 
 puts "\nAll seeds created!"
@@ -919,6 +962,7 @@ puts "\nInitializing cleaned_at on idle tables..."
 Table.all.each do |t|
   next if t.orders.where(ended_at: nil).any?  # active session → stays occupied
   next if t.cleaned_at.present?               # already marked → skip
+
   t.update_columns(cleaned_at: Time.current)
   puts "- Table ##{t.number} marked as cleaned"
 end

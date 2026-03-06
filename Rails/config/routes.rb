@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: "users/sessions",
@@ -7,41 +9,41 @@ Rails.application.routes.draw do
   root to: "angular#index"
 
   namespace :api, constraints: { format: "json" } do
-    resources :tables, only: [ :index, :create, :update, :destroy ] do
+    resources :tables, only: %i[index create update destroy] do
       member do
         patch :mark_cleaned
       end
-      resources :availabilities, only: [ :index, :create, :update, :destroy ],
-                controller: "table_availabilities"
+      resources :availabilities, only: %i[index create update destroy],
+                                 controller: "table_availabilities"
     end
     get "tables/:qr_token", to: "tables#show"
     get "tables/:qr_token/qr_code", to: "tables#qr_code"
 
-    resources :categories, only: [ :index, :create, :update, :destroy ] do
+    resources :categories, only: %i[index create update destroy] do
       collection do
         patch :reorder
       end
-      resources :availabilities, only: [ :index, :create, :update, :destroy ],
-                controller: "category_availabilities"
+      resources :availabilities, only: %i[index create update destroy],
+                                 controller: "category_availabilities"
     end
-    resources :items, only: [ :index, :show, :create, :update, :destroy ] do
+    resources :items, only: %i[index show create update destroy] do
       member do
         delete :hard, action: :hard_destroy
         patch :restore, action: :restore
       end
-      resources :availabilities, only: [ :index, :create, :update, :destroy ],
-                controller: "item_availabilities"
+      resources :availabilities, only: %i[index create update destroy],
+                                 controller: "item_availabilities"
     end
-    resources :combos, only: [ :index, :create ] do
-      resources :availabilities, only: [ :index, :create, :update, :destroy ],
-                controller: "combo_availabilities"
+    resources :combos, only: %i[index create] do
+      resources :availabilities, only: %i[index create update destroy],
+                                 controller: "combo_availabilities"
     end
-    resources :combo_items, only: [ :index, :create, :destroy ]
-    resources :users, only: [ :index, :show, :create, :update, :destroy ]
-    resources :reviews, only: [ :index, :show, :create, :update, :destroy ]
+    resources :combo_items, only: %i[index create destroy]
+    resources :users, only: %i[index show create update destroy]
+    resources :reviews, only: %i[index show create update destroy]
 
-    resources :orders, only: [ :index, :show, :create, :update, :destroy ] do
-      resources :order_lines, only: [ :index, :create, :update, :destroy ]
+    resources :orders, only: %i[index show create update destroy] do
+      resources :order_lines, only: %i[index create update destroy]
       post "order_lines/send_lines", to: "order_lines#send_lines"
       member do
         post :pay
@@ -51,9 +53,9 @@ Rails.application.routes.draw do
 
     get "waiters/assigned", to: "waiters#assigned"
 
-    get "current_user", to: "sessions#current_user"
+    get "current_user", to: "sessions#show"
 
-    resources :vibes, only: [ :index, :create, :update, :destroy ] do
+    resources :vibes, only: %i[index create update destroy] do
       member do
         patch :restore
       end
@@ -71,6 +73,7 @@ Rails.application.routes.draw do
     post "server/orders/:id/assign", to: "server#assign"
     post "server/orders/:id/release", to: "server#release"
     post "server/orders/:id/clean", to: "server#clean"
+    delete "server/orders/:id/cancel", to: "server#cancel"
     patch "server/order_lines/:id/serve", to: "server#serve_line"
     patch "server/order_lines/:id", to: "server#update_line"
     delete "server/order_lines/:id", to: "server#destroy_line"

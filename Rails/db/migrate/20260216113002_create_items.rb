@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Create items table
 class CreateItems < ActiveRecord::Migration[8.1]
   def change
     create_table :items do |t|
@@ -9,6 +12,6 @@ class CreateItems < ActiveRecord::Migration[8.1]
       t.datetime :deleted_at
     end
 
-    add_index :items, :deleted_at, name: "idx_items_deleted_at"
+    add_index :items, :deleted_at, name: 'idx_items_deleted_at'
   end
 end

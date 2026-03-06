@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ServerCleanFailTest < ActionDispatch::IntegrationTest
@@ -12,7 +14,7 @@ class ServerCleanFailTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/tables", params: { table: { number: 701, nb_seats: 4 } }, as: :json
-    assert_response :created
+    assert_response :ok
     @table_data = JSON.parse(response.body)["data"]
     @table = Table.find(@table_data["id"])
 
@@ -27,8 +29,6 @@ class ServerCleanFailTest < ActionDispatch::IntegrationTest
     order.save(validate: false)
     order
   end
-
-  public
 
   # ══════════════════════════════════════════
   # CLEAN — POST /api/server/orders/:id/clean (échecs)

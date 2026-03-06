@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemIndexAdminFailTest < ActionDispatch::IntegrationTest
@@ -11,7 +13,8 @@ class ItemIndexAdminFailTest < ActionDispatch::IntegrationTest
       price: 15.00,
       category: @category
     )
-    @item_archived.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    @item_archived.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                                content_type: "image/jpeg")
     @item_archived.save!
     @item_archived.soft_delete!
 
@@ -66,9 +69,9 @@ class ItemIndexAdminFailTest < ActionDispatch::IntegrationTest
     sign_in users(:admin_user)
 
     # Vérifier en BD qu'aucun item n'a un prix >= 99999
-    assert_equal 0, Item.unscoped.where("price >= ?", 99999).count
+    assert_equal 0, Item.unscoped.where("price >= ?", 99_999).count
 
-    get "/api/items", params: { admin: true, price_min: 99999 }
+    get "/api/items", params: { admin: true, price_min: 99_999 }
 
     assert_response :ok
     json = JSON.parse(response.body)

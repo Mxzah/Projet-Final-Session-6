@@ -47,10 +47,69 @@ en:
             image:
               file_size_too_large: "must be less than 5 MB"
               invalid_content_type: "must be a JPEG or PNG image"
+        review:
+          attributes:
+            user:
+              must_be_client: "must be a client"
+            images:
+              invalid_format: "must be JPG or PNG files"
+              file_too_large: "must be less than 5 MB each"
+            reviewable:
+              not_ordered: "must be an item or combo the client has ordered"
+              must_be_waiter: "must be a waiter"
+              not_your_server: "must have been the server on one of your orders"
+        order:
+          attributes:
+            ended_at:
+              before_created: "must be after the creation date"
+            client_id:
+              has_open_order: "already has an open order"
+            nb_people:
+              exceeds_capacity: "cannot exceed the table capacity (%{max} people max)"
+            note:
+              only_spaces: "cannot consist only of spaces"
+        order_line:
+          attributes:
+            status:
+              invalid_sequence: "must follow sequential order (waiting → sent → in_preparation → ready → served)"
+            orderable:
+              not_available: "is not currently available"
+            base:
+              cannot_modify_served: "can only be modified when status is not yet 'served'"
+              cannot_delete_status: "cannot be deleted when status is %{status}"
+            note:
+              only_spaces: "cannot consist only of spaces"
+        item:
+          attributes:
+            image:
+              required: "is required"
+              invalid_format: "must be a JPG or PNG file"
+              file_too_large: "must be less than 5 MB"
+            deleted_at:
+              must_be_now: "must be the current time"
+            name:
+              only_whitespace: "cannot be only whitespace"
+            description:
+              only_whitespace: "cannot be only whitespace"
+        table:
+          attributes:
+            image:
+              invalid_format: "must be a JPG or PNG file"
+              file_too_large: "must be less than 5 MB"
+            cleaned_at:
+              before_created: "must be after the creation date"
         availability:
           attributes:
             start_at:
               in_past: "must be in the future"
+            end_at:
+              before_start: "must be after the start date"
+              minimum_duration: "minimum duration is 1 hour"
+            base:
+              archived_record: "cannot create an availability on an archived record"
+              overlapping: "this period overlaps an existing period"
+            description:
+              only_spaces: "cannot consist only of spaces"
         combo_item:
           attributes:
             quantity:
@@ -114,7 +173,30 @@ en:
       order_not_found: "Order not found"
       already_assigned: "A server is already assigned to this order"
       not_assigned: "You are not assigned to this order"
+      not_all_served: "All items must be served before releasing the table."
       line_not_found: "Order line not found"
       line_not_ready: "Only a ready dish can be marked as served"
       cannot_modify_line: "Cannot modify line with status '%{status}'. Lines cannot be modified once served."
       cannot_delete_line: "Cannot delete line with status '%{status}'. Only 'sent' or 'in_preparation' lines can be deleted."
+      order_already_closed: "This order is already closed"
+      cancel_has_lines: "Cannot cancel an order that has items sent to the kitchen"
+    reviews:
+      unauthorized: "Unauthorized"
+      only_clients: "Only clients can create reviews"
+      update_own_only: "You can only update your own reviews"
+      not_found: "Review not found"
+    users:
+      cannot_create_client: "Cannot create Client users from admin panel"
+      type_invalid: "Type is not included in the list"
+      cannot_modify_self: "You cannot modify your own account"
+      cannot_delete_self: "You cannot delete your own account"
+      cannot_delete_last_admin: "Cannot delete the last administrator"
+    sessions:
+      invalid_credentials: "Invalid email or password"
+      expired: "Your session has expired. Please log in again."
+      unauthenticated: "You must be logged in to continue."
+    registrations:
+      account_inactive: "Account created but inactive"
+    tables:
+      invalid_cleaned_at: "Invalid cleaned_at datetime"
+      cleaning_staff_only: "Access restricted to cleaning staff"

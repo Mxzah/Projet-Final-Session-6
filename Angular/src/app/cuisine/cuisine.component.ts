@@ -57,7 +57,7 @@ export class CuisineComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadOrders();
-    this.pollTimer = setInterval(() => this.loadOrders(), 15000);
+    this.pollTimer = setInterval(() => this.loadOrders(false), 5000);
   }
 
   ngOnDestroy(): void {
@@ -67,8 +67,8 @@ export class CuisineComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadOrders(): void {
-    this.loading = true;
+  loadOrders(showLoading = true): void {
+    if (showLoading) this.loading = true;
     this.error = null;
     this.cuisineService.getActiveOrders().subscribe({
       next: (response) => {

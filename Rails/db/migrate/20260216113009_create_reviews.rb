@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Create reviews table
 class CreateReviews < ActiveRecord::Migration[8.1]
   def change
     create_table :reviews do |t|
@@ -11,7 +14,7 @@ class CreateReviews < ActiveRecord::Migration[8.1]
       t.datetime :deleted_at
     end
 
-    add_index :reviews, [ :reviewable_type, :reviewable_id ], name: "idx_reviews_type_id"
-    add_index :reviews, :deleted_at, name: "idx_reviews_deleted_at"
+    add_index :reviews, %i[reviewable_type reviewable_id], name: 'idx_reviews_type_id'
+    add_index :reviews, :deleted_at, name: 'idx_reviews_deleted_at'
   end
 end

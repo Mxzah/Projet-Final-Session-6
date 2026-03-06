@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class TableSuccessTest < ActionDispatch::IntegrationTest
@@ -36,7 +38,7 @@ class TableSuccessTest < ActionDispatch::IntegrationTest
       table: { number: 50, nb_seats: 4 }
     }, as: :json
 
-    assert_response :created
+    assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
   end
@@ -82,7 +84,7 @@ class TableSuccessTest < ActionDispatch::IntegrationTest
       table: { number: 10, nb_seats: 8 }
     }, as: :json
 
-    assert_response :created
+    assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 10, json["data"]["number"]
@@ -97,7 +99,7 @@ class TableSuccessTest < ActionDispatch::IntegrationTest
       table: { number: 11, nb_seats: 1 }
     }, as: :json
 
-    assert_response :created
+    assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 1, json["data"]["capacity"]
@@ -109,7 +111,7 @@ class TableSuccessTest < ActionDispatch::IntegrationTest
       table: { number: 12, nb_seats: 20 }
     }, as: :json
 
-    assert_response :created
+    assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 20, json["data"]["capacity"]
@@ -121,7 +123,7 @@ class TableSuccessTest < ActionDispatch::IntegrationTest
       table: { number: 999, nb_seats: 4 }
     }, as: :json
 
-    assert_response :created
+    assert_response :ok
     json = JSON.parse(response.body)
     assert json["success"]
     assert_equal 999, json["data"]["number"]

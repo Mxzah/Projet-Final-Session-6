@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_04_170417) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_074946) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -127,12 +127,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_170417) do
     t.string "comment", limit: 500, null: false
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
+    t.string "deletion_reason", limit: 500
+    t.bigint "order_id"
     t.integer "rating", null: false
     t.bigint "reviewable_id", null: false
     t.string "reviewable_type", limit: 50, null: false
     t.datetime "updated_at"
     t.bigint "user_id", null: false
     t.index ["deleted_at"], name: "idx_reviews_deleted_at"
+    t.index ["order_id"], name: "index_reviews_on_order_id"
     t.index ["reviewable_type", "reviewable_id"], name: "idx_reviews_type_id"
     t.index ["user_id"], name: "index_reviews_on_user_id"
   end
@@ -191,5 +194,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_170417) do
   add_foreign_key "orders", "users", column: "client_id"
   add_foreign_key "orders", "users", column: "server_id"
   add_foreign_key "orders", "vibes"
+  add_foreign_key "reviews", "orders"
   add_foreign_key "reviews", "users"
 end

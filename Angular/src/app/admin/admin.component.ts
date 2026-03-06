@@ -31,18 +31,6 @@ export class AdminComponent {
     public ts: TranslationService
   ) { }
 
-  goToKitchen(): void {
-    this.router.navigate(['/kitchen']);
-  }
-
-  goToServer(): void {
-    this.router.navigate(['/server']);
-  }
-
-  goToMenu(): void {
-    this.router.navigate(['/menu']);
-  }
-
   logout(): void {
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),

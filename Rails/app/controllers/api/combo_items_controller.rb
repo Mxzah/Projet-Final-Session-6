@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Api
+  # Manage items within combos
   class ComboItemsController < AdminController
     skip_before_action :authenticate_user!, only: [ :index ]
     skip_before_action :require_admin!, only: [ :index ]

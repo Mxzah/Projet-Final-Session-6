@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Menu category grouping items
 class Category < ApplicationRecord
   has_many :items, dependent: :restrict_with_error
   has_many :availabilities, as: :available
@@ -10,8 +13,8 @@ class Category < ApplicationRecord
 
   def as_json(options = {})
     super(options.reverse_merge(
-      only: [ :id, :name, :position, :created_at ],
-      include: { availabilities: { only: [ :id, :start_at, :end_at, :description ] } }
+      only: %i[id name position created_at],
+      include: { availabilities: { only: %i[id start_at end_at description] } }
     ))
   end
 

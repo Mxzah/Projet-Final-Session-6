@@ -72,10 +72,10 @@ export class ServerPageComponent implements OnInit, OnDestroy {
     this.loadTables();
     this.loadUnassignedOrders();
     this.pollTimer = setInterval(() => {
-      this.loadOrders();
-      this.loadTables();
+      this.loadOrders(false);
+      this.loadTables(false);
       this.loadUnassignedOrders();
-    }, 15000);
+    }, 5000);
   }
 
   ngOnDestroy(): void {
@@ -85,8 +85,8 @@ export class ServerPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadOrders(): void {
-    this.loading = true;
+  loadOrders(showLoading = true): void {
+    if (showLoading) this.loading = true;
     this.error = null;
     this.serverService.getOrders().subscribe({
       next: (response) => {
@@ -104,27 +104,20 @@ export class ServerPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Release / Clean table ──
-  confirmReleaseOrder(order: CuisineOrder & { ended_at?: string | null }): void {
-    const isPaid = !!order.ended_at;
-    const title = isPaid ? this.ts.t('server.cleanTable') : this.ts.t('server.releaseTable');
-    const message = isPaid ? this.ts.t('server.cleanConfirm') : this.ts.t('server.releaseConfirm');
-
+  // ── Clean table (after payment or release) ──
+  confirmClean(order: CuisineOrder & { ended_at?: string | null }): void {
     const data: ConfirmDialogData = {
-      title,
-      message,
+      title: this.ts.t('server.cleanTable'),
+      message: this.ts.t('server.cleanConfirm'),
       itemName: this.ts.t('cuisine.table') + ' ' + order.table_number,
       warning: '',
-      confirmLabel: title,
+      confirmLabel: this.ts.t('server.cleanTable'),
       confirmClass: 'btn-danger'
     };
     const ref = this.dialog.open(ConfirmDialogComponent, { data, width: '440px', maxHeight: '90vh' });
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      const action$ = isPaid
-        ? this.serverService.cleanOrder(order.id)
-        : this.serverService.releaseOrder(order.id);
-      action$.subscribe({
+      this.serverService.cleanOrder(order.id).subscribe({
         next: (res) => {
           if (res.success) {
             this.loadOrders();
@@ -137,6 +130,39 @@ export class ServerPageComponent implements OnInit, OnDestroy {
         error: () => this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 })
       });
     });
+  }
+
+  // ── Release without payment (override) ──
+  confirmRelease(order: CuisineOrder & { ended_at?: string | null }): void {
+    const data: ConfirmDialogData = {
+      title: this.ts.t('server.releaseTable'),
+      message: this.ts.t('server.releaseOverrideConfirm'),
+      itemName: this.ts.t('cuisine.table') + ' ' + order.table_number,
+      warning: '',
+      confirmLabel: this.ts.t('server.releaseOverride'),
+      confirmClass: 'btn-danger'
+    };
+    const ref = this.dialog.open(ConfirmDialogComponent, { data, width: '440px', maxHeight: '90vh' });
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.serverService.releaseOrder(order.id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.loadOrders();
+            this.loadTables();
+          } else {
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
+          }
+        },
+        error: () => this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 })
+      });
+    });
+  }
+
+  // All items served but not yet paid or released
+  isAwaitingPayment(order: any): boolean {
+    return !order.ended_at && this.allLinesServed(order);
   }
 
   // ── Edit order line ──
@@ -230,7 +256,12 @@ export class ServerPageComponent implements OnInit, OnDestroy {
   }
 
   // ── Unassigned orders (fetched via kitchen API) ──
+  // Admins already see all orders in "my orders", so skip this for them.
   loadUnassignedOrders(): void {
+    if (this.authService.isAdmin()) {
+      this.unassignedOrders = [];
+      return;
+    }
     this.cuisineService.getActiveOrders().subscribe({
       next: (response) => {
         const all = response.data ?? [];
@@ -313,6 +344,38 @@ export class ServerPageComponent implements OnInit, OnDestroy {
     return order.order_lines.length > 0 && order.order_lines.every(l => l.status === 'served');
   }
 
+  isEmptyOrder(order: CuisineOrder & { ended_at?: string | null }): boolean {
+    return !order.ended_at && order.order_lines.length === 0;
+  }
+
+  confirmCancel(order: CuisineOrder): void {
+    const data: ConfirmDialogData = {
+      title: this.ts.t('server.cancelOrder'),
+      message: this.ts.t('server.cancelConfirm'),
+      itemName: this.ts.t('cuisine.table') + ' ' + order.table_number,
+      warning: '',
+      confirmLabel: this.ts.t('server.cancelOrder'),
+      confirmClass: 'btn-danger'
+    };
+    const ref = this.dialog.open(ConfirmDialogComponent, { data, width: '440px', maxHeight: '90vh' });
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.serverService.cancelOrder(order.id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.loadOrders();
+            this.loadTables();
+            this.loadUnassignedOrders();
+          } else {
+            const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
+          }
+        },
+        error: () => this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 })
+      });
+    });
+  }
+
   // ── Group orders by table (multiple clients on same table → one card) ──
   private groupOrdersByTable(orders: any[]): any[] {
     const groups = new Map<number, any>();
@@ -347,8 +410,8 @@ export class ServerPageComponent implements OnInit, OnDestroy {
   }
 
   // ── Tables with QR codes ──
-  loadTables(): void {
-    this.tablesLoading = true;
+  loadTables(showLoading = true): void {
+    if (showLoading) this.tablesLoading = true;
     this.tablesError = null;
     this.serverService.getTables().subscribe({
       next: (res) => {

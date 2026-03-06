@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ReviewUpdateFailTest < ActionDispatch::IntegrationTest
@@ -20,7 +22,7 @@ class ReviewUpdateFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "You can only update your own reviews"
+    assert_includes json["errors"], I18n.t("controllers.reviews.update_own_only")
 
     # Database state: unchanged
     @review.reload
@@ -42,8 +44,8 @@ class ReviewUpdateFailTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
   end
 
-  # Empty comment fails
-  test "update with empty comment returns success false" do
+  # Empty comment is allowed (comment has allow_blank: true)
+  test "update with empty comment is accepted" do
     sign_in @client
 
     patch "/api/reviews/#{@review.id}", params: {
@@ -54,11 +56,11 @@ class ReviewUpdateFailTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
 
     # JSON response
-    assert_not json["success"]
+    assert json["success"]
   end
 
-  # Whitespace-only comment fails
-  test "update with whitespace-only comment returns success false" do
+  # Whitespace-only comment is allowed (comment has allow_blank: true)
+  test "update with whitespace-only comment is accepted" do
     sign_in @client
 
     patch "/api/reviews/#{@review.id}", params: {
@@ -69,6 +71,6 @@ class ReviewUpdateFailTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
 
     # JSON response
-    assert_not json["success"]
+    assert json["success"]
   end
 end

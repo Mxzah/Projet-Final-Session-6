@@ -75,18 +75,11 @@ export class AuthService {
   }
 
   logout() {
+    this.currentUser = null;
+    this.clearUserFromStorage();
+    this.isLoggedIn = false;
     return this.apiService.delete<null>('/users/sign_out').pipe(
-      tap(() => {
-        this.currentUser = null;
-        this.clearUserFromStorage();
-        this.isLoggedIn = false;
-      }),
-      catchError(() => {
-        this.currentUser = null;
-        this.clearUserFromStorage();
-        this.isLoggedIn = false;
-        return of(null);
-      })
+      catchError(() => of(null))
     );
   }
 

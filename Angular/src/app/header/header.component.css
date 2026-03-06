@@ -112,34 +112,31 @@
     color: #fff !important;
 }
 
-.admin-btn {
-    color: #fff !important;
+.nav-btn {
+    color: rgba(255, 255, 255, 0.7) !important;
     font-size: 0.9rem !important;
     font-weight: 500 !important;
     font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+    border-radius: 14px !important;
+    transition: background 0.15s, color 0.15s !important;
 }
 
-::ng-deep .admin-btn .mat-icon {
+.nav-btn:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.nav-btn.nav-active {
+    color: #fff !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+    font-weight: 600 !important;
+}
+
+::ng-deep .nav-btn .mat-icon {
     font-size: 18px !important;
     width: 18px !important;
     height: 18px !important;
     margin-right: 0.35rem;
-    color: #fff !important;
-}
-
-.quit-btn {
-    color: #fff !important;
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
-    font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
-}
-
-::ng-deep .quit-btn .mat-icon {
-    font-size: 18px !important;
-    width: 18px !important;
-    height: 18px !important;
-    margin-right: 0.35rem;
-    color: #fff !important;
 }
 
 /* Role indicator */
@@ -230,24 +227,19 @@
         color: #fff !important;
     }
 
-    .mobile-menu .admin-btn {
+    .mobile-menu .nav-btn {
         width: 100%;
         justify-content: center !important;
-        background: rgba(0, 0, 0, 0.15) !important;
+        background: rgba(0, 0, 0, 0.1) !important;
         border-radius: 14px !important;
         height: 44px !important;
         line-height: 44px !important;
         font-size: 0.95rem !important;
+        color: rgba(255, 255, 255, 0.7) !important;
     }
 
-    .mobile-menu .quit-btn {
-        width: 100%;
-        justify-content: center !important;
-        background: rgba(0, 0, 0, 0.15) !important;
-        border-radius: 14px !important;
-        height: 44px !important;
-        line-height: 44px !important;
-        font-size: 0.95rem !important;
+    .mobile-menu .nav-btn.nav-active {
+        background: rgba(0, 0, 0, 0.3) !important;
         color: #fff !important;
     }
 

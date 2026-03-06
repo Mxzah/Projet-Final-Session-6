@@ -9,11 +9,14 @@ export interface ReviewData {
   reviewable_type: string;
   reviewable_id: number;
   reviewable_name: string;
+  order_id?: number | null;
   rating: number;
   comment: string;
   image_urls: string[];
   created_at: string;
   updated_at: string;
+  deleted_at?: string | null;
+  deletion_reason?: string | null;
 }
 
 @Injectable({
@@ -41,6 +44,7 @@ export class ReviewService {
     comment: string;
     reviewable_type: string;
     reviewable_id: number;
+    order_id?: number;
   }, images?: File[]): Observable<ApiResponse<ReviewData>> {
     if (images && images.length > 0) {
       const fd = new FormData();
@@ -48,6 +52,7 @@ export class ReviewService {
       fd.append('review[comment]', data.comment);
       fd.append('review[reviewable_type]', data.reviewable_type);
       fd.append('review[reviewable_id]', data.reviewable_id.toString());
+      if (data.order_id) fd.append('review[order_id]', data.order_id.toString());
       images.forEach(img => fd.append('review[images][]', img));
       return this.api.postFormData<ReviewData>('/api/reviews', fd);
     }
@@ -68,7 +73,7 @@ export class ReviewService {
     return this.api.patch<ReviewData>(`/api/reviews/${id}`, { review: data });
   }
 
-  deleteReview(id: number): Observable<ApiResponse<null>> {
-    return this.api.delete<null>(`/api/reviews/${id}`);
+  deleteReview(id: number, reason?: string): Observable<ApiResponse<null>> {
+    return this.api.delete<null>(`/api/reviews/${id}`, reason != null ? { reason } : undefined);
   }
 }

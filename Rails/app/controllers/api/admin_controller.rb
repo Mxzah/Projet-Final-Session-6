@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Api
+  # Admin dashboard statistics endpoint
   class AdminController < ApiController
     before_action :authenticate_user!
     before_action :require_admin!

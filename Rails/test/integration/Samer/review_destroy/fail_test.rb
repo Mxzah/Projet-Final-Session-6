@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ReviewDestroyFailTest < ActionDispatch::IntegrationTest
@@ -18,7 +20,7 @@ class ReviewDestroyFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "Unauthorized"
+    assert_includes json["errors"], I18n.t("controllers.reviews.unauthorized")
 
     # Database state: not deleted
     review = Review.unscoped.find(@review.id)
@@ -47,6 +49,6 @@ class ReviewDestroyFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "Review not found"
+    assert_includes json["errors"], I18n.t("controllers.reviews.not_found")
   end
 end

@@ -1,67 +1,71 @@
 # frozen_string_literal: true
 
-class Users::SessionsController < Devise::SessionsController
-  skip_before_action :verify_signed_out_user, only: :destroy
+module Users
+  # Custom Devise session management with JSON responses
+  class SessionsController < Devise::SessionsController
+    skip_before_action :verify_signed_out_user, only: :destroy
 
-  # POST /resource/sign_in
-  def create
-    user = User.find_for_authentication(email: params[:user][:email])
+    # POST /resource/sign_in
+    def create
+      user = User.find_for_authentication(email: params[:user][:email])
 
-    if user && user.valid_password?(params[:user][:password])
-      if user.active_for_authentication?
-        sign_in(:user, user)
-        render json: {
-          success: true,
-          data: {
-            id: user.id,
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            type: user.type,
-            redirect_to: compute_redirect_for(user)
-          }
-        }, status: :ok
+      if user&.valid_password?(params[:user][:password])
+        if user.active_for_authentication?
+          sign_in(:user, user)
+          session[:created_at] = Time.current.iso8601
+          render json: {
+            success: true,
+            data: {
+              id: user.id,
+              email: user.email,
+              first_name: user.first_name,
+              last_name: user.last_name,
+              type: user.type,
+              redirect_to: compute_redirect_for(user)
+            }
+          }, status: :ok
+        else
+          render json: {
+            success: false,
+            data: nil,
+            errors: [ I18n.t("controllers.sessions.invalid_credentials") ]
+          }, status: :ok
+        end
       else
         render json: {
           success: false,
           data: nil,
-          errors: [ "Invalid email or password" ]
+          errors: [ I18n.t("controllers.sessions.invalid_credentials") ]
         }, status: :ok
       end
-    else
-      render json: {
-        success: false,
-        data: nil,
-        errors: [ "Invalid email or password" ]
-      }, status: :ok
     end
-  end
 
-  # DELETE /resource/sign_out
-  def destroy
-    signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
-    respond_to_on_destroy
-  end
+    # DELETE /resource/sign_out
+    def destroy
+      (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
+      respond_to_on_destroy
+    end
 
-  private
+    private
 
-  def respond_to_on_destroy
-    render json: { success: true }, status: :ok
-  end
+    def respond_to_on_destroy
+      render json: { success: true }, status: :ok
+    end
 
-  def compute_redirect_for(user)
-    case user.type
-    when "Cook"
-      "/kitchen"
-    when "Waiter"
-      "/server"
-    when "Administrator"
-      "/admin/tables"
-    else
-      if Order.open.where(client_id: user.id).exists?
-        "/menu"
+    def compute_redirect_for(user)
+      case user.type
+      when "Cook"
+        "/kitchen"
+      when "Waiter"
+        "/server"
+      when "Administrator"
+        "/admin/tables"
       else
-        "/form"
+        if Order.open.where(client_id: user.id).exists?
+          "/menu"
+        else
+          "/form"
+        end
       end
     end
   end

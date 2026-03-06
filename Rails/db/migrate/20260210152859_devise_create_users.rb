@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
+# Devise user table creation
 class DeviseCreateUsers < ActiveRecord::Migration[8.1]
   def change
     create_table :users do |t|
       ## Custom fields from schema
-      t.string :type, limit: 20, null: false  # STI
+      t.string :type, limit: 20, null: false # STI
       t.string :first_name, limit: 50, null: false
       t.string :last_name, limit: 50, null: false
       t.string :status, limit: 20, null: false, default: 'active'
-      t.datetime :deleted_at  # Soft delete
+      t.datetime :deleted_at # Soft delete
 
       ## Database authenticatable
-      t.string :email, null: false, default: "", limit: 255
-      t.string :encrypted_password, null: false, default: "", limit: 255
+      t.string :email, null: false, default: '', limit: 255
+      t.string :encrypted_password, null: false, default: '', limit: 255
 
       ## Recoverable
       t.string   :reset_password_token
@@ -38,7 +39,6 @@ class DeviseCreateUsers < ActiveRecord::Migration[8.1]
       # t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
       # t.string   :unlock_token # Only if unlock strategy is :email or :both
       # t.datetime :locked_at
-
 
       t.timestamps null: false
     end

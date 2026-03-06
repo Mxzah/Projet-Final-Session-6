@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Create combo_items join table
 class CreateComboItems < ActiveRecord::Migration[8.1]
   def change
     create_table :combo_items do |t|
@@ -7,7 +10,7 @@ class CreateComboItems < ActiveRecord::Migration[8.1]
       t.datetime :deleted_at
     end
 
-    add_index :combo_items, [ :combo_id, :item_id ], unique: true, name: "uniq_combo_items"
-    add_index :combo_items, :deleted_at, name: "idx_combo_items_deleted_at"
+    add_index :combo_items, %i[combo_id item_id], unique: true, name: 'uniq_combo_items'
+    add_index :combo_items, :deleted_at, name: 'idx_combo_items_deleted_at'
   end
 end

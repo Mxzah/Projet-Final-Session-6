@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -68,14 +69,22 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
     private errorService: ErrorService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    public ts: TranslationService
+    public ts: TranslationService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    const params = this.route.snapshot.queryParams;
+    if (params['search']) this.searchTerm.set(params['search']);
+    if (params['status']) this.filterStatus.set(params['status']);
+    if (params['type']) this.filterType.set(params['type']);
+    if (params['sort']) this.sortOrder.set(params['sort']);
+
     this.searchSubscription = this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
-    ).subscribe(() => this.loadData());
+    ).subscribe(() => { this.loadData(); this.updateQueryParams(); });
 
     this.loadData();
   }
@@ -115,16 +124,28 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   onFilterStatusChange(value: string): void {
     this.filterStatus.set(value);
     this.loadData();
+    this.updateQueryParams();
   }
 
   onFilterTypeChange(value: string): void {
     this.filterType.set(value);
     this.loadData();
+    this.updateQueryParams();
   }
 
   onSortChange(value: string): void {
     this.sortOrder.set(value);
     this.loadData();
+    this.updateQueryParams();
+  }
+
+  private updateQueryParams(): void {
+    const queryParams: any = {};
+    if (this.searchTerm()) queryParams.search = this.searchTerm();
+    if (this.filterStatus() !== 'all') queryParams.status = this.filterStatus();
+    if (this.filterType() !== 'all') queryParams.type = this.filterType();
+    if (this.sortOrder() !== 'none') queryParams.sort = this.sortOrder();
+    this.router.navigate([], { queryParams, replaceUrl: true });
   }
 
   // ── Status toggle ──

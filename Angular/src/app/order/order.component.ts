@@ -116,7 +116,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       if (this.openOrderId() && !this.canPay()) {
         this.loadOpenOrder();
       }
-    }, 15000);
+    }, 5000);
   }
 
   private stopPolling(): void {

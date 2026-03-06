@@ -191,6 +191,36 @@ mat-card-content {
   color: rgba(27, 26, 23, 0.4);
 }
 
+/* ── Deleted review cards ── */
+.review-card-deleted {
+  opacity: 0.6;
+  border-color: rgba(180, 60, 30, 0.2) !important;
+  background: #f5f0ea !important;
+}
+
+.deleted-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  background: rgba(180, 60, 30, 0.12);
+  color: #b43c1e;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.deleted-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.deletion-reason {
+  font-size: 0.8rem;
+  color: rgba(27, 26, 23, 0.6);
+  font-style: italic;
+}
+
 @media (max-width: 600px) {
   .filters-bar {
     flex-direction: column;

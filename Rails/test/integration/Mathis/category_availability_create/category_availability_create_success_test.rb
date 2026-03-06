@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class CategoryAvailabilityCreateSuccessTest < ActionDispatch::IntegrationTest
@@ -14,7 +16,11 @@ class CategoryAvailabilityCreateSuccessTest < ActionDispatch::IntegrationTest
 
   test "create avec tous les champs valides retourne success true" do
     post "/api/categories/#{@category.id}/availabilities", params: {
-      availability: { start_at: @fixture_full.start_at, end_at: @fixture_full.end_at, description: @fixture_full.description }
+      availability: {
+        start_at: @fixture_full.start_at,
+        end_at: @fixture_full.end_at,
+        description: @fixture_full.description
+      }
     }, as: :json
 
     assert_response :ok

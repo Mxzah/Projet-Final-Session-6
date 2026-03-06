@@ -1,32 +1,41 @@
+# frozen_string_literal: true
+
 module Api
+  # CRUD operations for customer orders
   class OrdersController < ApiController
     before_action :authenticate_user!
-    before_action :set_order, only: [ :show, :update, :pay, :destroy ]
+    before_action :set_order, only: %i[show update pay destroy]
 
     # GET /api/orders — All orders for the current user
     def index
       orders = current_user.orders_as_client
-                             .includes(:table, :vibe, :server, order_lines: :orderable)
+                           .includes(:table, :vibe, :server, order_lines: :orderable)
 
       # Search by item name, combo name, server name, vibe name, or table number
       if params[:search].present?
         term = "%#{params[:search]}%"
         matching_ids = current_user.orders_as_client
-          .joins("LEFT JOIN order_lines item_lines  ON item_lines.order_id  = orders.id AND item_lines.orderable_type  = 'Item'")
-          .joins("LEFT JOIN items  ON items.id  = item_lines.orderable_id")
-          .joins("LEFT JOIN order_lines combo_lines ON combo_lines.order_id = orders.id AND combo_lines.orderable_type = 'Combo'")
-          .joins("LEFT JOIN combos ON combos.id = combo_lines.orderable_id")
-          .joins("LEFT JOIN users  servers ON servers.id = orders.server_id")
-          .joins("LEFT JOIN vibes  ON vibes.id  = orders.vibe_id")
-          .joins("LEFT JOIN tables ON tables.id = orders.table_id")
-          .where(
-            "items.name ILIKE :t OR combos.name ILIKE :t OR vibes.name ILIKE :t " \
-            "OR CAST(tables.number AS TEXT) ILIKE :t " \
-            "OR servers.first_name ILIKE :t OR servers.last_name ILIKE :t " \
-            "OR CONCAT(servers.first_name, ' ', servers.last_name) ILIKE :t",
-            t: term
-          )
-          .distinct.pluck(:id)
+                                   .joins(
+                                     "LEFT JOIN order_lines item_lines " \
+                                     "ON item_lines.order_id = orders.id AND item_lines.orderable_type = 'Item'"
+                                   )
+                                   .joins("LEFT JOIN items ON items.id = item_lines.orderable_id")
+                                   .joins(
+                                     "LEFT JOIN order_lines combo_lines " \
+                                     "ON combo_lines.order_id = orders.id AND combo_lines.orderable_type = 'Combo'"
+                                   )
+                                   .joins("LEFT JOIN combos ON combos.id = combo_lines.orderable_id")
+                                   .joins("LEFT JOIN users  servers ON servers.id = orders.server_id")
+                                   .joins("LEFT JOIN vibes  ON vibes.id  = orders.vibe_id")
+                                   .joins("LEFT JOIN tables ON tables.id = orders.table_id")
+                                   .where(
+                                     "items.name ILIKE :t OR combos.name ILIKE :t OR vibes.name ILIKE :t " \
+                                     "OR CAST(tables.number AS TEXT) ILIKE :t " \
+                                     "OR servers.first_name ILIKE :t OR servers.last_name ILIKE :t " \
+                                     "OR CONCAT(servers.first_name, ' ', servers.last_name) ILIKE :t",
+                                     t: term
+                                   )
+                                   .distinct.pluck(:id)
         orders = orders.where(id: matching_ids)
       end
 
@@ -34,15 +43,15 @@ module Api
       orders = orders.where.not(ended_at: nil) if params[:closed] == "true"
 
       # Sort
-      case params[:sort]
+      orders = case params[:sort]
       when "oldest"
-        orders = orders.order(created_at: :asc)
+                 orders.order(created_at: :asc)
       when "total_asc"
-        orders = orders.order(created_at: :desc) # sorted client-side for computed total
+                 orders.order(created_at: :desc) # sorted client-side for computed total
       when "total_desc"
-        orders = orders.order(created_at: :desc) # sorted client-side for computed total
+                 orders.order(created_at: :desc) # sorted client-side for computed total
       else
-        orders = orders.order(created_at: :desc)
+                 orders.order(created_at: :desc)
       end
 
       render_success(data: orders.map { |o| order_with_images(o) }, errors: [])
@@ -61,9 +70,7 @@ module Api
       # Validate server_id is actually a Waiter if provided
       if order.server_id.present?
         waiter = User.find_by(id: order.server_id)
-        unless waiter&.type == "Waiter"
-          order.server_id = nil
-        end
+        order.server_id = nil unless waiter&.type == "Waiter"
       end
 
       if order.save
@@ -91,23 +98,15 @@ module Api
 
     # POST /api/orders/:id/pay
     def pay
-      if @order.ended_at.present?
-        return render_error(I18n.t("controllers.orders.already_closed"))
-      end
+      return render_error(I18n.t("controllers.orders.already_closed")) if @order.ended_at.present?
 
-      unless @order.order_lines.all?(&:served?)
-        return render_error(I18n.t("controllers.orders.not_all_served"))
-      end
+      return render_error(I18n.t("controllers.orders.not_all_served")) unless @order.order_lines.all?(&:served?)
 
       tip_value = params[:tip].to_f
 
-      if tip_value < 0
-        return render_error(I18n.t("controllers.orders.tip_negative"))
-      end
+      return render_error(I18n.t("controllers.orders.tip_negative")) if tip_value.negative?
 
-      if tip_value > 999.99
-        return render_error(I18n.t("controllers.orders.tip_too_high"))
-      end
+      return render_error(I18n.t("controllers.orders.tip_too_high")) if tip_value > 999.99
 
       @order.tip = tip_value
       @order.ended_at = Time.current
@@ -146,23 +145,23 @@ module Api
     def order_with_images(order)
       data = order.as_json
       data[:vibe_image] = if order.vibe&.image&.attached?
-        blob = order.vibe.image.blob
-        {
-          url:          url_for(order.vibe.image),
-          filename:     blob.filename.to_s,
-          content_type: blob.content_type,
-          byte_size:    blob.byte_size
-        }
+                            blob = order.vibe.image.blob
+                            {
+                              url: rails_storage_proxy_path(order.vibe.image),
+                              filename: blob.filename.to_s,
+                              content_type: blob.content_type,
+                              byte_size: blob.byte_size
+                            }
       end
       data[:order_lines] = order.order_lines.map do |line|
         ld = line.as_json
-        if line.orderable&.respond_to?(:image) && line.orderable&.image&.attached?
+        if line.orderable.respond_to?(:image) && line.orderable&.image&.attached?
           blob = line.orderable.image.blob
           ld[:image] = {
-            url:          url_for(line.orderable.image),
-            filename:     blob.filename.to_s,
+            url: rails_storage_proxy_path(line.orderable.image),
+            filename: blob.filename.to_s,
             content_type: blob.content_type,
-            byte_size:    blob.byte_size
+            byte_size: blob.byte_size
           }
         end
         ld

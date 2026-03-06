@@ -42,12 +42,12 @@
     <div class="ssf-filter">
       <span class="ssf-filter-label">{{ ts.t('reviews.filterLabel') }}</span>
       <div class="ssf-slider-row">
-        <input #minInput type="number" class="ssf-price-input" min="0" [max]="computedMaxTotal()" [value]="sliderMin()" (change)="onInputMinChange(+$any($event.target).value, minInput)" />
+        <input #minInput type="text" class="ssf-price-input" [value]="'$' + sliderMin()" (change)="onInputMinChange(+$any($event.target).value.replace('$',''), minInput)" />
         <mat-slider min="0" [max]="computedMaxTotal()" step="1" class="ssf-slider">
           <input matSliderStartThumb [value]="sliderMin()" (valueChange)="onSliderMinChange($event)" />
           <input matSliderEndThumb [value]="sliderMax()" (valueChange)="onSliderMaxChange($event)" />
         </mat-slider>
-        <input #maxInput type="number" class="ssf-price-input" min="0" [max]="computedMaxTotal()" [value]="sliderMax()" (change)="onInputMaxChange(+$any($event.target).value, maxInput)" />
+        <input #maxInput type="text" class="ssf-price-input" [value]="'$' + sliderMax()" (change)="onInputMaxChange(+$any($event.target).value.replace('$',''), maxInput)" />
       </div>
     </div>
   </div>
@@ -125,10 +125,17 @@
 
             <div class="order-review-footer">
               @if (orderHasReviews(order)) {
-                <span class="reviewed-badge">
-                  <mat-icon>check_circle</mat-icon>
-                  {{ ts.t('reviews.reviewed') }} ({{ getOrderReviewCount(order) }})
-                </span>
+                @if (orderAllModerated(order)) {
+                  <span class="moderated-badge-inline">
+                    <mat-icon>gavel</mat-icon>
+                    {{ ts.t('reviews.moderatedBadge') }}
+                  </span>
+                } @else {
+                  <span class="reviewed-badge">
+                    <mat-icon>check_circle</mat-icon>
+                    {{ ts.t('reviews.reviewed') }} ({{ getOrderReviewCount(order) }})
+                  </span>
+                }
                 <button mat-stroked-button class="btn-review-order" (click)="openOrderReviewDialog(order)">
                   <mat-icon>edit</mat-icon>
                   {{ ts.t('reviews.viewReviews') }}

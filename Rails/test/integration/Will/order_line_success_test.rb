@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class OrderLineSuccessTest < ActionDispatch::IntegrationTest
   setup do
     @user  = users(:valid_user)
     @table = tables(:table_one)
-    @item  = items(:item_one)  # disponible via fixture item_one_active
+    @item  = items(:item_one) # disponible via fixture item_one_active
 
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
     OrderLine.joins(:order).where(orders: { client_id: @user.id }).delete_all
@@ -38,8 +40,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "index retourne les lignes après création" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
 
     get "/api/orders/#{@order_id}/order_lines", as: :json
 
@@ -51,8 +53,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "index retourne les champs attendus dans chaque ligne" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 2, orderable_type: "Item", orderable_id: @item.id, note: "Sans sel" } },
-      as: :json
+         params: { order_line: { quantity: 2, orderable_type: "Item", orderable_id: @item.id, note: "Sans sel" } },
+         as: :json
 
     get "/api/orders/#{@order_id}/order_lines", as: :json
 
@@ -74,8 +76,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "create retourne 200 et success true" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
 
     assert_response :ok
     json = JSON.parse(response.body)
@@ -86,8 +88,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "create assigne automatiquement le unit_price depuis l item" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
 
     json = JSON.parse(response.body)
     assert_equal @item.price.to_f, json["data"]["unit_price"]
@@ -95,8 +97,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "create assigne le statut waiting par défaut" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
 
     assert_equal "waiting", JSON.parse(response.body)["data"]["status"]
   end
@@ -104,15 +106,15 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
   test "create sauvegarde la ligne en base de données" do
     assert_difference "OrderLine.count", 1 do
       post "/api/orders/#{@order_id}/order_lines",
-        params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-        as: :json
+           params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+           as: :json
     end
   end
 
   test "create retourne les données correctes de la ligne" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 3, orderable_type: "Item", orderable_id: @item.id, note: "Épicé" } },
-      as: :json
+         params: { order_line: { quantity: 3, orderable_type: "Item", orderable_id: @item.id, note: "Épicé" } },
+         as: :json
 
     line = JSON.parse(response.body)["data"]
     assert_equal 3,         line["quantity"]
@@ -128,13 +130,13 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "update retourne 200 et success true" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
     line_id = JSON.parse(response.body)["data"]["id"]
 
     put "/api/orders/#{@order_id}/order_lines/#{line_id}",
-      params: { order_line: { quantity: 2, note: "Extra fromage" } },
-      as: :json
+        params: { order_line: { quantity: 2, note: "Extra fromage" } },
+        as: :json
 
     assert_response :ok
     json = JSON.parse(response.body)
@@ -144,16 +146,16 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "update persiste les changements en base de données" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
     line_id = JSON.parse(response.body)["data"]["id"]
 
     put "/api/orders/#{@order_id}/order_lines/#{line_id}",
-      params: { order_line: { quantity: 4, note: "Sans oignons" } },
-      as: :json
+        params: { order_line: { quantity: 4, note: "Sans oignons" } },
+        as: :json
 
     line = OrderLine.find(line_id)
-    assert_equal 4,             line.quantity
+    assert_equal 4, line.quantity
     assert_equal "Sans oignons", line.note
   end
 
@@ -163,8 +165,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "destroy retourne 200 et success true" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
     line_id = JSON.parse(response.body)["data"]["id"]
 
     delete "/api/orders/#{@order_id}/order_lines/#{line_id}", as: :json
@@ -177,8 +179,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "destroy supprime la ligne de la base de données" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
     line_id = JSON.parse(response.body)["data"]["id"]
 
     assert_difference "OrderLine.count", -1 do
@@ -192,8 +194,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "send_lines retourne 200 et success true" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
 
     post "/api/orders/#{@order_id}/order_lines/send_lines", as: :json
 
@@ -205,8 +207,8 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "send_lines change le statut des lignes waiting vers sent" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
     line_id = JSON.parse(response.body)["data"]["id"]
 
     post "/api/orders/#{@order_id}/order_lines/send_lines", as: :json
@@ -216,12 +218,12 @@ class OrderLineSuccessTest < ActionDispatch::IntegrationTest
 
   test "send_lines retourne toutes les lignes avec statut mis à jour" do
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
 
     post "/api/orders/#{@order_id}/order_lines/send_lines", as: :json
 
     json = JSON.parse(response.body)
-    assert json["data"].none? { |l| l["status"] == "waiting" }
+    assert(json["data"].none? { |l| l["status"] == "waiting" })
   end
 end

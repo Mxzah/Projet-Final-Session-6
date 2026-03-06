@@ -19,15 +19,8 @@ import { TranslationService, Lang } from '../services/translation.service';
 export class HeaderComponent {
   @Input() showLogout = true;
   @Input() showLogin = false;
-  @Input() showAdmin = true;
-  @Input() showKitchen = false;
-  @Input() showServer = false;
-  @Input() showQuitMenu = false;
   @Output() logoutClick = new EventEmitter<void>();
   @Output() loginClick = new EventEmitter<void>();
-  @Output() kitchenClick = new EventEmitter<void>();
-  @Output() serverClick = new EventEmitter<void>();
-  @Output() quitMenuClick = new EventEmitter<void>();
 
   mobileMenuOpen = signal(false);
 
@@ -49,12 +42,28 @@ export class HeaderComponent {
     this.router.navigate(['/admin', 'tables']);
   }
 
+  goToKitchen(): void {
+    this.router.navigate(['/kitchen']);
+  }
+
+  goToServer(): void {
+    this.router.navigate(['/server']);
+  }
+
+  goToMenu(): void {
+    this.router.navigate(['/menu']);
+  }
+
   goToHistory(): void {
     this.router.navigate(['/history']);
   }
 
-  goToReviews(): void {
-    this.router.navigate(['/reviews']);
+  isActive(section: string): boolean {
+    const url = this.router.url;
+    if (section === 'admin') return url.startsWith('/admin');
+    if (section === 'kitchen') return url.startsWith('/kitchen');
+    if (section === 'server') return url.startsWith('/server');
+    return false;
   }
 
   isClient(): boolean {

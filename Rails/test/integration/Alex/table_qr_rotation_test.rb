@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class TableQrRotationTest < ActionDispatch::IntegrationTest
@@ -17,7 +19,7 @@ class TableQrRotationTest < ActionDispatch::IntegrationTest
       table: { number: 321, nb_seats: 4 }
     }, as: :json
 
-    assert_response :created
+    assert_response :ok
     @table_data = JSON.parse(response.body)["data"]
     @table_id = @table_data["id"]
     @initial_token = @table_data["qr_token"]
@@ -82,6 +84,6 @@ class TableQrRotationTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "Access restricted to cleaning staff"
+    assert_includes json["errors"], I18n.t("controllers.tables.cleaning_staff_only")
   end
 end

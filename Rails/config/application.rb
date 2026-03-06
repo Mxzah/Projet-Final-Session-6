@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "boot"
 
 require "rails/all"
@@ -6,6 +8,7 @@ require "rails/all"
 Bundler.require(*Rails.groups)
 
 module RestoqrApi
+  # Main Rails application configuration
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
@@ -30,7 +33,7 @@ module RestoqrApi
 
     # Configuration de la locale française
     config.i18n.default_locale = :fr
-    config.i18n.available_locales = [ :fr, :en ]
+    config.i18n.available_locales = %i[fr en]
     config.i18n.fallbacks = [ :en ]
 
     # Add lib to autoload paths
@@ -41,7 +44,7 @@ module RestoqrApi
 
     # Add cookies and session middleware for Devise
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore
+    config.middleware.use ActionDispatch::Session::CookieStore, expire_after: 24.hours
 
     # Change route analysis order for ActiveStorage
     config.railties_order = [ ActiveStorage::Engine, :main_app, :all ]

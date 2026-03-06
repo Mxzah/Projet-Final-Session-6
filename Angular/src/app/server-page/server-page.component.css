@@ -163,6 +163,11 @@ h1 {
   background: #f8fafe !important;
 }
 
+.card-awaiting {
+  border-left-color: #e68a00 !important;
+  background: #fffcf5 !important;
+}
+
 mat-card-header {
   padding: 1.25rem 1.25rem 0.75rem !important;
   display: block !important;
@@ -209,6 +214,21 @@ mat-card-header {
 }
 
 ::ng-deep .chip-paid mat-icon {
+  font-size: 0.85rem !important;
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+}
+
+::ng-deep .chip-awaiting {
+  background: rgba(245, 166, 35, 0.12) !important;
+  color: #e68a00 !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  min-height: 26px !important;
+  padding: 0 10px !important;
+}
+
+::ng-deep .chip-awaiting mat-icon {
   font-size: 0.85rem !important;
   width: 0.85rem !important;
   height: 0.85rem !important;
@@ -518,6 +538,61 @@ mat-card-content {
   width: 1rem !important;
   height: 1rem !important;
   margin-right: 0.3rem;
+}
+
+.clean-btn:disabled {
+  opacity: 0.5 !important;
+}
+
+.btn-cancel {
+  background: linear-gradient(120deg, #c62828, #e53935) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  padding: 0.3rem 1.2rem !important;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(198, 40, 40, 0.15);
+}
+
+.btn-cancel mat-icon {
+  font-size: 1rem !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  margin-right: 0.3rem;
+}
+
+.awaiting-section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.awaiting-hint {
+  font-size: 0.78rem;
+  color: rgba(27, 26, 23, 0.5);
+  text-align: center;
+}
+
+.override-link {
+  background: none !important;
+  color: var(--copper) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  text-decoration: underline;
+  padding: 0.2rem 0.5rem !important;
+  min-height: unset !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+}
+
+.override-link mat-icon {
+  font-size: 0.9rem !important;
+  width: 0.9rem !important;
+  height: 0.9rem !important;
+  margin-right: 0.2rem;
 }
 
 /* ── Line action buttons ── */

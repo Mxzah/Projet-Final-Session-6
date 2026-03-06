@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 module Api
+  # CRUD operations for restaurant tables
   class TablesController < AdminController
-    skip_before_action :authenticate_user!, only: [ :index, :show, :qr_code ]
-    skip_before_action :require_admin!, only: [ :index, :show, :qr_code, :mark_cleaned ]
+    skip_before_action :authenticate_user!, only: %i[index show qr_code]
+    skip_before_action :require_admin!, only: %i[index show qr_code mark_cleaned]
     before_action :require_cleaning_staff!, only: [ :mark_cleaned ]
 
     def show
@@ -19,26 +22,20 @@ module Api
       tables = Table.includes(:availabilities, orders: []).all
 
       # Search by number
-      if params[:search].present?
-        tables = tables.where("tables.number = ?", params[:search].to_i)
-      end
+      tables = tables.where("tables.number = ?", params[:search].to_i) if params[:search].present?
 
       # Filter by capacity
-      if params[:capacity_min].present?
-        tables = tables.where("tables.nb_seats >= ?", params[:capacity_min].to_i)
-      end
-      if params[:capacity_max].present?
-        tables = tables.where("tables.nb_seats <= ?", params[:capacity_max].to_i)
-      end
+      tables = tables.where("tables.nb_seats >= ?", params[:capacity_min].to_i) if params[:capacity_min].present?
+      tables = tables.where("tables.nb_seats <= ?", params[:capacity_max].to_i) if params[:capacity_max].present?
 
       # Sort
-      case params[:sort]
+      tables = case params[:sort]
       when "asc"
-        tables = tables.order(nb_seats: :asc)
+                 tables.order(nb_seats: :asc)
       when "desc"
-        tables = tables.order(nb_seats: :desc)
+                 tables.order(nb_seats: :desc)
       else
-        tables = tables.order(:number)
+                 tables.order(:number)
       end
 
       render json: {
@@ -57,13 +54,13 @@ module Api
           success: true,
           data: table_json(table),
           errors: []
-        }, status: :created
+        }, status: :ok
       else
         render json: {
           success: false,
           data: nil,
           errors: table.errors.full_messages
-        }, status: :unprocessable_entity
+        }, status: :ok
       end
     end
 
@@ -81,7 +78,7 @@ module Api
           success: false,
           data: nil,
           errors: table.errors.full_messages
-        }, status: :unprocessable_entity
+        }, status: :ok
       end
     end
 
@@ -134,8 +131,8 @@ module Api
         render json: {
           success: false,
           data: nil,
-          errors: [ "Invalid cleaned_at datetime" ]
-        }, status: :unprocessable_entity
+          errors: [ I18n.t("controllers.tables.invalid_cleaned_at") ]
+        }, status: :ok
         return
       end
 
@@ -150,7 +147,7 @@ module Api
           success: false,
           data: nil,
           errors: table.errors.full_messages
-        }, status: :unprocessable_entity
+        }, status: :ok
       end
     end
 
@@ -173,9 +170,9 @@ module Api
         open_order_server_id: open_order&.server_id,
         open_order_vibe_id: open_order&.vibe_id,
         server_name: server ? "#{server.first_name} #{server.last_name}" : nil,
-        availabilities: table.availabilities.map { |a|
+        availabilities: table.availabilities.map do |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
-        }
+        end
       }
     end
 
@@ -185,7 +182,7 @@ module Api
       render json: {
         success: false,
         data: nil,
-        errors: [ "Access restricted to cleaning staff" ]
+        errors: [ I18n.t("controllers.tables.cleaning_staff_only") ]
       }, status: :ok
     end
   end

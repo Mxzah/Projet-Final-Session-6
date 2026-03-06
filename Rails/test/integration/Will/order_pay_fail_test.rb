@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class OrderPayFailTest < ActionDispatch::IntegrationTest
   setup do
     @user  = users(:valid_user)
     @table = tables(:table_one)
-    @item  = items(:item_one)  # disponible via item_one_active fixture
+    @item  = items(:item_one) # disponible via item_one_active fixture
 
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
     OrderLine.joins(:order).where(orders: { client_id: @user.id }).delete_all
@@ -46,8 +48,8 @@ class OrderPayFailTest < ActionDispatch::IntegrationTest
   test "pay retourne erreur si des lignes ne sont pas servies" do
     # Créer une ligne (statut: waiting par défaut)
     post "/api/orders/#{@order_id}/order_lines",
-      params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
-      as: :json
+         params: { order_line: { quantity: 1, orderable_type: "Item", orderable_id: @item.id } },
+         as: :json
 
     post "/api/orders/#{@order_id}/pay", params: { tip: 0 }, as: :json
 

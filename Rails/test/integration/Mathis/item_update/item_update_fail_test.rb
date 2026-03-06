@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemUpdateFailTest < ActionDispatch::IntegrationTest
@@ -10,7 +12,11 @@ class ItemUpdateFailTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/items", params: {
-      item: { name: "Salade César", description: "Laitue romaine, parmesan", price: 15.99, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Salade César", description: "Laitue romaine, parmesan",
+        price: 15.99, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
     @item = JSON.parse(response.body)["data"]
   end
@@ -73,7 +79,7 @@ class ItemUpdateFailTest < ActionDispatch::IntegrationTest
   # Test 9: Update avec prix supérieur à 9999.99
   test "update avec prix supérieur à 9999.99 retourne success false" do
     patch "/api/items/#{@item['id']}", params: {
-      item: { price: 10000.00 }
+      item: { price: 10_000.00 }
     }, as: :json
 
     assert_response :ok
@@ -106,7 +112,7 @@ class ItemUpdateFailTest < ActionDispatch::IntegrationTest
   # Test 12: Update avec catégorie inexistante
   test "update avec catégorie inexistante retourne une erreur" do
     patch "/api/items/#{@item['id']}", params: {
-      item: { category_id: 999999 }
+      item: { category_id: 999_999 }
     }, as: :json
 
     assert_response :ok

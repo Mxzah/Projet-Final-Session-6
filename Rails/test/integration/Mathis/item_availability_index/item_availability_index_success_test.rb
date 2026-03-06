@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemAvailabilityIndexSuccessTest < ActionDispatch::IntegrationTest
@@ -7,7 +9,8 @@ class ItemAvailabilityIndexSuccessTest < ActionDispatch::IntegrationTest
 
   test "index retourne une liste vide quand aucune availability" do
     @item = items(:item_three)
-    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                       content_type: "image/jpeg")
 
     get "/api/items/#{@item.id}/availabilities", as: :json
 
@@ -21,7 +24,8 @@ class ItemAvailabilityIndexSuccessTest < ActionDispatch::IntegrationTest
 
   test "index retourne les availabilities des fixtures" do
     @item = items(:item_one)
-    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                       content_type: "image/jpeg")
 
     get "/api/items/#{@item.id}/availabilities", as: :json
 

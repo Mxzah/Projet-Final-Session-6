@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ComboItemCreateFailTest < ActionDispatch::IntegrationTest
@@ -125,7 +127,9 @@ class ComboItemCreateFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert json["errors"].any? { |e| e.downcase.include?("existe") || e.downcase.include?("taken") || e.downcase.include?("already") }
+    assert(json["errors"].any? do |e|
+      e.downcase.include?("existe") || e.downcase.include?("taken") || e.downcase.include?("already")
+    end)
   end
 
   # ══════════════════════════════════════════
@@ -157,7 +161,7 @@ class ComboItemCreateFailTest < ActionDispatch::IntegrationTest
   # Test 11: Create avec combo_id inexistant retourne success false
   test "create avec combo_id inexistant retourne success false" do
     post "/api/combo_items", params: {
-      combo_item: { combo_id: 999999, item_id: @item2.id, quantity: 1 }
+      combo_item: { combo_id: 999_999, item_id: @item2.id, quantity: 1 }
     }, as: :json
 
     assert_response :ok
@@ -168,7 +172,7 @@ class ComboItemCreateFailTest < ActionDispatch::IntegrationTest
   # Test 12: Create avec item_id inexistant retourne success false
   test "create avec item_id inexistant retourne success false" do
     post "/api/combo_items", params: {
-      combo_item: { combo_id: @combo.id, item_id: 999999, quantity: 1 }
+      combo_item: { combo_id: @combo.id, item_id: 999_999, quantity: 1 }
     }, as: :json
 
     assert_response :ok

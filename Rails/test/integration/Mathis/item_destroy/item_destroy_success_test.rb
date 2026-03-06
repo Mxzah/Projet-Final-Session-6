@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemDestroySuccessTest < ActionDispatch::IntegrationTest
@@ -9,7 +11,11 @@ class ItemDestroySuccessTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/items", params: {
-      item: { name: "Item Test", description: "Description test", price: 20.00, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Item Test", description: "Description test",
+        price: 20.00, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
     @item = JSON.parse(response.body)["data"]
   end

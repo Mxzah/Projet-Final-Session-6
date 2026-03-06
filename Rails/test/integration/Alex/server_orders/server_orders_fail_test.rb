@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ServerOrdersFailTest < ActionDispatch::IntegrationTest
@@ -13,7 +15,7 @@ class ServerOrdersFailTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/tables", params: { table: { number: 601, nb_seats: 4 } }, as: :json
-    assert_response :created
+    assert_response :ok
     @table_data = JSON.parse(response.body)["data"]
     @table = Table.find(@table_data["id"])
 
@@ -92,7 +94,7 @@ class ServerOrdersFailTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/orders", params: {
-      order: { table_id: @table.id, nb_people: 2, server_id: 999999 }
+      order: { table_id: @table.id, nb_people: 2, server_id: 999_999 }
     }, as: :json
 
     json = JSON.parse(response.body)

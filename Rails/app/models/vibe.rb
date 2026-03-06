@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Restaurant ambiance or theme descriptor
 class Vibe < ApplicationRecord
   has_many :orders
   has_one_attached :image

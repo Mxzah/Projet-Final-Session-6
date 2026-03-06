@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class UserDestroyFailTest < ActionDispatch::IntegrationTest
@@ -13,7 +15,7 @@ class UserDestroyFailTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     assert_not json["success"]
-    assert_includes json["errors"], "You cannot delete your own account"
+    assert_includes json["errors"], I18n.t("controllers.users.cannot_delete_self")
     @admin.reload
     assert_nil @admin.deleted_at
   end
@@ -21,7 +23,11 @@ class UserDestroyFailTest < ActionDispatch::IntegrationTest
   test "cannot delete the last administrator" do
     assert_equal 1, Administrator.count
     post "/api/users", params: {
-      user: { first_name: "New", last_name: "Admin", email: "newadmin@restoqr.ca", password: "password123", password_confirmation: "password123", type: "Administrator" }
+      user: {
+        first_name: "New", last_name: "Admin",
+        email: "newadmin@restoqr.ca", password: "password123",
+        password_confirmation: "password123", type: "Administrator"
+      }
     }, as: :json
     new_admin = JSON.parse(response.body)["data"]
     sign_out @admin

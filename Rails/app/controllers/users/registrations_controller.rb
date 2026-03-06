@@ -1,46 +1,51 @@
 # frozen_string_literal: true
 
-class Users::RegistrationsController < Devise::RegistrationsController
-  respond_to :json
+module Users
+  # Custom Devise registration with JSON responses
+  class RegistrationsController < Devise::RegistrationsController
+    respond_to :json
 
-  before_action :configure_sign_up_params, only: [ :create ]
+    before_action :configure_sign_up_params, only: [ :create ]
 
-  # POST /resource
-  def create
-    build_resource(sign_up_params)
+    # POST /resource
+    def create
+      build_resource(sign_up_params)
 
-    resource.save
-    yield resource if block_given?
+      resource.save
+      yield resource if block_given?
 
-    if resource.persisted?
-      if resource.active_for_authentication?
-        sign_up(resource_name, resource)
-        render json: {
-          success: true,
-          data: { id: resource.id, email: resource.email, first_name: resource.first_name, last_name: resource.last_name, type: resource.type }
-        }, status: :ok
+      if resource.persisted?
+        if resource.active_for_authentication?
+          sign_up(resource_name, resource)
+          session[:created_at] = Time.current.iso8601
+          render json: {
+            success: true,
+            data: { id: resource.id, email: resource.email, first_name: resource.first_name,
+                    last_name: resource.last_name, type: resource.type }
+          }, status: :ok
+        else
+          expire_data_after_sign_in!
+          render json: {
+            success: false,
+            data: nil,
+            errors: [ I18n.t("controllers.registrations.account_inactive") ]
+          }, status: :ok
+        end
       else
-        expire_data_after_sign_in!
+        clean_up_passwords resource
+        set_minimum_password_length
         render json: {
           success: false,
           data: nil,
-          errors: [ "Account created but inactive" ]
+          errors: resource.errors.full_messages
         }, status: :ok
       end
-    else
-      clean_up_passwords resource
-      set_minimum_password_length
-      render json: {
-        success: false,
-        data: nil,
-        errors: resource.errors.full_messages
-      }, status: :ok
     end
-  end
 
-  protected
+    protected
 
-  def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: [ :first_name, :last_name, :type ])
+    def configure_sign_up_params
+      devise_parameter_sanitizer.permit(:sign_up, keys: %i[first_name last_name type])
+    end
   end
 end

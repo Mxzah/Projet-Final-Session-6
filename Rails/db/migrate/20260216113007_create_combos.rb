@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Create combos table
 class CreateCombos < ActiveRecord::Migration[8.1]
   def change
     create_table :combos do |t|
@@ -8,6 +11,6 @@ class CreateCombos < ActiveRecord::Migration[8.1]
       t.datetime :deleted_at
     end
 
-    add_index :combos, :deleted_at, name: "idx_combos_deleted_at"
+    add_index :combos, :deleted_at, name: 'idx_combos_deleted_at'
   end
 end

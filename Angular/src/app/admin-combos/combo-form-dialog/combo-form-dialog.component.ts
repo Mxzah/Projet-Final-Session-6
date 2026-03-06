@@ -1,4 +1,4 @@
-import { Component, Inject, signal, ViewChild } from '@angular/core';
+import { Component, Inject, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -50,8 +50,12 @@ export class ComboFormDialogComponent {
         price: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01), Validators.max(9999.99)])
     });
 
-    image = signal<File | null>(null);
-    imagePreviews = signal<string[]>([]);
+    imageResult = signal<ImageValidationResult | null>(null);
+    image = computed(() => this.imageResult()?.file ?? null);
+    imagePreviews = computed(() => {
+        const result = this.imageResult();
+        return result ? [result.preview] : [];
+    });
     availabilities = signal<AvailabilityEntry[]>([]);
     error = signal('');
     loading = signal(false);
@@ -66,8 +70,7 @@ export class ComboFormDialogComponent {
     ) { }
 
     onImagesSelected(results: ImageValidationResult[]): void {
-        this.image.set(results[0].file);
-        this.imagePreviews.set([results[0].preview]);
+        this.imageResult.set(results[0]);
     }
 
     clampPrice(event: Event): void {

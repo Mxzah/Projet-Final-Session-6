@@ -1,19 +1,23 @@
+# frozen_string_literal: true
+
 module Api
+  # Session status check endpoint
   class SessionsController < ApplicationController
     # GET /api/current_user
-    def current_user
-      if user_signed_in?
+    def show
+      user = warden.user(:user)
+      if user
         render json: {
           success: true,
           data: {
             authenticated: true,
             user: {
-              email: current_user.email,
-              first_name: current_user.first_name,
-              last_name: current_user.last_name,
-              type: current_user.type
+              email: user.email,
+              first_name: user.first_name,
+              last_name: user.last_name,
+              type: user.type
             },
-            redirect_to: compute_redirect_for(current_user)
+            redirect_to: compute_redirect_for(user)
           },
           errors: []
         }, status: :ok

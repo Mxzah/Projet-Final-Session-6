@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemCreateFailTest < ActionDispatch::IntegrationTest
@@ -24,7 +26,10 @@ class ItemCreateFailTest < ActionDispatch::IntegrationTest
   # Test 5: Create avec nom uniquement d'espaces
   test "create avec nom uniquement d'espaces retourne success false" do
     post "/api/items", params: {
-      item: { name: "   ", price: 10.00, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "   ", price: 10.00, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
 
     assert_response :ok
@@ -35,7 +40,10 @@ class ItemCreateFailTest < ActionDispatch::IntegrationTest
   # Test 6: Create avec nom dépassant 100 caractères
   test "create avec nom trop long retourne success false" do
     post "/api/items", params: {
-      item: { name: "A" * 101, price: 10.00, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "A" * 101, price: 10.00, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
 
     assert_response :ok
@@ -68,7 +76,10 @@ class ItemCreateFailTest < ActionDispatch::IntegrationTest
   # Test 9: Create avec prix supérieur à 9999.99
   test "create avec prix supérieur à 9999.99 retourne success false" do
     post "/api/items", params: {
-      item: { name: "Item", price: 10000.00, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Item", price: 10_000.00, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
 
     assert_response :ok
@@ -90,7 +101,10 @@ class ItemCreateFailTest < ActionDispatch::IntegrationTest
   # Test 11: Create avec image de type invalide (GIF)
   test "create avec image GIF retourne success false" do
     post "/api/items", params: {
-      item: { name: "Item", price: 10.00, category_id: @category.id, image: fixture_file_upload("test.gif", "image/gif") }
+      item: {
+        name: "Item", price: 10.00, category_id: @category.id,
+        image: fixture_file_upload("test.gif", "image/gif")
+      }
     }
 
     assert_response :ok
@@ -101,7 +115,11 @@ class ItemCreateFailTest < ActionDispatch::IntegrationTest
   # Test 12: Create avec description dépassant 255 caractères
   test "create avec description trop longue retourne success false" do
     post "/api/items", params: {
-      item: { name: "Item", description: "A" * 256, price: 10.00, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Item", description: "A" * 256, price: 10.00,
+        category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
 
     assert_response :ok
@@ -112,7 +130,7 @@ class ItemCreateFailTest < ActionDispatch::IntegrationTest
   # Test 13: Create avec catégorie inexistante
   test "create avec catégorie inexistante retourne une erreur" do
     post "/api/items", params: {
-      item: { name: "Item", price: 10.00, category_id: 999999, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: { name: "Item", price: 10.00, category_id: 999_999, image: fixture_file_upload("test.jpg", "image/jpeg") }
     }
 
     assert_response :ok
@@ -129,7 +147,10 @@ class ItemCreateFailTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/items", params: {
-      item: { name: "Item Client", price: 10.00, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Item Client", price: 10.00, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
 
     assert_response :ok

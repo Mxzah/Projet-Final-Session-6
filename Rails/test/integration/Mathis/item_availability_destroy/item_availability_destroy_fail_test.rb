@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemAvailabilityDestroyFailTest < ActionDispatch::IntegrationTest
   setup do
     @item = items(:item_one)
-    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                       content_type: "image/jpeg")
 
     sign_in users(:admin_user)
   end

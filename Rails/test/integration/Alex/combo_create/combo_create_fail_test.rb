@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ComboCreateFailTest < ActionDispatch::IntegrationTest
@@ -137,7 +139,7 @@ class ComboCreateFailTest < ActionDispatch::IntegrationTest
   # Test 10: Create avec prix > 9999.99 retourne success false
   test "create avec prix trop élevé retourne success false" do
     post "/api/combos", params: {
-      combo: { name: "Combo Trop Cher", price: 10000 }
+      combo: { name: "Combo Trop Cher", price: 10_000 }
     }, as: :json
 
     assert_response :ok

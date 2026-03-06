@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemAvailabilityUpdateFailTest < ActionDispatch::IntegrationTest
   setup do
     @item = items(:item_one)
-    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                       content_type: "image/jpeg")
     @availability = availabilities(:item_one_availability)
     @availability_two = availabilities(:item_one_availability_two)
     @client = users(:valid_user)

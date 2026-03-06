@@ -1,6 +1,12 @@
+# frozen_string_literal: true
+
+# Individual line item within an order
 class OrderLine < ApplicationRecord
   # Enum for status — provides scopes (.sent, .served) and query methods (.sent?, .served?)
-  enum :status, { waiting: "waiting", sent: "sent", in_preparation: "in_preparation", ready: "ready", served: "served" }, default: :waiting, validate: true
+  enum :status,
+       { waiting: "waiting", sent: "sent", in_preparation: "in_preparation",
+         ready: "ready", served: "served" },
+       default: :waiting, validate: true
 
   # Constants for sequential status logic
   STATUSES = %w[waiting sent in_preparation ready served].freeze
@@ -17,7 +23,7 @@ class OrderLine < ApplicationRecord
   validates :unit_price, presence: true,
                          numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 9999.99 }
   validates :note, length: { maximum: 255 },
-                   format: { without: /\A\s*\z/, message: "cannot consist only of spaces" }, allow_blank: true
+                   format: { without: /\A\s*\z/, message: :only_spaces }, allow_blank: true
   # status validation is handled by enum (validate: true)
   validates :orderable_type, presence: true, inclusion: { in: %w[Item Combo] }
 
@@ -26,7 +32,7 @@ class OrderLine < ApplicationRecord
   validate :cannot_modify_unless_sent, on: :update
 
   # JSON serialization for API responses
-  def as_json(options = {})
+  def as_json(_options = {})
     {
       id: id,
       quantity: quantity,
@@ -52,9 +58,9 @@ class OrderLine < ApplicationRecord
 
     return unless old_index && new_index
 
-    if new_index != old_index + 1
-      errors.add(:status, "must follow sequential order (waiting → sent → in_preparation → ready → served)")
-    end
+    return unless new_index != old_index + 1
+
+    errors.add(:status, :invalid_sequence)
   end
 
   def orderable_must_be_available
@@ -64,14 +70,14 @@ class OrderLine < ApplicationRecord
     available = Availability.where(available_type: orderable_type, available_id: orderable_id)
                             .where("start_at <= ? AND (end_at IS NULL OR end_at >= ?)", Time.current, Time.current)
 
-    errors.add(:orderable, "is not currently available") unless available.exists?
+    errors.add(:orderable, :not_available) unless available.exists?
   end
 
   def cannot_modify_unless_sent
     # A line can only have quantity/note changed if its status is not yet 'served'
     return unless status_was == "served" && (quantity_changed? || note_changed? || orderable_id_changed?)
 
-    errors.add(:base, "can only be modified when status is not yet 'served'")
+    errors.add(:base, :cannot_modify_served)
   end
 
   def assign_unit_price
@@ -83,7 +89,7 @@ class OrderLine < ApplicationRecord
   def ensure_deletable
     return if waiting? || sent? || in_preparation?
 
-    errors.add(:base, "cannot be deleted when status is #{status}")
+    errors.add(:base, :cannot_delete_status, status: status)
     throw :abort
   end
 end

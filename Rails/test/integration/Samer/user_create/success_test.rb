@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class UserCreateSuccessTest < ActionDispatch::IntegrationTest
@@ -9,7 +11,11 @@ class UserCreateSuccessTest < ActionDispatch::IntegrationTest
   test "create an Administrator with valid fields returns 200" do
     assert_difference "User.count", 1 do
       post "/api/users", params: {
-        user: { first_name: "Julie", last_name: "Martin", email: "julie@restoqr.ca", password: "password123", password_confirmation: "password123", type: "Administrator" }
+        user: {
+          first_name: "Julie", last_name: "Martin",
+          email: "julie@restoqr.ca", password: "password123",
+          password_confirmation: "password123", type: "Administrator"
+        }
       }, as: :json
     end
     assert_response :ok
@@ -24,7 +30,11 @@ class UserCreateSuccessTest < ActionDispatch::IntegrationTest
   test "create a Waiter with valid fields returns 200" do
     assert_difference "User.count", 1 do
       post "/api/users", params: {
-        user: { first_name: "Paul", last_name: "Simard", email: "paul@restoqr.ca", password: "password123", password_confirmation: "password123", type: "Waiter" }
+        user: {
+          first_name: "Paul", last_name: "Simard",
+          email: "paul@restoqr.ca", password: "password123",
+          password_confirmation: "password123", type: "Waiter"
+        }
       }, as: :json
     end
     assert_response :ok
@@ -36,7 +46,11 @@ class UserCreateSuccessTest < ActionDispatch::IntegrationTest
   test "create a Cook with valid fields returns 200" do
     assert_difference "User.count", 1 do
       post "/api/users", params: {
-        user: { first_name: "Anne", last_name: "Bouchard", email: "anne@restoqr.ca", password: "password123", password_confirmation: "password123", type: "Cook" }
+        user: {
+          first_name: "Anne", last_name: "Bouchard",
+          email: "anne@restoqr.ca", password: "password123",
+          password_confirmation: "password123", type: "Cook"
+        }
       }, as: :json
     end
     assert_response :ok
@@ -47,7 +61,12 @@ class UserCreateSuccessTest < ActionDispatch::IntegrationTest
 
   test "create includes block_note field" do
     post "/api/users", params: {
-      user: { first_name: "Luc", last_name: "Bergeron", email: "luc@restoqr.ca", password: "password123", password_confirmation: "password123", type: "Waiter", block_note: "Test note" }
+      user: {
+        first_name: "Luc", last_name: "Bergeron",
+        email: "luc@restoqr.ca", password: "password123",
+        password_confirmation: "password123",
+        type: "Waiter", block_note: "Test note"
+      }
     }, as: :json
     assert_response :ok
     json = JSON.parse(response.body)

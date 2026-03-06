@@ -137,10 +137,11 @@ export class ApiService {
     );
   }
 
-  delete<T>(endpoint: string): Observable<ApiResponse<T>> {
+  delete<T>(endpoint: string, body?: any): Observable<ApiResponse<T>> {
     return this.http.delete<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, {
       withCredentials: true,
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      body
     }).pipe(
       map(response => {
         if (!response.success) {

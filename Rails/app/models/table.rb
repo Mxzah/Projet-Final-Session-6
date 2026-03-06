@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Restaurant table with QR code management
 class Table < ApplicationRecord
   has_many :orders
   has_many :availabilities, as: :available
@@ -9,8 +12,8 @@ class Table < ApplicationRecord
   validates :nb_seats, presence: true,
                        numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 20 }
   validates :temporary_code, uniqueness: true, allow_nil: true, length: { maximum: 50 }
-  validates :image, content_type: { in: %w[image/jpeg image/png], message: "doit être un fichier JPG ou PNG" },
-                    size: { less_than: 5.megabytes, message: "doit être inférieur à 5 MB" }, if: :image_attached?
+  validates :image, content_type: { in: %w[image/jpeg image/png], message: :invalid_format },
+                    size: { less_than: 5.megabytes, message: :file_too_large }, if: :image_attached?
   validate :cleaned_at_after_created_at
 
   default_scope { where(deleted_at: nil) }
@@ -58,7 +61,8 @@ class Table < ApplicationRecord
 
   def cleaned_at_after_created_at
     return unless cleaned_at.present? && created_at.present?
-    errors.add(:cleaned_at, "doit être après la date de création") if cleaned_at < created_at
+
+    errors.add(:cleaned_at, :before_created) if cleaned_at < created_at
   end
 
   def image_attached?

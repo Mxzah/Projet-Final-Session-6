@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Time-based availability window for categories, items, tables, and combos
 class Availability < ApplicationRecord
   belongs_to :available, polymorphic: true
   AVAILABLE_TYPES = %w[Category Item Table Combo].freeze
@@ -5,7 +8,7 @@ class Availability < ApplicationRecord
 
   validates :start_at, presence: true
   validates :description, length: { maximum: 255 },
-                          format: { without: /\A\s*\z/, message: "ne peut pas être composé uniquement d'espaces" }, allow_blank: true
+                          format: { without: /\A\s*\z/, message: :only_spaces }, allow_blank: true
   validates :available_type, presence: true, inclusion: { in: AVAILABLE_TYPES }
   validate :start_at_not_in_past
   validate :end_at_after_start_at
@@ -18,20 +21,23 @@ class Availability < ApplicationRecord
   def start_at_not_in_past
     return unless start_at.present?
     return if persisted? && start_at_was.present? && start_at.beginning_of_minute == start_at_was.beginning_of_minute
-    errors.add(:start_at, I18n.t("activerecord.errors.models.availability.attributes.start_at.in_past")) if start_at < Time.current.beginning_of_minute
+
+    errors.add(:start_at, :in_past) if start_at < Time.current.beginning_of_minute
   end
 
   def end_at_after_start_at
     return unless end_at.present? && start_at.present?
-    errors.add(:end_at, "doit être après la date de début") if end_at < start_at
+
+    errors.add(:end_at, :before_start) if end_at < start_at
   end
 
   def minimum_duration
     return unless end_at.present? && start_at.present?
     return if persisted? && start_at < Time.current
-    if (end_at - start_at) < MINIMUM_DURATION
-      errors.add(:end_at, "la durée minimale est de 1 heure")
-    end
+
+    return unless (end_at - start_at) < MINIMUM_DURATION
+
+    errors.add(:end_at, :minimum_duration)
   end
 
   def available_not_deleted
@@ -45,9 +51,9 @@ class Availability < ApplicationRecord
 
     return unless record
 
-    unless record.exists?(id: available_id)
-      errors.add(:base, "impossible de créer une disponibilité sur un élément archivé")
-    end
+    return if record.exists?(id: available_id)
+
+    errors.add(:base, :archived_record)
   end
 
   def no_overlapping_periods
@@ -57,6 +63,6 @@ class Availability < ApplicationRecord
                            .where.not(id: id)
                            .where("start_at < ? AND end_at > ?", end_at, start_at)
 
-    errors.add(:base, "cette période chevauche une période existante") if overlaps.exists?
+    errors.add(:base, :overlapping) if overlaps.exists?
   end
 end

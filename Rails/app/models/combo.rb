@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Combination meal with multiple items
 class Combo < ApplicationRecord
   has_many :combo_items
   has_many :items, through: :combo_items
@@ -10,14 +13,14 @@ class Combo < ApplicationRecord
   include Rails.application.routes.url_helpers
 
   def image_url
-    image.attached? ? url_for(image) : nil
+    image.attached? ? rails_storage_proxy_path(image) : nil
   end
 
   def as_json(options = {})
     super(options.reverse_merge(
-      only: [ :id, :name, :description, :price, :created_at, :deleted_at ],
+      only: %i[id name description price created_at deleted_at],
       methods: [ :image_url ],
-      include: { availabilities: { only: [ :id, :start_at, :end_at, :description ] } }
+      include: { availabilities: { only: %i[id start_at end_at description] } }
     )).tap { |h| h["price"] = h["price"].to_f if h.key?("price") }
   end
 
@@ -44,28 +47,30 @@ class Combo < ApplicationRecord
   private
 
   def name_not_only_whitespace
-    if name.is_a?(String) && !name.empty? && name.strip.empty?
-      errors.add(:name, :blank)
-    end
+    return unless name.is_a?(String) && !name.empty? && name.strip.empty?
+
+    errors.add(:name, :blank)
   end
 
   def description_not_only_whitespace
-    if description.is_a?(String) && !description.empty? && description.strip.empty?
-      errors.add(:description, :invalid)
-    end
+    return unless description.is_a?(String) && !description.empty? && description.strip.empty?
+
+    errors.add(:description, :invalid)
   end
 
   def image_content_type_validation
     return unless image.attached?
-    unless image.content_type.in?(%w[image/jpeg image/png])
-      errors.add(:image, I18n.t("activerecord.errors.models.combo.attributes.image.invalid_content_type"))
-    end
+
+    return if image.content_type.in?(%w[image/jpeg image/png])
+
+    errors.add(:image, :invalid_content_type)
   end
 
   def image_size_validation
     return unless image.attached?
-    if image.blob.byte_size > 5.megabytes
-      errors.add(:image, I18n.t("activerecord.errors.models.combo.attributes.image.file_size_too_large"))
-    end
+
+    return unless image.blob.byte_size > 5.megabytes
+
+    errors.add(:image, :file_size_too_large)
   end
 end

@@ -61,10 +61,69 @@ fr:
               invalid: "n'est pas valide"
               file_size_too_large: "doit être inférieure à 5 Mo"
               invalid_content_type: "doit être une image JPEG ou PNG"
+        review:
+          attributes:
+            user:
+              must_be_client: "doit être un client"
+            images:
+              invalid_format: "doivent être des fichiers JPG ou PNG"
+              file_too_large: "doivent être inférieures à 5 Mo chacune"
+            reviewable:
+              not_ordered: "doit être un article ou combo commandé par le client"
+              must_be_waiter: "doit être un serveur"
+              not_your_server: "doit avoir été le serveur de l'une de vos commandes"
+        order:
+          attributes:
+            ended_at:
+              before_created: "doit être après la date de création"
+            client_id:
+              has_open_order: "a déjà une commande en cours"
+            nb_people:
+              exceeds_capacity: "ne peut pas dépasser la capacité de la table (%{max} personnes max)"
+            note:
+              only_spaces: "ne peut pas être composé uniquement d'espaces"
+        order_line:
+          attributes:
+            status:
+              invalid_sequence: "doit suivre l'ordre séquentiel (waiting → sent → in_preparation → ready → served)"
+            orderable:
+              not_available: "n'est pas actuellement disponible"
+            base:
+              cannot_modify_served: "ne peut être modifié que lorsque le statut n'est pas encore 'served'"
+              cannot_delete_status: "ne peut pas être supprimé avec le statut %{status}"
+            note:
+              only_spaces: "ne peut pas être composé uniquement d'espaces"
+        item:
+          attributes:
+            image:
+              required: "est requis"
+              invalid_format: "doit être un fichier JPG ou PNG"
+              file_too_large: "doit être inférieur à 5 Mo"
+            deleted_at:
+              must_be_now: "doit être l'heure actuelle"
+            name:
+              only_whitespace: "ne peut pas être composé uniquement d'espaces"
+            description:
+              only_whitespace: "ne peut pas être composé uniquement d'espaces"
+        table:
+          attributes:
+            image:
+              invalid_format: "doit être un fichier JPG ou PNG"
+              file_too_large: "doit être inférieur à 5 Mo"
+            cleaned_at:
+              before_created: "doit être après la date de création"
         availability:
           attributes:
             start_at:
               in_past: "doit être dans le futur"
+            end_at:
+              before_start: "doit être après la date de début"
+              minimum_duration: "la durée minimale est de 1 heure"
+            base:
+              archived_record: "impossible de créer une disponibilité sur un élément archivé"
+              overlapping: "cette période chevauche une période existante"
+            description:
+              only_spaces: "ne peut pas être composé uniquement d'espaces"
         combo_item:
           attributes:
             quantity:
@@ -150,7 +209,30 @@ fr:
       order_not_found: "Commande introuvable"
       already_assigned: "Un serveur est déjà assigné à cette commande"
       not_assigned: "Vous n'êtes pas assigné à cette commande"
+      not_all_served: "Tous les items doivent être servis avant de libérer la table."
       line_not_found: "Ligne de commande non trouvée"
       line_not_ready: "Seul un plat prêt peut être marqué comme servi"
       cannot_modify_line: "Impossible de modifier la ligne avec le statut '%{status}'. Les lignes ne peuvent pas être modifiées une fois servies."
       cannot_delete_line: "Impossible de supprimer la ligne avec le statut '%{status}'. Seules les lignes 'sent' ou 'in_preparation' peuvent être supprimées."
+      order_already_closed: "Cette commande est déjà fermée"
+      cancel_has_lines: "Impossible d'annuler une commande qui a des items envoyés en cuisine"
+    reviews:
+      unauthorized: "Non autorisé"
+      only_clients: "Seuls les clients peuvent créer des avis"
+      update_own_only: "Vous ne pouvez modifier que vos propres avis"
+      not_found: "Avis non trouvé"
+    users:
+      cannot_create_client: "Impossible de créer un utilisateur Client depuis le panneau d'administration"
+      type_invalid: "Le type n'est pas inclus dans la liste"
+      cannot_modify_self: "Vous ne pouvez pas modifier votre propre compte"
+      cannot_delete_self: "Vous ne pouvez pas supprimer votre propre compte"
+      cannot_delete_last_admin: "Impossible de supprimer le dernier administrateur"
+    sessions:
+      invalid_credentials: "Courriel ou mot de passe invalide"
+      expired: "Votre session a expiré. Veuillez vous reconnecter."
+      unauthenticated: "Vous devez être connecté pour continuer."
+    registrations:
+      account_inactive: "Compte créé mais inactif"
+    tables:
+      invalid_cleaned_at: "Date et heure de nettoyage invalides"
+      cleaning_staff_only: "Accès réservé au personnel d'entretien"

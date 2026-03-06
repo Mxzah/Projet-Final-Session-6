@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Base user model with STI for role-based authentication
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
@@ -38,6 +41,7 @@ class User < ApplicationRecord
 
   def employee_discount_percentage
     return 0 unless EMPLOYEE_TYPES.include?(type)
+
     tenure_months = ((Time.current - created_at) / 1.month.seconds).floor
     if tenure_months >= 24
       15
@@ -50,7 +54,7 @@ class User < ApplicationRecord
     end
   end
 
-  def as_json(options = {})
+  def as_json(_options = {})
     {
       id: id,
       email: email,
@@ -66,10 +70,10 @@ class User < ApplicationRecord
   private
 
   def strip_blank_password
-    if password.blank?
-      self.password = nil
-      self.password_confirmation = nil
-    end
+    return unless password.blank?
+
+    self.password = nil
+    self.password_confirmation = nil
   end
 
   def password_required?

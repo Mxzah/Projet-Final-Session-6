@@ -1,10 +1,14 @@
+# frozen_string_literal: true
+
+# Join model linking combos to their constituent items
 class ComboItem < ApplicationRecord
   belongs_to :combo
   belongs_to :item
 
   include Rails.application.routes.url_helpers
 
-  validates :quantity, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
+  validates :quantity, presence: true,
+                       numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
   validates :combo_id, uniqueness: { scope: :item_id, message: :taken }
 
   default_scope { where(deleted_at: nil) }
@@ -18,13 +22,13 @@ class ComboItem < ApplicationRecord
   end
 
   def item_image_url
-    item&.image&.attached? ? url_for(item.image) : nil
+    item&.image&.attached? ? rails_storage_proxy_path(item.image) : nil
   end
 
   def as_json(options = {})
     super(options.reverse_merge(
-      only: [ :id, :combo_id, :item_id, :quantity, :deleted_at ],
-      methods: [ :combo_name, :item_name, :item_image_url ]
+      only: %i[id combo_id item_id quantity deleted_at],
+      methods: %i[combo_name item_name item_image_url]
     ))
   end
 

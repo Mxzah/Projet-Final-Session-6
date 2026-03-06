@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 module Api
+  # User management for administrators
   class UsersController < AdminController
-    before_action :set_user, only: [ :show, :update, :destroy ]
+    before_action :set_user, only: %i[show update destroy]
 
     # GET /api/users?search=…&sort=asc|desc&sort_by=…&status=…&type=…
     def index
@@ -15,26 +18,24 @@ module Api
       end
 
       # Filter
-      if params[:status].present?
-        users = users.where(status: params[:status])
-      end
+      users = users.where(status: params[:status]) if params[:status].present?
       if params[:type].present?
-        if User::VALID_TYPES.include?(params[:type])
-          users = users.where(type: params[:type])
+        users = if User::VALID_TYPES.include?(params[:type])
+                  users.where(type: params[:type])
         else
-          users = users.none
+                  users.none
         end
       end
 
       # Sort
       sort_col = User::SORTABLE_COLUMNS.include?(params[:sort_by]) ? params[:sort_by] : "last_name"
-      case params[:sort]
+      users = case params[:sort]
       when "asc"
-        users = users.order(sort_col => :asc)
+                users.order(sort_col => :asc)
       when "desc"
-        users = users.order(sort_col => :desc)
+                users.order(sort_col => :desc)
       else
-        users = users.order(:last_name, :first_name)
+                users.order(:last_name, :first_name)
       end
 
       render json: {
@@ -60,7 +61,7 @@ module Api
         return render json: {
           success: false,
           data: nil,
-          errors: [ "Cannot create Client users from admin panel" ]
+          errors: [ I18n.t("controllers.users.cannot_create_client") ]
         }, status: :ok
       end
 
@@ -83,7 +84,7 @@ module Api
       render json: {
         success: false,
         data: nil,
-        errors: [ "Type is not included in the list" ]
+        errors: [ I18n.t("controllers.users.type_invalid") ]
       }, status: :ok
     rescue ArgumentError => e
       render json: {
@@ -100,7 +101,7 @@ module Api
         return render json: {
           success: false,
           data: nil,
-          errors: [ "You cannot modify your own account" ]
+          errors: [ I18n.t("controllers.users.cannot_modify_self") ]
         }, status: :ok
       end
 
@@ -121,7 +122,7 @@ module Api
       render json: {
         success: false,
         data: nil,
-        errors: [ "Type is not included in the list" ]
+        errors: [ I18n.t("controllers.users.type_invalid") ]
       }, status: :ok
     rescue ArgumentError => e
       render json: {
@@ -138,16 +139,16 @@ module Api
         return render json: {
           success: false,
           data: nil,
-          errors: [ "You cannot delete your own account" ]
+          errors: [ I18n.t("controllers.users.cannot_delete_self") ]
         }, status: :ok
       end
 
       # Last admin protection
-      if @user.type == "Administrator" && Administrator.where.not(id: @user.id).count == 0
+      if @user.type == "Administrator" && Administrator.where.not(id: @user.id).count.zero?
         return render json: {
           success: false,
           data: nil,
-          errors: [ "Cannot delete the last administrator" ]
+          errors: [ I18n.t("controllers.users.cannot_delete_last_admin") ]
         }, status: :ok
       end
 
@@ -167,7 +168,8 @@ module Api
     end
 
     def user_params
-      params.require(:user).permit(:email, :first_name, :last_name, :type, :status, :password, :password_confirmation, :block_note)
+      params.require(:user).permit(:email, :first_name, :last_name, :type, :status, :password, :password_confirmation,
+                                   :block_note)
     end
   end
 end

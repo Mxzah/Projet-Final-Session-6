@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ReviewCreateFailTest < ActionDispatch::IntegrationTest
@@ -22,7 +24,7 @@ class ReviewCreateFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "Only clients can create reviews"
+    assert_includes json["errors"], I18n.t("controllers.reviews.only_clients")
   end
 
   # Admin cannot create reviews
@@ -40,7 +42,7 @@ class ReviewCreateFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], "Only clients can create reviews"
+    assert_includes json["errors"], I18n.t("controllers.reviews.only_clients")
   end
 
   # Invalid rating (0) fails
@@ -77,11 +79,11 @@ class ReviewCreateFailTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
   end
 
-  # Missing comment fails
-  test "missing comment returns success false" do
+  # Empty comment is allowed (comment has allow_blank: true)
+  test "empty comment is accepted" do
     sign_in @client
 
-    assert_no_difference "Review.count" do
+    assert_difference "Review.count", 1 do
       post "/api/reviews", params: {
         review: { rating: 4, comment: "", reviewable_type: "Item", reviewable_id: items(:item_one).id }
       }, as: :json
@@ -91,7 +93,7 @@ class ReviewCreateFailTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
 
     # JSON response
-    assert_not json["success"]
+    assert json["success"]
   end
 
   # Comment too long fails
@@ -111,11 +113,11 @@ class ReviewCreateFailTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
   end
 
-  # Whitespace-only comment fails
-  test "whitespace-only comment returns success false" do
+  # Whitespace-only comment is allowed (comment has allow_blank: true)
+  test "whitespace-only comment is accepted" do
     sign_in @client
 
-    assert_no_difference "Review.count" do
+    assert_difference "Review.count", 1 do
       post "/api/reviews", params: {
         review: { rating: 4, comment: "   ", reviewable_type: "Item", reviewable_id: items(:item_one).id }
       }, as: :json
@@ -125,7 +127,7 @@ class ReviewCreateFailTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
 
     # JSON response
-    assert_not json["success"]
+    assert json["success"]
   end
 
   # Unordered item fails

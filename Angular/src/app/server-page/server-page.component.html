@@ -1,7 +1,5 @@
 <app-header
-  (logoutClick)="logout()"
-  [showQuitMenu]="authService.isAdmin()"
-  (quitMenuClick)="goBack()">
+  (logoutClick)="logout()">
 </app-header>
 
 <div class="page">
@@ -206,7 +204,7 @@
       @if (groupedOrders.length > 0) {
         <div class="orders-grid">
           @for (order of groupedOrders; track order.table_id) {
-            <mat-card class="order-card mine-card" [class.paid-card]="isOrderClosed(order)">
+            <mat-card class="order-card mine-card" [class.paid-card]="isOrderClosed(order)" [class.card-awaiting]="isAwaitingPayment(order)">
               <mat-card-header>
                 <div class="card-title-row">
                   <span class="table-badge">{{ ts.t('cuisine.table') }} {{ order.table_number }}</span>
@@ -223,6 +221,12 @@
                     <mat-chip class="chip-released">
                       <mat-icon>logout</mat-icon>
                       {{ ts.t('server.released') }}
+                    </mat-chip>
+                  }
+                  @if (isAwaitingPayment(order)) {
+                    <mat-chip class="chip-awaiting">
+                      <mat-icon>hourglass_top</mat-icon>
+                      {{ ts.t('server.awaitingPayment') }}
                     </mat-chip>
                   }
                 </div>
@@ -313,16 +317,28 @@
                 </div>
 
                 <mat-card-actions class="card-action-row">
-                  @if (isOrderClosed(order)) {
-                    <button mat-flat-button class="clean-btn" (click)="confirmReleaseOrder(order)">
+                  @if (isEmptyOrder(order)) {
+                    <button mat-flat-button class="btn-cancel" (click)="confirmCancel(order)">
+                      <mat-icon>cancel</mat-icon>
+                      {{ ts.t('server.cancelOrder') }}
+                    </button>
+                  } @else if (isOrderPaid(order) || isOrderReleased(order)) {
+                    <button mat-flat-button class="clean-btn" (click)="confirmClean(order)">
                       <mat-icon>cleaning_services</mat-icon>
                       {{ ts.t('server.cleanTable') }}
                     </button>
-                  } @else {
-                    <button mat-flat-button class="release-btn" (click)="confirmReleaseOrder(order)">
-                      <mat-icon>logout</mat-icon>
-                      {{ ts.t('server.releaseTable') }}
-                    </button>
+                  } @else if (isAwaitingPayment(order)) {
+                    <div class="awaiting-section">
+                      <button mat-flat-button class="clean-btn" disabled>
+                        <mat-icon>cleaning_services</mat-icon>
+                        {{ ts.t('server.cleanTable') }}
+                      </button>
+                      <span class="awaiting-hint">{{ ts.t('server.cleanDisabledHint') }}</span>
+                      <button mat-button class="override-link" (click)="confirmRelease(order)">
+                        <mat-icon>logout</mat-icon>
+                        {{ ts.t('server.releaseOverride') }}
+                      </button>
+                    </div>
                   }
                 </mat-card-actions>
               </mat-card-content>

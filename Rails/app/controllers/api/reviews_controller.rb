@@ -1,14 +1,26 @@
+# frozen_string_literal: true
+
 module Api
+  # CRUD and soft-delete operations for reviews
   class ReviewsController < ApplicationController
     before_action :authenticate_user!
-    before_action :set_review, only: [ :show, :update, :destroy ]
+    before_action :set_review, only: %i[show update destroy]
 
-    # GET /api/reviews?search=…&reviewable_type=…&rating=…&sort=…
+    # GET /api/reviews?search=…&reviewable_type=…&rating=…&sort=…&status=…
     def index
       reviews = if current_user.type == "Administrator"
-        Review.all
+                  Review.all
       else
-        Review.where(user_id: current_user.id)
+                  Review.where(user_id: current_user.id)
+      end
+
+      # Status filter (active / deleted / all)
+      case params[:status]
+      when "active"
+        reviews = reviews.active
+      when "deleted"
+        reviews = reviews.where.not(deleted_at: nil)
+        # else: return all (admin and client both see deleted reviews)
       end
 
       # Search (admin only — by user name or comment)
@@ -33,15 +45,15 @@ module Api
       end
 
       # Sort
-      case params[:sort]
+      reviews = case params[:sort]
       when "oldest"
-        reviews = reviews.order(created_at: :asc)
+                  reviews.order(created_at: :asc)
       when "rating_high"
-        reviews = reviews.order(rating: :desc)
+                  reviews.order(rating: :desc)
       when "rating_low"
-        reviews = reviews.order(rating: :asc)
+                  reviews.order(rating: :asc)
       else
-        reviews = reviews.order(created_at: :desc)
+                  reviews.order(created_at: :desc)
       end
 
       render json: {
@@ -54,7 +66,8 @@ module Api
     # GET /api/reviews/:id
     def show
       unless current_user.type == "Administrator" || @review.user_id == current_user.id
-        return render json: { success: false, data: nil, errors: [ "Unauthorized" ] }, status: :ok
+        return render json: { success: false, data: nil, errors: [ I18n.t("controllers.reviews.unauthorized") ] },
+                      status: :ok
       end
 
       render json: {
@@ -67,7 +80,8 @@ module Api
     # POST /api/reviews
     def create
       unless current_user.type == "Client"
-        return render json: { success: false, data: nil, errors: [ "Only clients can create reviews" ] }, status: :ok
+        return render json: { success: false, data: nil, errors: [ I18n.t("controllers.reviews.only_clients") ] },
+                      status: :ok
       end
 
       permitted = review_params
@@ -94,7 +108,8 @@ module Api
     # PATCH/PUT /api/reviews/:id
     def update
       unless @review.user_id == current_user.id
-        return render json: { success: false, data: nil, errors: [ "You can only update your own reviews" ] }, status: :ok
+        return render json: { success: false, data: nil, errors: [ I18n.t("controllers.reviews.update_own_only") ] },
+                      status: :ok
       end
 
       permitted = review_update_params
@@ -118,10 +133,12 @@ module Api
     # DELETE /api/reviews/:id (soft delete)
     def destroy
       unless current_user.type == "Administrator" || @review.user_id == current_user.id
-        return render json: { success: false, data: nil, errors: [ "Unauthorized" ] }, status: :ok
+        return render json: { success: false, data: nil, errors: [ I18n.t("controllers.reviews.unauthorized") ] },
+                      status: :ok
       end
 
-      @review.soft_delete!
+      reason = current_user.type == "Administrator" ? params[:reason] : nil
+      @review.soft_delete!(reason: reason)
 
       render json: {
         success: true,
@@ -134,13 +151,13 @@ module Api
 
     def set_review
       @review = Review.find_by(id: params[:id])
-      unless @review
-        render json: { success: false, data: nil, errors: [ "Review not found" ] }, status: :ok
-      end
+      return if @review
+
+      render json: { success: false, data: nil, errors: [ I18n.t("controllers.reviews.not_found") ] }, status: :ok
     end
 
     def review_params
-      params.require(:review).permit(:rating, :comment, :reviewable_type, :reviewable_id, images: [])
+      params.require(:review).permit(:rating, :comment, :reviewable_type, :reviewable_id, :order_id, images: [])
     end
 
     def review_update_params

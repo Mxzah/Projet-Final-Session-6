@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Customer order associated with a table
 class Order < ApplicationRecord
   belongs_to :table
   belongs_to :client, class_name: "User"
@@ -11,7 +14,7 @@ class Order < ApplicationRecord
   validates :nb_people, presence: true,
                         numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 20 }
   validates :note, length: { maximum: 255 },
-                   format: { without: /\A\s*\z/, message: "cannot consist only of spaces" }, allow_blank: true
+                   format: { without: /\A\s*\z/, message: :only_spaces }, allow_blank: true
   validates :tip, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 999.99 }, allow_nil: true
   validate :ended_at_after_created_at
   validate :client_has_no_other_open_order
@@ -20,7 +23,7 @@ class Order < ApplicationRecord
   default_scope { where(deleted_at: nil) }
 
   # JSON serialization for API responses
-  def as_json(options = {})
+  def as_json(_options = {})
     lines_data = order_lines.map(&:as_json)
     total = lines_data.sum { |l| l[:unit_price] * l[:quantity] }
 
@@ -43,6 +46,7 @@ class Order < ApplicationRecord
       vibe_color: vibe&.color,
       created_at: created_at,
       ended_at: ended_at,
+      server_released: server_released,
       order_lines: lines_data,
       total: total,
       discount_percentage: discount_pct,
@@ -56,26 +60,30 @@ class Order < ApplicationRecord
   # ended_at must be >= created_at
   def ended_at_after_created_at
     return unless ended_at.present? && created_at.present?
-    errors.add(:ended_at, "must be after the creation date") if ended_at < created_at
+
+    errors.add(:ended_at, :before_created) if ended_at < created_at
   end
 
   # A client can only have one open order at a time (ended_at IS NULL)
   def client_has_no_other_open_order
     return unless client_id.present?
+
     existing = Order.unscoped.where(client_id: client_id, ended_at: nil, deleted_at: nil).where.not(id: id)
-    errors.add(:client_id, "already has an open order") if existing.exists?
+    errors.add(:client_id, :has_open_order) if existing.exists?
   end
 
   # nb_people cannot exceed the table's nb_seats
   def nb_people_within_table_capacity
     return unless table.present? && nb_people.present?
     return if nb_people <= table.nb_seats
-    errors.add(:nb_people, "cannot exceed the table capacity (#{table.nb_seats} people max)")
+
+    errors.add(:nb_people, :exceeds_capacity, max: table.nb_seats)
   end
 
   def nb_people_within_table_capacity
     return unless table.present? && nb_people.present?
     return if nb_people <= table.nb_seats
-    errors.add(:nb_people, "cannot exceed the table capacity (#{table.nb_seats} people max)")
+
+    errors.add(:nb_people, :exceeds_capacity, max: table.nb_seats)
   end
 end

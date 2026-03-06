@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 module Api
+  # Server/waiter dashboard for table and order management
   class ServerController < ApiController
     before_action :authenticate_user!
     before_action :authorize_server_staff!
-    before_action :set_order, only: [ :assign, :release, :clean ]
-    before_action :set_line,  only: [ :serve_line, :update_line, :destroy_line ]
+    before_action :set_order, only: %i[assign release clean cancel]
+    before_action :set_line,  only: %i[serve_line update_line destroy_line]
 
     # GET /api/server/tables — returns all tables with QR tokens for the server to present
     def tables
@@ -12,18 +15,28 @@ module Api
     end
 
     # GET /api/server/orders — returns { mine: [...] }
+    # Admin sees ALL orders; waiters see only their own.
     def orders
-      mine = Order.where(ended_at: nil, server: current_user)
-                  .includes(:table, :client, :server, :vibe, order_lines: :orderable)
-                  .order(created_at: :asc)
+      if current_user.type == "Administrator"
+        mine = Order.where(ended_at: nil)
+                    .includes(:table, :client, :server, :vibe, order_lines: :orderable)
+                    .order(created_at: :asc)
 
-      # Also include my orders that are paid (ended_at set) but not yet "cleaned"
-      # Exclude orders whose table has been cleaned AFTER the order ended (already cleaned)
-      paid_mine = Order.where(server: current_user)
-                       .where("ended_at > ? AND ended_at IS NOT NULL", 24.hours.ago)
-                       .includes(:table, :client, :server, :vibe, order_lines: :orderable)
-                       .order(created_at: :desc)
-                       .reject { |o| o.table.cleaned_at.present? && o.table.cleaned_at >= o.ended_at }
+        paid_mine = Order.where("ended_at > ? AND ended_at IS NOT NULL", 24.hours.ago)
+                         .includes(:table, :client, :server, :vibe, order_lines: :orderable)
+                         .order(created_at: :desc)
+                         .reject { |o| o.table.cleaned_at.present? && o.table.cleaned_at >= o.ended_at }
+      else
+        mine = Order.where(ended_at: nil, server: current_user)
+                    .includes(:table, :client, :server, :vibe, order_lines: :orderable)
+                    .order(created_at: :asc)
+
+        paid_mine = Order.where(server: current_user)
+                         .where("ended_at > ? AND ended_at IS NOT NULL", 24.hours.ago)
+                         .includes(:table, :client, :server, :vibe, order_lines: :orderable)
+                         .order(created_at: :desc)
+                         .reject { |o| o.table.cleaned_at.present? && o.table.cleaned_at >= o.ended_at }
+      end
 
       all_orders = (mine + paid_mine).uniq(&:id)
       all_lines = all_orders.flat_map(&:order_lines)
@@ -37,9 +50,7 @@ module Api
 
     # POST /api/server/orders/:id/assign — assign current user as server
     def assign
-      if @order.server_id.present?
-        return render_error(I18n.t("controllers.server.already_assigned"))
-      end
+      return render_error(I18n.t("controllers.server.already_assigned")) if @order.server_id.present?
 
       @order.update!(server: current_user)
 
@@ -52,9 +63,18 @@ module Api
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
-      # Close ALL open orders on this table for this server (multiple clients may have joined)
+      # Block release if any order lines are not yet served
       table = @order.table
-      table.orders.where(ended_at: nil, server_id: current_user.id).update_all(ended_at: Time.current, server_released: true)
+      open_orders = if current_user.type == "Administrator"
+                      table.orders.where(ended_at: nil)
+                    else
+                      table.orders.where(ended_at: nil, server_id: current_user.id)
+                    end
+      unserved = open_orders.joins(:order_lines).where.not(order_lines: { status: "served" }).exists?
+      return render_error(I18n.t("controllers.server.not_all_served")) if unserved
+
+      # Close ALL open orders on this table
+      open_orders.update_all(ended_at: Time.current, server_released: true)
 
       render_success(data: [], errors: [])
     end
@@ -71,7 +91,7 @@ module Api
 
       # Close ALL open orders on this table (multiple clients may have joined)
       table = @order.table
-      table.orders.where(ended_at: nil).update_all(ended_at: Time.current)
+      table.orders.where(ended_at: nil).update_all(ended_at: Time.current, server_released: true)
 
       # Clean the table and regenerate QR code (once for all orders)
       table.update!(
@@ -83,6 +103,26 @@ module Api
       render_success(data: [], errors: [])
     end
 
+    # DELETE /api/server/orders/:id/cancel — cancel an empty order (no sent lines)
+    def cancel
+      unless @order.server_id == current_user.id || current_user.type == "Administrator"
+        return render_error(I18n.t("controllers.server.not_assigned"))
+      end
+
+      return render_error(I18n.t("controllers.server.order_already_closed")) if @order.ended_at.present?
+
+      sent_lines = @order.order_lines.where.not(status: "waiting")
+      if sent_lines.exists?
+        return render_error(I18n.t("controllers.server.cancel_has_lines"))
+      end
+
+      # Destroy waiting lines (if any) and delete the order
+      @order.order_lines.destroy_all
+      @order.update!(deleted_at: Time.current)
+
+      render_success(data: [], errors: [])
+    end
+
     # PATCH /api/server/order_lines/:id/serve — advance from ready to served (server only)
     def serve_line
       order = @line.order
@@ -90,9 +130,7 @@ module Api
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
-      unless @line.status == "ready"
-        return render_error(I18n.t("controllers.server.line_not_ready"))
-      end
+      return render_error(I18n.t("controllers.server.line_not_ready")) unless @line.status == "ready"
 
       if @line.update(status: "served")
         render_success(data: line_json(@line.reload), errors: [])
@@ -140,9 +178,9 @@ module Api
     private
 
     def authorize_server_staff!
-      unless %w[Administrator Waiter].include?(current_user.type)
-        render_error(I18n.t("controllers.server.unauthorized"))
-      end
+      return if %w[Administrator Waiter].include?(current_user.type)
+
+      render_error(I18n.t("controllers.server.unauthorized"))
     end
 
     def set_order
@@ -211,6 +249,7 @@ module Api
       return nil unless type.present? && id.present?
       return items_map[id]  if type == "Item"
       return combos_map[id] if type == "Combo"
+
       nil
     end
 
@@ -224,9 +263,9 @@ module Api
         status: open_order ? "occupied" : "available",
         qr_token: table.temporary_code,
         server_name: server ? "#{server.first_name} #{server.last_name}" : nil,
-        availabilities: table.availabilities.map { |a|
+        availabilities: table.availabilities.map do |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at }
-        }
+        end
       }
     end
   end

@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 module Api
+  # Kitchen view for managing order line statuses
   class CuisineController < ApiController
     before_action :authenticate_user!
     before_action :authorize_kitchen_staff!
-    before_action :set_line,  only: [ :next_status, :update_line, :destroy_line ]
-    before_action :set_order, only: [ :release_order, :assign_server ]
+    before_action :set_line,  only: %i[next_status update_line destroy_line]
+    before_action :set_order, only: %i[release_order assign_server]
 
     # GET /api/kitchen/orders
     def orders
@@ -22,20 +25,14 @@ module Api
 
     # PUT /api/kitchen/order_lines/:id/next_status  (all kitchen staff)
     def next_status
-      unless @line.order.server_id.present?
-        return render_error(I18n.t("controllers.cuisine.server_not_assigned"))
-      end
+      return render_error(I18n.t("controllers.cuisine.server_not_assigned")) unless @line.order.server_id.present?
 
       current_index = OrderLine::STATUS_ORDER[@line.status]
       next_s = OrderLine::STATUSES[current_index + 1]
 
-      unless next_s
-        return render_error(I18n.t("controllers.cuisine.already_at_final_status"))
-      end
+      return render_error(I18n.t("controllers.cuisine.already_at_final_status")) unless next_s
 
-      if next_s == "served"
-        return render_error(I18n.t("controllers.cuisine.only_server_can_serve"))
-      end
+      return render_error(I18n.t("controllers.cuisine.only_server_can_serve")) if next_s == "served"
 
       if @line.update(status: next_s)
         render_success(data: line_json(@line.reload), errors: [])
@@ -78,11 +75,9 @@ module Api
     def release_order
       return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
 
-      if @order.ended_at.present?
-        return render_error(I18n.t("controllers.cuisine.order_already_closed"))
-      end
+      return render_error(I18n.t("controllers.cuisine.order_already_closed")) if @order.ended_at.present?
 
-      @order.update!(ended_at: Time.current)
+      @order.update!(ended_at: Time.current, server_released: true)
       render_success(data: [], errors: [])
     end
 
@@ -90,24 +85,23 @@ module Api
     def assign_server
       return render_error(I18n.t("controllers.cuisine.unauthorized")) unless senior_staff?
 
-      if @order.ended_at.present?
-        return render_error(I18n.t("controllers.cuisine.order_already_closed"))
-      end
+      return render_error(I18n.t("controllers.cuisine.order_already_closed")) if @order.ended_at.present?
 
-      if @order.server_id.present?
-        return render_error(I18n.t("controllers.server.already_assigned"))
-      end
+      return render_error(I18n.t("controllers.server.already_assigned")) if @order.server_id.present?
 
       @order.update!(server: current_user)
-      render_success(data: [ { server_id: @order.server_id, server_name: "#{current_user.first_name} #{current_user.last_name}" } ], errors: [])
+      render_success(
+        data: [ { server_id: @order.server_id,
+                 server_name: "#{current_user.first_name} #{current_user.last_name}" } ], errors: []
+      )
     end
 
     private
 
     def authorize_kitchen_staff!
-      unless %w[Administrator Waiter Cook].include?(current_user.type)
-        render_error(I18n.t("controllers.cuisine.unauthorized"))
-      end
+      return if %w[Administrator Waiter Cook].include?(current_user.type)
+
+      render_error(I18n.t("controllers.cuisine.unauthorized"))
     end
 
     def senior_staff?
@@ -178,6 +172,7 @@ module Api
       return nil unless type.present? && id.present?
       return items_map[id]  if type == "Item"
       return combos_map[id] if type == "Combo"
+
       nil
     end
   end

@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Api
+  # CRUD operations for menu categories
   class CategoriesController < AdminController
     skip_before_action :authenticate_user!, only: [ :index ]
     skip_before_action :require_admin!, only: [ :index ]
@@ -52,8 +55,6 @@ module Api
         offset = Category.maximum(:position).to_i + 1000
         ids.each_with_index do |id, index|
           Category.where(id: id).update_all(position: offset + index)
-        end
-        ids.each_with_index do |id, index|
           Category.where(id: id).update_all(position: index)
         end
       end

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -19,9 +19,12 @@ export interface ReviewableItem {
   existingRating?: number;
   existingComment?: string;
   existingImageUrls?: string[];
+  deletedAt?: string;
+  deletionReason?: string;
 }
 
 export interface OrderReviewDialogData {
+  orderId: number;
   orderTableNumber: number;
   orderDate: string;
   items: ReviewableItem[];
@@ -30,6 +33,7 @@ export interface OrderReviewDialogData {
 export interface SingleReviewResult {
   reviewableType: string;
   reviewableId: number;
+  orderId: number;
   rating: number;
   comment: string;
   images?: File[];
@@ -67,7 +71,7 @@ interface ReviewEntry {
 
       <div class="dialog-body">
         @for (entry of entries; track entry.item.id + entry.item.type) {
-          <div class="review-section" [class.has-review]="entry.rating > 0">
+          <div class="review-section" [class.has-review]="entry.rating > 0" [class.moderated]="!!entry.item.deletedAt">
             <button type="button" class="section-toggle" (click)="entry.expanded = !entry.expanded">
               <div class="section-left">
                 <mat-icon class="section-icon">{{ entry.item.type === 'User' ? 'person' : 'restaurant' }}</mat-icon>
@@ -79,7 +83,9 @@ interface ReviewEntry {
                 </div>
               </div>
               <div class="section-right">
-                @if (entry.rating > 0) {
+                @if (entry.item.deletedAt) {
+                  <span class="moderated-badge">{{ ts.t('reviews.moderatedBadge') }}</span>
+                } @else if (entry.rating > 0) {
                   <span class="mini-stars">{{ renderStars(entry.rating) }}</span>
                 }
                 <mat-icon class="toggle-icon">{{ entry.expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
@@ -87,56 +93,82 @@ interface ReviewEntry {
             </button>
 
             @if (entry.expanded) {
-              <div class="section-body">
-                <div class="star-rating">
-                  <span class="star-label">{{ ts.t('reviews.rating') }}</span>
-                  <div class="stars">
-                    @for (star of [1,2,3,4,5]; track star) {
-                      <mat-icon
-                        class="star"
-                        [class.filled]="star <= entry.rating"
-                        (click)="entry.rating = star">
-                        {{ star <= entry.rating ? 'star' : 'star_border' }}
-                      </mat-icon>
-                    }
+              @if (entry.item.deletedAt) {
+                <div class="section-body moderated-body">
+                  <div class="moderated-banner">
+                    <mat-icon>gavel</mat-icon>
+                    <span>{{ ts.t('reviews.moderated') }}</span>
                   </div>
-                </div>
-
-                <mat-form-field class="comment-field" appearance="outline">
-                  <mat-label>{{ ts.t('reviews.comment') }}</mat-label>
-                  <textarea matInput
-                            [(ngModel)]="entry.comment"
-                            maxlength="500"
-                            rows="3"
-                            [placeholder]="ts.t('reviews.comment')"></textarea>
-                  <mat-hint align="end">{{ entry.comment.length }}/500</mat-hint>
-                </mat-form-field>
-
-                <div class="photo-section">
-                  <label class="photo-label">{{ ts.t('reviews.photos') }}</label>
-                  <div class="photo-previews">
-                    @for (url of entry.existingImageUrls; track url) {
-                      <div class="photo-thumb existing">
-                        <img [src]="getImageUrl(url)" alt="existing" />
-                      </div>
-                    }
-                    @for (preview of entry.imagePreviews; track preview) {
-                      <div class="photo-thumb">
-                        <img [src]="preview" alt="preview" />
-                        <button type="button" class="remove-photo" (click)="removeImage(entry, $index)">×</button>
-                      </div>
-                    }
-                    @if (entry.existingImageUrls.length + entry.images.length < 3) {
-                      <button type="button" class="add-photo-btn" (click)="triggerFileInput(entry)">
-                        <mat-icon>add_a_photo</mat-icon>
-                      </button>
-                    }
+                  @if (entry.item.deletionReason) {
+                    <p class="moderated-reason">{{ ts.t('reviews.moderatedReason') }} {{ entry.item.deletionReason }}</p>
+                  }
+                  <p class="moderated-date">{{ ts.t('admin.reviews.deletedOn') }} {{ entry.item.deletedAt | date:'medium' }}</p>
+                  <div class="star-rating">
+                    <span class="star-label">{{ ts.t('reviews.rating') }}</span>
+                    <div class="stars">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        <mat-icon class="star" [class.filled]="star <= entry.rating" style="cursor: default;">
+                          {{ star <= entry.rating ? 'star' : 'star_border' }}
+                        </mat-icon>
+                      }
+                    </div>
                   </div>
-                  @if (entry.imageError) {
-                    <span class="photo-error">{{ entry.imageError }}</span>
+                  @if (entry.comment) {
+                    <p class="moderated-comment">{{ entry.comment }}</p>
                   }
                 </div>
-              </div>
+              } @else {
+                <div class="section-body">
+                  <div class="star-rating">
+                    <span class="star-label">{{ ts.t('reviews.rating') }}</span>
+                    <div class="stars">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        <mat-icon
+                          class="star"
+                          [class.filled]="star <= entry.rating"
+                          (click)="entry.rating = star">
+                          {{ star <= entry.rating ? 'star' : 'star_border' }}
+                        </mat-icon>
+                      }
+                    </div>
+                  </div>
+
+                  <mat-form-field class="comment-field" appearance="outline">
+                    <mat-label>{{ ts.t('reviews.comment') }}</mat-label>
+                    <textarea matInput
+                              [(ngModel)]="entry.comment"
+                              maxlength="500"
+                              rows="3"
+                              [placeholder]="ts.t('reviews.comment')"></textarea>
+                    <mat-hint align="end">{{ entry.comment.length }}/500</mat-hint>
+                  </mat-form-field>
+
+                  <div class="photo-section">
+                    <label class="photo-label">{{ ts.t('reviews.photos') }}</label>
+                    <div class="photo-previews">
+                      @for (url of entry.existingImageUrls; track url) {
+                        <div class="photo-thumb existing">
+                          <img [src]="getImageUrl(url)" alt="existing" />
+                        </div>
+                      }
+                      @for (preview of entry.imagePreviews; track preview) {
+                        <div class="photo-thumb">
+                          <img [src]="preview" alt="preview" />
+                          <button type="button" class="remove-photo" (click)="removeImage(entry, $index)">×</button>
+                        </div>
+                      }
+                      @if (entry.existingImageUrls.length + entry.images.length < 3) {
+                        <button type="button" class="add-photo-btn" (click)="triggerFileInput(entry)">
+                          <mat-icon>add_a_photo</mat-icon>
+                        </button>
+                      }
+                    </div>
+                    @if (entry.imageError) {
+                      <span class="photo-error">{{ entry.imageError }}</span>
+                    }
+                  </div>
+                </div>
+              }
             }
           </div>
         }
@@ -145,7 +177,7 @@ interface ReviewEntry {
       <input #fileInput type="file" accept="image/jpeg,image/png" multiple hidden (change)="onFilesSelected($event)" />
 
       <div class="dialog-footer">
-        <span class="review-count">{{ getCompletedCount() }} / {{ entries.length }} {{ ts.t('reviews.itemsReviewed') }}</span>
+        <span class="review-count">{{ getCompletedCount() }} / {{ getEditableCount() }} {{ ts.t('reviews.itemsReviewed') }}</span>
         <div class="dialog-actions">
           <button mat-stroked-button (click)="dialogRef.close()" class="btn-cancel">
             {{ ts.t('admin.cancel') }}
@@ -289,6 +321,57 @@ interface ReviewEntry {
     .photo-thumb.existing { opacity: 0.85; border-color: rgba(200,109,63,0.3); }
     .photo-error { font-size: 0.72rem; color: #d32f2f; display: block; margin-top: 0.2rem; }
 
+    /* ── Moderated review ── */
+    .review-section.moderated {
+      border-color: rgba(180, 60, 30, 0.2);
+      background: rgba(180, 60, 30, 0.03);
+      opacity: 0.75;
+    }
+    .moderated-badge {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(180, 60, 30, 0.12);
+      color: #b43c1e;
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .moderated-body { opacity: 0.85; }
+    .moderated-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(180, 60, 30, 0.08);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 0.6rem;
+      color: #b43c1e;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .moderated-banner mat-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+    .moderated-reason {
+      font-size: 0.82rem;
+      color: rgba(27,26,23,0.6);
+      font-style: italic;
+      margin: 0 0 0.3rem;
+    }
+    .moderated-date {
+      font-size: 0.75rem;
+      color: rgba(27,26,23,0.4);
+      margin: 0 0 0.5rem;
+    }
+    .moderated-comment {
+      font-size: 0.85rem;
+      color: rgba(27,26,23,0.5);
+      margin: 0.3rem 0 0;
+    }
+
     /* ── Footer ── */
     .dialog-footer {
       padding: 0.75rem 1.5rem 1.25rem;
@@ -329,13 +412,18 @@ export class OrderReviewDialogComponent {
   private activeEntry: ReviewEntry | null = null;
 
   getCompletedCount(): number {
-    return this.entries.filter(e => e.rating > 0).length;
+    return this.entries.filter(e => e.rating > 0 && !e.item.deletedAt).length;
+  }
+
+  getEditableCount(): number {
+    return this.entries.filter(e => !e.item.deletedAt).length;
   }
 
   constructor(
     public dialogRef: MatDialogRef<OrderReviewDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: OrderReviewDialogData,
-    public ts: TranslationService
+    public ts: TranslationService,
+    private cdr: ChangeDetectorRef
   ) {
     // Build entries: server first (if present), then items
     this.entries = data.items.map((item, i) => ({
@@ -384,6 +472,7 @@ export class OrderReviewDialogComponent {
     entry.images = [...entry.images, ...toAdd];
     entry.imagePreviews = [...entry.imagePreviews, ...toAdd.map(f => URL.createObjectURL(f))];
     input.value = '';
+    this.cdr.detectChanges();
   }
 
   removeImage(entry: ReviewEntry, index: number): void {
@@ -398,10 +487,11 @@ export class OrderReviewDialogComponent {
 
   onSubmit(): void {
     const reviews: SingleReviewResult[] = this.entries
-      .filter(e => e.rating > 0)
+      .filter(e => e.rating > 0 && !e.item.deletedAt)
       .map(e => ({
         reviewableType: e.item.type,
         reviewableId: e.item.id,
+        orderId: this.data.orderId,
         rating: e.rating,
         comment: e.comment.trim(),
         images: e.images.length > 0 ? e.images : undefined,

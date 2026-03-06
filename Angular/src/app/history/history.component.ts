@@ -1,7 +1,8 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { from, of, concat } from 'rxjs';
+import { concatMap, toArray, catchError } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -168,23 +169,17 @@ export class HistoryComponent implements OnInit {
   }
 
   getOrderReviewCount(order: OrderData): number {
-    const revs = this.reviews();
-    let count = 0;
-    // Check item/combo reviews
-    for (const line of order.order_lines) {
-      if (revs.some(r => r.reviewable_type === line.orderable_type && r.reviewable_id === line.orderable_id)) {
-        count++;
-      }
-    }
-    // Check server review
-    if (order.server_id && revs.some(r => r.reviewable_type === 'User' && r.reviewable_id === order.server_id)) {
-      count++;
-    }
-    return count;
+    const revs = this.reviews().filter(r => r.order_id === order.id);
+    return revs.length;
+  }
+
+  orderAllModerated(order: OrderData): boolean {
+    const orderRevs = this.reviews().filter(r => r.order_id === order.id);
+    return orderRevs.length > 0 && orderRevs.every(r => !!r.deleted_at);
   }
 
   openOrderReviewDialog(order: OrderData): void {
-    const revs = this.reviews();
+    const revs = this.reviews().filter(r => r.order_id === order.id);
 
     // Build reviewable items: server first, then order lines (deduplicated)
     const items: ReviewableItem[] = [];
@@ -197,7 +192,9 @@ export class HistoryComponent implements OnInit {
         existingReviewId: existing?.id,
         existingRating: existing?.rating,
         existingComment: existing?.comment,
-        existingImageUrls: existing?.image_urls
+        existingImageUrls: existing?.image_urls,
+        deletedAt: existing?.deleted_at || undefined,
+        deletionReason: existing?.deletion_reason || undefined
       });
     }
 
@@ -216,11 +213,14 @@ export class HistoryComponent implements OnInit {
         existingReviewId: existing?.id,
         existingRating: existing?.rating,
         existingComment: existing?.comment,
-        existingImageUrls: existing?.image_urls
+        existingImageUrls: existing?.image_urls,
+        deletedAt: existing?.deleted_at || undefined,
+        deletionReason: existing?.deletion_reason || undefined
       });
     }
 
     const data: OrderReviewDialogData = {
+      orderId: order.id,
       orderTableNumber: order.table_number,
       orderDate: this.formatDate(order.created_at),
       items
@@ -236,29 +236,32 @@ export class HistoryComponent implements OnInit {
       if (!result || result.reviews.length === 0) return;
 
       const ops = result.reviews.map(r => {
-        if (r.existingReviewId) {
-          return this.reviewService.updateReview(r.existingReviewId, {
-            rating: r.rating,
-            comment: r.comment
-          }, r.images);
-        } else {
-          return this.reviewService.createReview({
-            rating: r.rating,
-            comment: r.comment,
-            reviewable_type: r.reviewableType,
-            reviewable_id: r.reviewableId
-          }, r.images);
-        }
+        const op$ = r.existingReviewId
+          ? this.reviewService.updateReview(r.existingReviewId, {
+              rating: r.rating,
+              comment: r.comment
+            }, r.images)
+          : this.reviewService.createReview({
+              rating: r.rating,
+              comment: r.comment,
+              reviewable_type: r.reviewableType,
+              reviewable_id: r.reviewableId,
+              order_id: r.orderId
+            }, r.images);
+        return op$.pipe(catchError(() => of(null)));
       });
 
-      forkJoin(ops).subscribe({
-        next: () => {
+      from(ops).pipe(
+        concatMap(op$ => op$),
+        toArray()
+      ).subscribe(results => {
+        const saved = results.filter(r => r !== null).length;
+        if (saved > 0) {
           this.snackBar.open(this.ts.t('reviews.reviewsSaved'), '', { duration: 3000 });
-          this.loadReviews();
-        },
-        error: () => {
+        } else {
           this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
         }
+        this.loadReviews();
       });
     });
   }

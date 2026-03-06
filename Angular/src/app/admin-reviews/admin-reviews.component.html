@@ -35,6 +35,15 @@
   </mat-form-field>
 
   <mat-form-field class="filter-field" appearance="outline">
+    <mat-label>{{ ts.t('admin.reviews.filterStatus') }}</mat-label>
+    <mat-select [value]="filterStatus()" (selectionChange)="onFilterStatusChange($event.value)">
+      <mat-option value="all">{{ ts.t('admin.reviews.statusAll') }}</mat-option>
+      <mat-option value="active">{{ ts.t('admin.reviews.statusActive') }}</mat-option>
+      <mat-option value="deleted">{{ ts.t('admin.reviews.statusDeleted') }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="filter-field" appearance="outline">
     <mat-label>{{ ts.t('admin.reviews.sort') }}</mat-label>
     <mat-select [value]="sortOrder()" (selectionChange)="onSortChange($event.value)">
       <mat-option value="newest">{{ ts.t('admin.reviews.sortNewest') }}</mat-option>
@@ -61,16 +70,21 @@
 @if (!isLoading() && reviews().length > 0) {
   <div class="reviews-grid">
     @for (review of reviews(); track review.id) {
-      <mat-card class="review-card">
+      <mat-card class="review-card" [class.review-card-deleted]="isDeleted(review)">
         <mat-card-content>
           <div class="review-header">
             <div class="review-meta">
               <span class="reviewer-name">{{ review.user_name }}</span>
               <span class="review-type-badge">{{ review.reviewable_type === 'User' ? ts.t('admin.reviews.typeServer') : review.reviewable_type }}</span>
+              @if (isDeleted(review)) {
+                <span class="deleted-badge">{{ ts.t('admin.reviews.deletedBadge') }}</span>
+              }
             </div>
-            <button type="button" class="btn-delete" (click)="confirmDelete(review)">
-              <mat-icon>delete</mat-icon>
-            </button>
+            @if (!isDeleted(review)) {
+              <button type="button" class="btn-delete" (click)="confirmDelete(review)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
           </div>
 
           <div class="review-target">
@@ -90,7 +104,16 @@
 
           <p class="review-comment">{{ review.comment }}</p>
 
-          <span class="review-date">{{ review.created_at | date:'medium' }}</span>
+          @if (isDeleted(review)) {
+            <div class="deleted-info">
+              @if (review.deletion_reason) {
+                <span class="deletion-reason">{{ ts.t('reviews.moderatedReason') }} {{ review.deletion_reason }}</span>
+              }
+              <span class="review-date">{{ ts.t('admin.reviews.deletedOn') }} {{ review.deleted_at | date:'medium' }}</span>
+            </div>
+          } @else {
+            <span class="review-date">{{ review.created_at | date:'medium' }}</span>
+          }
         </mat-card-content>
       </mat-card>
     }

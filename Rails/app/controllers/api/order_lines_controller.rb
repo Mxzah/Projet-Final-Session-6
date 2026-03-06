@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 module Api
+  # Manage individual order lines within orders
   class OrderLinesController < ApiController
     before_action :authenticate_user!
     before_action :set_order
-    before_action :set_line, only: [ :update, :destroy ]
+    before_action :set_line, only: %i[update destroy]
 
     # GET /api/orders/:order_id/order_lines
     def index
@@ -53,9 +56,7 @@ module Api
     def send_lines
       waiting_lines = @order.order_lines.waiting
 
-      if waiting_lines.empty?
-        return render_error(I18n.t("controllers.order_lines.no_waiting_lines"))
-      end
+      return render_error(I18n.t("controllers.order_lines.no_waiting_lines")) if waiting_lines.empty?
 
       waiting_lines.update_all(status: "sent")
 
@@ -85,13 +86,13 @@ module Api
     # Add image data (hash format) to line
     def line_with_image(line)
       data = line.as_json
-      if line.orderable&.respond_to?(:image) && line.orderable&.image&.attached?
+      if line.orderable.respond_to?(:image) && line.orderable&.image&.attached?
         blob = line.orderable.image.blob
         data[:image] = {
-          url:          url_for(line.orderable.image),
-          filename:     blob.filename.to_s,
+          url: rails_storage_proxy_path(line.orderable.image),
+          filename: blob.filename.to_s,
           content_type: blob.content_type,
-          byte_size:    blob.byte_size
+          byte_size: blob.byte_size
         }
       end
       data

@@ -1,4 +1,4 @@
-import { Component, Inject, signal, ViewChild } from '@angular/core';
+import { Component, Inject, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -57,8 +57,15 @@ export class ItemFormDialogComponent {
     category_id: new FormControl<number>(0, [Validators.required])
   });
 
-  image: File | null = null;
-  imagePreviews = signal<string[]>([]);
+  imageResult = signal<ImageValidationResult | null>(null);
+  private existingImageUrl = signal<string | null>(null);
+  image = computed(() => this.imageResult()?.file ?? null);
+  imagePreviews = computed(() => {
+    const result = this.imageResult();
+    if (result) return [result.preview];
+    const existing = this.existingImageUrl();
+    return existing ? [existing] : [];
+  });
   error = signal('');
   loading = signal(false);
 
@@ -87,7 +94,7 @@ export class ItemFormDialogComponent {
         category_id: data.item.category_id
       });
       if (data.item.image_url) {
-        this.imagePreviews.set([data.item.image_url]);
+        this.existingImageUrl.set(data.item.image_url);
       }
 
       this.availabilityService.getAvailabilities('items', data.item.id).subscribe({
@@ -107,15 +114,14 @@ export class ItemFormDialogComponent {
   }
 
   onImagesSelected(results: ImageValidationResult[]): void {
-    this.image = results[0].file;
-    this.imagePreviews.set([results[0].preview]);
+    this.imageResult.set(results[0]);
   }
 
   save(): void {
     Object.values(this.form.controls).forEach(c => c.markAsDirty());
     this.availabilityList?.markAllDirty();
 
-    if (this.isCreating && !this.image && !this.imageUpload?.hasError()) {
+    if (this.isCreating && !this.image() && !this.imageUpload?.hasError()) {
       this.imageUpload?.setError(this.errorService.format(this.errorService.imageError('required', this.ts)));
     }
 
@@ -133,7 +139,7 @@ export class ItemFormDialogComponent {
         price: v.price!,
         category_id: v.category_id!
       };
-      if (this.image) createData.image = this.image;
+      if (this.image()) createData.image = this.image()!;
 
       this.itemsService.createItem(createData).subscribe({
         next: (created) => {
@@ -168,7 +174,7 @@ export class ItemFormDialogComponent {
         price: v.price!,
         category_id: v.category_id!
       };
-      if (this.image) updateData.image = this.image;
+      if (this.image()) updateData.image = this.image()!;
 
       this.itemsService.updateItem(this.data.item!.id, updateData).subscribe({
         next: (updated) => {

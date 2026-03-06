@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Api
+  # CRUD operations for menu combos
   class CombosController < AdminController
     skip_before_action :authenticate_user!, only: [ :index ]
     skip_before_action :require_admin!, only: [ :index ]
@@ -16,33 +19,28 @@ module Api
         now = Time.current
         combos = combos.joins(:availabilities)
                        .where(
-                         "availabilities.start_at <= ? AND (availabilities.end_at IS NULL OR availabilities.end_at > ?)",
+                         "availabilities.start_at <= ? AND " \
+                         "(availabilities.end_at IS NULL OR availabilities.end_at > ?)",
                          now, now
                        )
                        .distinct
       end
 
       # Search
-      if params[:search].present?
-        combos = combos.where("combos.name LIKE ?", "%#{params[:search]}%")
-      end
+      combos = combos.where("combos.name LIKE ?", "%#{params[:search]}%") if params[:search].present?
 
       # Price filters
-      if params[:price_min].present?
-        combos = combos.where("combos.price >= ?", params[:price_min].to_f)
-      end
-      if params[:price_max].present?
-        combos = combos.where("combos.price <= ?", params[:price_max].to_f)
-      end
+      combos = combos.where("combos.price >= ?", params[:price_min].to_f) if params[:price_min].present?
+      combos = combos.where("combos.price <= ?", params[:price_max].to_f) if params[:price_max].present?
 
       # Sort
-      case params[:sort]
+      combos = case params[:sort]
       when "asc"
-        combos = combos.order(price: :asc)
+                 combos.order(price: :asc)
       when "desc"
-        combos = combos.order(price: :desc)
+                 combos.order(price: :desc)
       else
-        combos = combos.order(created_at: :desc)
+                 combos.order(created_at: :desc)
       end
 
       render_success(data: combos.map(&:as_json), errors: [])

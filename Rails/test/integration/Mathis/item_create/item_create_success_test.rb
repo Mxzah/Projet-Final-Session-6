@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemCreateSuccessTest < ActionDispatch::IntegrationTest
@@ -12,7 +14,11 @@ class ItemCreateSuccessTest < ActionDispatch::IntegrationTest
   # Test 1: POST /api/items avec tous les champs valides (image JPG)
   test "create avec champs valides et image JPG retourne 200" do
     post "/api/items", params: {
-      item: { name: "Tartare de Saumon", description: "Saumon frais", price: 18.50, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Tartare de Saumon", description: "Saumon frais",
+        price: 18.50, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
 
     assert_response :ok
@@ -25,7 +31,10 @@ class ItemCreateSuccessTest < ActionDispatch::IntegrationTest
   # Test 2: POST /api/items sans description (optionnelle)
   test "create sans description crée l'item" do
     post "/api/items", params: {
-      item: { name: "Bruschetta", price: 11.00, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Bruschetta", price: 11.00, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
 
     assert_response :ok
@@ -37,7 +46,11 @@ class ItemCreateSuccessTest < ActionDispatch::IntegrationTest
   # Test 3: POST /api/items avec image PNG
   test "create avec image PNG crée l'item" do
     post "/api/items", params: {
-      item: { name: "Carpaccio", description: "Boeuf tranché fin", price: 16.00, category_id: @category.id, image: fixture_file_upload("test.png", "image/png") }
+      item: {
+        name: "Carpaccio", description: "Boeuf tranché fin",
+        price: 16.00, category_id: @category.id,
+        image: fixture_file_upload("test.png", "image/png")
+      }
     }
 
     assert_response :ok

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemIndexSuccessTest < ActionDispatch::IntegrationTest
@@ -9,16 +11,20 @@ class ItemIndexSuccessTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/items", params: {
-      item: { name: "Salade César", description: "Laitue romaine, parmesan", price: 15.99, category_id: @category.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Salade César", description: "Laitue romaine, parmesan",
+        price: 15.99, category_id: @category.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
     @item = JSON.parse(response.body)["data"]
 
     # Ajouter une availability active pour que l'item apparaisse dans le menu
     Availability.create!(
       available_type: "Item",
-      available_id:   @item["id"],
-      start_at:       Time.current.beginning_of_minute,
-      end_at:         nil
+      available_id: @item["id"],
+      start_at: Time.current.beginning_of_minute,
+      end_at: nil
     )
   end
 
@@ -97,16 +103,20 @@ class ItemIndexSuccessTest < ActionDispatch::IntegrationTest
 
     # Créer un item dans la catégorie desserts (sans availability de catégorie)
     post "/api/items", params: {
-      item: { name: "Gâteau chocolat", description: "Fondant", price: 12.99, category_id: category_desserts.id, image: fixture_file_upload("test.jpg", "image/jpeg") }
+      item: {
+        name: "Gâteau chocolat", description: "Fondant",
+        price: 12.99, category_id: category_desserts.id,
+        image: fixture_file_upload("test.jpg", "image/jpeg")
+      }
     }
     item_dessert = JSON.parse(response.body)["data"]
 
     # Ajouter une availability active sur l'item lui-même
     Availability.create!(
       available_type: "Item",
-      available_id:   item_dessert["id"],
-      start_at:       Time.current.beginning_of_minute,
-      end_at:         nil
+      available_id: item_dessert["id"],
+      start_at: Time.current.beginning_of_minute,
+      end_at: nil
     )
 
     # Vérifier que la catégorie desserts n'a aucune availability active

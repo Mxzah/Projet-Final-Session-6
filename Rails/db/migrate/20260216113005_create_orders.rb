@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Create orders table
 class CreateOrders < ActiveRecord::Migration[8.1]
   def change
     create_table :orders do |t|
@@ -15,9 +18,9 @@ class CreateOrders < ActiveRecord::Migration[8.1]
 
     add_foreign_key :orders, :users, column: :client_id  # reference de client_id de la table users
     add_foreign_key :orders, :users, column: :server_id  # reference de server_id de la table users
-    add_index :orders, :client_id, name: "idx_orders_client_id"
-    add_index :orders, :server_id, name: "idx_orders_server_id"
-    add_index :orders, :created_at, name: "idx_orders_created_at"
-    add_index :orders, :deleted_at, name: "idx_orders_deleted_at"
+    add_index :orders, :client_id, name: 'idx_orders_client_id'
+    add_index :orders, :server_id, name: 'idx_orders_server_id'
+    add_index :orders, :created_at, name: 'idx_orders_created_at'
+    add_index :orders, :deleted_at, name: 'idx_orders_deleted_at'
   end
 end

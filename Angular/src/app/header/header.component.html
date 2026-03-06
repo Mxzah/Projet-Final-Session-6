@@ -31,37 +31,38 @@
         <mat-icon>history</mat-icon>
         {{ ts.t('header.history') }}
       </button>
-      <button mat-button class="reviews-btn" (click)="goToReviews()">
-        <mat-icon>rate_review</mat-icon>
-        {{ ts.t('header.myReviews') }}
-      </button>
       <span class="header-divider">|</span>
     }
-    @if (showLogout && showAdmin && authService.isAdmin()) {
-      <button mat-button class="admin-btn" (click)="goToAdmin()">
+    @if (showLogout && authService.isAdmin()) {
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('admin')" (click)="goToAdmin()">
         <mat-icon>admin_panel_settings</mat-icon>
         {{ ts.t('header.admin') }}
       </button>
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('kitchen')" (click)="goToKitchen()">
+        <mat-icon>restaurant</mat-icon>
+        {{ ts.t('header.kitchen') }}
+      </button>
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('server')" (click)="goToServer()">
+        <mat-icon>room_service</mat-icon>
+        {{ ts.t('header.server') }}
+      </button>
+      <button mat-button class="nav-btn" (click)="goToMenu()">
+        <mat-icon>restaurant_menu</mat-icon>
+        {{ ts.t('header.quit') }}
+      </button>
       <span class="header-divider">|</span>
     }
-    @if (showKitchen) {
-      <button mat-button class="quit-btn" (click)="kitchenClick.emit()">
+    @if (showLogout && authService.isCook() && !authService.isAdmin()) {
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('kitchen')" (click)="goToKitchen()">
         <mat-icon>restaurant</mat-icon>
         {{ ts.t('header.kitchen') }}
       </button>
       <span class="header-divider">|</span>
     }
-    @if (showServer) {
-      <button mat-button class="quit-btn" (click)="serverClick.emit()">
+    @if (showLogout && authService.isWaiter() && !authService.isAdmin()) {
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('server')" (click)="goToServer()">
         <mat-icon>room_service</mat-icon>
         {{ ts.t('header.server') }}
-      </button>
-      <span class="header-divider">|</span>
-    }
-    @if (showQuitMenu) {
-      <button mat-button class="quit-btn" (click)="quitMenuClick.emit()">
-        <mat-icon>restaurant_menu</mat-icon>
-        {{ ts.t('header.quit') }}
       </button>
       <span class="header-divider">|</span>
     }
@@ -109,33 +110,35 @@
         <mat-icon>history</mat-icon>
         {{ ts.t('header.history') }}
       </button>
-      <button mat-button class="reviews-btn" (click)="goToReviews(); toggleMobileMenu()">
-        <mat-icon>rate_review</mat-icon>
-        {{ ts.t('header.myReviews') }}
-      </button>
     }
-    @if (showLogout && showAdmin && authService.isAdmin()) {
-      <button mat-button class="admin-btn" (click)="goToAdmin(); toggleMobileMenu()">
+    @if (showLogout && authService.isAdmin()) {
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('admin')" (click)="goToAdmin(); toggleMobileMenu()">
         <mat-icon>admin_panel_settings</mat-icon>
         {{ ts.t('header.admin') }}
       </button>
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('kitchen')" (click)="goToKitchen(); toggleMobileMenu()">
+        <mat-icon>restaurant</mat-icon>
+        {{ ts.t('header.kitchen') }}
+      </button>
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('server')" (click)="goToServer(); toggleMobileMenu()">
+        <mat-icon>room_service</mat-icon>
+        {{ ts.t('header.server') }}
+      </button>
+      <button mat-button class="nav-btn" (click)="goToMenu(); toggleMobileMenu()">
+        <mat-icon>restaurant_menu</mat-icon>
+        {{ ts.t('header.quit') }}
+      </button>
     }
-    @if (showKitchen) {
-      <button mat-button class="quit-btn" (click)="kitchenClick.emit(); toggleMobileMenu()">
+    @if (showLogout && authService.isCook() && !authService.isAdmin()) {
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('kitchen')" (click)="goToKitchen(); toggleMobileMenu()">
         <mat-icon>restaurant</mat-icon>
         {{ ts.t('header.kitchen') }}
       </button>
     }
-    @if (showServer) {
-      <button mat-button class="quit-btn" (click)="serverClick.emit(); toggleMobileMenu()">
+    @if (showLogout && authService.isWaiter() && !authService.isAdmin()) {
+      <button mat-button class="nav-btn" [class.nav-active]="isActive('server')" (click)="goToServer(); toggleMobileMenu()">
         <mat-icon>room_service</mat-icon>
         {{ ts.t('header.server') }}
-      </button>
-    }
-    @if (showQuitMenu) {
-      <button mat-button class="quit-btn" (click)="quitMenuClick.emit(); toggleMobileMenu()">
-        <mat-icon>restaurant_menu</mat-icon>
-        {{ ts.t('header.quit') }}
       </button>
     }
     @if (authService.isAuthenticated()) {

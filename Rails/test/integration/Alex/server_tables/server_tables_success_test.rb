@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ServerTablesSuccessTest < ActionDispatch::IntegrationTest
@@ -13,15 +15,15 @@ class ServerTablesSuccessTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     post "/api/tables", params: { table: { number: 501, nb_seats: 4 } }, as: :json
-    assert_response :created
+    assert_response :ok
     @table1 = JSON.parse(response.body)["data"]
 
     post "/api/tables", params: { table: { number: 502, nb_seats: 6 } }, as: :json
-    assert_response :created
+    assert_response :ok
     @table2 = JSON.parse(response.body)["data"]
 
     post "/api/tables", params: { table: { number: 503, nb_seats: 2 } }, as: :json
-    assert_response :created
+    assert_response :ok
     @table3 = JSON.parse(response.body)["data"]
 
     delete "/users/sign_out", as: :json

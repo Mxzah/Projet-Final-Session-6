@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
@@ -10,16 +12,15 @@ class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
 
     # Attacher une image aux fixtures
     [ @item_one, @item_two, @item_three ].each do |item|
-      item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
-    end
+      item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                        content_type: "image/jpeg")
 
-    # Créer des availabilities actives (start_at maintenant, pas de end_at)
-    [ @item_one, @item_two, @item_three ].each do |item|
+      # Créer des availabilities actives (start_at maintenant, pas de end_at)
       Availability.create!(
         available_type: "Item",
-        available_id:   item.id,
-        start_at:       Time.current.beginning_of_minute,
-        end_at:         nil
+        available_id: item.id,
+        start_at: Time.current.beginning_of_minute,
+        end_at: nil
       )
     end
 
@@ -30,7 +31,8 @@ class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
       price: 22.00,
       category: @category_plats
     )
-    @item_archived.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    @item_archived.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                                content_type: "image/jpeg")
     @item_archived.save!
     @item_archived.soft_delete!
 
@@ -166,7 +168,7 @@ class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
     json["data"].each do |item_data|
       item_in_db = Item.unscoped.find(item_data["id"])
       assert item_in_db.price >= 15 && item_in_db.price <= 20,
-        "Item #{item_in_db.name} (#{item_in_db.price}$) hors fourchette 15-20$"
+             "Item #{item_in_db.name} (#{item_in_db.price}$) hors fourchette 15-20$"
     end
 
     ids = json["data"].map { |i| i["id"] }
@@ -233,7 +235,8 @@ class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
       price: 9.99,
       category: category_desserts
     )
-    item_dessert.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    item_dessert.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                              content_type: "image/jpeg")
     item_dessert.save!
 
     get "/api/items", params: { admin: true }
@@ -241,7 +244,8 @@ class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = JSON.parse(response.body)
     ids = json["data"].map { |i| i["id"] }
-    assert_includes ids, item_dessert.id, "En mode admin, l'item devrait apparaître même si sa catégorie n'a pas d'availability"
+    assert_includes ids, item_dessert.id,
+                    "En mode admin, l'item devrait apparaître même si sa catégorie n'a pas d'availability"
   end
 
   # Test 13: Sans admin=true, un item dans une catégorie sans availability est exclu
@@ -255,28 +259,32 @@ class ItemIndexAdminSuccessTest < ActionDispatch::IntegrationTest
       price: 11.50,
       category: category_desserts
     )
-    item_dessert.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    item_dessert.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                              content_type: "image/jpeg")
     item_dessert.save!
 
     Availability.create!(
       available_type: "Item",
-      available_id:   item_dessert.id,
-      start_at:       Time.current.beginning_of_minute,
-      end_at:         nil
+      available_id: item_dessert.id,
+      start_at: Time.current.beginning_of_minute,
+      end_at: nil
     )
 
     # L'item existe et a une availability active, mais sa catégorie n'en a pas
     assert Item.exists?(item_dessert.id)
     assert Availability.where(available_type: "Item", available_id: item_dessert.id)
                        .where("start_at <= ?", Time.current).exists?
-    assert_equal 0, Availability.where(available_type: "Category", available_id: category_desserts.id)
-                                .where("start_at <= ? AND (end_at IS NULL OR end_at > ?)", Time.current, Time.current).count
+    assert_equal 0,
+                 Availability.where(available_type: "Category", available_id: category_desserts.id)
+                             .where("start_at <= ? AND (end_at IS NULL OR end_at > ?)",
+                                    Time.current, Time.current).count
 
     get "/api/items"
 
     assert_response :ok
     json = JSON.parse(response.body)
     ids = json["data"].map { |i| i["id"] }
-    assert_not_includes ids, item_dessert.id, "L'item ne devrait pas apparaître si sa catégorie n'a pas d'availability active"
+    assert_not_includes ids, item_dessert.id,
+                        "L'item ne devrait pas apparaître si sa catégorie n'a pas d'availability active"
   end
 end

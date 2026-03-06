@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class OrderLineDestroyFailTest < ActionDispatch::IntegrationTest
   setup do
     @user         = users(:valid_user)
     @closed_order = orders(:closed_order)
-    @served_line  = order_lines(:line_item_one)  # status: served, order: closed_order
+    @served_line  = order_lines(:line_item_one) # status: served, order: closed_order
 
     post "/users/sign_in", params: { user: { email: @user.email, password: "password123" } }, as: :json
   end

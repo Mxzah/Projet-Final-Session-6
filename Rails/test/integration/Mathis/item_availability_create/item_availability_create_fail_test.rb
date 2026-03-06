@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ItemAvailabilityCreateFailTest < ActionDispatch::IntegrationTest
   setup do
     @item = items(:item_two)
-    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    @item.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                       content_type: "image/jpeg")
     @client = users(:valid_user)
 
     sign_in users(:admin_user)
@@ -72,7 +75,8 @@ class ItemAvailabilityCreateFailTest < ActionDispatch::IntegrationTest
 
   test "create avec périodes chevauchantes retourne success false" do
     item_one = items(:item_one)
-    item_one.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg", content_type: "image/jpeg")
+    item_one.image.attach(io: File.open(Rails.root.join("test/fixtures/files/test.jpg")), filename: "test.jpg",
+                          content_type: "image/jpeg")
 
     assert_no_difference -> { Availability.where(available_type: "Item", available_id: item_one.id).count } do
       post "/api/items/#{item_one.id}/availabilities", params: {

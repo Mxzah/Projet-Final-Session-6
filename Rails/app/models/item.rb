@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Individual menu item within a category
 class Item < ApplicationRecord
   belongs_to :category
   has_many :combo_items
@@ -15,7 +18,7 @@ class Item < ApplicationRecord
   end
 
   def image_url
-    image.attached? ? url_for(image) : nil
+    image.attached? ? rails_storage_proxy_path(image) : nil
   end
 
   def in_use
@@ -27,15 +30,15 @@ class Item < ApplicationRecord
   end
 
   validates :name, presence: true, length: { maximum: 100 },
-                   format: { without: /\A\s*\z/, message: "cannot be only whitespace" }
+                   format: { without: /\A\s*\z/, message: :only_whitespace }
   validates :description, length: { maximum: 255 },
-                          format: { without: /\A\s*\z/, message: "cannot be only whitespace" }, allow_blank: true
+                          format: { without: /\A\s*\z/, message: :only_whitespace }, allow_blank: true
   validates :price, presence: true,
                     numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 9999.99 }
   validate :image_presence
   validate :deleted_at_must_be_now
-  validates :image, content_type: { in: %w[image/jpeg image/png], message: "must be a JPG or PNG file" },
-                    size: { less_than: 5.megabytes, message: "must be less than 5 MB" }, if: :image_attached?
+  validates :image, content_type: { in: %w[image/jpeg image/png], message: :invalid_format },
+                    size: { less_than: 5.megabytes, message: :file_too_large }, if: :image_attached?
 
   default_scope { where(deleted_at: nil) }
 
@@ -52,7 +55,7 @@ class Item < ApplicationRecord
   private
 
   def image_presence
-    errors.add(:image, "is required") unless image.attached?
+    errors.add(:image, :required) unless image.attached?
   end
 
   def image_attached?
@@ -63,8 +66,8 @@ class Item < ApplicationRecord
     return if deleted_at.nil?
     return unless deleted_at_changed?
 
-    if (deleted_at - Time.current).abs > 5.seconds
-      errors.add(:deleted_at, "must be the current time")
-    end
+    return unless (deleted_at - Time.current).abs > 5.seconds
+
+    errors.add(:deleted_at, :must_be_now)
   end
 end

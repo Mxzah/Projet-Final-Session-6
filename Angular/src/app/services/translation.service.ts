@@ -335,7 +335,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'cuisine.status.served': { fr: 'Servie', en: 'Served' },
   'cuisine.status.label': { fr: 'Statut', en: 'Status' },
   'cuisine.releaseTable': { fr: 'Libérer la table', en: 'Release table' },
-  'cuisine.releaseConfirm': { fr: 'Voulez-vous fermer cette commande et libérer la table ?', en: 'Do you want to close this order and release the table?' },
+  'cuisine.releaseConfirm': { fr: 'Voulez-vous fermer cette commande et libérer', en: 'Do you want to close this order and release' },
   'cuisine.assignMe': { fr: "M'assigner", en: 'Assign me' },
   'cuisine.noServerBlocked': { fr: 'En attente d\'un serveur…', en: 'Waiting for a server…' },
   'cuisine.waitingServer': { fr: 'En attente du serveur', en: 'Waiting for server' },
@@ -351,9 +351,9 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'server.noMyOrders': { fr: 'Aucune table assignée pour le moment.', en: 'No tables assigned yet.' },
   'server.assignMe': { fr: "M'assigner", en: 'Assign me' },
   'server.releaseTable': { fr: 'Libérer la table', en: 'Release table' },
-  'server.releaseConfirm': { fr: 'Voulez-vous fermer cette commande et libérer la table ?', en: 'Do you want to close this order and release the table?' },
+  'server.releaseConfirm': { fr: 'Voulez-vous fermer cette commande et libérer', en: 'Do you want to close this order and release' },
   'server.cleanTable': { fr: 'Nettoyer la table', en: 'Clean table' },
-  'server.cleanConfirm': { fr: 'La commande est payée. Voulez-vous nettoyer et libérer la table ?', en: 'The order is paid. Do you want to clean and release the table?' },
+  'server.cleanConfirm': { fr: 'La commande est payée. Voulez-vous nettoyer et libérer', en: 'The order is paid. Do you want to clean and release' },
   'server.paid': { fr: 'Payée', en: 'Paid' },
   'server.released': { fr: 'Libérée', en: 'Released' },
   'server.markServed': { fr: 'Servir', en: 'Serve' },
@@ -366,6 +366,12 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'server.seats': { fr: 'places', en: 'seats' },
   'server.scanInstruction': { fr: 'Le client qui scannera ce QR code vous sera automatiquement assigné.', en: 'The client who scans this QR code will be automatically assigned to you.' },
   'server.tablesLoadError': { fr: 'Impossible de charger les tables.', en: 'Could not load tables.' },
+  'server.awaitingPayment': { fr: 'En attente de paiement', en: 'Awaiting payment' },
+  'server.cleanDisabledHint': { fr: 'Le client n\'a pas encore payé.', en: 'The client has not paid yet.' },
+  'server.releaseOverride': { fr: 'Libérer sans paiement', en: 'Release without payment' },
+  'server.releaseOverrideConfirm': { fr: 'Le client n\'a pas payé. Voulez-vous tout de même libérer', en: 'The client has not paid. Do you still want to release' },
+  'server.cancelOrder': { fr: 'Annuler la commande', en: 'Cancel order' },
+  'server.cancelConfirm': { fr: 'Cette commande est vide (aucun item). Voulez-vous l\'annuler et libérer', en: 'This order is empty (no items). Do you want to cancel and release' },
 
   // Admin users
   'admin.users.tab': { fr: 'Utilisateurs', en: 'Users' },
@@ -543,6 +549,9 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'reviews.filterReviewed': { fr: 'Évalués', en: 'Reviewed' },
   'reviews.filterNotReviewed': { fr: 'Non évalués', en: 'Not reviewed' },
   'reviews.viewReviews': { fr: 'Voir les avis', en: 'View reviews' },
+  'reviews.moderated': { fr: 'Cet avis a été retiré par l\'équipe de modération.', en: 'This review was removed by the moderation team.' },
+  'reviews.moderatedReason': { fr: 'Raison :', en: 'Reason:' },
+  'reviews.moderatedBadge': { fr: 'Modéré', en: 'Moderated' },
 
   // Admin reviews
   'admin.reviews.tab': { fr: 'Avis', en: 'Reviews' },
@@ -563,6 +572,14 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.reviews.typeServer': { fr: 'Serveur', en: 'Server' },
   'admin.reviews.deleteConfirm': { fr: 'Voulez-vous vraiment supprimer cet avis ?', en: 'Are you sure you want to delete this review?' },
   'admin.reviews.reviewDeleted': { fr: 'Avis supprimé', en: 'Review deleted' },
+  'admin.reviews.deleteReason': { fr: 'Raison (visible au client)', en: 'Reason (visible to client)' },
+  'admin.reviews.deleteReasonHint': { fr: 'Si vide, un message par défaut sera affiché.', en: 'If empty, a default message will be shown.' },
+  'admin.reviews.filterStatus': { fr: 'Statut', en: 'Status' },
+  'admin.reviews.statusAll': { fr: 'Tous', en: 'All' },
+  'admin.reviews.statusActive': { fr: 'Actifs', en: 'Active' },
+  'admin.reviews.statusDeleted': { fr: 'Supprimés', en: 'Deleted' },
+  'admin.reviews.deletedBadge': { fr: 'Supprimé', en: 'Deleted' },
+  'admin.reviews.deletedOn': { fr: 'Supprimé le', en: 'Deleted on' },
 
   // Admin vibes
   'admin.vibes.tab': { fr: 'Vibes', en: 'Vibes' },
