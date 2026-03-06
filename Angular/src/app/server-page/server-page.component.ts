@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -17,6 +17,7 @@ import { HeaderComponent } from '../header/header.component';
 import { TranslationService } from '../services/translation.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
+import { QrDialogComponent, QrDialogData } from './qr-dialog/qr-dialog.component';
 import QRCodeStyling from 'styled-qr-code';
 
 @Component({
@@ -37,7 +38,7 @@ import QRCodeStyling from 'styled-qr-code';
   templateUrl: './server-page.component.html',
   styleUrls: ['./server-page.component.css']
 })
-export class ServerPageComponent implements OnInit, AfterViewChecked {
+export class ServerPageComponent implements OnInit {
   myOrders: (CuisineOrder & { ended_at?: string | null; server_released?: boolean })[] = [];
   groupedOrders: (CuisineOrder & { ended_at?: string | null; server_released?: boolean })[] = [];
   loading = true;
@@ -48,8 +49,6 @@ export class ServerPageComponent implements OnInit, AfterViewChecked {
   tables: ServerTable[] = [];
   tablesLoading = true;
   tablesError: string | null = null;
-  presentedTableId: number | null = null;
-  private qrRenderedForTable: number | null = null;
 
   readonly statuses = ['sent', 'in_preparation', 'ready', 'served'];
   advancingLineIds = new Set<number>();
@@ -68,12 +67,6 @@ export class ServerPageComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.loadOrders();
     this.loadTables();
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.presentedTableId && this.presentedTableId !== this.qrRenderedForTable) {
-      this.renderPresentedQr();
-    }
   }
 
   loadOrders(): void {
@@ -333,45 +326,17 @@ export class ServerPageComponent implements OnInit, AfterViewChecked {
     return `${base}/table/${table.qr_token}${userId ? '?s=' + userId : ''}`;
   }
 
-  presentQr(table: ServerTable): void {
-    this.presentedTableId = table.id;
-    this.qrRenderedForTable = null; // force re-render
-  }
-
-  closePresentedQr(): void {
-    this.presentedTableId = null;
-    this.qrRenderedForTable = null;
-  }
-
-  getPresentedTable(): ServerTable | null {
-    return this.tables.find(t => t.id === this.presentedTableId) ?? null;
+  openQrDialog(table: ServerTable): void {
+    const data: QrDialogData = {
+      tableNumber: table.number,
+      qrUrl: this.getTableQrUrl(table),
+      scanInstruction: this.ts.t('server.scanInstruction')
+    };
+    this.dialog.open(QrDialogComponent, { data, width: '420px', maxHeight: '90vh' });
   }
 
   isTableAvailable(table: ServerTable): boolean {
     return table.status === 'available';
-  }
-
-  private renderPresentedQr(): void {
-    const table = this.getPresentedTable();
-    if (!table) return;
-    const container = document.getElementById('presented-qr-container');
-    if (!container) return;
-
-    container.innerHTML = '';
-    const qrCode = new QRCodeStyling({
-      width: 280,
-      height: 280,
-      type: 'canvas',
-      data: this.getTableQrUrl(table),
-      margin: 10,
-      dotsOptions: { color: '#8a3f24', type: 'rounded' as any },
-      backgroundOptions: { color: '#fbf8f2' },
-      cornersSquareOptions: { type: 'extra-rounded' as any, color: '#1b1a17' },
-      cornersDotOptions: { type: 'dot' as any, color: '#1b1a17' },
-      qrOptions: { errorCorrectionLevel: 'M' }
-    });
-    qrCode.append(container);
-    this.qrRenderedForTable = table.id;
   }
 
   goBack(): void {

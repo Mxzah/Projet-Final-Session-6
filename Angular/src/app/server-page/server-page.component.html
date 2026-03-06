@@ -67,15 +67,19 @@
                     <mat-icon>table_restaurant</mat-icon>
                     {{ ts.t('cuisine.table') }} {{ table.number }}
                   </span>
-                  <span class="table-status-badge" [class.available]="isTableAvailable(table)" [class.occupied]="!isTableAvailable(table)">
-                    {{ isTableAvailable(table) ? ts.t('server.tableAvailable') : ts.t('server.tableOccupied') }}
-                  </span>
+                  <mat-chip-set>
+                    <mat-chip [class.chip-available]="isTableAvailable(table)" [class.chip-occupied]="!isTableAvailable(table)">
+                      {{ isTableAvailable(table) ? ts.t('server.tableAvailable') : ts.t('server.tableOccupied') }}
+                    </mat-chip>
+                  </mat-chip-set>
                 </div>
                 <div class="table-meta">
-                  <span class="table-seats">
-                    <mat-icon>people</mat-icon>
-                    {{ table.capacity }} {{ ts.t('server.seats') }}
-                  </span>
+                  <mat-chip-set>
+                    <mat-chip class="chip-capacity">
+                      <mat-icon>people</mat-icon>
+                      {{ table.capacity }} {{ ts.t('server.seats') }}
+                    </mat-chip>
+                  </mat-chip-set>
                   @if (table.server_name && !isTableAvailable(table)) {
                     <span class="table-server">
                       <mat-icon>badge</mat-icon>
@@ -84,39 +88,20 @@
                   }
                 </div>
               </mat-card-header>
-              <mat-card-content>
-                <button mat-flat-button class="show-qr-btn" (click)="presentQr(table)"
+              <mat-card-actions>
+                <button mat-flat-button class="show-qr-btn" (click)="openQrDialog(table)"
                   [matTooltip]="ts.t('server.scanInstruction')">
                   <mat-icon>qr_code</mat-icon>
                   {{ ts.t('server.showQr') }}
                 </button>
-              </mat-card-content>
+              </mat-card-actions>
             </mat-card>
           }
         </div>
       }
     }
 
-    <!-- QR Overlay -->
-    @if (presentedTableId) {
-      <div class="qr-overlay" (click)="closePresentedQr()">
-        <div class="qr-modal" (click)="$event.stopPropagation()">
-          <button mat-icon-button class="qr-modal-close" (click)="closePresentedQr()">
-            <mat-icon>close</mat-icon>
-          </button>
-          @if (getPresentedTable(); as table) {
-            <h3>{{ ts.t('cuisine.table') }} {{ table.number }}</h3>
-            <p class="qr-instruction">{{ ts.t('server.scanInstruction') }}</p>
-            <div id="presented-qr-container" class="qr-container"></div>
-            <p class="qr-url-label">{{ getTableQrUrl(table) }}</p>
-            <p class="qr-presented-label">
-              <mat-icon>check_circle</mat-icon>
-              {{ ts.t('server.qrPresented') }}
-            </p>
-          }
-        </div>
-      </div>
-    }
+
   </div>
 
   @if (!loading && !error) {
@@ -146,16 +131,16 @@
                     <mat-icon>people</mat-icon>{{ order.nb_people }} {{ ts.t('cuisine.people') }}
                   </span>
                   @if (isOrderPaid(order)) {
-                    <span class="paid-badge">
+                    <mat-chip class="chip-paid">
                       <mat-icon>payments</mat-icon>
                       {{ ts.t('server.paid') }}
-                    </span>
+                    </mat-chip>
                   }
                   @if (isOrderReleased(order)) {
-                    <span class="released-badge">
+                    <mat-chip class="chip-released">
                       <mat-icon>logout</mat-icon>
                       {{ ts.t('server.released') }}
-                    </span>
+                    </mat-chip>
                   }
                 </div>
                 @if (order.vibe_name) {
@@ -208,9 +193,9 @@
                       </div>
 
                       <div class="line-right">
-                        <span class="status-chip {{ getStatusClass(line.status) }}">
+                        <mat-chip class="status-chip {{ getStatusClass(line.status) }}">
                           {{ getStatusLabel(line.status) }}
-                        </span>
+                        </mat-chip>
 
                         @if (line.status === 'ready' && !isOrderClosed(order)) {
                           <button mat-flat-button class="btn-serve"
@@ -225,14 +210,14 @@
                           <div class="line-actions">
                             @if (canEditLine(line)) {
                               <button mat-icon-button class="action-btn edit"
-                                [title]="ts.t('cuisine.modify')"
+                                [matTooltip]="ts.t('cuisine.modify')"
                                 (click)="openEditLine(line)">
                                 <mat-icon>edit</mat-icon>
                               </button>
                             }
                             @if (canDeleteLine(line)) {
                               <button mat-icon-button class="action-btn delete"
-                                [title]="ts.t('cuisine.delete')"
+                                [matTooltip]="ts.t('cuisine.delete')"
                                 (click)="confirmDeleteLine(line)">
                                 <mat-icon>delete</mat-icon>
                               </button>
@@ -244,7 +229,7 @@
                   }
                 </div>
 
-                <div class="card-action-row">
+                <mat-card-actions class="card-action-row">
                   @if (isOrderClosed(order)) {
                     <button mat-flat-button class="clean-btn" (click)="confirmReleaseOrder(order)">
                       <mat-icon>cleaning_services</mat-icon>
@@ -256,7 +241,7 @@
                       {{ ts.t('server.releaseTable') }}
                     </button>
                   }
-                </div>
+                </mat-card-actions>
               </mat-card-content>
             </mat-card>
           }

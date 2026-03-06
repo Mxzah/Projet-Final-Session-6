@@ -1,0 +1,16 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>{{ ts.t('cuisine.table') }} {{ data.tableNumber }}</span>
+  <button mat-icon-button mat-dialog-close class="modal-close">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <p class="qr-instruction">{{ data.scanInstruction }}</p>
+  <div id="dialog-qr-container" class="qr-container"></div>
+  <p class="qr-url-label">{{ data.qrUrl }}</p>
+  <p class="qr-presented-label">
+    <mat-icon>check_circle</mat-icon>
+    {{ ts.t('server.qrPresented') }}
+  </p>
+</mat-dialog-content>
