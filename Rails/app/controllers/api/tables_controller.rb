@@ -162,6 +162,7 @@ module Api
 
     def table_json(table)
       open_order = table.orders.find_by(ended_at: nil)
+      server = open_order&.server
       {
         id: table.id,
         number: table.number,
@@ -171,6 +172,7 @@ module Api
         has_open_order: open_order.present?,
         open_order_server_id: open_order&.server_id,
         open_order_vibe_id: open_order&.vibe_id,
+        server_name: server ? "#{server.first_name} #{server.last_name}" : nil,
         availabilities: table.availabilities.map { |a|
           { id: a.id, start_at: a.start_at, end_at: a.end_at, description: a.description }
         }

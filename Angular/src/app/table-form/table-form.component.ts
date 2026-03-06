@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TableService, TableData } from '../services/table.service';
 import { AuthService } from '../services/auth.service';
 import { HeaderComponent } from '../header/header.component';
@@ -40,6 +40,9 @@ export class TableFormComponent implements OnInit {
   vibesLoading = true;
   isSubmitting = signal(false);
   apiError = signal<string | null>(null);
+  hasOpenOrder = signal(false);
+  openOrderInfo = signal<{ table_number: number; nb_people: number; vibe_name: string | null; vibe_color: string | null } | null>(null);
+  openOrderLoading = signal(false);
   form!: FormGroup;
 
   constructor(
@@ -47,13 +50,21 @@ export class TableFormComponent implements OnInit {
     private authService: AuthService,
     private orderService: OrderService,
     public ts: TranslationService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
     this.table = this.tableService.getCurrentTable();
     if (!this.table) {
       this.noTable = true;
+      return;
+    }
+
+    // If login told us the user already has an open order, show that right away
+    if (this.route.snapshot.queryParamMap.get('open') === '1') {
+      this.hasOpenOrder.set(true);
+      this.loadOpenOrderInfo();
       return;
     }
 
@@ -114,10 +125,36 @@ export class TableFormComponent implements OnInit {
       },
       error: (err: any) => {
         const messages: string[] = err?.errors ?? [];
-        this.apiError.set(messages.length ? messages.join(' ') : this.ts.t('form.createError'));
+        const joined = messages.join(' ').toLowerCase();
+        const isOpenOrder = joined.includes('open order') || joined.includes('commande ouverte');
+        this.hasOpenOrder.set(isOpenOrder);
+        this.apiError.set(isOpenOrder ? this.ts.t('form.alreadyOpenOrder') : (messages.length ? messages.join(' ') : this.ts.t('form.createError')));
         this.isSubmitting.set(false);
       }
     });
+  }
+
+  private loadOpenOrderInfo(): void {
+    this.openOrderLoading.set(true);
+    this.orderService.getOrders().subscribe({
+      next: (res) => {
+        const open = (res.data || []).find(o => !o.ended_at);
+        if (open) {
+          this.openOrderInfo.set({
+            table_number: open.table_number,
+            nb_people: open.nb_people,
+            vibe_name: open.vibe_name,
+            vibe_color: open.vibe_color
+          });
+        }
+        this.openOrderLoading.set(false);
+      },
+      error: () => this.openOrderLoading.set(false)
+    });
+  }
+
+  goToOrder(): void {
+    this.router.navigate(['/menu']);
   }
 
   logout(): void {

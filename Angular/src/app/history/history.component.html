@@ -30,6 +30,15 @@
       </mat-select>
     </mat-form-field>
 
+    <mat-form-field class="ssf-review-filter" appearance="outline">
+      <mat-label>{{ ts.t('reviews.filterReview') }}</mat-label>
+      <mat-select [value]="reviewFilter()" (selectionChange)="onReviewFilterChange($event.value)">
+        <mat-option value="all">{{ ts.t('reviews.filterAll') }}</mat-option>
+        <mat-option value="reviewed">{{ ts.t('reviews.filterReviewed') }}</mat-option>
+        <mat-option value="not_reviewed">{{ ts.t('reviews.filterNotReviewed') }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <div class="ssf-filter">
       <span class="ssf-filter-label">{{ ts.t('reviews.filterLabel') }}</span>
       <div class="ssf-slider-row">
@@ -49,16 +58,16 @@
     </div>
   }
 
-  @if (!isLoading() && orders().length === 0) {
+  @if (!isLoading() && filteredOrders().length === 0) {
     <div class="empty-state">
       <mat-icon>history</mat-icon>
       <p>{{ ts.t('history.noOrders') }}</p>
     </div>
   }
 
-  @if (!isLoading() && orders().length > 0) {
+  @if (!isLoading() && filteredOrders().length > 0) {
     <div class="orders-list">
-      @for (order of orders(); track order.id) {
+      @for (order of filteredOrders(); track order.id) {
         <mat-card class="order-card">
           <mat-card-header>
             <div class="order-header">
@@ -90,36 +99,6 @@
           </mat-card-header>
 
           <mat-card-content>
-            @if (order.server_id) {
-              <div class="server-review-banner">
-                <div class="server-review-left">
-                  <mat-icon class="server-review-icon">person</mat-icon>
-                  <span class="server-review-name">{{ order.server_name }}</span>
-                  <span class="server-review-label">{{ ts.t('reviews.reviewServer') }}</span>
-                </div>
-                <div class="server-review-actions">
-                  @if (getReviewForServer(order.server_id); as review) {
-                    <span class="server-stars">{{ renderStars(review.rating) }}</span>
-                    <button mat-stroked-button class="btn-review-server"
-                            (click)="openReviewDialog('User', order.server_id, order.server_name!, review)">
-                      <mat-icon>edit</mat-icon>
-                      {{ ts.t('reviews.editReview') }}
-                    </button>
-                    <button mat-icon-button class="btn-delete-review"
-                            (click)="confirmDelete(review)">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  } @else {
-                    <button mat-stroked-button class="btn-review-server"
-                            (click)="openReviewDialog('User', order.server_id, order.server_name!)">
-                      <mat-icon>rate_review</mat-icon>
-                      {{ ts.t('reviews.reviewServer') }}
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-
             <div class="lines-list">
               @for (line of order.order_lines; track line.id) {
                 <div class="order-line">
@@ -128,35 +107,11 @@
                       <img [src]="getImageUrl(line.image!.url)" class="line-thumb" />
                     }
                     <span class="line-name">{{ line.orderable_name }}</span>
-                    <span class="line-type">{{ line.orderable_type === 'Item' ? 'Item' : 'Combo' }}</span>
                     <span class="line-qty">x{{ line.quantity }}</span>
                     <span class="line-price">${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
                   </div>
-                  <div class="line-actions">
-                    @if (getReviewForItem(line.orderable_type, line.orderable_id); as review) {
-                      <div class="existing-review">
-                        <span class="stars">{{ renderStars(review.rating) }}</span>
-                        <button mat-stroked-button class="btn-review"
-                                (click)="openReviewDialog(line.orderable_type, line.orderable_id, line.orderable_name, review)">
-                          <mat-icon>edit</mat-icon>
-                          {{ ts.t('reviews.editReview') }}
-                        </button>
-                        <button mat-icon-button class="btn-delete-review"
-                                (click)="confirmDelete(review)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </div>
-                    } @else {
-                      <button mat-stroked-button class="btn-review"
-                              (click)="openReviewDialog(line.orderable_type, line.orderable_id, line.orderable_name)">
-                        <mat-icon>rate_review</mat-icon>
-                        {{ ts.t('reviews.leaveReview') }}
-                      </button>
-                    }
-                  </div>
                 </div>
               }
-
             </div>
 
             @if (order.discount_percentage > 0) {
@@ -167,6 +122,24 @@
                 <span class="discount-amount">-${{ order.discount_amount.toFixed(2) }}</span>
               </div>
             }
+
+            <div class="order-review-footer">
+              @if (orderHasReviews(order)) {
+                <span class="reviewed-badge">
+                  <mat-icon>check_circle</mat-icon>
+                  {{ ts.t('reviews.reviewed') }} ({{ getOrderReviewCount(order) }})
+                </span>
+                <button mat-stroked-button class="btn-review-order" (click)="openOrderReviewDialog(order)">
+                  <mat-icon>edit</mat-icon>
+                  {{ ts.t('reviews.viewReviews') }}
+                </button>
+              } @else {
+                <button mat-stroked-button class="btn-review-order btn-review-new" (click)="openOrderReviewDialog(order)">
+                  <mat-icon>rate_review</mat-icon>
+                  {{ ts.t('reviews.leaveReview') }}
+                </button>
+              }
+            </div>
           </mat-card-content>
         </mat-card>
       }

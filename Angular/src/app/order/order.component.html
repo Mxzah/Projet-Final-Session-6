@@ -15,9 +15,9 @@
       <mat-card-content>
         <mat-icon aria-hidden="true">receipt_long</mat-icon>
         <p>{{ ts.t('order.empty') }}</p>
-        <button mat-raised-button color="primary" (click)="onAddItems()">
-          <mat-icon aria-hidden="true"></mat-icon>
-          {{ ts.t('order.addItems') }}
+        <button mat-button class="back-to-menu-btn" (click)="onAddItems()">
+          <mat-icon aria-hidden="true">menu_book</mat-icon>
+          {{ ts.t('common.backToMenu') }}
         </button>
         @if (openOrderId() !== null) {
           <button mat-button class="quit-order-btn" (click)="confirmQuitOrder()">
@@ -30,7 +30,7 @@
   } @else {
     <div class="order-container">
       <div class="order-header">
-        <h1 class="order-title">{{ ts.t('order.title') }}</h1>
+        <h1 class="order-title">{{ ts.t('order.title') }}@if (existingTableNumber()) { — {{ ts.t('form.title') }} #{{ existingTableNumber() }} }</h1>
         <div class="server-vibe-row">
           @if (existingNbPeople()) {
             <span class="people-badge">
@@ -56,9 +56,9 @@
             }
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="onAddItems()">
-          <mat-icon aria-hidden="true"></mat-icon>
-          {{ ts.t('order.addItems') }}
+        <button mat-button class="back-to-menu-link" (click)="onAddItems()">
+          <mat-icon>menu_book</mat-icon>
+          {{ ts.t('common.backToMenu') }}
         </button>
       </div>
 
@@ -154,15 +154,36 @@
       <mat-divider></mat-divider>
 
       <div class="order-actions">
-        @if (canPay()) {
-          <button mat-raised-button color="primary" class="pay-now-btn" (click)="goToPay()">
-            <mat-icon aria-hidden="true">payment</mat-icon>
-            {{ ts.t('order.pay') }}
-          </button>
-        } @else {
-          <button mat-raised-button color="primary" [disabled]="pendingCount() === 0 || isSending()" (click)="onSend()">
+        @if (pendingCount() > 0) {
+          <button mat-raised-button color="primary" [disabled]="isSending()" (click)="onSend()">
             <mat-icon aria-hidden="true">send</mat-icon>
-            {{ ts.t('order.send') }}
+            {{ ts.t('order.send') }} ({{ pendingCount() }})
+          </button>
+        }
+
+        @if (sentLines().length > 0 && !canPay()) {
+          <mat-card class="kitchen-progress-card" appearance="outlined">
+            <mat-card-content class="progress-content">
+              <div class="progress-header">
+                <mat-icon class="progress-icon">restaurant</mat-icon>
+                <div class="progress-text">
+                  <span class="progress-label">{{ ts.t('order.kitchenProgress') }}</span>
+                  <span class="progress-count">{{ servedCount() }} / {{ sentLines().length }} {{ ts.t('order.itemsServed') }}</span>
+                </div>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="progressPercent()" class="kitchen-bar"></mat-progress-bar>
+              <p class="progress-hint">
+                <mat-icon>info_outline</mat-icon>
+                {{ ts.t('order.payUnlocksWhenServed') }}
+              </p>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @if (sentLines().length > 0) {
+          <button mat-raised-button [class.pay-now-btn]="canPay()" [class.pay-locked-btn]="!canPay()" [disabled]="!canPay()" (click)="goToPay()">
+            <mat-icon aria-hidden="true">{{ canPay() ? 'payment' : 'lock' }}</mat-icon>
+            {{ ts.t('order.pay') }}
           </button>
         }
       </div>

@@ -112,10 +112,44 @@
 
 .order-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 1rem;
+}
+
+/* ── Back to menu link ── */
+.back-to-menu-link {
+  align-self: flex-start;
+  color: var(--copper) !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  padding: 0 0.5rem !important;
+  min-height: 32px !important;
+  line-height: 32px !important;
+}
+
+.back-to-menu-link mat-icon {
+  font-size: 1.1rem !important;
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  margin-right: 0.3rem;
+}
+
+.back-to-menu-link:hover {
+  background: rgba(200, 121, 65, 0.08) !important;
+}
+
+.back-to-menu-btn {
+  color: var(--copper) !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+}
+
+.back-to-menu-btn mat-icon {
+  font-size: 1.1rem !important;
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  margin-right: 0.3rem;
 }
 
 .order-title {
@@ -305,13 +339,96 @@
 
 .order-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
   gap: 0.75rem;
-  flex-wrap: wrap;
 }
 
 .order-actions button {
   min-width: 130px;
+}
+
+/* ── Kitchen progress card ── */
+.kitchen-progress-card {
+  background: rgba(200, 121, 65, 0.06) !important;
+  border-color: rgba(200, 121, 65, 0.2) !important;
+}
+
+.progress-content {
+  padding: 1rem 1.25rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.progress-icon {
+  color: var(--copper);
+  font-size: 1.3rem;
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.progress-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+}
+
+.progress-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.progress-count {
+  font-size: 0.82rem;
+  color: rgba(27, 26, 23, 0.6);
+}
+
+.kitchen-bar {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+::ng-deep .kitchen-bar .mdc-linear-progress__bar-inner {
+  border-color: var(--copper) !important;
+}
+
+::ng-deep .kitchen-bar .mdc-linear-progress__buffer-bar {
+  background-color: rgba(200, 121, 65, 0.12) !important;
+}
+
+.progress-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: rgba(27, 26, 23, 0.5);
+  margin: 0;
+}
+
+.progress-hint mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* ── Locked pay button ── */
+.pay-locked-btn {
+  background: rgba(27, 26, 23, 0.08) !important;
+  color: rgba(27, 26, 23, 0.38) !important;
+  box-shadow: none !important;
+}
+
+.pay-locked-btn mat-icon {
+  font-size: 1.1rem;
 }
 
 /* Bronze buttons to match other components */
@@ -708,10 +825,6 @@ button[mat-raised-button][color="primary"] {
 
   .summary-price {
     font-size: 1.25rem;
-  }
-
-  .order-actions {
-    flex-direction: column;
   }
 
   .order-actions button {

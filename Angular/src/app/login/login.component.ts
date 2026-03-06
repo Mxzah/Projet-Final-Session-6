@@ -54,17 +54,16 @@ export class LoginComponent {
 
         const redirectTo = response.data?.redirect_to || '/form';
 
-        // Handle QR pending token for /form redirect
-        if (redirectTo === '/form' && this.tableService.getPendingToken()) {
+        if (this.tableService.getPendingToken()) {
+          // Always validate pending QR token — it takes priority
+          // Always go to /form so the user sets up their table session
+          const hasOpenOrder = redirectTo === '/menu';
           this.tableService.validateAndSavePendingToken().subscribe(() => {
-            this.router.navigate(['/form']);
+            this.router.navigate(['/form'], hasOpenOrder ? { queryParams: { open: '1' } } : undefined);
           });
-        } else if (redirectTo === '/form' && !this.tableService.getPendingToken() && !this.tableService.hasTable()) {
-          // No table scanned and no pending token → go to menu (can browse, see history)
+        } else if (redirectTo === '/form' && !this.tableService.hasTable()) {
+          // No table scanned, no pending token → browse menu
           this.router.navigate(['/menu']);
-        } else if (redirectTo === '/menu') {
-          // Restore table info from open order for menu navigation
-          this.restoreTableAndNavigate(redirectTo);
         } else {
           this.router.navigate([redirectTo]);
         }
@@ -74,13 +73,4 @@ export class LoginComponent {
         this.errorMessage.set(error?.errors?.join(', ') || this.ts.t('login.defaultError'));
       }
     });
-  }
-
-  private restoreTableAndNavigate(path: string): void {
-    // Import OrderService lazily to restore table context
-    import('../services/order.service').then(m => {
-      // We need to get the injector — simplest approach: just navigate, the order page handles its own loading
-      this.router.navigate([path]);
-    });
-  }
-}
+  }}

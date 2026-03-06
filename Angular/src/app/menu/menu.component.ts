@@ -137,6 +137,8 @@ export class MenuComponent implements OnInit, OnDestroy {
   hasOpenOrder = signal<boolean>(false);
   vibeImageUrl = signal<string | null>(null);
   vibeName = signal<string | null>(null);
+  orderTableNumber = signal<number | null>(null);
+  orderServerName = signal<string | null>(null);
 
   constructor(
     private itemsService: ItemsService,
@@ -209,6 +211,8 @@ export class MenuComponent implements OnInit, OnDestroy {
           // Store vibe image for banner
           this.vibeImageUrl.set(openOrder.vibe_image?.url ?? null);
           this.vibeName.set(openOrder.vibe_name ?? null);
+          this.orderTableNumber.set(openOrder.table_number ?? null);
+          this.orderServerName.set(openOrder.server_name ?? null);
           // Set orderId on cartService so addLine works
           this.cartService.setOrderId(openOrder.id);
           // Load waiting lines into cart from backend

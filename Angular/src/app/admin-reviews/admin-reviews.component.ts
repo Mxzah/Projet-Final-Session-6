@@ -33,8 +33,8 @@ export class AdminReviewsComponent implements OnInit, OnDestroy {
   isLoading = signal(true);
 
   searchTerm = signal('');
-  filterType = signal('all');
-  filterRating = signal('all');
+  filterType = signal<string[]>([]);
+  filterRating = signal<string[]>([]);
   sortOrder = signal('newest');
 
   private searchSubject = new Subject<string>();
@@ -71,8 +71,8 @@ export class AdminReviewsComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     const filters: Record<string, string> = {};
     if (this.searchTerm()) filters['search'] = this.searchTerm();
-    if (this.filterType() !== 'all') filters['reviewable_type'] = this.filterType();
-    if (this.filterRating() !== 'all') filters['rating'] = this.filterRating();
+    if (this.filterType().length > 0) filters['reviewable_type'] = this.filterType().join(',');
+    if (this.filterRating().length > 0) filters['rating'] = this.filterRating().join(',');
     filters['sort'] = this.sortOrder();
 
     this.reviewService.getReviews(filters).subscribe({
@@ -92,12 +92,12 @@ export class AdminReviewsComponent implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
-  onFilterTypeChange(value: string): void {
+  onFilterTypeChange(value: string[]): void {
     this.filterType.set(value);
     this.loadData();
   }
 
-  onFilterRatingChange(value: string): void {
+  onFilterRatingChange(value: string[]): void {
     this.filterRating.set(value);
     this.loadData();
   }

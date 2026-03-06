@@ -456,6 +456,28 @@ mat-card-content {
   margin-right: 0.2rem;
 }
 
+/* ── Assign Me button ── */
+.btn-assign {
+  background: linear-gradient(120deg, #1565c0, #1976d2) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+  height: auto !important;
+  padding: 0.35rem 0.8rem !important;
+  line-height: 1.4 !important;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.btn-assign mat-icon {
+  font-size: 1rem !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  margin-right: 0.3rem;
+}
+
 .release-btn {
   background: linear-gradient(120deg, var(--copper), var(--rust)) !important;
   color: #fff !important;
@@ -582,6 +604,7 @@ mat-card-content {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
+  align-items: stretch;
 }
 
 .table-card {
@@ -589,6 +612,8 @@ mat-card-content {
   background: #fffdf9;
   border: 2px solid rgba(138, 63, 36, 0.12);
   transition: box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .table-card:hover {
@@ -687,6 +712,15 @@ mat-card-content {
   flex-direction: column;
   gap: 0.2rem;
   margin-top: 0.3rem;
+}
+
+.table-card mat-card-header {
+  flex: 1;
+}
+
+.table-card mat-card-actions {
+  margin-top: auto !important;
+  padding-top: 0 !important;
 }
 
 .show-qr-btn {

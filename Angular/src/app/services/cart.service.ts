@@ -13,15 +13,25 @@ export interface CartLine {
   image: ImageData | null;
 }
 
+export interface SentLine {
+  name: string;
+  unit_price: number;
+  quantity: number;
+  status: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
   lines = signal<CartLine[]>([]);
+  sentLines = signal<SentLine[]>([]);
   private _orderId = signal<number | null>(null);
 
   totalItems = computed(() => this.lines().reduce((sum, l) => sum + l.quantity, 0));
   subtotal = computed(() => this.lines().reduce((sum, l) => sum + l.unit_price * l.quantity, 0));
+  sentTotal = computed(() => this.sentLines().reduce((sum, l) => sum + l.unit_price * l.quantity, 0));
+  orderTotal = computed(() => this.subtotal() + this.sentTotal());
 
   constructor(private orderService: OrderService) {}
 
@@ -33,17 +43,21 @@ export class CartService {
     this._orderId.set(id);
   }
 
-  /** Load waiting lines from backend order into the cart */
+  /** Load waiting lines from backend order into the cart, and sent lines for display */
   loadFromOrder(orderId: number): void {
     this._orderId.set(orderId);
     this.orderService.getOrders().subscribe({
       next: (res) => {
         const order = (res.data || []).find(o => o.id === orderId);
         if (!order) return;
-        const waitingLines = (order.order_lines || [])
-          .filter(l => l.status === 'waiting')
-          .map(l => this.mapApiLine(l));
-        this.lines.set(waitingLines);
+        const allLines = order.order_lines || [];
+        this.lines.set(allLines.filter(l => l.status === 'waiting').map(l => this.mapApiLine(l)));
+        this.sentLines.set(allLines.filter(l => l.status !== 'waiting').map(l => ({
+          name: l.orderable_name || `${l.orderable_type} #${l.orderable_id}`,
+          unit_price: l.unit_price,
+          quantity: l.quantity,
+          status: l.status
+        })));
       }
     });
   }
@@ -122,6 +136,7 @@ export class CartService {
 
   clear(): void {
     this.lines.set([]);
+    this.sentLines.set([]);
     this._orderId.set(null);
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
 import { ImageData } from '../services/order.service';
@@ -42,6 +43,7 @@ interface DisplayOrderLine {
     MatCardModule,
     MatDividerModule,
     MatIconModule,
+    MatProgressBarModule,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -49,9 +51,10 @@ interface DisplayOrderLine {
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
 })
-export class OrderComponent implements OnInit {
+export class OrderComponent implements OnInit, OnDestroy {
   openOrderId = signal<number | null>(null);
   isSending = signal<boolean>(false);
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
 
   existingNote = signal<string | null>(null);
   editingNote = signal(false);
@@ -62,6 +65,7 @@ export class OrderComponent implements OnInit {
   existingVibeImageUrl = signal<string | null>(null);
   existingNbPeople = signal<number | null>(null);
   existingServerName = signal<string | null>(null);
+  existingTableNumber = signal<number | null>(null);
 
   /** All order lines from backend */
   private allLines = signal<DisplayOrderLine[]>([]);
@@ -81,6 +85,11 @@ export class OrderComponent implements OnInit {
     this.sentLines().length > 0 &&
     this.sentLines().every(l => l.status === 'served')
   );
+  servedCount = computed(() => this.sentLines().filter(l => l.status === 'served').length);
+  progressPercent = computed(() => {
+    const total = this.sentLines().length;
+    return total > 0 ? (this.servedCount() / total) * 100 : 0;
+  });
 
   constructor(
     public cartService: CartService,
@@ -95,6 +104,26 @@ export class OrderComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOpenOrder();
+    this.startPolling();
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+
+  private startPolling(): void {
+    this.pollTimer = setInterval(() => {
+      if (this.openOrderId() && !this.canPay()) {
+        this.loadOpenOrder();
+      }
+    }, 15000);
+  }
+
+  private stopPolling(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
   }
 
   private mapApiLine(line: OrderLineData): DisplayOrderLine {
@@ -124,6 +153,7 @@ export class OrderComponent implements OnInit {
           this.existingVibeImageUrl.set(null);
           this.existingNbPeople.set(null);
           this.existingServerName.set(null);
+          this.existingTableNumber.set(null);
           return;
         }
 
@@ -135,6 +165,7 @@ export class OrderComponent implements OnInit {
         this.existingVibeImageUrl.set(openOrder.vibe_image?.url ?? null);
         this.existingNbPeople.set(openOrder.nb_people ?? null);
         this.existingServerName.set(openOrder.server_name ?? null);
+        this.existingTableNumber.set(openOrder.table_number ?? null);
         this.allLines.set((openOrder.order_lines || []).map(line => this.mapApiLine(line)));
         // Sync cart service with waiting lines
         this.cartService.loadFromOrder(openOrder.id);

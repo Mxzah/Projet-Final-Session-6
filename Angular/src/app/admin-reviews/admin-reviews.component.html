@@ -1,3 +1,6 @@
+<main class="page-admin">
+  <div class="outer-container">
+
 <div class="page-header">
   <h1>{{ ts.t('admin.reviews.title') }}</h1>
   <p class="subtitle">{{ ts.t('admin.reviews.subtitle') }}</p>
@@ -15,8 +18,7 @@
 
   <mat-form-field class="filter-field" appearance="outline">
     <mat-label>{{ ts.t('admin.reviews.filterType') }}</mat-label>
-    <mat-select [value]="filterType()" (selectionChange)="onFilterTypeChange($event.value)">
-      <mat-option value="all">{{ ts.t('admin.reviews.all') }}</mat-option>
+    <mat-select multiple [value]="filterType()" (selectionChange)="onFilterTypeChange($event.value)">
       @for (type of reviewableTypes; track type.value) {
         <mat-option [value]="type.value">{{ ts.t(type.labelKey) }}</mat-option>
       }
@@ -25,8 +27,7 @@
 
   <mat-form-field class="filter-field" appearance="outline">
     <mat-label>{{ ts.t('admin.reviews.filterRating') }}</mat-label>
-    <mat-select [value]="filterRating()" (selectionChange)="onFilterRatingChange($event.value)">
-      <mat-option value="all">{{ ts.t('admin.reviews.all') }}</mat-option>
+    <mat-select multiple [value]="filterRating()" (selectionChange)="onFilterRatingChange($event.value)">
       @for (r of ratings; track r) {
         <mat-option [value]="r.toString()">{{ r }} ★</mat-option>
       }
@@ -67,7 +68,7 @@
               <span class="reviewer-name">{{ review.user_name }}</span>
               <span class="review-type-badge">{{ review.reviewable_type === 'User' ? ts.t('admin.reviews.typeServer') : review.reviewable_type }}</span>
             </div>
-            <button mat-icon-button class="btn-delete" (click)="confirmDelete(review)">
+            <button type="button" class="btn-delete" (click)="confirmDelete(review)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -95,3 +96,6 @@
     }
   </div>
 }
+
+  </div>
+</main>

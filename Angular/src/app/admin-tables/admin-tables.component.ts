@@ -10,11 +10,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ApiService } from '../services/api.service';
 import { TranslationService } from '../services/translation.service';
 import { AvailabilityService } from '../services/availability.service';
 import { AvailabilityEntry } from '../menu/menu.models';
 import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
+import { QrDialogComponent, QrDialogData } from '../server-page/qr-dialog/qr-dialog.component';
 import QRCodeStyling from 'styled-qr-code';
 
 interface TableInfo {
@@ -23,6 +25,7 @@ interface TableInfo {
     capacity: number;
     status: string;
     qr_token: string;
+    server_name?: string | null;
     availabilities?: { id: number; start_at: string; end_at?: string | null; description?: string | null }[];
 }
 
@@ -34,6 +37,7 @@ interface TableInfo {
         MatCardModule, MatButtonModule, MatIconModule,
         MatFormFieldModule, MatInputModule, MatSelectModule,
         MatProgressSpinnerModule, MatTooltipModule, MatChipsModule,
+        MatDialogModule,
         AvailabilityListComponent
     ],
     templateUrl: './admin-tables.component.html',
@@ -118,6 +122,7 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         private availabilityService: AvailabilityService,
         private cdr: ChangeDetectorRef,
         private ngZone: NgZone,
+        private dialog: MatDialog,
         public ts: TranslationService
     ) {
         this.ngZone.runOutsideAngular(() => {
@@ -282,6 +287,15 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
             this.copiedToken.set(table.qr_token);
             setTimeout(() => { this.copiedToken.set(null); }, 2000);
         });
+    }
+
+    openQrPreview(table: TableInfo): void {
+        const data: QrDialogData = {
+            tableNumber: table.number,
+            qrUrl: this.getTableUrl(table),
+            scanInstruction: this.ts.t('tables.qrPreviewHint')
+        };
+        this.dialog.open(QrDialogComponent, { data, width: '420px', maxHeight: '90vh' });
     }
 
     createTable(): void {

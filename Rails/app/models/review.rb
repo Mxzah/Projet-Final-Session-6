@@ -6,8 +6,7 @@ class Review < ApplicationRecord
 
   validates :rating, presence: true,
                      numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 5 }
-  validates :comment, presence: true, length: { maximum: 500 },
-                      format: { without: /\A\s*\z/, message: "cannot consist only of whitespace" }
+  validates :comment, length: { maximum: 500 }, allow_blank: true
   validates :reviewable_type, presence: true, inclusion: { in: %w[Item Combo User] }
   validate :user_must_be_client
   validate :images_format_and_size

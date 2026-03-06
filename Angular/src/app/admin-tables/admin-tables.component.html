@@ -114,6 +114,12 @@
                   {{ table.status === 'available' ? ts.t('tables.available') : table.status === 'occupied' ? ts.t('tables.occupied') : table.status }}
                 </mat-chip>
               </mat-chip-set>
+              @if (table.server_name && table.status === 'occupied') {
+                <span class="server-badge">
+                  <mat-icon>badge</mat-icon>
+                  {{ table.server_name }}
+                </span>
+              }
             </div>
           </div>
         </div>
@@ -131,18 +137,23 @@
             <mat-icon>{{ copiedToken() === table.qr_token ? 'check' : 'content_copy' }}</mat-icon>
             {{ copiedToken() === table.qr_token ? ts.t('tables.copied') : ts.t('tables.copy') }}
           </button>
+          <button mat-stroked-button [matTooltip]="ts.t('tables.qrPreview')" (click)="openQrPreview(table)">
+            <mat-icon>qr_code</mat-icon>
+          </button>
           <button mat-stroked-button [matTooltip]="ts.t('tables.downloadSvg')" (click)="downloadQr(table, 'svg')">
             <mat-icon>download</mat-icon> SVG
           </button>
           <button mat-stroked-button [matTooltip]="ts.t('tables.downloadPng')" (click)="downloadQr(table, 'png')">
             <mat-icon>download</mat-icon> PNG
           </button>
-          <button mat-icon-button class="action-edit" [matTooltip]="ts.t('tables.edit')" (click)="startEdit(table)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button class="action-delete" [matTooltip]="ts.t('tables.delete')" (click)="askDelete(table)">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <span class="action-icons">
+            <button mat-icon-button class="action-edit" [matTooltip]="ts.t('tables.edit')" (click)="startEdit(table)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="action-delete" [matTooltip]="ts.t('tables.delete')" (click)="askDelete(table)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </span>
         </mat-card-actions>
       </mat-card>
     }

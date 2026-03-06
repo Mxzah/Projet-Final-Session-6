@@ -35,11 +35,11 @@ export class QrDialogComponent implements AfterViewInit {
 
         container.innerHTML = '';
         const qrCode = new QRCodeStyling({
-            width: 280,
-            height: 280,
+            width: 250,
+            height: 250,
             type: 'canvas',
             data: this.data.qrUrl,
-            margin: 10,
+            margin: 8,
             dotsOptions: { color: '#8a3f24', type: 'rounded' as any },
             backgroundOptions: { color: '#fbf8f2' },
             cornersSquareOptions: { type: 'extra-rounded' as any, color: '#1b1a17' },

@@ -779,3 +779,24 @@ mat-card-content {
   opacity: 0.5 !important;
   cursor: not-allowed;
 }
+
+/* ── Assign Me button ── */
+.btn-assign {
+  background: linear-gradient(120deg, #1565c0, #1976d2) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+  height: auto !important;
+  padding: 0.3rem 0.65rem !important;
+  line-height: 1.4 !important;
+  white-space: nowrap;
+}
+
+.btn-assign mat-icon {
+  font-size: 0.9rem !important;
+  width: 0.9rem !important;
+  height: 0.9rem !important;
+  margin-right: 0.25rem;
+}

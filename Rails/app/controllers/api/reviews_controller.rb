@@ -20,14 +20,16 @@ module Api
                          )
       end
 
-      # Filter by reviewable_type
+      # Filter by reviewable_type (supports comma-separated for multi-select)
       if params[:reviewable_type].present?
-        reviews = reviews.where(reviewable_type: params[:reviewable_type])
+        types = params[:reviewable_type].split(",")
+        reviews = reviews.where(reviewable_type: types)
       end
 
-      # Filter by rating
+      # Filter by rating (supports comma-separated for multi-select)
       if params[:rating].present?
-        reviews = reviews.where(rating: params[:rating])
+        ratings = params[:rating].split(",").map(&:to_i)
+        reviews = reviews.where(rating: ratings)
       end
 
       # Sort
@@ -68,10 +70,13 @@ module Api
         return render json: { success: false, data: nil, errors: [ "Only clients can create reviews" ] }, status: :ok
       end
 
-      review = Review.new(review_params)
+      permitted = review_params
+      images = permitted.delete(:images)
+      review = Review.new(permitted)
       review.user_id = current_user.id
 
       if review.save
+        review.images.attach(images) if images.present?
         render json: {
           success: true,
           data: review_json(review),
@@ -92,7 +97,10 @@ module Api
         return render json: { success: false, data: nil, errors: [ "You can only update your own reviews" ] }, status: :ok
       end
 
-      if @review.update(review_update_params)
+      permitted = review_update_params
+      images = permitted.delete(:images)
+      if @review.update(permitted)
+        @review.images.attach(images) if images.present?
         render json: {
           success: true,
           data: review_json(@review),
@@ -132,11 +140,11 @@ module Api
     end
 
     def review_params
-      params.require(:review).permit(:rating, :comment, :reviewable_type, :reviewable_id)
+      params.require(:review).permit(:rating, :comment, :reviewable_type, :reviewable_id, images: [])
     end
 
     def review_update_params
-      params.require(:review).permit(:rating, :comment)
+      params.require(:review).permit(:rating, :comment, images: [])
     end
 
     def review_json(review)

@@ -24,6 +24,22 @@
   </div>
 }
 
+@if (orderTableNumber()) {
+  <div class="order-info-bar">
+    <span class="order-info-item">
+      <mat-icon>table_restaurant</mat-icon>
+      {{ ts.t('form.title') }} #{{ orderTableNumber() }}
+    </span>
+    @if (orderServerName()) {
+      <span class="order-info-divider">·</span>
+      <span class="order-info-item">
+        <mat-icon>badge</mat-icon>
+        {{ orderServerName() }}
+      </span>
+    }
+  </div>
+}
+
 <mat-toolbar class="cart-bottom-bar">
   <mat-icon>shopping_cart</mat-icon>
   <span class="cart-bottom-text">{{ cartService.totalItems() }} {{ ts.t('menu.item') }} &bull; CA${{ cartService.subtotal().toFixed(2) }}</span>
@@ -163,6 +179,27 @@
         </mat-toolbar>
 
         <div class="cart-sidebar-lines">
+          <!-- Already sent lines -->
+          @if (cartService.sentLines().length > 0) {
+            <p class="cart-section-label">{{ ts.t('menu.sentItems') }}</p>
+            @for (line of cartService.sentLines(); track $index) {
+              <mat-card class="cart-line cart-line-sent">
+                <mat-card-content>
+                  <mat-card-title class="cart-line-name">{{ line.name }}</mat-card-title>
+                  <mat-card-subtitle class="cart-line-meta">CA${{ line.unit_price.toFixed(2) }} {{ ts.t('menu.unit') }} &middot; <span class="cart-line-qty">{{ line.quantity }} {{ line.quantity > 1 ? ts.t('menu.portions') : ts.t('menu.portion') }}</span></mat-card-subtitle>
+                  <div class="cart-line-total">
+                    <span class="cart-line-total-label">TOTAL</span>
+                    <span class="cart-line-total-price">CA${{ (line.unit_price * line.quantity).toFixed(2) }}</span>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            }
+            @if (cartService.lines().length > 0) {
+              <p class="cart-section-label">{{ ts.t('menu.newItems') }}</p>
+            }
+          }
+
+          <!-- Waiting (cart) lines -->
           @for (line of cartService.lines(); track $index) {
             <mat-card class="cart-line">
               <mat-card-content>
@@ -183,18 +220,31 @@
               </mat-card-content>
             </mat-card>
           } @empty {
-            <p class="cart-empty">{{ ts.t('menu.cartEmpty') }}</p>
+            @if (cartService.sentLines().length === 0) {
+              <p class="cart-empty">{{ ts.t('menu.cartEmpty') }}</p>
+            }
           }
         </div>
 
         <mat-divider></mat-divider>
 
         <div class="cart-sidebar-footer">
+          @if (cartService.sentLines().length > 0) {
+            <div class="cart-subtotal cart-subtotal-muted">
+              <span>{{ ts.t('menu.sentSubtotal') }}</span>
+              <span class="cart-subtotal-price">CA${{ cartService.sentTotal().toFixed(2) }}</span>
+            </div>
+            <div class="cart-subtotal cart-subtotal-muted">
+              <span>{{ ts.t('menu.newSubtotal') }}</span>
+              <span class="cart-subtotal-price">CA${{ cartService.subtotal().toFixed(2) }}</span>
+            </div>
+            <mat-divider></mat-divider>
+          }
           <div class="cart-subtotal">
-            <span>{{ ts.t('menu.subtotal') }}</span>
-            <span class="cart-subtotal-price">CA${{ cartService.subtotal().toFixed(2) }}</span>
+            <span>{{ ts.t('menu.total') }}</span>
+            <span class="cart-subtotal-price">CA${{ cartService.orderTotal().toFixed(2) }}</span>
           </div>
-          <button mat-flat-button class="btn-continue" [disabled]="cartService.totalItems() === 0" (click)="goToOrder()">{{ ts.t('menu.continue') }}</button>
+          <button mat-flat-button class="btn-continue" (click)="goToOrder()">{{ ts.t('menu.continue') }}</button>
         </div>
       </aside>
     </div>

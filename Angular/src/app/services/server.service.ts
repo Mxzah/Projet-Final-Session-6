@@ -51,4 +51,8 @@ export class ServerService {
   deleteOrderLine(lineId: number): Observable<ApiResponse<null>> {
     return this.api.delete<null>(`/api/server/order_lines/${lineId}`);
   }
+
+  assignOrder(orderId: number): Observable<ApiResponse<any>> {
+    return this.api.post<any>(`/api/server/orders/${orderId}/assign`, {});
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -33,10 +33,11 @@ import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDia
   templateUrl: './cuisine.component.html',
   styleUrl: './cuisine.component.css'
 })
-export class CuisineComponent implements OnInit {
+export class CuisineComponent implements OnInit, OnDestroy {
   orders: CuisineOrder[] = [];
   loading = true;
   error: string | null = null;
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
 
   readonly statuses = ['sent', 'in_preparation', 'ready', 'served'];
 
@@ -56,6 +57,14 @@ export class CuisineComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
+    this.pollTimer = setInterval(() => this.loadOrders(), 15000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
   }
 
   loadOrders(): void {

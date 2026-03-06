@@ -1,6 +1,7 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,8 +18,8 @@ import { AuthService } from '../services/auth.service';
 import { OrderService, OrderData } from '../services/order.service';
 import { ReviewService, ReviewData } from '../services/review.service';
 import { TranslationService } from '../services/translation.service';
-import { ReviewFormDialogComponent, ReviewFormDialogData, ReviewFormDialogResult } from '../reviews/review-form-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
+import { OrderReviewDialogComponent, OrderReviewDialogData, OrderReviewDialogResult, ReviewableItem } from './order-review-dialog.component';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -49,11 +50,23 @@ export class HistoryComponent implements OnInit {
   // SSF state
   searchQuery = signal('');
   sortOrder = signal('newest');
+  reviewFilter = signal('all');
   sliderMin = signal(0);
   sliderMax = signal(9999);
   computedMaxTotal = signal(9999);
   totalMin = signal<number | null>(null);
   totalMax = signal<number | null>(null);
+
+  // Filtered orders (applies review filter on top of search/sort/price)
+  filteredOrders = computed(() => {
+    const all = this.orders();
+    const filter = this.reviewFilter();
+    if (filter === 'all') return all;
+    return all.filter(o => {
+      const hasReviews = this.orderHasReviews(o);
+      return filter === 'reviewed' ? hasReviews : !hasReviews;
+    });
+  });
 
   private searchTimer: any = null;
   private maxTotalInitialized = false;
@@ -80,6 +93,7 @@ export class HistoryComponent implements OnInit {
         const params = this.route.snapshot.queryParams;
         if (params['search']) this.searchQuery.set(params['search']);
         if (params['sort']) this.sortOrder.set(params['sort']);
+        if (params['review']) this.reviewFilter.set(params['review']);
         if (params['min']) {
           const min = +params['min'];
           this.sliderMin.set(min);
@@ -111,7 +125,6 @@ export class HistoryComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         let allOrders = (res.data || []).filter(o => o.ended_at);
-        // Client-side full-text search across all fields
         const query = this.searchQuery().trim();
         if (query) {
           allOrders = allOrders.filter(o => this.matchesSearch(o, query));
@@ -148,25 +161,122 @@ export class HistoryComponent implements OnInit {
     });
   }
 
+  // ── Review helpers ──
+
+  orderHasReviews(order: OrderData): boolean {
+    return this.getOrderReviewCount(order) > 0;
+  }
+
+  getOrderReviewCount(order: OrderData): number {
+    const revs = this.reviews();
+    let count = 0;
+    // Check item/combo reviews
+    for (const line of order.order_lines) {
+      if (revs.some(r => r.reviewable_type === line.orderable_type && r.reviewable_id === line.orderable_id)) {
+        count++;
+      }
+    }
+    // Check server review
+    if (order.server_id && revs.some(r => r.reviewable_type === 'User' && r.reviewable_id === order.server_id)) {
+      count++;
+    }
+    return count;
+  }
+
+  openOrderReviewDialog(order: OrderData): void {
+    const revs = this.reviews();
+
+    // Build reviewable items: server first, then order lines (deduplicated)
+    const items: ReviewableItem[] = [];
+    if (order.server_id && order.server_name) {
+      const existing = revs.find(r => r.reviewable_type === 'User' && r.reviewable_id === order.server_id);
+      items.push({
+        type: 'User',
+        id: order.server_id,
+        name: order.server_name,
+        existingReviewId: existing?.id,
+        existingRating: existing?.rating,
+        existingComment: existing?.comment,
+        existingImageUrls: existing?.image_urls
+      });
+    }
+
+    // Deduplicate lines by orderable_type + orderable_id
+    const seen = new Set<string>();
+    for (const line of order.order_lines) {
+      const key = `${line.orderable_type}:${line.orderable_id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const existing = revs.find(r => r.reviewable_type === line.orderable_type && r.reviewable_id === line.orderable_id);
+      items.push({
+        type: line.orderable_type,
+        id: line.orderable_id,
+        name: line.orderable_name,
+        imageUrl: line.image?.url ? this.getImageUrl(line.image.url) : undefined,
+        existingReviewId: existing?.id,
+        existingRating: existing?.rating,
+        existingComment: existing?.comment,
+        existingImageUrls: existing?.image_urls
+      });
+    }
+
+    const data: OrderReviewDialogData = {
+      orderTableNumber: order.table_number,
+      orderDate: this.formatDate(order.created_at),
+      items
+    };
+
+    const ref = this.dialog.open(OrderReviewDialogComponent, {
+      data,
+      width: '520px',
+      maxHeight: '90vh'
+    });
+
+    ref.afterClosed().subscribe((result: OrderReviewDialogResult | undefined) => {
+      if (!result || result.reviews.length === 0) return;
+
+      const ops = result.reviews.map(r => {
+        if (r.existingReviewId) {
+          return this.reviewService.updateReview(r.existingReviewId, {
+            rating: r.rating,
+            comment: r.comment
+          }, r.images);
+        } else {
+          return this.reviewService.createReview({
+            rating: r.rating,
+            comment: r.comment,
+            reviewable_type: r.reviewableType,
+            reviewable_id: r.reviewableId
+          }, r.images);
+        }
+      });
+
+      forkJoin(ops).subscribe({
+        next: () => {
+          this.snackBar.open(this.ts.t('reviews.reviewsSaved'), '', { duration: 3000 });
+          this.loadReviews();
+        },
+        error: () => {
+          this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 });
+        }
+      });
+    });
+  }
+
+  // ── Search/filter/sort ──
+
   private matchesSearch(order: OrderData, query: string): boolean {
     const q = query.toLowerCase().trim();
-    // Table number — support "3", "table 3", "table3"
     if (String(order.table_number).includes(q)) return true;
     const tableQ = q.replace(/^table\s*/i, '');
     if (tableQ && String(order.table_number) === tableQ) return true;
-    // Server name
     if (order.server_name && order.server_name.toLowerCase().includes(q)) return true;
-    // Vibe name
     if (order.vibe_name && order.vibe_name.toLowerCase().includes(q)) return true;
-    // Order note
     if (order.note && order.note.toLowerCase().includes(q)) return true;
-    // Total, tip, adjusted_total as strings
     if (order.adjusted_total.toFixed(2).includes(q)) return true;
     if (order.total.toFixed(2).includes(q)) return true;
     if (order.tip > 0 && order.tip.toFixed(2).includes(q)) return true;
-    // Date
     if (this.formatDate(order.created_at).toLowerCase().includes(q)) return true;
-    // Order lines
     for (const line of order.order_lines) {
       if (line.orderable_name.toLowerCase().includes(q)) return true;
       if (line.note && line.note.toLowerCase().includes(q)) return true;
@@ -180,6 +290,7 @@ export class HistoryComponent implements OnInit {
     const queryParams: any = {};
     if (this.searchQuery()) queryParams.search = this.searchQuery();
     if (this.sortOrder() !== 'newest') queryParams.sort = this.sortOrder();
+    if (this.reviewFilter() !== 'all') queryParams.review = this.reviewFilter();
     if (this.totalMin() !== null) queryParams.min = this.totalMin();
     if (this.totalMax() !== null) queryParams.max = this.totalMax();
     this.router.navigate([], { queryParams, replaceUrl: true });
@@ -197,6 +308,11 @@ export class HistoryComponent implements OnInit {
   onSortChange(value: string): void {
     this.sortOrder.set(value);
     this.loadData();
+    this.updateQueryParams();
+  }
+
+  onReviewFilterChange(value: string): void {
+    this.reviewFilter.set(value);
     this.updateQueryParams();
   }
 
@@ -228,95 +344,6 @@ export class HistoryComponent implements OnInit {
 
   getImageUrl(path: string): string {
     return `${environment.apiUrl}${path}`;
-  }
-
-  getReviewForItem(orderableType: string, orderableId: number): ReviewData | null {
-    return this.reviews().find(r =>
-      r.reviewable_type === orderableType && r.reviewable_id === orderableId
-    ) || null;
-  }
-
-  getReviewForServer(serverId: number): ReviewData | null {
-    return this.reviews().find(r =>
-      r.reviewable_type === 'User' && r.reviewable_id === serverId
-    ) || null;
-  }
-
-  renderStars(rating: number): string {
-    return '\u2605'.repeat(rating) + '\u2606'.repeat(5 - rating);
-  }
-
-  openReviewDialog(reviewableType: string, reviewableId: number, reviewableName: string, existingReview?: ReviewData): void {
-    const data: ReviewFormDialogData = {
-      mode: existingReview ? 'edit' : 'create',
-      reviewableName,
-      rating: existingReview?.rating,
-      comment: existingReview?.comment
-    };
-
-    const ref = this.dialog.open(ReviewFormDialogComponent, {
-      data,
-      width: '440px',
-      maxHeight: '90vh'
-    });
-
-    ref.afterClosed().subscribe((result: ReviewFormDialogResult | undefined) => {
-      if (!result) return;
-
-      if (existingReview) {
-        this.reviewService.updateReview(existingReview.id, {
-          rating: result.rating,
-          comment: result.comment
-        }, result.images).subscribe({
-          next: (res) => {
-            if (res.success) {
-              this.snackBar.open(this.ts.t('reviews.updated'), '', { duration: 3000 });
-              this.loadReviews();
-            } else {
-              this.snackBar.open((res.errors as string[])?.join(', ') || 'Error', '', { duration: 5000 });
-            }
-          }
-        });
-      } else {
-        this.reviewService.createReview({
-          rating: result.rating,
-          comment: result.comment,
-          reviewable_type: reviewableType,
-          reviewable_id: reviewableId
-        }, result.images).subscribe({
-          next: (res) => {
-            if (res.success) {
-              this.snackBar.open(this.ts.t('reviews.created'), '', { duration: 3000 });
-              this.loadReviews();
-            } else {
-              this.snackBar.open((res.errors as string[])?.join(', ') || 'Error', '', { duration: 5000 });
-            }
-          }
-        });
-      }
-    });
-  }
-
-  confirmDelete(review: ReviewData): void {
-    const data: ConfirmDialogData = {
-      title: this.ts.t('reviews.deleteReview'),
-      message: this.ts.t('reviews.deleteConfirm'),
-      itemName: review.reviewable_name,
-      confirmLabel: this.ts.t('admin.delete'),
-      confirmClass: 'btn-danger'
-    };
-    const ref = this.dialog.open(ConfirmDialogComponent, { data, width: '440px' });
-    ref.afterClosed().subscribe(confirmed => {
-      if (!confirmed) return;
-      this.reviewService.deleteReview(review.id).subscribe({
-        next: (res: any) => {
-          if (res.success) {
-            this.snackBar.open(this.ts.t('reviews.deleted'), '', { duration: 3000 });
-            this.loadReviews();
-          }
-        }
-      });
-    });
   }
 
   formatDate(dateStr: string): string {
