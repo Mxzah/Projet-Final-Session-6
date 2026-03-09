@@ -51,6 +51,21 @@
     opacity: 0.85;
 }
 
+.btn-stats {
+    background: var(--copper) !important;
+    color: #fff !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.btn-stats:hover {
+    opacity: 0.85;
+}
+
 .welcome-text {
     margin: 0;
     font-size: 0.9rem;

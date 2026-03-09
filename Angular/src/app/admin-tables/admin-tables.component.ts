@@ -17,6 +17,7 @@ import { AvailabilityService } from '../services/availability.service';
 import { AvailabilityEntry } from '../menu/menu.models';
 import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 import { QrDialogComponent, QrDialogData } from '../server-page/qr-dialog/qr-dialog.component';
+import { StatsReportDialogComponent } from '../shared/stats-report-dialog/stats-report-dialog.component';
 import QRCodeStyling from 'styled-qr-code';
 
 interface TableInfo {
@@ -344,6 +345,20 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         this.newTableCapacity.set(4);
         this.errorMessage.set(null);
         this.createAvailabilities.set([]);
+    }
+
+    openStats(): void {
+        this.dialog.open(StatsReportDialogComponent, {
+            data: {
+                endpoint: '/api/tables/stats',
+                dialogTitle: 'Rapport de statistiques — Tables',
+                categories: [],
+                categoryLabel: 'Table'
+            },
+            width: '900px',
+            maxWidth: '95vw',
+            maxHeight: '90vh'
+        });
     }
 
     cancelCreate(): void {

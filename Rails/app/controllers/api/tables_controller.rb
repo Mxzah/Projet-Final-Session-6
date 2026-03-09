@@ -3,6 +3,8 @@
 module Api
   # CRUD operations for restaurant tables
   class TablesController < AdminController
+    include StatsReportable
+
     skip_before_action :authenticate_user!, only: %i[index show qr_code]
     skip_before_action :require_admin!, only: %i[index show qr_code mark_cleaned]
     before_action :require_cleaning_staff!, only: [ :mark_cleaned ]
@@ -184,6 +186,83 @@ module Api
         data: nil,
         errors: [ I18n.t("controllers.tables.cleaning_staff_only") ]
       }, status: :ok
+    end
+
+    def stats_config
+      {
+        columns: [
+          { key: "table_number", label: "Table" },
+          { key: "capacity", label: "Places" },
+          { key: "nb_orders", label: "Nb commandes" },
+          { key: "nb_people_total", label: "Personnes totales" },
+          { key: "avg_people", label: "Moy. personnes" },
+          { key: "revenue", label: "Revenu ($)" },
+          { key: "total_tips", label: "Pourboires ($)" },
+          { key: "grand_total", label: "Total ($)" },
+          { key: "avg_revenue_per_order", label: "Rev. moy./commande ($)" },
+          { key: "avg_duration_min", label: "Durée moy. (min)" },
+          { key: "top_item", label: "Item #1" },
+          { key: "top_vibe", label: "Vibe #1" }
+        ],
+        date_column: "o.created_at",
+        category_column: "t.id",
+        base_conditions: [],
+        sql: ->(where_clause, extra) {
+          sd = extra[:start_date].present? ? ActiveRecord::Base.connection.quote(extra[:start_date]) : nil
+          ed = extra[:end_date].present? ? ActiveRecord::Base.connection.quote(extra[:end_date]) : nil
+
+          date_cond = ""
+          date_cond += " AND o.created_at >= #{sd}" if sd
+          date_cond += " AND o.created_at <= #{ed}" if ed
+
+          <<~SQL
+            SELECT
+              t.number                                             AS table_number,
+              t.nb_seats                                           AS capacity,
+              COUNT(DISTINCT o.id)                                 AS nb_orders,
+              COALESCE(SUM(o.nb_people), 0)                        AS nb_people_total,
+              ROUND(AVG(o.nb_people), 1)                           AS avg_people,
+              COALESCE(ROUND(SUM(
+                (SELECT COALESCE(SUM(ol.quantity * ol.unit_price), 0)
+                 FROM order_lines ol WHERE ol.order_id = o.id)
+              ), 2), 0)                                            AS revenue,
+              COALESCE(ROUND(SUM(o.tip), 2), 0)                    AS total_tips,
+              COALESCE(ROUND(SUM(
+                (SELECT COALESCE(SUM(ol.quantity * ol.unit_price), 0)
+                 FROM order_lines ol WHERE ol.order_id = o.id)
+              ) + SUM(COALESCE(o.tip, 0)), 2), 0)                  AS grand_total,
+              CASE WHEN COUNT(DISTINCT o.id) > 0
+                THEN ROUND(SUM(
+                  (SELECT COALESCE(SUM(ol.quantity * ol.unit_price), 0)
+                   FROM order_lines ol WHERE ol.order_id = o.id)
+                ) / COUNT(DISTINCT o.id), 2)
+                ELSE 0
+              END                                                  AS avg_revenue_per_order,
+              ROUND(AVG(TIMESTAMPDIFF(MINUTE, o.created_at, o.ended_at)), 1) AS avg_duration_min,
+              (SELECT sub_i.name
+                 FROM order_lines sub_ol
+                 JOIN items sub_i ON sub_i.id = sub_ol.orderable_id AND sub_ol.orderable_type = 'Item'
+                 JOIN orders sub_o ON sub_o.id = sub_ol.order_id AND sub_o.deleted_at IS NULL
+                WHERE sub_o.table_id = t.id#{date_cond.gsub('o.', 'sub_o.')}
+                GROUP BY sub_i.id, sub_i.name
+                ORDER BY SUM(sub_ol.quantity) DESC LIMIT 1)        AS top_item,
+              (SELECT sub_v.name
+                 FROM orders sub_o
+                 JOIN vibes sub_v ON sub_v.id = sub_o.vibe_id
+                WHERE sub_o.table_id = t.id AND sub_o.deleted_at IS NULL#{date_cond.gsub('o.', 'sub_o.')}
+                GROUP BY sub_v.id, sub_v.name
+                ORDER BY COUNT(*) DESC LIMIT 1)                    AS top_vibe,
+              CASE WHEN t.deleted_at IS NOT NULL THEN 1 ELSE 0 END AS is_deleted
+            FROM tables t
+            LEFT JOIN orders o ON o.table_id = t.id
+              AND o.deleted_at IS NULL
+              #{date_cond}
+            #{where_clause}
+            GROUP BY t.id, t.number, t.nb_seats, t.deleted_at
+            ORDER BY is_deleted ASC, nb_orders DESC
+          SQL
+        }
+      }
     end
   end
 end

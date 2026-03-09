@@ -10,6 +10,9 @@ Rails.application.routes.draw do
 
   namespace :api, constraints: { format: "json" } do
     resources :tables, only: %i[index create update destroy] do
+      collection do
+        get :stats
+      end
       member do
         patch :mark_cleaned
       end
