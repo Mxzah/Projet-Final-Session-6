@@ -248,4 +248,116 @@ class OrderSuccessTest < ActionDispatch::IntegrationTest
       delete "/api/orders/#{order_id}", as: :json
     end
   end
+
+  # ══════════════════════════════════════════
+  # STATS — GET /api/orders/stats
+  # ══════════════════════════════════════════
+
+  test "stats retourne 200 et success true pour admin" do
+    delete "/users/sign_out", as: :json
+    post "/users/sign_in", params: { user: { email: users(:admin_user).email, password: "password123" } }, as: :json
+
+    get "/api/orders/stats", as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert json["success"]
+    assert json["data"].key?("columns")
+    assert json["data"].key?("rows")
+    assert json["data"].key?("details")
+  end
+
+  test "stats retourne les colonnes attendues" do
+    delete "/users/sign_out", as: :json
+    post "/users/sign_in", params: { user: { email: users(:admin_user).email, password: "password123" } }, as: :json
+
+    get "/api/orders/stats", as: :json
+
+    json = JSON.parse(response.body)
+    column_keys = json["data"]["columns"].map { |c| c["key"] }
+    assert_includes column_keys, "table_number"
+    assert_includes column_keys, "vibe_name"
+    assert_includes column_keys, "server_name"
+    assert_includes column_keys, "nb_orders"
+    assert_includes column_keys, "nb_lines"
+    assert_includes column_keys, "total_qty"
+    assert_includes column_keys, "avg_qty"
+    assert_includes column_keys, "revenue"
+    assert_includes column_keys, "total_tips"
+    assert_includes column_keys, "grand_total"
+    assert_includes column_keys, "avg_line_price"
+    assert_includes column_keys, "top_item"
+    assert_includes column_keys, "top_combo"
+    assert_includes column_keys, "avg_duration_min"
+  end
+
+  test "stats retourne des rows de type Array" do
+    delete "/users/sign_out", as: :json
+    post "/users/sign_in", params: { user: { email: users(:admin_user).email, password: "password123" } }, as: :json
+
+    get "/api/orders/stats", as: :json
+
+    json = JSON.parse(response.body)
+    assert_instance_of Array, json["data"]["rows"]
+  end
+
+  test "stats retourne des details de type Array" do
+    delete "/users/sign_out", as: :json
+    post "/users/sign_in", params: { user: { email: users(:admin_user).email, password: "password123" } }, as: :json
+
+    get "/api/orders/stats", as: :json
+
+    json = JSON.parse(response.body)
+    assert_instance_of Array, json["data"]["details"]
+  end
+
+  test "stats details contiennent les commandes par table" do
+    delete "/users/sign_out", as: :json
+    post "/users/sign_in", params: { user: { email: users(:admin_user).email, password: "password123" } }, as: :json
+
+    get "/api/orders/stats", as: :json
+
+    json = JSON.parse(response.body)
+    details = json["data"]["details"]
+    next unless details.any?
+
+    first_table = details.first
+    assert first_table.key?("table_id")
+    assert first_table.key?("table_number")
+    assert first_table.key?("orders")
+    assert_instance_of Array, first_table["orders"]
+  end
+
+  test "stats accepte le filtre start_date" do
+    delete "/users/sign_out", as: :json
+    post "/users/sign_in", params: { user: { email: users(:admin_user).email, password: "password123" } }, as: :json
+
+    get "/api/orders/stats?start_date=2020-01-01", as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert json["success"]
+  end
+
+  test "stats accepte le filtre end_date" do
+    delete "/users/sign_out", as: :json
+    post "/users/sign_in", params: { user: { email: users(:admin_user).email, password: "password123" } }, as: :json
+
+    get "/api/orders/stats?end_date=2099-12-31", as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert json["success"]
+  end
+
+  test "stats accepte les filtres start_date et end_date ensemble" do
+    delete "/users/sign_out", as: :json
+    post "/users/sign_in", params: { user: { email: users(:admin_user).email, password: "password123" } }, as: :json
+
+    get "/api/orders/stats?start_date=2020-01-01&end_date=2099-12-31", as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert json["success"]
+  end
 end

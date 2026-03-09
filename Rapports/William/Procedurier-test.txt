@@ -1,7 +1,7 @@
 ================================================================================
                        PROCÉDURIER DE TESTS — RestoQR
    Pages : /form · /menu · /order · /pay · /history · /kitchen · /server
-                        /admin/vibes
+                  /admin/vibes · /kitchen (stats orders)
 ================================================================================
 
 Identifiants utilisés :
@@ -449,5 +449,116 @@ MODULE 11 — Hard delete vs Soft delete
       - Avec commandes → soft delete (deleted_at = now)
       - Restauration possible via PATCH /api/vibes/:id/restore
       - Les vibes archivés n'apparaissent pas dans /form
+
+
+================================================================================
+MODULE 12 — Rapport de statistiques — Orders (/kitchen)
+================================================================================
+  Fichiers : order_success_test.rb (section STATS)
+             order_stats_fail_test.rb
+
+  Contexte métier :
+    Plusieurs clients peuvent scanner la même table et créer chacun
+    leur propre commande, tant que le nombre total de personnes ne
+    dépasse pas la capacité de la table (nb_seats). Les commandes
+    concurrentes sur une même table héritent de la même vibe et du
+    même serveur que la première commande.
+
+12.1 Accès au bouton Statistiques
+     Avec admin@restoqr.ca : password123
+     - Accéder à /kitchen
+     - Un bouton (icône bar_chart) est visible à côté du titre
+       « Cuisine » (mat-mini-fab, cuivré, 36×36 px)
+     - Ce bouton est invisible pour les cuisiniers et les serveurs
+       (contrôle @if authService.isAdmin())
+
+12.2 Accès refusé — non admin
+     - Avec cook@restoqr.ca → le bouton n'apparaît pas
+     - Avec server@restoqr.ca → le bouton n'apparaît pas
+     - Appel direct GET /api/orders/stats sans authentification
+       → success: false
+     - Appel avec client@restoqr.ca → success: false,
+       erreur « Accès réservé aux administrateurs »
+     - Appel avec server@restoqr.ca → success: false,
+       erreur « Accès réservé aux administrateurs »
+
+12.3 Ouverture du dialogue de statistiques
+     - Cliquer sur le bouton bar_chart
+     - Le dialogue « Rapport de statistiques — Orders » s'ouvre
+     - Un spinner s'affiche pendant le chargement
+     - Appel API : GET /api/orders/stats
+     - La réponse contient : columns, rows, details
+
+12.4 Colonnes du tableau de statistiques
+     Le tableau mat-table affiche les colonnes suivantes,
+     groupées par table + vibe + serveur :
+       · Table           — numéro de la table
+       · Vibe            — nom de l'ambiance
+       · Serveur         — prénom + nom du serveur
+       · Nb commandes    — nombre de commandes pour ce groupe
+       · Nb lignes       — nombre total de lignes de commande
+       · Qté totale      — somme des quantités commandées
+       · Qté moy.        — moyenne des quantités par commande
+       · Revenu ($)      — somme (quantité × prix unitaire)
+       · Pourboires ($)  — somme des pourboires
+       · Total tips+revenu ($) — revenu + pourboires
+       · Prix moy. ligne ($)  — prix moyen par ligne
+       · Item #1         — item le plus commandé (par quantité)
+       · Combo #1        — combo le plus commandé (par quantité)
+       · Durée moy. (min) — durée moyenne commande (created_at → ended_at)
+
+12.5 Filtres disponibles
+     - Date début : sélecteur de date (mat-datepicker)
+       → recharge les stats avec start_date
+     - Date fin : sélecteur de date
+       → recharge les stats avec end_date
+     - Vibes : sélecteur multiple (mat-select)
+       → recharge les stats avec category_ids[]
+     - Les trois filtres sont combinables
+
+12.6 Lignes cliquables — drill-down par table
+     - Chaque ligne du tableau est cliquable (curseur pointer)
+     - Cliquer sur une ligne déplie un panneau de détail
+       sous cette ligne uniquement
+     - Cliquer une deuxième fois la replie
+     - Seule la ligne cliquée se déplie (clé unique :
+       table_number + vibe_name + server_name)
+
+12.7 Panneau de détail — commandes de la table
+     - Titre : « Commandes — Table X »
+     - Liste des commandes filtrées par table + vibe + serveur
+     - Chaque commande affiche :
+       · Heure de début (formatée : mois jour, HH:MM)
+       · Heure de fin (si fermée)
+       · Nombre de personnes
+       · Nom du serveur
+       · Badge vibe
+       · Montant (revenu) en $
+       · Pourboire (si > 0)
+       · Badge « Ouverte » ou « Fermée »
+     - Cliquer sur une commande déplie ses lignes de commande
+
+12.8 Sous-panneau — lignes de commande d'une commande
+     - Note de la commande (si présente)
+     - Tableau avec les colonnes :
+       · Article — nom de l'item ou combo
+       · Qté — quantité commandée
+       · Prix unit. — prix unitaire
+       · Total — quantité × prix unitaire
+       · Statut — badge coloré (En attente / Envoyé /
+                  En préparation / Prêt / Servi)
+       · Note — note de la ligne ou « — »
+
+12.9 Bouton Fermer
+     - Un bouton « Fermer » en bas à droite du dialogue
+     - Ferme le dialogue sans action
+
+12.10 Seeds — commandes concurrentes
+      - Table 3 (4 places) contient 2 commandes ouvertes
+        simultanées :
+        · demo@restoqr.ca — 2 personnes, vibe Fête, serveur Marie
+        · client@restoqr.ca — 1 personne, même vibe, même serveur
+      - Cela démontre le scénario « ami qui scanne la même table »
+      - La capacité totale (2 + 1 = 3) ne dépasse pas les 4 places
 
 ================================================================================

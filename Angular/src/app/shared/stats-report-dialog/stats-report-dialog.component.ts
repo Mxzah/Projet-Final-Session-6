@@ -10,6 +10,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { ApiService } from '../../services/api.service';
 
 export interface StatsColumn {
@@ -21,11 +22,42 @@ export interface StatsReportDialogData {
   endpoint: string;
   dialogTitle: string;
   categories: { id: number; name: string }[];
+  categoryLabel?: string;
+  expandable?: boolean;
+}
+
+interface DetailOrderLine {
+  name: string;
+  quantity: number;
+  unit_price: number;
+  total: number;
+  status: string;
+  note: string | null;
+}
+
+interface DetailOrder {
+  id: number;
+  created_at: string;
+  ended_at: string | null;
+  nb_people: number;
+  tip: number;
+  revenue: number;
+  vibe_name: string;
+  server_name: string;
+  note: string | null;
+  order_lines: DetailOrderLine[];
+}
+
+interface TableDetail {
+  table_id: number;
+  table_number: number;
+  orders: DetailOrder[];
 }
 
 interface StatsResponse {
   columns: StatsColumn[];
   rows: Record<string, any>[];
+  details?: TableDetail[];
 }
 
 @Component({
@@ -41,7 +73,8 @@ interface StatsResponse {
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    MatIconModule
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './stats-report-dialog.component.html',
@@ -53,6 +86,10 @@ export class StatsReportDialogComponent implements OnInit {
   displayedColumns = computed(() => this.columns().map(c => c.key));
   isLoading = signal(true);
   loadError = signal('');
+
+  details = signal<TableDetail[]>([]);
+  expandedRowKey = signal<string | null>(null);
+  expandedOrderIds = signal<Set<number>>(new Set());
 
   startDate: Date | null = null;
   endDate: Date | null = null;
@@ -82,9 +119,68 @@ export class StatsReportDialogComponent implements OnInit {
     this.loadStats();
   }
 
+  getRowKey(row: Record<string, any>): string {
+    return `${row['table_number']}__${row['vibe_name']}__${row['server_name']}`;
+  }
+
+  toggleTableDetail(row: Record<string, any>): void {
+    if (!this.data.expandable) return;
+    const key = this.getRowKey(row);
+    if (this.expandedRowKey() === key) {
+      this.expandedRowKey.set(null);
+      this.expandedOrderIds.set(new Set());
+    } else {
+      this.expandedRowKey.set(key);
+      this.expandedOrderIds.set(new Set());
+    }
+  }
+
+  toggleOrder(event: Event, orderId: number): void {
+    event.stopPropagation();
+    const current = new Set(this.expandedOrderIds());
+    if (current.has(orderId)) {
+      current.delete(orderId);
+    } else {
+      current.add(orderId);
+    }
+    this.expandedOrderIds.set(current);
+  }
+
+  isTableExpanded(row: Record<string, any>): boolean {
+    return this.expandedRowKey() === this.getRowKey(row);
+  }
+
+  isOrderExpanded(orderId: number): boolean {
+    return this.expandedOrderIds().has(orderId);
+  }
+
+  getOrdersForRow(row: Record<string, any>): DetailOrder[] {
+    const detail = this.details().find(d => d.table_number == row['table_number']);
+    if (!detail) return [];
+    return detail.orders.filter(o =>
+      o.vibe_name === (row['vibe_name'] ?? '—') &&
+      o.server_name === (row['server_name'] ?? '—')
+    );
+  }
+
+  formatDateTime(dateStr: string): string {
+    const d = new Date(dateStr);
+    return d.toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  getStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      waiting: 'En attente', sent: 'Envoyé', in_preparation: 'En préparation',
+      ready: 'Prêt', served: 'Servi'
+    };
+    return map[status] ?? status;
+  }
+
   loadStats(): void {
     this.isLoading.set(true);
     this.loadError.set('');
+    this.expandedRowKey.set(null);
+    this.expandedOrderIds.set(new Set());
 
     const params: Record<string, string> = {};
     if (this.startDate) {
@@ -112,6 +208,7 @@ export class StatsReportDialogComponent implements OnInit {
         if (response.data) {
           this.columns.set(response.data.columns);
           this.rows.set(response.data.rows);
+          this.details.set(response.data.details ?? []);
         }
         this.isLoading.set(false);
       },

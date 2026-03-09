@@ -5,7 +5,14 @@
 <div class="page">
   <div class="page-header">
     <p class="eyebrow">{{ ts.t('cuisine.eyebrow') }}</p>
-    <h1>{{ ts.t('cuisine.title') }}</h1>
+    <h1>
+      {{ ts.t('cuisine.title') }}
+      @if (authService.isAdmin()) {
+        <button mat-mini-fab class="btn-stats" title="Rapport de statistiques — Orders" (click)="openOrderStats()">
+          <mat-icon>bar_chart</mat-icon>
+        </button>
+      }
+    </h1>
     <p class="subtitle">{{ ts.t('cuisine.subtitle') }}</p>
   </div>
 

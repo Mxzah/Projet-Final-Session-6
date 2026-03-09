@@ -17,7 +17,7 @@
 
     @if (data.categories.length > 0) {
       <mat-form-field>
-        <mat-label>Catégories</mat-label>
+        <mat-label>{{ data.categoryLabel || 'Catégories' }}</mat-label>
         <mat-select multiple (selectionChange)="onCategoryChange($event)">
           @for (cat of data.categories; track cat.id) {
             <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
@@ -38,15 +38,89 @@
   }
 
   @if (!isLoading() && !loadError()) {
-    <table mat-table [dataSource]="rows()">
+    <table mat-table [dataSource]="rows()" multiTemplateDataRows>
       @for (col of columns(); track col.key) {
         <ng-container [matColumnDef]="col.key">
           <th mat-header-cell *matHeaderCellDef>{{ col.label }}</th>
           <td mat-cell *matCellDef="let row">{{ row[col.key] }}</td>
         </ng-container>
       }
+
+      <!-- Expanded detail column (only used when expandable) -->
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns().length">
+          @if (data.expandable && isTableExpanded(row)) {
+            <div class="detail-panel" (click)="$event.stopPropagation()">
+              <p class="detail-title">
+                <mat-icon>receipt_long</mat-icon>
+                Commandes — Table {{ row['table_number'] }}
+              </p>
+              @for (order of getOrdersForRow(row); track order.id) {
+                <div class="order-group">
+                  <div class="order-header" (click)="toggleOrder($event, order.id)">
+                    <mat-icon>{{ isOrderExpanded(order.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    <span class="order-meta">Début: {{ formatDateTime(order.created_at) }}</span>
+                    @if (order.ended_at) {
+                      <span class="order-meta">Fin: {{ formatDateTime(order.ended_at) }}</span>
+                    }
+                    <span class="order-meta">{{ order.nb_people }} pers.</span>
+                    <span class="order-meta">{{ order.server_name }}</span>
+                    <span class="order-meta vibe-tag">{{ order.vibe_name }}</span>
+                    <span class="order-money">{{ order.revenue.toFixed(2) }} $</span>
+                    @if (order.tip > 0) {
+                      <span class="order-tip">+ {{ order.tip.toFixed(2) }} $ tip</span>
+                    }
+                    @if (order.ended_at) {
+                      <span class="order-closed">Fermée</span>
+                    } @else {
+                      <span class="order-open">Ouverte</span>
+                    }
+                  </div>
+                  @if (isOrderExpanded(order.id)) {
+                    <div class="order-lines-panel">
+                      @if (order.note) {
+                        <p class="order-note-text"><mat-icon>sticky_note_2</mat-icon> {{ order.note }}</p>
+                      }
+                      <table class="lines-table">
+                        <thead>
+                          <tr>
+                            <th>Article</th>
+                            <th>Qté</th>
+                            <th>Prix unit.</th>
+                            <th>Total</th>
+                            <th>Statut</th>
+                            <th>Note</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (line of order.order_lines; track $index) {
+                            <tr>
+                              <td>{{ line.name }}</td>
+                              <td>{{ line.quantity }}</td>
+                              <td>{{ line.unit_price.toFixed(2) }} $</td>
+                              <td>{{ line.total.toFixed(2) }} $</td>
+                              <td><span class="line-status status-{{ line.status }}">{{ getStatusLabel(line.status) }}</span></td>
+                              <td>{{ line.note || '—' }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </td>
+      </ng-container>
+
       <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns()" [class.row-deleted]="row['is_deleted'] === 1"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns();"
+          [class.row-deleted]="row['is_deleted'] === 1"
+          [class.expandable-row]="data.expandable"
+          [class.expanded]="isTableExpanded(row)"
+          (click)="toggleTableDetail(row)"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
     </table>
   }
 </mat-dialog-content>

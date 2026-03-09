@@ -15,6 +15,8 @@ import { HeaderComponent } from '../header/header.component';
 import { TranslationService } from '../services/translation.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
+import { StatsReportDialogComponent } from '../shared/stats-report-dialog/stats-report-dialog.component';
+import { VibeService, VibeData } from '../services/vibe.service';
 
 @Component({
   selector: 'app-cuisine',
@@ -52,7 +54,8 @@ export class CuisineComponent implements OnInit, OnDestroy {
     private location: Location,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar // Affiche une notification temporaire en bas de l'écran (ex: message d'erreur)
+    private snackBar: MatSnackBar,
+    private vibeService: VibeService
   ) {}
 
   ngOnInit(): void {
@@ -243,6 +246,31 @@ export class CuisineComponent implements OnInit, OnDestroy {
         }
       },
       error: () => this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 })
+    });
+  }
+
+  openOrderStats(): void {
+    this.vibeService.getVibes().subscribe({
+      next: (res) => {
+        const vibes = (res.data ?? []).map((v: VibeData) => ({ id: v.id, name: v.name }));
+        const previousUrl = this.location.path();
+        this.location.replaceState('/kitchen/stats');
+
+        const ref = this.dialog.open(StatsReportDialogComponent, {
+          data: {
+            endpoint: '/api/orders/stats',
+            dialogTitle: 'Rapport de statistiques — Orders',
+            categories: vibes,
+            categoryLabel: 'Vibes',
+            expandable: true
+          },
+          width: '1100px', maxWidth: '95vw', maxHeight: '90vh'
+        });
+
+        ref.afterClosed().subscribe(() => {
+          this.location.replaceState(previousUrl);
+        });
+      }
     });
   }
 

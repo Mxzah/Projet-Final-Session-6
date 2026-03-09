@@ -46,6 +46,9 @@ Rails.application.routes.draw do
     resources :reviews, only: %i[index show create update destroy]
 
     resources :orders, only: %i[index show create update destroy] do
+      collection do
+        get :stats
+      end
       resources :order_lines, only: %i[index create update destroy]
       post "order_lines/send_lines", to: "order_lines#send_lines"
       member do

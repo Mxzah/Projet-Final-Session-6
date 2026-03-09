@@ -347,6 +347,7 @@ jean    = Waiter.find_by(email: 'jean@restoqr.ca')
 client1 = Client.find_by(email: 'demo@restoqr.ca')
 client2 = Client.find_by(email: 'alice@restoqr.ca')
 client3 = Client.find_by(email: 'bob@restoqr.ca')
+client4 = Client.find_by(email: 'client@restoqr.ca')
 table3  = Table.find_by(number: 3)
 table4  = Table.find_by(number: 4)
 table7  = Table.find_by(number: 7)
@@ -364,14 +365,14 @@ unless tartare && magret && filet && petoncle && carpaccio
 end
 
 # Clean up existing open demo orders on each re-seed to avoid stale order lines
-demo_client_ids = [ client1&.id, client2&.id, client3&.id, marie&.id ].compact
+demo_client_ids = [ client1&.id, client2&.id, client3&.id, client4&.id, marie&.id ].compact
 Order.where(client_id: demo_client_ids, ended_at: nil).destroy_all
 puts '- Cleaned up existing open demo orders'
 
-# Order 1 — client1, table 3, server marie, vibe Fête
+# Order 1 — client1, table 3, server marie, vibe Fête (2 pers. sur 4 places)
 order1 = Order.find_or_create_by!(client_id: client1.id, ended_at: nil) do |o|
   o.table     = table3
-  o.nb_people = 3
+  o.nb_people = 2
   o.server    = marie
   o.note      = 'Allergie aux arachides'
   o.vibe      = vibes['Fête']
@@ -392,7 +393,31 @@ OrderLine.find_or_create_by!(order_id: order1.id, orderable_type: 'Item', ordera
 end
 
 order1.update_column(:created_at, 2.hours.ago)
-puts "- Order ##{order1.id} (Table #{table3.number}, #{marie.first_name}) — il y a 2h"
+puts "- Order ##{order1.id} (Table #{table3.number}, #{marie.first_name}, Fête, 2 pers.) — il y a 2h"
+
+# Order 1b — client4, MÊME table 3, même vibe Fête, même serveur Marie (ami qui s'ajoute, 1 pers.)
+order1b = Order.find_or_create_by!(client_id: client4.id, table: table3, ended_at: nil) do |o|
+  o.nb_people = 1
+  o.server    = marie
+  o.vibe      = vibes['Fête']
+  o.note      = 'Ami de la table 3'
+end
+order1b.update!(vibe: vibes['Fête'], server: marie) if order1b.vibe.nil? || order1b.server.nil?
+
+OrderLine.find_or_create_by!(order_id: order1b.id, orderable_type: 'Item', orderable_id: filet.id) do |l|
+  l.quantity   = 1
+  l.unit_price = filet.price
+  l.status     = 'sent'
+end
+
+OrderLine.find_or_create_by!(order_id: order1b.id, orderable_type: 'Item', orderable_id: carpaccio.id) do |l|
+  l.quantity   = 1
+  l.unit_price = carpaccio.price
+  l.status     = 'waiting'
+end
+
+order1b.update_column(:created_at, 1.hour.ago)
+puts "- Order ##{order1b.id} (Table #{table3.number}, #{marie.first_name}, Fête, 1 pers. — ami concurrent) — il y a 1h"
 
 # Order demo — Marie (employee, 15% discount), table 9, server jean
 table9 = Table.find_by(number: 9)
@@ -400,7 +425,7 @@ order_marie = Order.find_or_create_by!(client_id: marie.id, ended_at: nil) do |o
   o.table     = table9
   o.nb_people = 2
   o.server    = jean
-  o.vibe      = vibes['Date']
+  o.vibe      = vibes['Amour']
   o.tip       = 10.00
 end
 
@@ -425,16 +450,16 @@ end
 order_marie.update_column(:created_at, 30.minutes.ago)
 puts "- Order ##{order_marie.id} (Table #{table9.number}, Marie employee — 15% discount demo)"
 
-# Order 2 — client2, table 5, server jean, vibe Date + note + tip
+# Order 2 — client2, table 4, server jean, vibe Amour + note + tip
 order2 = Order.find_or_create_by!(client_id: client2.id, ended_at: nil) do |o|
   o.table     = table4
   o.nb_people = 2
   o.server    = jean
-  o.vibe      = vibes['Date']
+  o.vibe      = vibes['Amour']
   o.note      = 'gros date'
   o.tip       = 15.00
 end
-order2.update!(vibe: vibes['Date']) if order2.vibe.nil?
+order2.update!(vibe: vibes['Amour']) if order2.vibe.nil?
 
 OrderLine.find_or_create_by!(order_id: order2.id, orderable_type: 'Item', orderable_id: filet.id) do |l|
   l.quantity   = 1
@@ -734,6 +759,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
   closed1 = seed_closed_order.call(
     client_id: client_test.id, table: table1, server: marie,
     nb_people: 2, tip: 12.00, note: 'Anniversaire de mariage',
+    vibe: vibes['Amour'],
     created_at: 3.days.ago, ended_at: 3.days.ago + 2.hours
   )
 
@@ -760,7 +786,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
   # ── Closed order 2: client@restoqr.ca, served by Jean, 1 week ago ──
   closed2 = seed_closed_order.call(
     client_id: client_test.id, table: table2, server: jean,
-    nb_people: 2, tip: 8.00,
+    nb_people: 2, tip: 8.00, vibe: vibes['Fête'],
     created_at: 1.week.ago, ended_at: 1.week.ago + 1.5.hours
   )
 
@@ -792,6 +818,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
   closed3 = seed_closed_order.call(
     client_id: alice.id, table: table4, server: marie,
     nb_people: 4, tip: 20.00, note: 'Souper entre amis',
+    vibe: vibes['Fête'],
     created_at: 2.days.ago, ended_at: 2.days.ago + 1.hour
   )
 
@@ -820,7 +847,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
   # ── Closed order 4: alice@restoqr.ca, served by Serveur Test, 5 days ago ──
   closed4 = seed_closed_order.call(
     client_id: alice.id, table: table1, server: waiter_test,
-    nb_people: 2, tip: 6.00,
+    nb_people: 2, tip: 6.00, vibe: vibes['Mort'],
     created_at: 5.days.ago, ended_at: 5.days.ago + 1.hour
   )
 
@@ -837,6 +864,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     closed5 = seed_closed_order.call(
       client_id: bob.id, table: table6, server: marie,
       nb_people: 3, tip: 10.00, note: 'Souper en famille',
+      vibe: vibes['Fête'],
       created_at: 4.days.ago, ended_at: 4.days.ago + 1.5.hours
     )
 
@@ -863,7 +891,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     # ── Closed order 6: bob@restoqr.ca, served by Jean, 10 days ago ──
     closed6 = seed_closed_order.call(
       client_id: bob.id, table: table8, server: jean,
-      nb_people: 2, tip: 15.00,
+      nb_people: 2, tip: 15.00, vibe: vibes['Amour'],
       created_at: 10.days.ago, ended_at: 10.days.ago + 2.hours
     )
 
