@@ -134,28 +134,82 @@ module Api
         columns: [
           { key: "item_name", label: "Item" },
           { key: "category_name", label: "Catégorie" },
+          { key: "availability", label: "Disponibilité" },
           { key: "total_orders", label: "Nb commandes" },
-          { key: "total_order_lines", label: "Nb lignes" }
+          { key: "total_order_lines", label: "Nb lignes" },
+          { key: "combos_count", label: "Nb combos" },
+          { key: "ordered_individually", label: "Commandé seul" },
+          { key: "ordered_via_combo", label: "Commandé en combo" },
+          { key: "avg_quantity", label: "Qté moyenne" }
         ],
         date_column: "o.created_at",
         category_column: "i.category_id",
-        base_conditions: ["i.deleted_at IS NULL"],
-        sql: ->(where_clause) {
+        base_conditions: [],
+        sql: ->(where_clause, extra) {
+          sd = extra[:start_date].present? ? ActiveRecord::Base.connection.quote(extra[:start_date]) : nil
+          ed = extra[:end_date].present? ? ActiveRecord::Base.connection.quote(extra[:end_date]) : nil
+
+          availability_expr = if sd && ed
+            # Compare sur DATE() pour ignorer l'heure dans les availabilities
+            # Oui = une dispo couvre toute la période, Non = aucun chevauchement, Partielle = sinon
+            <<~AVAIL.squish
+              CASE
+                WHEN EXISTS (
+                  SELECT 1 FROM availabilities a
+                  WHERE a.available_id = i.id AND a.available_type = 'Item'
+                    AND DATE(a.start_at) <= #{sd}
+                    AND (a.end_at IS NULL OR DATE(a.end_at) >= #{ed})
+                ) THEN 'Oui'
+                WHEN NOT EXISTS (
+                  SELECT 1 FROM availabilities a
+                  WHERE a.available_id = i.id AND a.available_type = 'Item'
+                    AND DATE(a.start_at) <= #{ed}
+                    AND (a.end_at IS NULL OR DATE(a.end_at) >= #{sd})
+                ) THEN 'Non'
+                ELSE 'Partielle'
+              END
+            AVAIL
+          else
+            "'N/A'"
+          end
+
+          # Build date conditions for JOIN (not WHERE) so items without orders still appear
+          date_join = ""
+          if sd
+            date_join += " AND o.created_at >= #{sd}"
+          end
+          if ed
+            date_join += " AND o.created_at <= #{ed}"
+          end
+
           <<~SQL
             SELECT
               i.name AS item_name,
               c.name AS category_name,
+              #{availability_expr} AS availability,
               COUNT(DISTINCT ol.order_id) AS total_orders,
-              COUNT(ol.id) AS total_order_lines
+              COUNT(ol.id) AS total_order_lines,
+              (SELECT COUNT(*) FROM combo_items ci WHERE ci.item_id = i.id AND ci.deleted_at IS NULL) AS combos_count,
+              COALESCE(SUM(ol.quantity), 0) AS ordered_individually,
+              COALESCE((
+                SELECT SUM(ol2.quantity)
+                FROM order_lines ol2
+                JOIN combo_items ci2 ON ci2.combo_id = ol2.orderable_id AND ci2.item_id = i.id AND ci2.deleted_at IS NULL
+                LEFT JOIN orders o2 ON o2.id = ol2.order_id AND o2.deleted_at IS NULL
+                WHERE ol2.orderable_type = 'Combo'
+              ), 0) AS ordered_via_combo,
+              COALESCE(ROUND(AVG(ol.quantity)), 0) AS avg_quantity,
+              CASE WHEN i.deleted_at IS NOT NULL THEN 1 ELSE 0 END AS is_deleted
             FROM items i
             JOIN categories c ON c.id = i.category_id
             LEFT JOIN order_lines ol ON ol.orderable_id = i.id
               AND ol.orderable_type = 'Item'
             LEFT JOIN orders o ON o.id = ol.order_id
               AND o.deleted_at IS NULL
+              #{date_join}
             #{where_clause}
-            GROUP BY i.id, i.name, c.name
-            ORDER BY total_orders DESC
+            GROUP BY i.id, i.name, c.name, i.deleted_at
+            ORDER BY is_deleted ASC, total_orders DESC
           SQL
         }
       }

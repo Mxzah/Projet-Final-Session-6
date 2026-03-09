@@ -736,3 +736,115 @@ MODULE 16 — Réorganisation par glisser-déposer (drag and drop)
      - Un message d'erreur s'affiche
 
 ================================================================================
+               Page : Rapport de statistiques des items (admin-items)
+================================================================================
+
+Identifiants utilisés :
+  - Admin    : admin@restoqr.ca   / password123
+
+================================================================================
+MODULE 17 — Ouverture et affichage du rapport de statistiques
+================================================================================
+
+17.1 Ouverture du dialog
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/items
+     - Clic sur le bouton de statistiques (icône à côté du titre)
+     - Un dialog s'ouvre avec le titre « Rapport de statistiques — Items »
+     - L'URL passe à /admin/items/stats
+
+17.2 Chargement initial
+     - À l'ouverture du dialog, un spinner de chargement s'affiche
+     - Une fois les données chargées, le spinner disparaît
+     - Un tableau s'affiche avec les colonnes : Item, Catégorie, Disponibilité,
+       Nb commandes, Nb lignes, Nb combos, Commandé seul, Commandé en combo,
+       Qté moyenne
+
+17.3 Affichage des données (sans filtres)
+     - Tous les items actifs apparaissent dans le tableau, triés par nombre
+       de commandes décroissant
+     - Les items archivés (soft-deleted) apparaissent en fin de liste avec un
+       style grisé (opacité réduite, fond gris)
+     - La colonne « Disponibilité » affiche « N/A » lorsqu'aucun filtre de
+       date n'est appliqué
+
+17.4 Colonnes de statistiques
+     - « Nb commandes » : nombre de commandes distinctes contenant cet item
+     - « Nb lignes » : nombre total de lignes de commande pour cet item
+     - « Nb combos » : nombre de combos qui incluent cet item
+     - « Commandé seul » : quantité totale commandée individuellement
+     - « Commandé en combo » : quantité totale commandée via des combos
+     - « Qté moyenne » : quantité moyenne par ligne de commande, arrondie à
+       l'entier le plus près
+     - Un item sans aucune commande affiche 0 pour toutes les colonnes
+       numériques
+
+17.5 Fermeture du dialog
+     - Clic sur le bouton « Fermer » : Le dialog se ferme
+     - L'URL revient à /admin/items
+
+17.6 Erreur de chargement
+     - Si le serveur est inaccessible, le message « Erreur lors du chargement
+       des statistiques. » s'affiche
+
+================================================================================
+MODULE 18 — Filtres du rapport de statistiques
+================================================================================
+
+18.1 Filtre par date de début
+     Avec admin@restoqr.ca : password123
+     - Ouvrir le rapport de statistiques
+     - Sélectionner une date dans le champ « Date début » via le datepicker
+     - Le tableau se recharge automatiquement
+     - Seules les commandes créées à partir de cette date sont comptabilisées
+     - Les items sans commandes dans cette période affichent 0 mais restent
+       visibles dans le tableau
+
+18.2 Filtre par date de fin
+     - Sélectionner une date dans le champ « Date fin » via le datepicker
+     - Le tableau se recharge automatiquement
+     - Seules les commandes créées jusqu'à cette date sont comptabilisées
+
+18.3 Filtre par période (date début + date fin)
+     - Sélectionner une date de début et une date de fin
+     - Le tableau se recharge automatiquement
+     - Les colonnes de commandes reflètent uniquement la période sélectionnée
+     - La colonne « Disponibilité » affiche maintenant Oui, Non ou Partielle
+       au lieu de N/A
+
+18.4 Colonne Disponibilité — Oui
+     - Sélectionner une période couverte entièrement par une disponibilité
+       de l'item (ex: date début = il y a 1 mois, date fin = aujourd'hui
+       pour un item ayant une disponibilité depuis 1 mois sans date de fin)
+     - La colonne affiche « Oui »
+
+18.5 Colonne Disponibilité — Non
+     - Un item sans aucune disponibilité enregistrée (ex: Risotto aux Truffes)
+       affiche « Non »
+     - Un item dont la disponibilité est entièrement dans le futur par rapport
+       à la période sélectionnée (ex: Côte de Veau Grillée) affiche « Non »
+
+18.6 Colonne Disponibilité — Partielle
+     - Un item dont la disponibilité chevauche partiellement la période
+       sélectionnée (ex: Soupe à l'Oignon Gratinée avec une dispo expirée
+       qui couvre une partie de la période) affiche « Partielle »
+
+18.7 Filtre par catégories
+     - Le champ « Catégories » est un select multiple listant toutes les
+       catégories
+     - Sélectionner une ou plusieurs catégories
+     - Le tableau se recharge automatiquement
+     - Seuls les items des catégories sélectionnées sont affichés
+
+18.8 Combinaison de filtres
+     - Sélectionner une date début, une date fin et une ou plusieurs catégories
+     - Les trois filtres s'appliquent simultanément
+     - Le tableau affiche uniquement les items des catégories sélectionnées
+       avec les statistiques de la période choisie
+
+18.9 Réinitialisation des filtres
+     - Effacer les dates et désélectionner les catégories
+     - Le tableau revient à l'affichage complet sans filtres
+     - La colonne « Disponibilité » revient à « N/A »
+
+================================================================================

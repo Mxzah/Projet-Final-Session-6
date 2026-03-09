@@ -43,13 +43,9 @@ class Availability < ApplicationRecord
   def available_not_deleted
     return unless available_id.present?
 
-    record = case available_type
-    when "Item"  then Item
-    when "Table" then Table
-    when "Combo" then Combo
-    end
+    return unless %w[Item Table Combo].include?(available_type)
 
-    return unless record
+    record = available_type.constantize
 
     return if record.exists?(id: available_id)
 

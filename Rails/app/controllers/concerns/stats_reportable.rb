@@ -11,14 +11,8 @@ module StatsReportable
     conditions = (config[:base_conditions] || []).dup
     binds = []
 
-    if params[:start_date].present?
-      conditions << "#{config[:date_column]} >= ?"
-      binds << params[:start_date]
-    end
-    if params[:end_date].present?
-      conditions << "#{config[:date_column]} <= ?"
-      binds << params[:end_date]
-    end
+    # Date filters go into extra (for JOIN conditions), not into WHERE
+    # so LEFT JOINed items without orders are not excluded
     if params[:category_ids].present?
       ids = Array(params[:category_ids]).map(&:to_i)
       conditions << "#{config[:category_column]} IN (#{ids.map { '?' }.join(', ')})"
@@ -28,7 +22,8 @@ module StatsReportable
     where_clause = conditions.any? ? "WHERE #{conditions.join(' AND ')}" : ""
     sanitized_where = ActiveRecord::Base.sanitize_sql_array([where_clause] + binds)
 
-    sql = config[:sql].call(sanitized_where)
+    extra = { start_date: params[:start_date], end_date: params[:end_date] }
+    sql = config[:sql].call(sanitized_where, extra)
     rows = ActiveRecord::Base.connection.exec_query(sql).to_a
 
     render_success(data: { columns: config[:columns], rows: rows })

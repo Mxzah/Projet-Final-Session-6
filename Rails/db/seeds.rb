@@ -271,13 +271,14 @@ created_items.each do |item|
 
   next if Availability.exists?(available_type: 'Item', available_id: item.id)
 
-  Availability.create!(
+  a = Availability.new(
     available_type: 'Item',
     available_id: item.id,
-    start_at: Time.current.beginning_of_minute,
+    start_at: 1.month.ago,
     end_at: nil,
     description: nil
   )
+  a.save(validate: false)
   puts "- Disponibilité ajoutée : #{item.name}"
 end
 
