@@ -55,6 +55,8 @@ module Api
         offset = Category.maximum(:position).to_i + 1000
         ids.each_with_index do |id, index|
           Category.where(id: id).update_all(position: offset + index)
+        end
+        ids.each_with_index do |id, index|
           Category.where(id: id).update_all(position: index)
         end
       end

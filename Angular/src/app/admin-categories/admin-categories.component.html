@@ -35,7 +35,6 @@
             <div class="category-card" cdkDrag [class.unavailable]="unavailableIds().has(cat.id)">
               <div class="category-info">
                 <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
-                <span class="category-position">{{ cat.position }}</span>
                 <span class="category-name">{{ cat.name }}</span>
                 @if (unavailableIds().has(cat.id)) {
                   <span class="unavailable-badge">{{ ts.t('admin.unavailable') }}</span>
