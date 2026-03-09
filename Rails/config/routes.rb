@@ -27,6 +27,9 @@ Rails.application.routes.draw do
                                  controller: "category_availabilities"
     end
     resources :items, only: %i[index show create update destroy] do
+      collection do
+        get :stats
+      end
       member do
         delete :hard, action: :hard_destroy
         patch :restore, action: :restore

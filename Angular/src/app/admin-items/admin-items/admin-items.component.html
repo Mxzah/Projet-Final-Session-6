@@ -6,6 +6,9 @@
         <button mat-mini-fab class="btn-add" [title]="ts.t('admin.addItem')" (click)="openCreate()">
           <mat-icon>add</mat-icon>
         </button>
+        <button mat-mini-fab class="btn-stats" title="Rapport de statistiques" (click)="openStats()">
+          <mat-icon>bar_chart</mat-icon>
+        </button>
       </h2>
       <p class="welcome-text">{{ ts.t('admin.itemsSubtitle') }}</p>
     </div>

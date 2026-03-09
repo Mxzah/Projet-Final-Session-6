@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, NgZone, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +17,7 @@ import { SsfSidebarComponent } from '../../shared/ssf-sidebar/ssf-sidebar.compon
 import { SsfBarComponent } from '../../shared/ssf-bar/ssf-bar.component';
 import { ItemFormDialogComponent, ItemFormDialogData, ItemFormDialogResult } from '../item-form-dialog/item-form-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
+import { StatsReportDialogComponent } from '../../shared/stats-report-dialog/stats-report-dialog.component';
 
 @Component({
   selector: 'app-admin-items',
@@ -93,7 +95,8 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     private errorService: ErrorService,
     private ngZone: NgZone,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private location: Location
   ) {
     this.ngZone.runOutsideAngular(() => {
       this.nowInterval = setInterval(() => {
@@ -381,4 +384,17 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     return this.items().filter(i => (i.category_name ?? '—') === categoryName);
   }
 
+  openStats(): void {
+    const previousUrl = this.location.path();
+    this.location.replaceState('/admin/items/stats');
+
+    const ref = this.dialog.open(StatsReportDialogComponent, {
+      data: { endpoint: '/api/items/stats', dialogTitle: 'Rapport de statistiques — Items' },
+      width: '900px', maxWidth: '95vw', maxHeight: '90vh'
+    });
+
+    ref.afterClosed().subscribe(() => {
+      this.location.replaceState(previousUrl);
+    });
+  }
 }
