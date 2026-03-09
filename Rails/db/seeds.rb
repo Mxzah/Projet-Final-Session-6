@@ -227,7 +227,17 @@ items_data = [
     description: 'Linguine fraîches, chair de homard, tomates cerises, ' \
                  'bisque légère et estragon',
     price: 44.99, category: 'Pâtes & Risottos',
-    image: 'LinguineAuHomard.jpg' }
+    image: 'LinguineAuHomard.jpg' },
+
+  # Items (disponibilité expirée ou future)
+  { name: 'Soupe à l\'Oignon Gratinée',
+    description: 'Soupe à l\'oignon classique, croûton de pain, gruyère gratiné',
+    price: 16.99, category: 'Entrées',
+    image: 'Soup-a-lonion-gratinee.jpg' },
+  { name: 'Côte de Veau Grillée',
+    description: 'Côte de veau de lait grillée, jus au romarin, pommes grenailles et haricots verts',
+    price: 52.99, category: 'Viandes',
+    image: 'Cotes-de-veau-grillees.jpg' }
 ]
 
 created_items = []
@@ -236,14 +246,16 @@ items_data.each do |id|
   item = Item.find_or_initialize_by(name: id[:name], category: categories[id[:category]])
   item.description = id[:description]
   item.price = id[:price]
-  unless item.image.attached?
+  if id[:image] && !item.image.attached?
     image_path = images_dir.join(id[:image])
-    content_type = id[:image].end_with?('.png') ? 'image/png' : 'image/jpeg'
-    item.image.attach(
-      io: File.open(image_path),
-      filename: id[:image],
-      content_type: content_type
-    )
+    if File.exist?(image_path)
+      content_type = id[:image].end_with?('.png') ? 'image/png' : 'image/jpeg'
+      item.image.attach(
+        io: File.open(image_path),
+        filename: id[:image],
+        content_type: content_type
+      )
+    end
   end
   item.save!
   created_items << item
@@ -267,6 +279,35 @@ created_items.each do |item|
     description: nil
   )
   puts "- Disponibilité ajoutée : #{item.name}"
+end
+
+# Items avec disponibilités expirées ou futures (pour tester "Items indisponibles")
+soupe_oignon = Item.find_by(name: 'Soupe à l\'Oignon Gratinée')
+if soupe_oignon
+  Availability.where(available_type: 'Item', available_id: soupe_oignon.id).delete_all
+  a = Availability.new(
+    available_type: 'Item',
+    available_id: soupe_oignon.id,
+    start_at: 2.weeks.ago,
+    end_at: 1.week.ago,
+    description: 'Disponibilité expirée'
+  )
+  a.save(validate: false)
+  puts "- Disponibilité expirée ajoutée : Soupe à l'Oignon Gratinée"
+end
+
+cote_veau = Item.find_by(name: 'Côte de Veau Grillée')
+if cote_veau
+  Availability.where(available_type: 'Item', available_id: cote_veau.id).delete_all
+  a = Availability.new(
+    available_type: 'Item',
+    available_id: cote_veau.id,
+    start_at: 1.week.from_now,
+    end_at: 1.month.from_now,
+    description: 'Disponibilité future'
+  )
+  a.save(validate: false)
+  puts "- Disponibilité future ajoutée : Côte de Veau Grillée"
 end
 
 # ── Vibes ──────────────────────────────────────────────────────────────────

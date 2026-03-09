@@ -10,15 +10,23 @@
   padding: 1rem;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.filters-row {
+  display: flex;
   gap: 16px;
-  padding: 0.5rem 0;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
-@media (max-width: 600px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.filters-row mat-form-field {
+  flex: 1;
+  min-width: 160px;
+}
+
+table {
+  width: 100%;
+}
+
+th.mat-header-cell {
+  font-weight: 600;
+  color: #4a3728;
 }

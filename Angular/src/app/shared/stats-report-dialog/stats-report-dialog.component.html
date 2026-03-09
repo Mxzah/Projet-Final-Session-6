@@ -1,5 +1,32 @@
 <h2 mat-dialog-title>{{ data.dialogTitle }}</h2>
 <mat-dialog-content>
+  <div class="filters-row">
+    <mat-form-field>
+      <mat-label>Date début</mat-label>
+      <input matInput [matDatepicker]="pickerStart" (dateChange)="onStartDate($event)">
+      <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+      <mat-datepicker #pickerStart></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Date fin</mat-label>
+      <input matInput [matDatepicker]="pickerEnd" (dateChange)="onEndDate($event)">
+      <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+      <mat-datepicker #pickerEnd></mat-datepicker>
+    </mat-form-field>
+
+    @if (data.categories.length > 0) {
+      <mat-form-field>
+        <mat-label>Catégories</mat-label>
+        <mat-select multiple (selectionChange)="onCategoryChange($event)">
+          @for (cat of data.categories; track cat.id) {
+            <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+  </div>
+
   @if (isLoading()) {
     <div class="loading">
       <mat-spinner diameter="48"></mat-spinner>
@@ -11,11 +38,16 @@
   }
 
   @if (!isLoading() && !loadError()) {
-    <div class="stats-grid">
-      @for (stat of stats(); track stat.title) {
-        <app-stat-card [title]="stat.title" [value]="stat.value"></app-stat-card>
+    <table mat-table [dataSource]="rows()">
+      @for (col of columns(); track col.key) {
+        <ng-container [matColumnDef]="col.key">
+          <th mat-header-cell *matHeaderCellDef>{{ col.label }}</th>
+          <td mat-cell *matCellDef="let row">{{ row[col.key] }}</td>
+        </ng-container>
       }
-    </div>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+    </table>
   }
 </mat-dialog-content>
 <mat-dialog-actions align="end">

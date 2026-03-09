@@ -3,6 +3,8 @@
 module Api
   # CRUD operations for menu items
   class ItemsController < AdminController
+    include StatsReportable
+
     skip_before_action :authenticate_user!, only: [ :index ]
     skip_before_action :require_admin!, only: %i[index show]
     before_action :set_item, only: %i[show destroy hard_destroy]
@@ -53,37 +55,6 @@ module Api
       end
 
       render_success(data: items.map { |i| item_json(i) }, errors: [])
-    end
-
-    # GET /api/items/stats
-    def stats
-      data = []
-
-      # Items & Orders
-      data << { title: "Item le plus commandé", value: sql_value("SELECT i.name FROM items i JOIN order_lines ol ON ol.orderable_id = i.id AND ol.orderable_type = 'Item' WHERE i.deleted_at IS NULL GROUP BY i.id, i.name ORDER BY SUM(ol.quantity) DESC LIMIT 1") || "Aucun" }
-      data << { title: "Item le moins commandé", value: sql_value("SELECT i.name FROM items i JOIN order_lines ol ON ol.orderable_id = i.id AND ol.orderable_type = 'Item' WHERE i.deleted_at IS NULL GROUP BY i.id, i.name ORDER BY SUM(ol.quantity) ASC LIMIT 1") || "Aucun" }
-      data << { title: "Item plus haut revenu", value: sql_value("SELECT i.name FROM items i JOIN order_lines ol ON ol.orderable_id = i.id AND ol.orderable_type = 'Item' WHERE i.deleted_at IS NULL GROUP BY i.id, i.name ORDER BY SUM(ol.quantity * ol.unit_price) DESC LIMIT 1") || "Aucun" }
-      data << { title: "Revenu total", value: format_money(sql_value("SELECT COALESCE(SUM(ol.quantity * ol.unit_price), 0) FROM order_lines ol WHERE ol.orderable_type = 'Item'")) }
-      data << { title: "Items distincts commandés", value: sql_value("SELECT COUNT(DISTINCT ol.orderable_id) FROM order_lines ol WHERE ol.orderable_type = 'Item'") || 0 }
-      data << { title: "Prix moyen commandé", value: format_money(sql_value("SELECT AVG(ol.unit_price) FROM order_lines ol WHERE ol.orderable_type = 'Item'")) }
-      data << { title: "Quantité moy. par ligne", value: sql_value("SELECT ROUND(AVG(ol.quantity), 2) FROM order_lines ol WHERE ol.orderable_type = 'Item'") || 0 }
-      data << { title: "Lignes en attente", value: sql_value("SELECT COUNT(*) FROM order_lines ol WHERE ol.orderable_type = 'Item' AND ol.status = 'waiting'") || 0 }
-      data << { title: "Lignes en préparation", value: sql_value("SELECT COUNT(*) FROM order_lines ol WHERE ol.orderable_type = 'Item' AND ol.status = 'in_preparation'") || 0 }
-      data << { title: "Lignes servies", value: sql_value("SELECT COUNT(*) FROM order_lines ol WHERE ol.orderable_type = 'Item' AND ol.status = 'served'") || 0 }
-
-      # Items & Availabilities
-      data << { title: "Items disponibles", value: sql_value("SELECT COUNT(DISTINCT i.id) FROM items i JOIN availabilities a ON a.available_id = i.id AND a.available_type = 'Item' WHERE i.deleted_at IS NULL AND a.start_at <= UTC_TIMESTAMP() AND (a.end_at IS NULL OR a.end_at > UTC_TIMESTAMP())") || 0 }
-      data << { title: "Items indisponibles", value: sql_value("SELECT COUNT(*) FROM items i WHERE i.deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM availabilities a WHERE a.available_id = i.id AND a.available_type = 'Item' AND a.start_at <= UTC_TIMESTAMP() AND (a.end_at IS NULL OR a.end_at > UTC_TIMESTAMP()))") || 0 }
-      data << { title: "Items sans disponibilité", value: sql_value("SELECT COUNT(*) FROM items i WHERE i.deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM availabilities a WHERE a.available_id = i.id AND a.available_type = 'Item')") || 0 }
-      data << { title: "Durée moy. dispo (heures)", value: sql_value("SELECT ROUND(AVG(TIMESTAMPDIFF(HOUR, a.start_at, a.end_at)), 1) FROM availabilities a WHERE a.available_type = 'Item' AND a.end_at IS NOT NULL") || "N/A" }
-      data << { title: "Dispos ouvertes (sans fin)", value: sql_value("SELECT COUNT(*) FROM availabilities a WHERE a.available_type = 'Item' AND a.end_at IS NULL") || 0 }
-      data << { title: "Total fenêtres dispo", value: sql_value("SELECT COUNT(*) FROM availabilities a WHERE a.available_type = 'Item'") || 0 }
-
-      # Globaux
-      data << { title: "Items actifs", value: sql_value("SELECT COUNT(*) FROM items WHERE deleted_at IS NULL") || 0 }
-      data << { title: "Items archivés", value: sql_value("SELECT COUNT(*) FROM items WHERE deleted_at IS NOT NULL") || 0 }
-
-      render_success(data: data)
     end
 
     # GET /api/items/:id
@@ -158,14 +129,36 @@ module Api
       params.require(:item).permit(:name, :description, :price, :category_id, :image)
     end
 
-    def sql_value(query)
-      ActiveRecord::Base.connection.exec_query(query).rows.dig(0, 0)
-    end
-
-    def format_money(val)
-      return "0.00 $" unless val
-
-      format("%.2f $", val.to_f)
+    def stats_config
+      {
+        columns: [
+          { key: "item_name", label: "Item" },
+          { key: "category_name", label: "Catégorie" },
+          { key: "total_orders", label: "Nb commandes" },
+          { key: "total_order_lines", label: "Nb lignes" }
+        ],
+        date_column: "o.created_at",
+        category_column: "i.category_id",
+        base_conditions: ["i.deleted_at IS NULL"],
+        sql: ->(where_clause) {
+          <<~SQL
+            SELECT
+              i.name AS item_name,
+              c.name AS category_name,
+              COUNT(DISTINCT ol.order_id) AS total_orders,
+              COUNT(ol.id) AS total_order_lines
+            FROM items i
+            JOIN categories c ON c.id = i.category_id
+            LEFT JOIN order_lines ol ON ol.orderable_id = i.id
+              AND ol.orderable_type = 'Item'
+            LEFT JOIN orders o ON o.id = ol.order_id
+              AND o.deleted_at IS NULL
+            #{where_clause}
+            GROUP BY i.id, i.name, c.name
+            ORDER BY total_orders DESC
+          SQL
+        }
+      }
     end
 
     def item_json(item)

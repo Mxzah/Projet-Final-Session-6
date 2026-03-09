@@ -389,7 +389,7 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     this.location.replaceState('/admin/items/stats');
 
     const ref = this.dialog.open(StatsReportDialogComponent, {
-      data: { endpoint: '/api/items/stats', dialogTitle: 'Rapport de statistiques — Items' },
+      data: { endpoint: '/api/items/stats', dialogTitle: 'Rapport de statistiques — Items', categories: this.categories() },
       width: '900px', maxWidth: '95vw', maxHeight: '90vh'
     });
 
