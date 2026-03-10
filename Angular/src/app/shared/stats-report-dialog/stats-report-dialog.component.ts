@@ -94,6 +94,8 @@ export class StatsReportDialogComponent implements OnInit {
   startDate: Date | null = null;
   endDate: Date | null = null;
   selectedCategoryIds: number[] = [];
+  startDateError = signal('');
+  endDateError = signal('');
 
   private readonly COL_WIDTH = 130;
   private readonly MIN_DIALOG_WIDTH = 500;
@@ -118,12 +120,25 @@ export class StatsReportDialogComponent implements OnInit {
 
   onStartDate(event: any): void {
     this.startDate = event.value;
-    this.loadStats();
+    this.startDateError.set('');
+    if (this.validateDates()) { this.loadStats(); }
   }
 
   onEndDate(event: any): void {
     this.endDate = event.value;
-    this.loadStats();
+    this.endDateError.set('');
+    if (this.validateDates()) { this.loadStats(); }
+  }
+
+  private validateDates(): boolean {
+    this.startDateError.set('');
+    this.endDateError.set('');
+
+    if (this.startDate && this.endDate && this.startDate > this.endDate) {
+      this.endDateError.set('La date fin doit être après la date début');
+      return false;
+    }
+    return true;
   }
 
   onCategoryChange(event: any): void {

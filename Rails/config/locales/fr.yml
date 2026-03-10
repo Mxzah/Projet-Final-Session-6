@@ -236,3 +236,7 @@ fr:
     tables:
       invalid_cleaned_at: "Date et heure de nettoyage invalides"
       cleaning_staff_only: "Accès réservé au personnel d'entretien"
+    stats:
+      invalid_start_date: "Format de date début invalide (attendu : AAAA-MM-JJ)"
+      invalid_end_date: "Format de date fin invalide (attendu : AAAA-MM-JJ)"
+      end_before_start: "La date fin doit être après la date début"

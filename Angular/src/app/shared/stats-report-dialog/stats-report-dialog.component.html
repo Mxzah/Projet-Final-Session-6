@@ -3,16 +3,22 @@
   <div class="filters-row">
     <mat-form-field>
       <mat-label>Date début</mat-label>
-      <input matInput [matDatepicker]="pickerStart" (dateChange)="onStartDate($event)">
+      <input matInput [matDatepicker]="pickerStart" [max]="endDate" (dateChange)="onStartDate($event)">
       <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
       <mat-datepicker #pickerStart></mat-datepicker>
+      @if (startDateError()) {
+        <mat-error>{{ startDateError() }}</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Date fin</mat-label>
-      <input matInput [matDatepicker]="pickerEnd" (dateChange)="onEndDate($event)">
+      <input matInput [matDatepicker]="pickerEnd" [min]="startDate" (dateChange)="onEndDate($event)">
       <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
       <mat-datepicker #pickerEnd></mat-datepicker>
+      @if (endDateError()) {
+        <mat-error>{{ endDateError() }}</mat-error>
+      }
     </mat-form-field>
 
     @if (data.categories.length > 0) {

@@ -200,3 +200,7 @@ en:
     tables:
       invalid_cleaned_at: "Invalid cleaned_at datetime"
       cleaning_staff_only: "Access restricted to cleaning staff"
+    stats:
+      invalid_start_date: "Invalid start date format (expected: YYYY-MM-DD)"
+      invalid_end_date: "Invalid end date format (expected: YYYY-MM-DD)"
+      end_before_start: "End date must be after start date"

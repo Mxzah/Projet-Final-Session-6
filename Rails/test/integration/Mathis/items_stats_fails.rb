@@ -44,4 +44,39 @@ class ItemsStatsFailsTest < ActionDispatch::IntegrationTest
 
     assert_not json["success"]
   end
+
+  # ── Validation des dates ──
+
+  test "stats avec format de date début invalide retourne success false" do
+    get "/api/items/stats", params: { start_date: "invalid" }
+    assert_response :ok
+
+    json = JSON.parse(response.body)
+
+    assert_not json["success"]
+    assert_includes json["errors"], I18n.t("controllers.stats.invalid_start_date")
+  end
+
+  test "stats avec format de date fin invalide retourne success false" do
+    get "/api/items/stats", params: { end_date: "2026-13-99" }
+    assert_response :ok
+
+    json = JSON.parse(response.body)
+
+    assert_not json["success"]
+    assert_includes json["errors"], I18n.t("controllers.stats.invalid_end_date")
+  end
+
+  test "stats avec date fin avant date début retourne success false" do
+    get "/api/items/stats", params: {
+      start_date: "2026-03-10",
+      end_date: "2026-03-01"
+    }
+    assert_response :ok
+
+    json = JSON.parse(response.body)
+
+    assert_not json["success"]
+    assert_includes json["errors"], I18n.t("controllers.stats.end_before_start")
+  end
 end
