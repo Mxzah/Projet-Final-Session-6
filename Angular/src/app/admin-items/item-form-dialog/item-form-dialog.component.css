@@ -65,6 +65,7 @@ mat-dialog-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .form-full {

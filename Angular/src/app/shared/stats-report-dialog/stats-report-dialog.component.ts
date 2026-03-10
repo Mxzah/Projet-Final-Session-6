@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
@@ -95,10 +95,22 @@ export class StatsReportDialogComponent implements OnInit {
   endDate: Date | null = null;
   selectedCategoryIds: number[] = [];
 
+  private readonly COL_WIDTH = 130;
+  private readonly MIN_DIALOG_WIDTH = 500;
+  private readonly MAX_DIALOG_WIDTH_VW = 95;
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: StatsReportDialogData,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private dialogRef: MatDialogRef<StatsReportDialogComponent>
   ) {}
+
+  private resizeToFitColumns(colCount: number): void {
+    const idealWidth = Math.max(this.MIN_DIALOG_WIDTH, colCount * this.COL_WIDTH);
+    const maxPx = window.innerWidth * this.MAX_DIALOG_WIDTH_VW / 100;
+    const width = Math.min(idealWidth, maxPx);
+    this.dialogRef.updateSize(`${width}px`);
+  }
 
   ngOnInit(): void {
     this.loadStats();
@@ -209,6 +221,7 @@ export class StatsReportDialogComponent implements OnInit {
           this.columns.set(response.data.columns);
           this.rows.set(response.data.rows);
           this.details.set(response.data.details ?? []);
+          this.resizeToFitColumns(response.data.columns.length);
         }
         this.isLoading.set(false);
       },

@@ -252,7 +252,8 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     this.activeCategory.set(id);
     const el = document.getElementById('admin-category-' + id);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const y = el.getBoundingClientRect().top + window.scrollY - 250;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
   }
 
