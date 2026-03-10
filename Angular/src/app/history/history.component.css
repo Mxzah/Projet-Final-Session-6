@@ -465,6 +465,22 @@ mat-card-content {
   height: 0.95rem !important;
 }
 
+.employee-review-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(27, 26, 23, 0.55);
+  font-style: italic;
+}
+
+.employee-review-note mat-icon {
+  font-size: 0.95rem !important;
+  width: 0.95rem !important;
+  height: 0.95rem !important;
+}
+
 .moderated-badge-inline {
   display: inline-flex;
   align-items: center;

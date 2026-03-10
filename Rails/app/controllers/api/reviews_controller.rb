@@ -3,8 +3,31 @@
 module Api
   # CRUD and soft-delete operations for reviews
   class ReviewsController < ApplicationController
-    before_action :authenticate_user!
+    before_action :authenticate_unless_public
+    skip_before_action :check_session_expiry, only: [:for_reviewable]
     before_action :set_review, only: %i[show update destroy]
+
+    # GET /api/reviews/for_reviewable?reviewable_type=Item&reviewable_id=5
+    # Public endpoint — returns active reviews for a specific item/combo/server
+    def for_reviewable
+      reviews = Review.active
+                      .where(reviewable_type: params[:reviewable_type], reviewable_id: params[:reviewable_id])
+                      .order(created_at: :desc)
+                      .limit(20)
+
+      avg = reviews.average(:rating)&.round(1) || 0
+      count = reviews.count
+
+      render json: {
+        success: true,
+        data: {
+          average_rating: avg.to_f,
+          review_count: count,
+          reviews: reviews.map { |r| review_json(r) }
+        },
+        errors: []
+      }, status: :ok
+    end
 
     # GET /api/reviews?search=…&reviewable_type=…&rating=…&sort=…&status=…
     def index
@@ -107,6 +130,11 @@ module Api
 
     # PATCH/PUT /api/reviews/:id
     def update
+      unless current_user.type == "Client" || current_user.type == "Administrator"
+        return render json: { success: false, data: nil, errors: [ I18n.t("controllers.reviews.only_clients") ] },
+                      status: :ok
+      end
+
       unless @review.user_id == current_user.id
         return render json: { success: false, data: nil, errors: [ I18n.t("controllers.reviews.update_own_only") ] },
                       status: :ok
@@ -114,11 +142,19 @@ module Api
 
       permitted = review_update_params
       images = permitted.delete(:images)
+      remove_ids = permitted.delete(:remove_image_ids)
       if @review.update(permitted)
+        if remove_ids.present?
+          remove_ids.each do |signed_id|
+            attachment = @review.images.find { |img| img.signed_id == signed_id }
+            attachment&.purge
+          end
+          @review.reload
+        end
         @review.images.attach(images) if images.present?
         render json: {
           success: true,
-          data: review_json(@review),
+          data: review_json(@review.reload),
           errors: []
         }, status: :ok
       else
@@ -149,6 +185,12 @@ module Api
 
     private
 
+    def authenticate_unless_public
+      return if action_name == "for_reviewable"
+
+      authenticate_user!
+    end
+
     def set_review
       @review = Review.find_by(id: params[:id])
       return if @review
@@ -161,7 +203,7 @@ module Api
     end
 
     def review_update_params
-      params.require(:review).permit(:rating, :comment, images: [])
+      params.require(:review).permit(:rating, :comment, images: [], remove_image_ids: [])
     end
 
     def review_json(review)

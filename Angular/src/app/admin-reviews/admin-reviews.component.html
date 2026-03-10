@@ -69,56 +69,75 @@
 
 @if (!isLoading() && reviews().length > 0) {
   <div class="reviews-grid">
-    @for (review of reviews(); track review.id) {
-      <mat-card class="review-card" [class.review-card-deleted]="isDeleted(review)">
-        <mat-card-content>
-          <div class="review-header">
-            <div class="review-meta">
-              <span class="reviewer-name">{{ review.user_name }}</span>
-              <span class="review-type-badge">{{ review.reviewable_type === 'User' ? ts.t('admin.reviews.typeServer') : review.reviewable_type }}</span>
-              @if (isDeleted(review)) {
-                <span class="deleted-badge">{{ ts.t('admin.reviews.deletedBadge') }}</span>
-              }
-            </div>
-            @if (!isDeleted(review)) {
-              <button type="button" class="btn-delete" (click)="confirmDelete(review)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            }
-          </div>
-
-          <div class="review-target">
-            <mat-icon>{{ review.reviewable_type === 'User' ? 'person' : 'restaurant' }}</mat-icon>
-            <span>{{ review.reviewable_name }}</span>
-          </div>
-
-          <div class="review-stars">{{ renderStars(review.rating) }}</div>
-
-          @if (review.image_urls && review.image_urls.length > 0) {
-            <div class="review-images">
-              @for (url of review.image_urls; track url) {
-                <img [src]="getImageUrl(url)" class="review-thumb" />
-              }
-            </div>
-          }
-
-          <p class="review-comment">{{ review.comment }}</p>
-
-          @if (isDeleted(review)) {
-            <div class="deleted-info">
-              @if (review.deletion_reason) {
-                <span class="deletion-reason">{{ ts.t('reviews.moderatedReason') }} {{ review.deletion_reason }}</span>
-              }
-              <span class="review-date">{{ ts.t('admin.reviews.deletedOn') }} {{ review.deleted_at | date:'medium' }}</span>
-            </div>
-          } @else {
-            <span class="review-date">{{ review.created_at | date:'medium' }}</span>
-          }
-        </mat-card-content>
-      </mat-card>
+    @for (review of activeReviews(); track review.id) {
+      <ng-container *ngTemplateOutlet="reviewCard; context: { $implicit: review }" />
     }
   </div>
+
+  @if (hasDeletedReviews() && hasActiveReviews()) {
+    <div class="archived-divider">
+      <mat-icon>archive</mat-icon>
+      <span>{{ ts.t('admin.reviews.archivedSection') }}</span>
+    </div>
+  }
+
+  @if (hasDeletedReviews()) {
+    <div class="reviews-grid reviews-grid-archived">
+      @for (review of deletedReviews(); track review.id) {
+        <ng-container *ngTemplateOutlet="reviewCard; context: { $implicit: review }" />
+      }
+    </div>
+  }
 }
+
+<ng-template #reviewCard let-review>
+  <mat-card class="review-card" [class.review-card-deleted]="isDeleted(review)">
+    <mat-card-content>
+      <div class="review-header">
+        <div class="review-meta">
+          <span class="reviewer-name">{{ review.user_name }}</span>
+          <span class="review-type-badge">{{ review.reviewable_type === 'User' ? ts.t('admin.reviews.typeServer') : review.reviewable_type }}</span>
+          @if (isDeleted(review)) {
+            <span class="deleted-badge">{{ ts.t('admin.reviews.deletedBadge') }}</span>
+          }
+        </div>
+        @if (!isDeleted(review)) {
+          <button type="button" class="btn-delete" (click)="confirmDelete(review)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="review-target">
+        <mat-icon>{{ review.reviewable_type === 'User' ? 'person' : 'restaurant' }}</mat-icon>
+        <span>{{ review.reviewable_name }}</span>
+      </div>
+
+      <div class="review-stars">{{ renderStars(review.rating) }}</div>
+
+      @if (review.image_urls && review.image_urls.length > 0) {
+        <div class="review-images">
+          @for (url of review.image_urls; track url) {
+            <img [src]="getImageUrl(url)" class="review-thumb" />
+          }
+        </div>
+      }
+
+      <p class="review-comment">{{ review.comment }}</p>
+
+      @if (isDeleted(review)) {
+        <div class="deleted-info">
+          @if (review.deletion_reason) {
+            <span class="deletion-reason">{{ ts.t('reviews.moderatedReason') }} {{ review.deletion_reason }}</span>
+          }
+          <span class="review-date">{{ ts.t('admin.reviews.deletedOn') }} {{ review.deleted_at | date:'medium' }}</span>
+        </div>
+      } @else {
+        <span class="review-date">{{ review.created_at | date:'medium' }}</span>
+      }
+    </mat-card-content>
+  </mat-card>
+</ng-template>
 
   </div>
 </main>

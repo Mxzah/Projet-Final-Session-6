@@ -11,7 +11,7 @@ set -e
 SERVER="206260753.system.shawinigan.info"
 SSH_PORT=2069
 SSH_USER="root"
-SSH_PASS="KQpRjB3SGv"
+SSH_PASS="XZrpDN30PA"
 APP_DIR="/opt/restoqr"
 
 echo "========================================="

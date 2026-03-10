@@ -13,6 +13,7 @@ export interface ReviewData {
   rating: number;
   comment: string;
   image_urls: string[];
+  image_signed_ids: string[];
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
@@ -25,6 +26,14 @@ export interface ReviewData {
 export class ReviewService {
 
   constructor(private api: ApiService) {}
+
+  getReviewsForReviewable(type: string, id: number): Observable<ApiResponse<{
+    average_rating: number;
+    review_count: number;
+    reviews: ReviewData[];
+  }>> {
+    return this.api.get(`/api/reviews/for_reviewable?reviewable_type=${type}&reviewable_id=${id}`);
+  }
 
   getReviews(filters?: Record<string, string>): Observable<ApiResponse<ReviewData[]>> {
     let url = '/api/reviews';
@@ -62,12 +71,15 @@ export class ReviewService {
   updateReview(id: number, data: {
     rating?: number;
     comment?: string;
-  }, images?: File[]): Observable<ApiResponse<ReviewData>> {
-    if (images && images.length > 0) {
+  }, images?: File[], removeImageIds?: string[]): Observable<ApiResponse<ReviewData>> {
+    const hasImages = images && images.length > 0;
+    const hasRemovals = removeImageIds && removeImageIds.length > 0;
+    if (hasImages || hasRemovals) {
       const fd = new FormData();
       if (data.rating != null) fd.append('review[rating]', data.rating.toString());
       if (data.comment != null) fd.append('review[comment]', data.comment);
-      images.forEach(img => fd.append('review[images][]', img));
+      if (hasImages) images!.forEach(img => fd.append('review[images][]', img));
+      if (hasRemovals) removeImageIds!.forEach(id => fd.append('review[remove_image_ids][]', id));
       return this.api.patchFormData<ReviewData>(`/api/reviews/${id}`, fd);
     }
     return this.api.patch<ReviewData>(`/api/reviews/${id}`, { review: data });

@@ -58,7 +58,7 @@
             <div class="server-row">
               <mat-icon>person</mat-icon>
               <span>{{ order.server_name ?? ts.t('cuisine.noServer') }}</span>
-              @if (!order.server_id && canManageLines()) {
+              @if (!order.server_id && authService.isWaiter()) {
                 <button mat-flat-button class="btn-assign" (click)="assignMe(order)">
                   <mat-icon>person_add</mat-icon>
                   {{ ts.t('cuisine.assignMe') }}

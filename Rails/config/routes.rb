@@ -46,7 +46,11 @@ Rails.application.routes.draw do
     end
     resources :combo_items, only: %i[index create destroy]
     resources :users, only: %i[index show create update destroy]
-    resources :reviews, only: %i[index show create update destroy]
+    resources :reviews, only: %i[index show create update destroy] do
+      collection do
+        get :for_reviewable
+      end
+    end
 
     resources :orders, only: %i[index show create update destroy] do
       collection do

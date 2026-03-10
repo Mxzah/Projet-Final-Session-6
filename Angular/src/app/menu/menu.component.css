@@ -566,6 +566,122 @@ img {
     text-overflow: unset !important;
 }
 
+/* ── Reviews in modal ── */
+.modal-reviews-loading {
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem 1.75rem;
+}
+
+.modal-reviews-section {
+    margin: 0.75rem 1.75rem 0;
+}
+
+.reviews-summary-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    background: rgba(200, 109, 63, 0.06);
+    border: 1px solid rgba(200, 109, 63, 0.15);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.reviews-summary-btn:hover {
+    background: rgba(200, 109, 63, 0.1);
+}
+
+.reviews-stars {
+    color: var(--copper);
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.reviews-avg {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+}
+
+.reviews-count {
+    font-size: 0.82rem;
+    color: rgba(27, 26, 23, 0.5);
+}
+
+.reviews-toggle-icon {
+    margin-left: auto;
+    font-size: 1.2rem !important;
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+    color: rgba(27, 26, 23, 0.4);
+}
+
+.reviews-list {
+    margin-top: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+.review-card {
+    padding: 0.65rem 0.8rem;
+    background: var(--sand);
+    border-radius: 10px;
+    border: 1px solid rgba(27, 26, 23, 0.06);
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.review-author {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--ink);
+}
+
+.review-stars-sm {
+    color: var(--copper);
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+}
+
+.review-comment {
+    font-size: 0.82rem;
+    color: rgba(27, 26, 23, 0.7);
+    margin: 0.15rem 0 0.3rem;
+    line-height: 1.4;
+}
+
+.review-images {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 0.3rem;
+}
+
+.review-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid rgba(27, 26, 23, 0.1);
+}
+
+.review-date {
+    font-size: 0.7rem;
+    color: rgba(27, 26, 23, 0.35);
+}
+
 .modal-price-box {
     margin: 1.25rem 1.75rem;
     background: var(--clay);

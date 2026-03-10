@@ -193,6 +193,7 @@ export class HistoryComponent implements OnInit {
         existingRating: existing?.rating,
         existingComment: existing?.comment,
         existingImageUrls: existing?.image_urls,
+        existingImageSignedIds: existing?.image_signed_ids,
         deletedAt: existing?.deleted_at || undefined,
         deletionReason: existing?.deletion_reason || undefined
       });
@@ -214,6 +215,7 @@ export class HistoryComponent implements OnInit {
         existingRating: existing?.rating,
         existingComment: existing?.comment,
         existingImageUrls: existing?.image_urls,
+        existingImageSignedIds: existing?.image_signed_ids,
         deletedAt: existing?.deleted_at || undefined,
         deletionReason: existing?.deletion_reason || undefined
       });
@@ -240,7 +242,7 @@ export class HistoryComponent implements OnInit {
           ? this.reviewService.updateReview(r.existingReviewId, {
               rating: r.rating,
               comment: r.comment
-            }, r.images)
+            }, r.images, r.removeImageIds)
           : this.reviewService.createReview({
               rating: r.rating,
               comment: r.comment,
@@ -354,6 +356,10 @@ export class HistoryComponent implements OnInit {
     return d.toLocaleDateString(this.ts.lang() === 'fr' ? 'fr-CA' : 'en-CA', {
       year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
     });
+  }
+
+  isEmployee(): boolean {
+    return this.authService.isWaiter() || this.authService.isCook();
   }
 
   goToMenu(): void {

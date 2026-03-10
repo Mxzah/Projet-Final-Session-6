@@ -269,6 +269,46 @@
           <mat-card-subtitle class="modal-description">{{ selectedItem()!.description }}</mat-card-subtitle>
         </mat-card-header>
 
+        <!-- Reviews summary -->
+        @if (modalReviewsLoading()) {
+          <div class="modal-reviews-loading">
+            <mat-spinner diameter="20"></mat-spinner>
+          </div>
+        } @else if (modalReviewCount() > 0) {
+          <div class="modal-reviews-section">
+            <button type="button" class="reviews-summary-btn" (click)="modalReviewsExpanded.set(!modalReviewsExpanded())">
+              <span class="reviews-stars">{{ renderStars(modalAvgRating()) }}</span>
+              <span class="reviews-avg">{{ modalAvgRating() }}</span>
+              <span class="reviews-count">({{ modalReviewCount() }} {{ ts.t('menu.reviewsLabel') }})</span>
+              <mat-icon class="reviews-toggle-icon">{{ modalReviewsExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+
+            @if (modalReviewsExpanded()) {
+              <div class="reviews-list">
+                @for (review of modalReviews(); track review.id) {
+                  <div class="review-card">
+                    <div class="review-header">
+                      <span class="review-author">{{ review.user_name }}</span>
+                      <span class="review-stars-sm">{{ renderStars(review.rating) }}</span>
+                    </div>
+                    @if (review.comment) {
+                      <p class="review-comment">{{ review.comment }}</p>
+                    }
+                    @if (review.image_urls.length > 0) {
+                      <div class="review-images">
+                        @for (url of review.image_urls; track url) {
+                          <img [src]="getReviewImageUrl(url)" class="review-thumb" alt="review" />
+                        }
+                      </div>
+                    }
+                    <span class="review-date">{{ review.created_at | date:'mediumDate' }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+
         <div class="modal-price-box">
           <span class="modal-price-label">{{ ts.t('menu.fromPrice') }}</span>
           <span class="modal-price">CA${{ selectedItem()!.price.toFixed(2) }}</span>
@@ -341,6 +381,46 @@
                 <li>{{ ci.quantity }}x {{ ci.item_name }}</li>
               }
             </ul>
+          </div>
+        }
+
+        <!-- Reviews summary -->
+        @if (modalReviewsLoading()) {
+          <div class="modal-reviews-loading">
+            <mat-spinner diameter="20"></mat-spinner>
+          </div>
+        } @else if (modalReviewCount() > 0) {
+          <div class="modal-reviews-section">
+            <button type="button" class="reviews-summary-btn" (click)="modalReviewsExpanded.set(!modalReviewsExpanded())">
+              <span class="reviews-stars">{{ renderStars(modalAvgRating()) }}</span>
+              <span class="reviews-avg">{{ modalAvgRating() }}</span>
+              <span class="reviews-count">({{ modalReviewCount() }} {{ ts.t('menu.reviewsLabel') }})</span>
+              <mat-icon class="reviews-toggle-icon">{{ modalReviewsExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+
+            @if (modalReviewsExpanded()) {
+              <div class="reviews-list">
+                @for (review of modalReviews(); track review.id) {
+                  <div class="review-card">
+                    <div class="review-header">
+                      <span class="review-author">{{ review.user_name }}</span>
+                      <span class="review-stars-sm">{{ renderStars(review.rating) }}</span>
+                    </div>
+                    @if (review.comment) {
+                      <p class="review-comment">{{ review.comment }}</p>
+                    }
+                    @if (review.image_urls.length > 0) {
+                      <div class="review-images">
+                        @for (url of review.image_urls; track url) {
+                          <img [src]="getReviewImageUrl(url)" class="review-thumb" alt="review" />
+                        }
+                      </div>
+                    }
+                    <span class="review-date">{{ review.created_at | date:'mediumDate' }}</span>
+                  </div>
+                }
+              </div>
+            }
           </div>
         }
 

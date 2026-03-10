@@ -124,7 +124,12 @@
             }
 
             <div class="order-review-footer">
-              @if (orderHasReviews(order)) {
+              @if (isEmployee()) {
+                <span class="employee-review-note">
+                  <mat-icon>info</mat-icon>
+                  {{ ts.t('reviews.employeeCannotReview') }}
+                </span>
+              } @else if (orderHasReviews(order)) {
                 @if (orderAllModerated(order)) {
                   <span class="moderated-badge-inline">
                     <mat-icon>gavel</mat-icon>

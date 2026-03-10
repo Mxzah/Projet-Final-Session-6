@@ -243,6 +243,25 @@ mat-card-header {
   padding: 0 10px !important;
 }
 
+::ng-deep .chip-unassigned {
+  background: rgba(120, 120, 120, 0.12) !important;
+  color: #666 !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  min-height: 26px !important;
+  padding: 0 10px !important;
+}
+
+::ng-deep .chip-unassigned mat-icon {
+  font-size: 0.85rem !important;
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+}
+
+.assign-row {
+  margin-top: 0.4rem;
+}
+
 ::ng-deep .chip-released mat-icon {
   font-size: 0.85rem !important;
   width: 0.85rem !important;

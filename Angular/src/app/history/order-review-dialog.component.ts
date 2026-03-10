@@ -19,6 +19,7 @@ export interface ReviewableItem {
   existingRating?: number;
   existingComment?: string;
   existingImageUrls?: string[];
+  existingImageSignedIds?: string[];
   deletedAt?: string;
   deletionReason?: string;
 }
@@ -37,6 +38,7 @@ export interface SingleReviewResult {
   rating: number;
   comment: string;
   images?: File[];
+  removeImageIds?: string[];
   existingReviewId?: number;
 }
 
@@ -51,6 +53,8 @@ interface ReviewEntry {
   images: File[];
   imagePreviews: string[];
   existingImageUrls: string[];
+  existingImageSignedIds: string[];
+  removedImageIds: string[];
   imageError: string;
   expanded: boolean;
 }
@@ -149,6 +153,7 @@ interface ReviewEntry {
                       @for (url of entry.existingImageUrls; track url) {
                         <div class="photo-thumb existing">
                           <img [src]="getImageUrl(url)" alt="existing" />
+                          <button type="button" class="remove-photo" (click)="removeExistingImage(entry, $index)">×</button>
                         </div>
                       }
                       @for (preview of entry.imagePreviews; track preview) {
@@ -433,6 +438,8 @@ export class OrderReviewDialogComponent {
       images: [],
       imagePreviews: [],
       existingImageUrls: item.existingImageUrls || [],
+      existingImageSignedIds: item.existingImageSignedIds || [],
+      removedImageIds: [],
       imageError: '',
       expanded: i === 0 // expand first item by default
     }));
@@ -475,6 +482,13 @@ export class OrderReviewDialogComponent {
     this.cdr.detectChanges();
   }
 
+  removeExistingImage(entry: ReviewEntry, index: number): void {
+    const signedId = entry.existingImageSignedIds[index];
+    if (signedId) entry.removedImageIds.push(signedId);
+    entry.existingImageUrls = entry.existingImageUrls.filter((_, i) => i !== index);
+    entry.existingImageSignedIds = entry.existingImageSignedIds.filter((_, i) => i !== index);
+  }
+
   removeImage(entry: ReviewEntry, index: number): void {
     URL.revokeObjectURL(entry.imagePreviews[index]);
     entry.images = entry.images.filter((_, i) => i !== index);
@@ -495,6 +509,7 @@ export class OrderReviewDialogComponent {
         rating: e.rating,
         comment: e.comment.trim(),
         images: e.images.length > 0 ? e.images : undefined,
+        removeImageIds: e.removedImageIds.length > 0 ? e.removedImageIds : undefined,
         existingReviewId: e.item.existingReviewId
       }));
 

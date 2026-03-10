@@ -24,10 +24,12 @@ import { TableService } from '../services/table.service';
 import { OrderService } from '../services/order.service';
 import { TranslationService } from '../services/translation.service';
 import { ErrorService } from '../services/error.service';
+import { ReviewService, ReviewData } from '../services/review.service';
 import { HeaderComponent } from '../header/header.component';
 import { SsfSidebarComponent } from '../shared/ssf-sidebar/ssf-sidebar.component';
 import { SsfBarComponent } from '../shared/ssf-bar/ssf-bar.component';
 import { Item, Category } from './menu.models';
+import { environment } from '../../environments/environment';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
 
@@ -105,6 +107,13 @@ export class MenuComponent implements OnInit, OnDestroy {
   modalQuantity = signal<number>(1);
   modalNote = signal<string>('');
 
+  // Reviews for the current modal item/combo
+  modalReviews = signal<ReviewData[]>([]);
+  modalAvgRating = signal<number>(0);
+  modalReviewCount = signal<number>(0);
+  modalReviewsLoading = signal<boolean>(false);
+  modalReviewsExpanded = signal<boolean>(false);
+
   private searchTimer: any = null;
   private maxPriceInitialized = false;
 
@@ -153,7 +162,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private renderer: Renderer2,
     private dialog: MatDialog,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private reviewService: ReviewService
   ) {}
 
   ngOnInit(): void {
@@ -348,6 +358,36 @@ export class MenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  private loadReviewsFor(type: string, id: number): void {
+    this.modalReviews.set([]);
+    this.modalAvgRating.set(0);
+    this.modalReviewCount.set(0);
+    this.modalReviewsLoading.set(true);
+    this.modalReviewsExpanded.set(false);
+    this.reviewService.getReviewsForReviewable(type, id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.modalReviews.set(res.data.reviews);
+          this.modalAvgRating.set(res.data.average_rating);
+          this.modalReviewCount.set(res.data.review_count);
+        }
+        this.modalReviewsLoading.set(false);
+      },
+      error: () => this.modalReviewsLoading.set(false)
+    });
+  }
+
+  renderStars(rating: number): string {
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return '\u2605'.repeat(full) + (half ? '\u272F' : '') + '\u2606'.repeat(empty);
+  }
+
+  getReviewImageUrl(path: string): string {
+    return `${environment.apiUrl}${path}`;
+  }
+
   openItemModal(item: Item): void {
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);
@@ -360,6 +400,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.selectedItem.set(item);
     this.modalQuantity.set(1);
     this.modalNote.set('');
+    this.loadReviewsFor('Item', item.id);
     this.renderer.setStyle(document.documentElement, 'overflow', 'hidden');
   }
 
@@ -426,6 +467,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.selectedCombo.set(combo);
     this.modalQuantity.set(1);
     this.modalNote.set('');
+    this.loadReviewsFor('Combo', combo.id);
     this.renderer.setStyle(document.documentElement, 'overflow', 'hidden');
   }
 

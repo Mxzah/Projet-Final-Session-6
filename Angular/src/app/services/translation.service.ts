@@ -57,6 +57,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'menu.loadError': { fr: 'Erreur lors du chargement du menu', en: 'Error loading the menu' },
   'menu.goToOrder': { fr: 'Voir la commande', en: 'View order' },
   'menu.normalTotal': { fr: 'Prix normal', en: 'Normal price' },
+  'menu.reviewsLabel': { fr: 'avis', en: 'reviews' },
 
   // Admin items
   'admin.itemsTitle': { fr: 'Gestion des items', en: 'Items management' },
@@ -372,6 +373,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'server.releaseOverrideConfirm': { fr: 'Le client n\'a pas payé. Voulez-vous tout de même libérer', en: 'The client has not paid. Do you still want to release' },
   'server.cancelOrder': { fr: 'Annuler la commande', en: 'Cancel order' },
   'server.cancelConfirm': { fr: 'Cette commande est vide (aucun item). Voulez-vous l\'annuler et libérer', en: 'This order is empty (no items). Do you want to cancel and release' },
+  'server.unassigned': { fr: 'Non assignée', en: 'Unassigned' },
 
   // Admin users
   'admin.users.tab': { fr: 'Utilisateurs', en: 'Users' },
@@ -521,6 +523,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'reviews.sortTotalDesc': { fr: 'Total décroissant', en: 'Total descending' },
   'reviews.sortTotalAsc': { fr: 'Total croissant', en: 'Total ascending' },
   'reviews.leaveReview': { fr: 'Laisser un avis', en: 'Leave a review' },
+  'reviews.employeeCannotReview': { fr: 'Les employés ne peuvent pas laisser d\'avis (conflit d\'intérêts).', en: 'Employees cannot leave reviews (conflict of interest).' },
   'reviews.editReview': { fr: "Modifier l'avis", en: 'Edit review' },
   'reviews.deleteReview': { fr: "Supprimer l'avis", en: 'Delete review' },
   'reviews.deleteConfirm': { fr: 'Voulez-vous vraiment supprimer cet avis ?', en: 'Are you sure you want to delete this review?' },
@@ -580,6 +583,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.reviews.statusDeleted': { fr: 'Supprimés', en: 'Deleted' },
   'admin.reviews.deletedBadge': { fr: 'Supprimé', en: 'Deleted' },
   'admin.reviews.deletedOn': { fr: 'Supprimé le', en: 'Deleted on' },
+  'admin.reviews.archivedSection': { fr: 'Avis archivés', en: 'Archived reviews' },
 
   // Admin vibes
   'admin.vibes.tab': { fr: 'Vibes', en: 'Vibes' },

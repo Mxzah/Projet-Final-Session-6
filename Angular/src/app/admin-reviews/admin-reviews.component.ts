@@ -89,7 +89,14 @@ export class AdminReviewsComponent implements OnInit, OnDestroy {
 
     this.reviewService.getReviews(filters).subscribe({
       next: (res) => {
-        this.reviews.set(res.data || []);
+        const data = res.data || [];
+        // Push archived/deleted reviews to the bottom
+        data.sort((a, b) => {
+          const aDeleted = a.deleted_at ? 1 : 0;
+          const bDeleted = b.deleted_at ? 1 : 0;
+          return aDeleted - bDeleted;
+        });
+        this.reviews.set(data);
         this.isLoading.set(false);
       },
       error: () => {
@@ -158,6 +165,22 @@ export class AdminReviewsComponent implements OnInit, OnDestroy {
 
   isDeleted(review: ReviewData): boolean {
     return !!review.deleted_at;
+  }
+
+  hasDeletedReviews(): boolean {
+    return this.reviews().some(r => !!r.deleted_at);
+  }
+
+  hasActiveReviews(): boolean {
+    return this.reviews().some(r => !r.deleted_at);
+  }
+
+  activeReviews(): ReviewData[] {
+    return this.reviews().filter(r => !r.deleted_at);
+  }
+
+  deletedReviews(): ReviewData[] {
+    return this.reviews().filter(r => !!r.deleted_at);
   }
 
   getImageUrl(path: string): string {
