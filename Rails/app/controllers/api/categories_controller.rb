@@ -51,13 +51,15 @@ module Api
     def reorder
       ids = params.require(:ids)
 
+      categories = Category.where(id: ids).index_by(&:id)
+
       Category.transaction do
         offset = Category.maximum(:position).to_i + 1000
         ids.each_with_index do |id, index|
-          Category.where(id: id).update_all(position: offset + index)
+          categories[id.to_i]&.update(position: offset + index)
         end
         ids.each_with_index do |id, index|
-          Category.where(id: id).update_all(position: index)
+          categories[id.to_i]&.update(position: index)
         end
       end
 
