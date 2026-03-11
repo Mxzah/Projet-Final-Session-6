@@ -8,7 +8,7 @@
   <mat-form-field class="ssf-sort" appearance="outline">
     <mat-label>{{ ts.t('menu.sortByPrice') }}</mat-label>
     <mat-select [value]="sortOrder()" (selectionChange)="sortChange.emit($event.value)">
-      <mat-option value="none">{{ ts.t('menu.sortByPrice') }}</mat-option>
+      <mat-option value="none">{{ ts.t('menu.noSort') }}</mat-option>
       <mat-option value="asc">{{ ts.t('menu.priceAsc') }}</mat-option>
       <mat-option value="desc">{{ ts.t('menu.priceDesc') }}</mat-option>
     </mat-select>

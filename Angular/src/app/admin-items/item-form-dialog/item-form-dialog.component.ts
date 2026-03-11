@@ -1,4 +1,4 @@
-import { Component, Inject, signal, computed, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -47,6 +47,13 @@ export interface ItemFormDialogResult {
   styleUrls: ['./item-form-dialog.component.css']
 })
 export class ItemFormDialogComponent {
+  private dialogRef = inject(MatDialogRef<ItemFormDialogComponent, ItemFormDialogResult>);
+  data = inject<ItemFormDialogData>(MAT_DIALOG_DATA);
+  private itemsService = inject(ItemsService);
+  ts = inject(TranslationService);
+  private errorService = inject(ErrorService);
+  private availabilityService = inject(AvailabilityService);
+
   isCreating: boolean;
   categories: Category[];
 
@@ -75,14 +82,8 @@ export class ItemFormDialogComponent {
   availabilities = signal<AvailabilityEntry[]>([]);
   private originalAvailabilities: AvailabilityEntry[] = [];
 
-  constructor(
-    private dialogRef: MatDialogRef<ItemFormDialogComponent, ItemFormDialogResult>,
-    @Inject(MAT_DIALOG_DATA) public data: ItemFormDialogData,
-    private itemsService: ItemsService,
-    public ts: TranslationService,
-    private errorService: ErrorService,
-    private availabilityService: AvailabilityService
-  ) {
+  constructor() {
+    const data = this.data;
     this.isCreating = data.item === null;
     this.categories = data.categories;
 

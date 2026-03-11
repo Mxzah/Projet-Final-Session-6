@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, effect, inject, input, output } from '@angular/core';
 import { ReactiveFormsModule, FormArray, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -106,30 +106,29 @@ function overlapsValidator(array: AbstractControl): { [key: string]: boolean } |
   templateUrl: './availability-list.component.html',
   styleUrls: ['./availability-list.component.css']
 })
-export class AvailabilityListComponent implements OnChanges {
-  @Input() availabilities: AvailabilityEntry[] = [];
-  @Input() disabled = false;
-  @Output() availabilitiesChange = new EventEmitter<AvailabilityEntry[]>();
+export class AvailabilityListComponent {
+  availabilities = input<AvailabilityEntry[]>([]);
+  disabled = input(false);
+  availabilitiesChange = output<AvailabilityEntry[]>();
 
   rows = new FormArray<FormGroup>([], { validators: overlapsValidator });
 
-  constructor(public ts: TranslationService) {}
+  ts = inject(TranslationService);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['availabilities']) {
-      const prev: AvailabilityEntry[] = changes['availabilities'].previousValue ?? [];
-      const next: AvailabilityEntry[] = changes['availabilities'].currentValue ?? [];
-      // Rebuild rows only when the list is populated from outside (e.g. loaded from API)
-      // and the current FormArray doesn't already reflect the incoming data
-      const prevIds = prev.map(a => a.id).filter(Boolean).sort().join(',');
+  private lastIds = '';
+
+  constructor() {
+    effect(() => {
+      const next = this.availabilities();
       const nextIds = next.map(a => a.id).filter(Boolean).sort().join(',');
-      if (prevIds !== nextIds) {
+      if (nextIds !== this.lastIds) {
+        this.lastIds = nextIds;
         this.rows.clear();
         for (const a of next) {
           this.rows.push(this.buildRow(a));
         }
       }
-    }
+    });
   }
 
   private buildRow(a?: AvailabilityEntry): FormGroup {

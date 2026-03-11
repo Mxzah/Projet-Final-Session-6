@@ -1,4 +1,4 @@
-import { Component, Inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -41,6 +41,13 @@ export interface CategoryFormDialogResult {
   styleUrls: ['./category-form-dialog.component.css']
 })
 export class CategoryFormDialogComponent {
+  private dialogRef = inject(MatDialogRef<CategoryFormDialogComponent, CategoryFormDialogResult>);
+  data = inject<CategoryFormDialogData>(MAT_DIALOG_DATA);
+  private categoriesService = inject(CategoriesService);
+  ts = inject(TranslationService);
+  private errorService = inject(ErrorService);
+  private availabilityService = inject(AvailabilityService);
+
   isCreating: boolean;
 
   form = new FormGroup({
@@ -54,14 +61,8 @@ export class CategoryFormDialogComponent {
   availabilities = signal<AvailabilityEntry[]>([]);
   private originalAvailabilities: AvailabilityEntry[] = [];
 
-  constructor(
-    private dialogRef: MatDialogRef<CategoryFormDialogComponent, CategoryFormDialogResult>,
-    @Inject(MAT_DIALOG_DATA) public data: CategoryFormDialogData,
-    private categoriesService: CategoriesService,
-    public ts: TranslationService,
-    private errorService: ErrorService,
-    private availabilityService: AvailabilityService
-  ) {
+  constructor() {
+    const data = this.data;
     this.isCreating = data.category === null;
 
     if (data.category) {

@@ -27,6 +27,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'menu.priceMin': { fr: 'Prix min', en: 'Min price' },
   'menu.priceMax': { fr: 'Prix max', en: 'Max price' },
   'menu.sortByPrice': { fr: 'Trier par prix', en: 'Sort by price' },
+  'menu.noSort': { fr: 'Aucun tri', en: 'No sort' },
   'menu.priceAsc': { fr: 'Prix croissant', en: 'Price ascending' },
   'menu.priceDesc': { fr: 'Prix décroissant', en: 'Price descending' },
   'menu.category': { fr: 'Catégorie', en: 'Category' },

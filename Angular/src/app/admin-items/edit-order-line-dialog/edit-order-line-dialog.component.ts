@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,20 +35,20 @@ export interface EditOrderLineDialogResult {
   styleUrls: ['./edit-order-line-dialog.component.css']
 })
 export class EditOrderLineDialogComponent {
+  dialogRef = inject(MatDialogRef<EditOrderLineDialogComponent, EditOrderLineDialogResult>);
+  data = inject<EditOrderLineDialogData>(MAT_DIALOG_DATA);
+  ts = inject(TranslationService);
+
   form: FormGroup;
 
-  constructor(
-    public dialogRef: MatDialogRef<EditOrderLineDialogComponent, EditOrderLineDialogResult>,
-    @Inject(MAT_DIALOG_DATA) public data: EditOrderLineDialogData,
-    public ts: TranslationService
-  ) {
+  constructor() {
     this.form = new FormGroup({
-      quantity: new FormControl(data.quantity, [
+      quantity: new FormControl(this.data.quantity, [
         Validators.required,
         Validators.min(1),
         Validators.max(50)
       ]),
-      note: new FormControl(data.note || '', [
+      note: new FormControl(this.data.note || '', [
         Validators.maxLength(255)
       ])
     });

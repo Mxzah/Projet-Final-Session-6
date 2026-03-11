@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, NgZone, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, signal, computed, inject, input, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
@@ -53,16 +53,32 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
   private nowInterval?: ReturnType<typeof setInterval>;
   private searchTimer: any = null;
   private maxPriceInitialized = false;
+  private filtersReady = false;
 
   categoryNames = computed(() =>
     [...new Set(this.items().map(i => i.category_name ?? '—'))]
   );
 
   itemsByCategory = computed(() => {
-    return this.categories().map(cat => {
+    const sort = this.sortOrder();
+    const groups = this.categories().map(cat => {
       const items = this.items().filter(item => item.category_id === cat.id);
       return { ...cat, items };
     });
+    if (sort === 'asc') {
+      groups.sort((a, b) => {
+        const minA = a.items.length ? Math.min(...a.items.map(i => i.price)) : Infinity;
+        const minB = b.items.length ? Math.min(...b.items.map(i => i.price)) : Infinity;
+        return minA - minB;
+      });
+    } else if (sort === 'desc') {
+      groups.sort((a, b) => {
+        const maxA = a.items.length ? Math.max(...a.items.map(i => i.price)) : -Infinity;
+        const maxB = b.items.length ? Math.max(...b.items.map(i => i.price)) : -Infinity;
+        return maxB - maxA;
+      });
+    }
+    return groups;
   });
 
   unavailableIds = computed(() => {
@@ -87,21 +103,43 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     if (this.searchTimer) clearTimeout(this.searchTimer);
   }
 
-  constructor(
-    private itemsService: ItemsService,
-    private apiService: ApiService,
-    public ts: TranslationService,
-    private dialog: MatDialog,
-    private errorService: ErrorService,
-    private ngZone: NgZone,
-    private router: Router,
-    private route: ActivatedRoute,
-    private location: Location
-  ) {
+  // Query params bound via withComponentInputBinding()
+  search = input<string>('');
+  sort = input<string>('');
+  min = input<string>('');
+  max = input<string>('');
+
+  private itemsService = inject(ItemsService);
+  private apiService = inject(ApiService);
+  ts = inject(TranslationService);
+  private dialog = inject(MatDialog);
+  private errorService = inject(ErrorService);
+  private ngZone = inject(NgZone);
+  private router = inject(Router);
+  private location = inject(Location);
+
+  constructor() {
     this.ngZone.runOutsideAngular(() => {
       this.nowInterval = setInterval(() => {
         this.ngZone.run(() => this.now.set(Date.now()));
       }, 60_000);
+    });
+
+    // Effect: reload data when filters change
+    effect(() => {
+      // Track all filter signals so effect re-runs on change
+      void this.searchQuery();
+      void this.sortOrder();
+      void this.priceMin();
+      void this.priceMax();
+
+      if (!this.filtersReady) return; // Skip until ngOnInit has set initial values
+
+      if (this.searchTimer) clearTimeout(this.searchTimer);
+      this.searchTimer = setTimeout(() => {
+        this.loadData();
+        this.updateQueryParams();
+      }, 300);
     });
   }
 
@@ -115,27 +153,28 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
           this.computedMaxPrice.set(maxPrice);
           this.maxPriceInitialized = true;
 
-          // Read query params and apply them
-          const params = this.route.snapshot.queryParams;
-          if (params['search']) this.searchQuery.set(params['search']);
-          if (params['sort'] && params['sort'] !== 'none') this.sortOrder.set(params['sort']);
-          if (params['min']) {
-            const min = +params['min'];
+          // Read query params via input signals (bound by withComponentInputBinding)
+          if (this.search()) this.searchQuery.set(this.search());
+          if (this.sort() && this.sort() !== 'none') this.sortOrder.set(this.sort());
+          if (this.min()) {
+            const min = +this.min();
             this.sliderMin.set(min);
             this.priceMin.set(min > 0 ? min : null);
           }
-          if (params['max']) {
-            const max = +params['max'];
+          if (this.max()) {
+            const max = +this.max();
             this.sliderMax.set(max);
             this.priceMax.set(max < maxPrice ? max : null);
           } else {
             this.sliderMax.set(maxPrice);
           }
 
+          this.filtersReady = true;
           this.loadData();
         });
       },
       error: () => {
+        this.filtersReady = true;
         this.loadData();
       }
     });
@@ -216,28 +255,20 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
 
   onSearchInput(value: string): void {
     this.searchQuery.set(value);
-    if (this.searchTimer) clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => { this.loadData(); this.updateQueryParams(); }, 300);
   }
 
   onSortChange(value: string): void {
     this.sortOrder.set(value);
-    this.loadData();
-    this.updateQueryParams();
   }
 
   onSliderMinChange(value: number): void {
     this.sliderMin.set(value);
     this.priceMin.set(value > 0 ? value : null);
-    if (this.searchTimer) clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => { this.loadData(); this.updateQueryParams(); }, 300);
   }
 
   onSliderMaxChange(value: number): void {
     this.sliderMax.set(value);
     this.priceMax.set(value < this.computedMaxPrice() ? value : null);
-    if (this.searchTimer) clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => { this.loadData(); this.updateQueryParams(); }, 300);
   }
 
   onInputMinChange(value: number): void {
