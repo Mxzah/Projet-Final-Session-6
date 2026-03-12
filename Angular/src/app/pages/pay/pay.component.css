@@ -1,4 +1,4 @@
-@import url("../theme.css");
+@import url("../../theme.css");
 
 .pay-page {
   padding: 1.5rem clamp(1rem, 3vw, 3rem) 2.5rem;

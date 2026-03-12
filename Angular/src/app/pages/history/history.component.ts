@@ -14,14 +14,14 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HeaderComponent } from '../header/header.component';
-import { AuthService } from '../services/auth.service';
-import { OrderService, OrderData } from '../services/order.service';
-import { ReviewService, ReviewData } from '../services/review.service';
-import { TranslationService } from '../services/translation.service';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../pages/admin-items/confirm-dialog/confirm-dialog.component';
+import { HeaderComponent } from '../../header/header.component';
+import { AuthService } from '../../services/auth.service';
+import { OrderService, OrderData } from '../../services/order.service';
+import { ReviewService, ReviewData } from '../../services/review.service';
+import { TranslationService } from '../../services/translation.service';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { OrderReviewDialogComponent, OrderReviewDialogData, OrderReviewDialogResult, ReviewableItem } from './order-review-dialog.component';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-history',

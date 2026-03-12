@@ -7,8 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { TranslationService } from '../services/translation.service';
-import { environment } from '../../environments/environment';
+import { TranslationService } from '../../services/translation.service';
+import { environment } from '../../../environments/environment';
 
 export interface ReviewableItem {
   type: string;         // 'Item', 'Combo', or 'User'

@@ -10,7 +10,7 @@ export const routes: Routes = [
     { path: 'login', loadComponent: () => import('./login/login.component').then(m => m.LoginComponent), canActivate: [guestGuard] },
     { path: 'signup', loadComponent: () => import('./signup/signup.component').then(m => m.SignupComponent), canActivate: [guestGuard] },
     { path: 'table/:token', loadComponent: () => import('./table-scan/table-scan.component').then(m => m.TableScanComponent) },
-    { path: 'form', loadComponent: () => import('./table-form/table-form.component').then(m => m.TableFormComponent), canActivate: [authGuard] },
+    { path: 'form', loadComponent: () => import('./pages/table-form/table-form.component').then(m => m.TableFormComponent), canActivate: [authGuard] },
     {
         path: 'admin',
         loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent),
@@ -27,10 +27,10 @@ export const routes: Routes = [
         ]
     },
     { path: 'menu', loadComponent: () => import('./pages/menu/menu/menu.component').then(m => m.MenuComponent) },
-    { path: 'order', loadComponent: () => import('./order/order.component').then(m => m.OrderComponent), canActivate: [authGuard] },
-    { path: 'pay', loadComponent: () => import('./pay/pay.component').then(m => m.PayComponent), canActivate: [authGuard] },
-    { path: 'history', loadComponent: () => import('./history/history.component').then(m => m.HistoryComponent), canActivate: [authGuard] },
-    { path: 'kitchen', loadComponent: () => import('./cuisine/cuisine.component').then(m => m.CuisineComponent), canActivate: [cuisineGuard] },
-    { path: 'server', loadComponent: () => import('./server-page/server-page.component').then(m => m.ServerPageComponent), canActivate: [serverGuard] },
+    { path: 'order', loadComponent: () => import('./pages/order/order.component').then(m => m.OrderComponent), canActivate: [authGuard] },
+    { path: 'pay', loadComponent: () => import('./pages/pay/pay.component').then(m => m.PayComponent), canActivate: [authGuard] },
+    { path: 'history', loadComponent: () => import('./pages/history/history.component').then(m => m.HistoryComponent), canActivate: [authGuard] },
+    { path: 'kitchen', loadComponent: () => import('./pages/cuisine/cuisine.component').then(m => m.CuisineComponent), canActivate: [cuisineGuard] },
+    { path: 'server', loadComponent: () => import('./pages/server-page/server-page.component').then(m => m.ServerPageComponent), canActivate: [serverGuard] },
     { path: '**', loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

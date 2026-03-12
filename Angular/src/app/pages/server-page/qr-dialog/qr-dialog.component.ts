@@ -2,7 +2,7 @@ import { Component, Inject, AfterViewInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslationService } from '../../services/translation.service';
+import { TranslationService } from '../../../services/translation.service';
 import QRCodeStyling from 'styled-qr-code';
 
 export interface QrDialogData {
