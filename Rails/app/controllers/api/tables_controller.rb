@@ -189,23 +189,21 @@ module Api
     end
 
     def stats_config
+      server_ids = params[:category_ids].present? ? Array(params[:category_ids]).map(&:to_i) : []
+
       {
         columns: [
-          { key: "table_number", label: "Table" },
-          { key: "capacity", label: "Places" },
-          { key: "nb_orders", label: "Nb commandes" },
-          { key: "nb_people_total", label: "Personnes totales" },
-          { key: "avg_people", label: "Moy. personnes" },
-          { key: "revenue", label: "Revenu ($)" },
-          { key: "total_tips", label: "Pourboires ($)" },
-          { key: "grand_total", label: "Total ($)" },
-          { key: "avg_revenue_per_order", label: "Rev. moy./commande ($)" },
-          { key: "avg_duration_min", label: "Durée moy. (min)" },
-          { key: "top_item", label: "Item #1" },
-          { key: "top_vibe", label: "Vibe #1" }
+          { key: "table_number", label: I18n.t("stats.tables.table_number") },
+          { key: "capacity", label: I18n.t("stats.tables.capacity") },
+          { key: "nb_orders", label: I18n.t("stats.tables.nb_orders") },
+          { key: "nb_distinct_clients", label: I18n.t("stats.tables.nb_distinct_clients") },
+          { key: "avg_people", label: I18n.t("stats.tables.avg_people") },
+          { key: "avg_duration_min", label: I18n.t("stats.tables.avg_duration_min") },
+          { key: "top_vibe", label: I18n.t("stats.tables.top_vibe") },
+          { key: "usage_pct", label: I18n.t("stats.tables.usage_pct") }
         ],
         date_column: "o.created_at",
-        category_column: "t.id",
+        category_column: "o.server_id",
         base_conditions: [],
         sql: ->(where_clause, extra) {
           sd = extra[:start_date].present? ? ActiveRecord::Base.connection.quote(extra[:start_date]) : nil
@@ -215,43 +213,38 @@ module Api
           date_cond += " AND o.created_at >= #{sd}" if sd
           date_cond += " AND o.created_at <= #{ed}" if ed
 
+          server_cond = ""
+          if server_ids.any?
+            safe_ids = server_ids.map { |id| ActiveRecord::Base.connection.quote(id) }.join(", ")
+            server_cond = " AND o2.server_id IN (#{safe_ids})"
+          end
+
+          # Total orders (with same filters) for % utilization
+          total_orders_sql = <<~TSQL
+            SELECT COUNT(DISTINCT o2.id)
+            FROM orders o2
+            WHERE o2.deleted_at IS NULL
+            #{date_cond.gsub('o.', 'o2.')}
+            #{server_cond}
+          TSQL
+          total_count = ActiveRecord::Base.connection.select_value(total_orders_sql).to_f
+          total_count = 1.0 if total_count.zero?
+
           <<~SQL
             SELECT
               t.number                                             AS table_number,
               t.nb_seats                                           AS capacity,
               COUNT(DISTINCT o.id)                                 AS nb_orders,
-              COALESCE(SUM(o.nb_people), 0)                        AS nb_people_total,
+              COUNT(DISTINCT o.client_id)                          AS nb_distinct_clients,
               ROUND(AVG(o.nb_people), 1)                           AS avg_people,
-              COALESCE(ROUND(SUM(
-                (SELECT COALESCE(SUM(ol.quantity * ol.unit_price), 0)
-                 FROM order_lines ol WHERE ol.order_id = o.id)
-              ), 2), 0)                                            AS revenue,
-              COALESCE(ROUND(SUM(o.tip), 2), 0)                    AS total_tips,
-              COALESCE(ROUND(SUM(
-                (SELECT COALESCE(SUM(ol.quantity * ol.unit_price), 0)
-                 FROM order_lines ol WHERE ol.order_id = o.id)
-              ) + SUM(COALESCE(o.tip, 0)), 2), 0)                  AS grand_total,
-              CASE WHEN COUNT(DISTINCT o.id) > 0
-                THEN ROUND(SUM(
-                  (SELECT COALESCE(SUM(ol.quantity * ol.unit_price), 0)
-                   FROM order_lines ol WHERE ol.order_id = o.id)
-                ) / COUNT(DISTINCT o.id), 2)
-                ELSE 0
-              END                                                  AS avg_revenue_per_order,
               ROUND(AVG(TIMESTAMPDIFF(MINUTE, o.created_at, o.ended_at)), 1) AS avg_duration_min,
-              (SELECT sub_i.name
-                 FROM order_lines sub_ol
-                 JOIN items sub_i ON sub_i.id = sub_ol.orderable_id AND sub_ol.orderable_type = 'Item'
-                 JOIN orders sub_o ON sub_o.id = sub_ol.order_id AND sub_o.deleted_at IS NULL
-                WHERE sub_o.table_id = t.id#{date_cond.gsub('o.', 'sub_o.')}
-                GROUP BY sub_i.id, sub_i.name
-                ORDER BY SUM(sub_ol.quantity) DESC LIMIT 1)        AS top_item,
-              (SELECT sub_v.name
+              (SELECT CONCAT(sub_v.name, ' (', COUNT(*), ')')
                  FROM orders sub_o
                  JOIN vibes sub_v ON sub_v.id = sub_o.vibe_id
                 WHERE sub_o.table_id = t.id AND sub_o.deleted_at IS NULL#{date_cond.gsub('o.', 'sub_o.')}
                 GROUP BY sub_v.id, sub_v.name
                 ORDER BY COUNT(*) DESC LIMIT 1)                    AS top_vibe,
+              ROUND(COUNT(DISTINCT o.id) / #{total_count} * 100, 1) AS usage_pct,
               CASE WHEN t.deleted_at IS NOT NULL THEN 1 ELSE 0 END AS is_deleted
             FROM tables t
             LEFT JOIN orders o ON o.table_id = t.id

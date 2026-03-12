@@ -256,3 +256,13 @@ fr:
       invalid_start_date: "Format de date début invalide (attendu : AAAA-MM-JJ)"
       invalid_end_date: "Format de date fin invalide (attendu : AAAA-MM-JJ)"
       end_before_start: "La date fin doit être après la date début"
+  stats:
+    tables:
+      table_number: "Table"
+      capacity: "Places"
+      nb_orders: "Nb commandes"
+      nb_distinct_clients: "Clients distincts"
+      avg_people: "Moy. personnes"
+      avg_duration_min: "Durée moy. (min)"
+      top_vibe: "Ambiance #1"
+      usage_pct: "% utilisation"

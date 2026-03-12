@@ -220,3 +220,13 @@ en:
       invalid_start_date: "Invalid start date format (expected: YYYY-MM-DD)"
       invalid_end_date: "Invalid end date format (expected: YYYY-MM-DD)"
       end_before_start: "End date must be after start date"
+  stats:
+    tables:
+      table_number: "Table"
+      capacity: "Seats"
+      nb_orders: "Total orders"
+      nb_distinct_clients: "Distinct clients"
+      avg_people: "Avg. people"
+      avg_duration_min: "Avg. duration (min)"
+      top_vibe: "Top vibe"
+      usage_pct: "% usage"

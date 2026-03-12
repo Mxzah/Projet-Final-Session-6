@@ -11,7 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ServerService, ServerOrdersResponse, ServerTable } from '../services/server.service';
-import { CuisineService, CuisineOrder, CuisineOrderLine } from '../services/cuisine.service';
+import { CuisineOrder, CuisineOrderLine } from '../services/cuisine.service';
 import { AuthService } from '../services/auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { TranslationService } from '../services/translation.service';
@@ -41,7 +41,6 @@ import QRCodeStyling from 'styled-qr-code';
 export class ServerPageComponent implements OnInit, OnDestroy {
   myOrders: (CuisineOrder & { ended_at?: string | null; server_released?: boolean })[] = [];
   groupedOrders: (CuisineOrder & { ended_at?: string | null; server_released?: boolean })[] = [];
-  unassignedOrders: CuisineOrder[] = [];
   loading = true;
   error: string | null = null;
   actionError = '';
@@ -58,7 +57,6 @@ export class ServerPageComponent implements OnInit, OnDestroy {
   constructor(
     public ts: TranslationService,
     private serverService: ServerService,
-    private cuisineService: CuisineService,
     public authService: AuthService,
     private router: Router,
     private location: Location,
@@ -70,11 +68,9 @@ export class ServerPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadOrders();
     this.loadTables();
-    this.loadUnassignedOrders();
     this.pollTimer = setInterval(() => {
       this.loadOrders(false);
       this.loadTables(false);
-      this.loadUnassignedOrders();
     }, 5000);
   }
 
@@ -255,39 +251,6 @@ export class ServerPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Unassigned orders (fetched via kitchen API) ──
-  // Admins already see all orders in "my orders", so skip this for them.
-  loadUnassignedOrders(): void {
-    if (this.authService.isAdmin()) {
-      this.unassignedOrders = [];
-      return;
-    }
-    this.cuisineService.getActiveOrders().subscribe({
-      next: (response) => {
-        const all = response.data ?? [];
-        this.unassignedOrders = all.filter(o => !o.server_id);
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
-  }
-
-  assignMe(order: CuisineOrder): void {
-    this.serverService.assignOrder(order.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.loadOrders();
-          this.loadUnassignedOrders();
-          this.loadTables();
-        } else {
-          const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
-          this.snackBar.open(msg, 'OK', { duration: 5000 });
-        }
-      },
-      error: () => this.snackBar.open(this.ts.t('order.editError'), 'OK', { duration: 5000 })
-    });
-  }
-
   // ── Helpers ──
   getStatusLabel(status: string): string {
     const keys: Record<string, string> = {
@@ -365,7 +328,6 @@ export class ServerPageComponent implements OnInit, OnDestroy {
           if (res.success) {
             this.loadOrders();
             this.loadTables();
-            this.loadUnassignedOrders();
           } else {
             const msg = (res.errors as string[])?.join(', ') || this.ts.t('order.editError');
             this.snackBar.open(msg, 'OK', { duration: 5000 });

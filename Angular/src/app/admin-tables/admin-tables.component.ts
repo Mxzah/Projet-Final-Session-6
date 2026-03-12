@@ -18,6 +18,7 @@ import { AvailabilityEntry } from '../menu/menu.models';
 import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 import { QrDialogComponent, QrDialogData } from '../server-page/qr-dialog/qr-dialog.component';
 import { StatsReportDialogComponent } from '../shared/stats-report-dialog/stats-report-dialog.component';
+import { UserService } from '../services/user.service';
 import QRCodeStyling from 'styled-qr-code';
 
 interface TableInfo {
@@ -121,6 +122,7 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
     constructor(
         private apiService: ApiService,
         private availabilityService: AvailabilityService,
+        private userService: UserService,
         private cdr: ChangeDetectorRef,
         private ngZone: NgZone,
         private dialog: MatDialog,
@@ -348,16 +350,34 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
     }
 
     openStats(): void {
-        this.dialog.open(StatsReportDialogComponent, {
-            data: {
-                endpoint: '/api/tables/stats',
-                dialogTitle: 'Rapport de statistiques — Tables',
-                categories: [],
-                categoryLabel: 'Table'
+        this.userService.getUsers({ type: 'Waiter' }).subscribe({
+            next: (users) => {
+                const servers = users.map(u => ({ id: u.id, name: `${u.first_name} ${u.last_name}` }));
+                this.dialog.open(StatsReportDialogComponent, {
+                    data: {
+                        endpoint: '/api/tables/stats',
+                        dialogTitle: this.ts.t('admin.tables.statsTitle'),
+                        categories: servers,
+                        categoryLabel: this.ts.t('admin.tables.serverFilter')
+                    },
+                    width: '900px',
+                    maxWidth: '95vw',
+                    maxHeight: '90vh'
+                });
             },
-            width: '900px',
-            maxWidth: '95vw',
-            maxHeight: '90vh'
+            error: () => {
+                this.dialog.open(StatsReportDialogComponent, {
+                    data: {
+                        endpoint: '/api/tables/stats',
+                        dialogTitle: this.ts.t('admin.tables.statsTitle'),
+                        categories: [],
+                        categoryLabel: this.ts.t('admin.tables.serverFilter')
+                    },
+                    width: '900px',
+                    maxWidth: '95vw',
+                    maxHeight: '90vh'
+                });
+            }
         });
     }
 

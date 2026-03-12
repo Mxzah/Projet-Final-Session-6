@@ -140,6 +140,8 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
 
   // Admin tabs + combos
   'admin.tables.tab': { fr: 'Tables', en: 'Tables' },
+  'admin.tables.statsTitle': { fr: 'Statistiques — Tables', en: 'Statistics — Tables' },
+  'admin.tables.serverFilter': { fr: 'Serveur', en: 'Server' },
   'admin.items.tab': { fr: 'Items', en: 'Items' },
   'admin.combos.tab': { fr: 'Combos', en: 'Combos' },
   'admin.comboItems.tab': { fr: 'Combo items', en: 'Combo items' },

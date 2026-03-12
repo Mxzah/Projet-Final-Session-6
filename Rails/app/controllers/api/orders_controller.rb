@@ -71,13 +71,20 @@ module Api
       order = Order.new(order_params)
       order.client = current_user
 
-      # Validate server_id is actually a Waiter if provided
+      # Validate server_id is actually a server-capable employee if provided
       if order.server_id.present?
-        waiter = User.find_by(id: order.server_id)
-        order.server_id = nil unless waiter&.type == "Waiter"
+        staff = User.find_by(id: order.server_id)
+        order.server_id = nil unless staff&.type.in?(%w[Waiter Administrator])
       end
 
       if order.save
+        # Auto-assign server to other unassigned open orders on the same table
+        if order.server_id.present?
+          Order.where(table_id: order.table_id, ended_at: nil, server_id: nil)
+               .where.not(id: order.id)
+               .update_all(server_id: order.server_id)
+        end
+
         render_success(data: order.as_json, errors: [])
       else
         render_error(order.errors.full_messages)

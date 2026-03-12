@@ -146,21 +146,7 @@
                       {{ ts.t('server.awaitingPayment') }}
                     </mat-chip>
                   }
-                  @if (!order.server_id && !isOrderClosed(order)) {
-                    <mat-chip class="chip-unassigned">
-                      <mat-icon>person_off</mat-icon>
-                      {{ ts.t('server.unassigned') }}
-                    </mat-chip>
-                  }
                 </div>
-                @if (!order.server_id && !isOrderClosed(order)) {
-                  <div class="assign-row">
-                    <button mat-flat-button class="btn-assign" (click)="assignMe(order)">
-                      <mat-icon>person_add</mat-icon>
-                      {{ ts.t('server.assignMe') }}
-                    </button>
-                  </div>
-                }
                 @if (order.vibe_name) {
                   <div class="vibe-row">
                     <span class="vibe-badge"
