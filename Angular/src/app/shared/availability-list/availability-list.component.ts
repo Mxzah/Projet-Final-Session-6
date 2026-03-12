@@ -32,7 +32,9 @@ function makeStartValidator(originalValue: string, getGroup: () => FormGroup | n
     if (!control.value) return null;
     if (!isValidDate(control.value)) return { invalidDate: true };
     // Allow the original value unchanged (even if in the past)
-    if (control.value !== originalValue) {
+    const originalMs = originalValue ? new Date(originalValue).getTime() : null;
+    const currentMs = new Date(control.value).getTime();
+    if (originalMs === null || currentMs !== originalMs) {
       const now = new Date();
       now.setSeconds(0, 0);
       if (new Date(control.value) < now) return { startInPast: true };
@@ -138,6 +140,9 @@ export class AvailabilityListComponent {
       end_at: new FormControl(a?.end_at ? this.toDatetimeLocal(a.end_at) : ''),
       description: new FormControl(a?.description ?? '', [Validators.maxLength(255)])
     });
+    if (a?.id && a?.end_at) {
+      (group as any)._endedNow = true;
+    }
     const startValidators = a?.id
       ? [Validators.required, makeStartValidator(this.toDatetimeLocal(a.start_at), () => group)]
       : [Validators.required, makeStartNotInPastValidator(() => group)];

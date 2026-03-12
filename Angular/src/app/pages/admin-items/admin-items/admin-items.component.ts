@@ -299,7 +299,10 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     ref.afterClosed().subscribe({
       next: (result) => {
         if (result?.created) {
-          this.ngZone.run(() => this.items.update(items => [...items, result.created!]));
+          this.ngZone.run(() => {
+            this.now.set(Date.now());
+            this.items.update(items => [...items, result.created!]);
+          });
         }
       }
     });
@@ -316,9 +319,12 @@ export class AdminItemsComponent implements OnInit, OnDestroy {
     ref.afterClosed().subscribe({
       next: (result) => {
         if (result?.updated) {
-          this.ngZone.run(() => this.items.update(items =>
-            items.map(i => i.id === item.id ? result.updated! : i)
-          ));
+          this.ngZone.run(() => {
+            this.now.set(Date.now());
+            this.items.update(items =>
+              items.map(i => i.id === item.id ? result.updated! : i)
+            );
+          });
         }
       }
     });
