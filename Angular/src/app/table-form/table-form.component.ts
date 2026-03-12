@@ -36,6 +36,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class TableFormComponent implements OnInit {
   table: TableData | null = null;
   noTable = false;
+  tableUnavailable = false;
   vibes: VibeData[] = [];
   vibesLoading = true;
   isSubmitting = signal(false);
@@ -58,6 +59,19 @@ export class TableFormComponent implements OnInit {
     this.table = this.tableService.getCurrentTable();
     if (!this.table) {
       this.noTable = true;
+      return;
+    }
+
+    // Check if table has an active availability
+    const now = new Date();
+    const avails = this.table.availabilities ?? [];
+    const hasActive = avails.some(a => {
+      const start = new Date(a.start_at);
+      const end = a.end_at ? new Date(a.end_at) : null;
+      return start <= now && (!end || end > now);
+    });
+    if (!hasActive) {
+      this.tableUnavailable = true;
       return;
     }
 
