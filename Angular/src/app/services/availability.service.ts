@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { AvailabilityEntry } from '../menu/menu.models';
+import { AvailabilityEntry } from '../models/menu.models';
 
 type AvailableResource = 'items' | 'tables' | 'combos' | 'categories';
 

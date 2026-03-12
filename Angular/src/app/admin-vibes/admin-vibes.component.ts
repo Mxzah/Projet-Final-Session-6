@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { VibeService, VibeData } from '../services/vibe.service';
 import { TranslationService } from '../services/translation.service';
 import { VibeFormDialogComponent, VibeFormDialogData, VibeFormDialogResult } from './vibe-form-dialog.component';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../pages/admin-items/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-admin-vibes',

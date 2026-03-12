@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AvailabilityEntry } from '../../menu/menu.models';
+import { AvailabilityEntry } from '../../models/menu.models';
 import { TranslationService } from '../../services/translation.service';
 
 function isValidDate(value: string): boolean {

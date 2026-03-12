@@ -14,7 +14,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ApiService } from '../services/api.service';
 import { TranslationService } from '../services/translation.service';
 import { AvailabilityService } from '../services/availability.service';
-import { AvailabilityEntry } from '../menu/menu.models';
+import { AvailabilityEntry } from '../models/menu.models';
 import { AvailabilityListComponent } from '../shared/availability-list/availability-list.component';
 import { QrDialogComponent, QrDialogData } from '../server-page/qr-dialog/qr-dialog.component';
 import { StatsReportDialogComponent } from '../shared/stats-report-dialog/stats-report-dialog.component';

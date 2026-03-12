@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ComboItemsService, ComboItem } from '../../services/combo-items.service';
-import { Item, AvailabilityEntry } from '../../menu/menu.models';
+import { Item, AvailabilityEntry } from '../../models/menu.models';
 import { TranslationService } from '../../services/translation.service';
 import { ErrorService } from '../../services/error.service';
 

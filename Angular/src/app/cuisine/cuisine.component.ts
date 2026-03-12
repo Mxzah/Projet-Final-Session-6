@@ -13,8 +13,8 @@ import { CuisineService, CuisineOrder, CuisineOrderLine } from '../services/cuis
 import { AuthService } from '../services/auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { TranslationService } from '../services/translation.service';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
-import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../pages/admin-items/confirm-dialog/confirm-dialog.component';
+import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../pages/admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
 import { StatsReportDialogComponent } from '../shared/stats-report-dialog/stats-report-dialog.component';
 import { VibeService, VibeData } from '../services/vibe.service';
 

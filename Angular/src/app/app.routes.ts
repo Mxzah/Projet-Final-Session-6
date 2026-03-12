@@ -6,7 +6,7 @@ import { cuisineGuard } from './guards/cuisine.guard';
 import { serverGuard } from './guards/server.guard';
 
 export const routes: Routes = [
-    { path: '', loadComponent: () => import('./menu/menu/menu.component').then(m => m.MenuComponent) },
+    { path: '', loadComponent: () => import('./pages/menu/menu/menu.component').then(m => m.MenuComponent) },
     { path: 'login', loadComponent: () => import('./login/login.component').then(m => m.LoginComponent), canActivate: [guestGuard] },
     { path: 'signup', loadComponent: () => import('./signup/signup.component').then(m => m.SignupComponent), canActivate: [guestGuard] },
     { path: 'table/:token', loadComponent: () => import('./table-scan/table-scan.component').then(m => m.TableScanComponent) },
@@ -18,15 +18,15 @@ export const routes: Routes = [
         children: [
             { path: '', redirectTo: 'tables', pathMatch: 'full' },
             { path: 'tables', loadComponent: () => import('./admin-tables/admin-tables.component').then(m => m.AdminTablesComponent) },
-            { path: 'items', loadComponent: () => import('./admin-items/admin-items/admin-items.component').then(m => m.AdminItemsComponent) },
-            { path: 'categories', loadComponent: () => import('./admin-categories/admin-categories/admin-categories.component').then(m => m.AdminCategoriesComponent) },
+            { path: 'items', loadComponent: () => import('./pages/admin-items/admin-items/admin-items.component').then(m => m.AdminItemsComponent) },
+            { path: 'categories', loadComponent: () => import('./pages/admin-categories/admin-categories/admin-categories.component').then(m => m.AdminCategoriesComponent) },
             { path: 'combos', loadComponent: () => import('./admin-combos/admin-combos.component').then(m => m.AdminCombosComponent) },
             { path: 'users', loadComponent: () => import('./admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
             { path: 'reviews', loadComponent: () => import('./admin-reviews/admin-reviews.component').then(m => m.AdminReviewsComponent) },
             { path: 'vibes', loadComponent: () => import('./admin-vibes/admin-vibes.component').then(m => m.AdminVibesComponent) },
         ]
     },
-    { path: 'menu', loadComponent: () => import('./menu/menu/menu.component').then(m => m.MenuComponent) },
+    { path: 'menu', loadComponent: () => import('./pages/menu/menu/menu.component').then(m => m.MenuComponent) },
     { path: 'order', loadComponent: () => import('./order/order.component').then(m => m.OrderComponent), canActivate: [authGuard] },
     { path: 'pay', loadComponent: () => import('./pay/pay.component').then(m => m.PayComponent), canActivate: [authGuard] },
     { path: 'history', loadComponent: () => import('./history/history.component').then(m => m.HistoryComponent), canActivate: [authGuard] },

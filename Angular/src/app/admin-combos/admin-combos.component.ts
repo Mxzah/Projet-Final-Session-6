@@ -10,7 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CombosService, Combo } from '../services/combos.service';
 import { ComboItemsService, ComboItem } from '../services/combo-items.service';
 import { ItemsService } from '../services/items.service';
-import { Item } from '../menu/menu.models';
+import { Item } from '../models/menu.models';
 import { ErrorService } from '../services/error.service';
 import { TranslationService } from '../services/translation.service';
 import { ComboFormDialogComponent, ComboFormDialogResult } from './combo-form-dialog/combo-form-dialog.component';

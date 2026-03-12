@@ -18,8 +18,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
-import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../pages/admin-items/confirm-dialog/confirm-dialog.component';
+import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../pages/admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
 import { ImageData } from '../services/order.service';
 
 interface DisplayOrderLine {

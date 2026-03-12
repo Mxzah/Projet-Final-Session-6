@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CombosService, Combo } from '../../services/combos.service';
 import { AvailabilityService } from '../../services/availability.service';
-import { AvailabilityEntry } from '../../menu/menu.models';
+import { AvailabilityEntry } from '../../models/menu.models';
 import { AvailabilityListComponent } from '../../shared/availability-list/availability-list.component';
 import { ImageUploadComponent, ImageValidationResult } from '../../shared/image-upload/image-upload.component';
 import { TranslationService } from '../../services/translation.service';
