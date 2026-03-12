@@ -11,7 +11,22 @@
         </h2>
         <p class="welcome-text">{{ ts.t('admin.combos.subtitle') }}</p>
       </div>
-
+      <!-- SSF bar -->
+      <div class="ssf-bar-wrapper">
+        <app-ssf-bar
+          [searchQuery]="searchQuery()"
+          [sortOrder]="sortOrder()"
+          [sliderMin]="sliderMin()"
+          [sliderMax]="sliderMax()"
+          [computedMaxPrice]="computedMaxPrice()"
+          (searchChange)="onSearchInput($event)"
+          (sortChange)="onSortChange($event)"
+          (sliderMinChange)="onSliderMinChange($event)"
+          (sliderMaxChange)="onSliderMaxChange($event)"
+          (inputMinChange)="onInputMinChange($event)"
+          (inputMaxChange)="onInputMaxChange($event)"
+        />
+      </div>
       @if (loadError()) {
         <div class="admin-error">{{ loadError() }}</div>
       }

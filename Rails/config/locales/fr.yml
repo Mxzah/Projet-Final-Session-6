@@ -107,6 +107,17 @@ fr:
               only_whitespace: "ne peut pas être composé uniquement d'espaces"
         table:
           attributes:
+            number:
+              blank: "ne peut pas être vide"
+              taken: "est déjà utilisé"
+              not_an_integer: "doit être un nombre entier"
+              greater_than_or_equal_to: "doit être supérieur ou égal à %{count}"
+              less_than_or_equal_to: "doit être inférieur ou égal à %{count}"
+            nb_seats:
+              blank: "ne peut pas être vide"
+              not_an_integer: "doit être un nombre entier"
+              greater_than_or_equal_to: "doit être supérieur ou égal à %{count}"
+              less_than_or_equal_to: "doit être inférieur ou égal à %{count}"
             image:
               invalid_format: "doit être un fichier JPG ou PNG"
               file_too_large: "doit être inférieur à 5 Mo"
@@ -165,6 +176,11 @@ fr:
         item: "Article"
         item_id: "Article"
         quantity: "Quantité"
+      table:
+        number: "Numéro"
+        nb_seats: "Capacité"
+        temporary_code: "Code temporaire"
+        cleaned_at: "Nettoyée le"
 
   # Messages du contrôleur
   controllers:

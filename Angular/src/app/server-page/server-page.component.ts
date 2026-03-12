@@ -430,7 +430,9 @@ export class ServerPageComponent implements OnInit, OnDestroy {
 
   getTableQrUrl(table: ServerTable): string {
     const base = window.location.origin.replace(/\/+$/, '');
-    return `${base}/table/${table.qr_token}`;
+    const userId = this.authService.getCurrentUser()?.id;
+    const url = `${base}/table/${table.qr_token}`;
+    return userId ? `${url}?s=${userId}` : url;
   }
 
   openQrDialog(table: ServerTable): void {

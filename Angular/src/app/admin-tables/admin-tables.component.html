@@ -132,10 +132,6 @@
         </div>
 
         <mat-card-actions class="table-actions">
-          <button mat-stroked-button [matTooltip]="'Marquer comme nettoyée'" (click)="markCleaned(table)" [disabled]="cleaningTableId() === table.id">
-            <mat-icon>{{ cleaningTableId() === table.id ? 'hourglass_top' : 'cleaning_services' }}</mat-icon>
-            {{ cleaningTableId() === table.id ? 'Nettoyage...' : 'Table nettoyée' }}
-          </button>
           <button mat-stroked-button [matTooltip]="ts.t('tables.copyLink')" (click)="copyUrl(table)">
             <mat-icon>{{ copiedToken() === table.qr_token ? 'check' : 'content_copy' }}</mat-icon>
             {{ copiedToken() === table.qr_token ? ts.t('tables.copied') : ts.t('tables.copy') }}
