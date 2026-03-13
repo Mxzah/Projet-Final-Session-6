@@ -297,7 +297,7 @@
                     @if (review.image_urls.length > 0) {
                       <div class="review-images">
                         @for (url of review.image_urls; track url) {
-                          <img [src]="getReviewImageUrl(url)" class="review-thumb" alt="review" />
+                          <img [src]="getReviewImageUrl(url)" class="review-thumb" alt="review" (click)="openLightbox($event, url)" />
                         }
                       </div>
                     }
@@ -412,7 +412,7 @@
                     @if (review.image_urls.length > 0) {
                       <div class="review-images">
                         @for (url of review.image_urls; track url) {
-                          <img [src]="getReviewImageUrl(url)" class="review-thumb" alt="review" />
+                          <img [src]="getReviewImageUrl(url)" class="review-thumb" alt="review" (click)="openLightbox($event, url)" />
                         }
                       </div>
                     }
@@ -462,5 +462,15 @@
         </button>
       </mat-card-actions>
     </mat-card>
+  </div>
+}
+
+<!-- Lightbox for review images -->
+@if (lightboxImageUrl()) {
+  <div class="lightbox-overlay" (click)="closeLightbox()">
+    <button mat-icon-button class="lightbox-close">
+      <mat-icon>close</mat-icon>
+    </button>
+    <img [src]="lightboxImageUrl()" class="lightbox-img" alt="review" (click)="$event.stopPropagation()" />
   </div>
 }

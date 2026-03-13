@@ -114,6 +114,9 @@ export class MenuComponent implements OnInit, OnDestroy {
   modalReviewsLoading = signal<boolean>(false);
   modalReviewsExpanded = signal<boolean>(false);
 
+  // Lightbox for review images
+  lightboxImageUrl = signal<string | null>(null);
+
   private searchTimer: any = null;
   private maxPriceInitialized = false;
   private filtersReady = false;
@@ -401,6 +404,15 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   getReviewImageUrl(path: string): string {
     return `${environment.apiUrl}${path}`;
+  }
+
+  openLightbox(event: Event, url: string): void {
+    event.stopPropagation();
+    this.lightboxImageUrl.set(this.getReviewImageUrl(url));
+  }
+
+  closeLightbox(): void {
+    this.lightboxImageUrl.set(null);
   }
 
   openItemModal(item: Item): void {
