@@ -18,7 +18,6 @@ import { TranslationService } from '../../services/translation.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
 import { QrDialogComponent, QrDialogData } from './qr-dialog/qr-dialog.component';
-import QRCodeStyling from 'styled-qr-code';
 
 @Component({
   selector: 'app-server-page',

@@ -19,7 +19,6 @@ import { AvailabilityListComponent } from '../../shared/availability-list/availa
 import { QrDialogComponent, QrDialogData } from '../server-page/qr-dialog/qr-dialog.component';
 import { StatsReportDialogComponent } from '../../shared/stats-report-dialog/stats-report-dialog.component';
 import { UserService } from '../../services/user.service';
-import QRCodeStyling from 'styled-qr-code';
 
 interface TableInfo {
     id: number;
@@ -153,8 +152,8 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
     ngAfterViewChecked(): void {
         const version = this.previewVersion();
         if (version === this.lastRenderedPreviewVersion) return;
-        const rendered = this.renderPreviewQr();
-        if (rendered) this.lastRenderedPreviewVersion = version;
+        this.lastRenderedPreviewVersion = version;
+        this.renderPreviewQr();
     }
 
     loadTables(): void {
@@ -190,7 +189,8 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         return this.previewUrl();
     }
 
-    private createQrCode(data: string): QRCodeStyling {
+    private async createQrCode(data: string): Promise<any> {
+        const { default: QRCodeStyling } = await import('styled-qr-code');
         return new QRCodeStyling({
             width: this.qrSize,
             height: this.qrSize,
@@ -218,7 +218,7 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         });
     }
 
-    renderPreviewQr(): boolean {
+    async renderPreviewQr(): Promise<boolean> {
         const container = document.getElementById('qr-preview');
         if (!container) return false;
 
@@ -226,7 +226,7 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         const previewUrl = this.getPreviewUrl();
         if (!previewUrl) return false;
 
-        const qrCode = this.createQrCode(previewUrl);
+        const qrCode = await this.createQrCode(previewUrl);
         qrCode.append(container);
         return true;
     }
@@ -238,9 +238,9 @@ export class AdminTablesComponent implements OnInit, OnDestroy, AfterViewChecked
         }
     }
 
-    downloadQr(table: TableInfo, format: 'svg' | 'png'): void {
+    async downloadQr(table: TableInfo, format: 'svg' | 'png'): Promise<void> {
         const fileName = `restoqr-table-${table.number}.${format}`;
-        const qr = this.createQrCode(this.getTableUrl(table));
+        const qr = await this.createQrCode(this.getTableUrl(table));
 
         qr.getRawData(format).then((blob: Blob | null) => {
             if (blob) {

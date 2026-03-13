@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_074946) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_153850) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -137,6 +137,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_074946) do
     t.index ["deleted_at"], name: "idx_reviews_deleted_at"
     t.index ["order_id"], name: "index_reviews_on_order_id"
     t.index ["reviewable_type", "reviewable_id"], name: "idx_reviews_type_id"
+    t.index ["user_id", "reviewable_type", "reviewable_id", "order_id"], name: "uniq_review_per_user_reviewable_order", unique: true
     t.index ["user_id"], name: "index_reviews_on_user_id"
   end
 
@@ -158,6 +159,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_074946) do
     t.string "block_note"
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
+    t.integer "discount_percentage", default: 0, null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "first_name", limit: 50, null: false
