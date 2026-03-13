@@ -10,7 +10,13 @@ module Api
 
     # GET /api/server/tables — returns all tables with QR tokens for the server to present
     def tables
-      tables = Table.includes(:availabilities, orders: :server).order(:number)
+      now = Time.current
+      tables = Table.includes(:availabilities, orders: :server).order(:number).select do |t|
+        open_order = t.orders.detect { |o| o.ended_at.nil? }
+        next true if open_order.present?
+
+        t.availabilities.any? { |a| a.start_at <= now && (a.end_at.nil? || a.end_at > now) }
+      end
       render_success(data: tables.map { |t| server_table_json(t) }, errors: [])
     end
 

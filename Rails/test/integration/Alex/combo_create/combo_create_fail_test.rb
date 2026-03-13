@@ -114,15 +114,16 @@ class ComboCreateFailTest < ActionDispatch::IntegrationTest
     assert_not json["success"]
   end
 
-  # Test 8: Create avec prix = 0 retourne success false
-  test "create avec prix égal à 0 retourne success false" do
+  # Test 8: Create avec prix = 0 retourne success true (prix >= 0 est valide)
+  test "create avec prix égal à 0 retourne success true" do
     post "/api/combos", params: {
       combo: { name: "Combo Gratuit", price: 0 }
     }, as: :json
 
     assert_response :ok
     json = JSON.parse(response.body)
-    assert_not json["success"]
+    assert json["success"]
+    assert_equal 0, json["data"]["price"]
   end
 
   # Test 9: Create avec prix négatif retourne success false
