@@ -44,7 +44,7 @@ class Review < ApplicationRecord
       comment: comment,
       image_urls: if images.attached?
                     images.map do |img|
-                      Rails.application.routes.url_helpers.rails_blob_url(img, only_path: true)
+                      Rails.application.routes.url_helpers.rails_storage_proxy_path(img)
                     end
                   else
                     []
