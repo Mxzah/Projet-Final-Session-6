@@ -27,7 +27,7 @@ class Order < ApplicationRecord
     lines_data = order_lines.map(&:as_json)
     total = lines_data.sum { |l| l[:unit_price] * l[:quantity] }
 
-    discount_pct = client&.employee_discount_percentage || 0
+    discount_pct = client&.discount_percentage || 0
     discount_amt = (total * discount_pct / 100.0).round(2)
     adj_total = (total - discount_amt).round(2)
 
@@ -73,13 +73,6 @@ class Order < ApplicationRecord
   end
 
   # nb_people cannot exceed the table's nb_seats
-  def nb_people_within_table_capacity
-    return unless table.present? && nb_people.present?
-    return if nb_people <= table.nb_seats
-
-    errors.add(:nb_people, :exceeds_capacity, max: table.nb_seats)
-  end
-
   def nb_people_within_table_capacity
     return unless table.present? && nb_people.present?
     return if nb_people <= table.nb_seats

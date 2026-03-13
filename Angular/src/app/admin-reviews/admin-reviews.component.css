@@ -25,6 +25,31 @@
   margin-bottom: 1.5rem;
 }
 
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.btn-stats {
+  background: var(--copper) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif !important;
+  font-weight: 600 !important;
+  padding: 0 1.25rem !important;
+  height: 42px;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.btn-stats:hover {
+  opacity: 0.9;
+}
+
 h1 {
   font-family: "Fraunces", "Times New Roman", serif;
   font-size: clamp(1.6rem, 2.5vw, 2.2rem);

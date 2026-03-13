@@ -17,7 +17,7 @@ module Api
     # GET /api/server/orders — returns { mine: [...] }
     # Admin sees ALL orders; waiters see only their own.
     def orders
-      if current_user.type == "Administrator"
+      if current_user.is_a?(Administrator)
         mine = Order.where(ended_at: nil)
                     .includes(:table, :client, :server, :vibe, order_lines: :orderable)
                     .order(created_at: :asc)
@@ -59,13 +59,13 @@ module Api
 
     # POST /api/server/orders/:id/release
     def release
-      unless @order.server_id == current_user.id || current_user.type == "Administrator"
+      unless @order.server_id == current_user.id || current_user.is_a?(Administrator)
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
       # Block release if any order lines are not yet served
       table = @order.table
-      open_orders = if current_user.type == "Administrator"
+      open_orders = if current_user.is_a?(Administrator)
                       table.orders.where(ended_at: nil)
                     else
                       table.orders.where(ended_at: nil, server_id: current_user.id)
@@ -85,7 +85,7 @@ module Api
     # - Met cleaned_at sur la table + régénère le QR code
     # - La table redevient disponible pour un nouveau client
     def clean
-      unless @order.server_id == current_user.id || current_user.type == "Administrator"
+      unless @order.server_id == current_user.id || current_user.is_a?(Administrator)
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
@@ -105,7 +105,7 @@ module Api
 
     # DELETE /api/server/orders/:id/cancel — cancel an empty order (no sent lines)
     def cancel
-      unless @order.server_id == current_user.id || current_user.type == "Administrator"
+      unless @order.server_id == current_user.id || current_user.is_a?(Administrator)
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
@@ -120,13 +120,24 @@ module Api
       @order.order_lines.destroy_all
       @order.update!(deleted_at: Time.current)
 
+      # Clean and release the table so it becomes available again
+      table = @order.table
+      remaining_open = table.orders.where(ended_at: nil, deleted_at: nil).where.not(id: @order.id)
+      unless remaining_open.exists?
+        table.update!(
+          cleaned_at: Time.current,
+          temporary_code: SecureRandom.hex(16),
+          qr_rotated_at: Time.current
+        )
+      end
+
       render_success(data: [], errors: [])
     end
 
     # PATCH /api/server/order_lines/:id/serve — advance from ready to served (server only)
     def serve_line
       order = @line.order
-      unless order.server_id == current_user.id || current_user.type == "Administrator"
+      unless order.server_id == current_user.id || current_user.is_a?(Administrator)
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
@@ -142,7 +153,7 @@ module Api
     # PATCH /api/server/order_lines/:id — update quantity/note
     def update_line
       order = @line.order
-      unless order.server_id == current_user.id || current_user.type == "Administrator"
+      unless order.server_id == current_user.id || current_user.is_a?(Administrator)
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
@@ -160,7 +171,7 @@ module Api
     # DELETE /api/server/order_lines/:id — hard delete
     def destroy_line
       order = @line.order
-      unless order.server_id == current_user.id || current_user.type == "Administrator"
+      unless order.server_id == current_user.id || current_user.is_a?(Administrator)
         return render_error(I18n.t("controllers.server.not_assigned"))
       end
 
@@ -178,7 +189,7 @@ module Api
     private
 
     def authorize_server_staff!
-      return if %w[Administrator Waiter].include?(current_user.type)
+      return if current_user.is_a?(Administrator) || current_user.is_a?(Waiter)
 
       render_error(I18n.t("controllers.server.unauthorized"))
     end

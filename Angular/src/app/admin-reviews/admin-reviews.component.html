@@ -2,8 +2,16 @@
   <div class="outer-container">
 
 <div class="page-header">
-  <h1>{{ ts.t('admin.reviews.title') }}</h1>
-  <p class="subtitle">{{ ts.t('admin.reviews.subtitle') }}</p>
+  <div class="title-row">
+    <div>
+      <h1>{{ ts.t('admin.reviews.title') }}</h1>
+      <p class="subtitle">{{ ts.t('admin.reviews.subtitle') }}</p>
+    </div>
+    <button mat-flat-button class="btn-stats" (click)="openStats()">
+      <mat-icon>bar_chart</mat-icon>
+      {{ ts.t('admin.reviews.stats') }}
+    </button>
+  </div>
 </div>
 
 <!-- Filters -->

@@ -14,7 +14,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'header.server': { fr: 'Serveur', en: 'Server' },
   'header.loggedAs': { fr: 'Connecté en tant que', en: 'Logged in as' },
   'header.roleAdmin': { fr: 'Admin', en: 'Admin' },
-  'header.roleWaiter': { fr: 'Serveur', en: 'Waiter' },
+  'header.roleWaiter': { fr: 'Serveur', en: 'Server' },
   'header.roleCook': { fr: 'Cuisinier', en: 'Cook' },
   'header.roleClient': { fr: 'Client', en: 'Client' },
 
@@ -250,7 +250,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'form.noTable': { fr: 'Aucune table détectée', en: 'No table detected' },
   'form.noTableText': { fr: 'Veuillez scanner le code QR sur votre table pour continuer.', en: 'Please scan the QR code on your table to continue.' },
   'form.tableUnavailable': { fr: 'Table indisponible', en: 'Table unavailable' },
-  'form.tableUnavailableText': { fr: 'Cette table n\'est pas disponible pour le moment. Veuillez réessayer plus tard ou contacter un serveur.', en: 'This table is not available at the moment. Please try again later or contact a waiter.' },
+  'form.tableUnavailableText': { fr: 'Cette table n\'est pas disponible pour le moment. Veuillez réessayer plus tard ou contacter un serveur.', en: 'This table is not available at the moment. Please try again later or contact a server.' },
 
   // Order page
   'order.title': { fr: 'Votre commande', en: 'Your order' },
@@ -419,7 +419,7 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.users.passwordMaxLength': { fr: 'Maximum 128 caractères.', en: 'Maximum 128 characters.' },
   'admin.users.passwordConfirmationRequired': { fr: 'La confirmation est requise.', en: 'Confirmation is required.' },
   'admin.users.type.Administrator': { fr: 'Administrateur', en: 'Administrator' },
-  'admin.users.type.Waiter': { fr: 'Serveur', en: 'Waiter' },
+  'admin.users.type.Waiter': { fr: 'Serveur', en: 'Server' },
   'admin.users.type.Client': { fr: 'Client', en: 'Client' },
   'admin.users.type.Cook': { fr: 'Cuisinier', en: 'Cook' },
   'admin.users.status.active': { fr: 'Actif', en: 'Active' },
@@ -587,6 +587,9 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
   'admin.reviews.deletedBadge': { fr: 'Supprimé', en: 'Deleted' },
   'admin.reviews.deletedOn': { fr: 'Supprimé le', en: 'Deleted on' },
   'admin.reviews.archivedSection': { fr: 'Avis archivés', en: 'Archived reviews' },
+  'admin.reviews.stats': { fr: 'Statistiques', en: 'Statistics' },
+  'admin.reviews.statsTitle': { fr: 'Rapport de statistiques — Avis', en: 'Statistics Report — Reviews' },
+  'admin.reviews.filterAvgRating': { fr: 'Note moyenne', en: 'Average rating' },
 
   // Admin vibes
   'admin.vibes.tab': { fr: 'Vibes', en: 'Vibes' },

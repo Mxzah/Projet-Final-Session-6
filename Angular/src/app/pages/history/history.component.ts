@@ -155,11 +155,26 @@ export class HistoryComponent implements OnInit {
       next: (res) => {
         this.reviews.set(res.data || []);
         this.isLoading.set(false);
+        this.checkAutoOpenReview();
       },
       error: () => {
         this.isLoading.set(false);
       }
     });
+  }
+
+  private checkAutoOpenReview(): void {
+    const params = this.route.snapshot.queryParams;
+    const openReviewId = params['openReview'];
+    if (!openReviewId) return;
+
+    this.router.navigate([], { queryParams: {}, replaceUrl: true });
+
+    const orderId = +openReviewId;
+    const order = this.orders().find(o => o.id === orderId);
+    if (order) {
+      setTimeout(() => this.openOrderReviewDialog(order), 300);
+    }
   }
 
   // ── Review helpers ──

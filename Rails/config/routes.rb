@@ -49,6 +49,7 @@ Rails.application.routes.draw do
     resources :reviews, only: %i[index show create update destroy] do
       collection do
         get :for_reviewable
+        get :stats
       end
     end
 

@@ -21,9 +21,12 @@ export interface StatsColumn {
 export interface StatsReportDialogData {
   endpoint: string;
   dialogTitle: string;
-  categories: { id: number; name: string }[];
+  categories: { id: number | string; name: string }[];
   categoryLabel?: string;
   expandable?: boolean;
+  secondaryCategories?: { id: number | string; name: string }[];
+  secondaryCategoryLabel?: string;
+  secondaryCategoryParam?: string;
 }
 
 interface DetailOrderLine {
@@ -93,7 +96,8 @@ export class StatsReportDialogComponent implements OnInit {
 
   startDate: Date | null = null;
   endDate: Date | null = null;
-  selectedCategoryIds: number[] = [];
+  selectedCategoryIds: (number | string)[] = [];
+  selectedSecondaryCategoryIds: (number | string)[] = [];
   startDateError = signal('');
   endDateError = signal('');
 
@@ -143,6 +147,11 @@ export class StatsReportDialogComponent implements OnInit {
 
   onCategoryChange(event: any): void {
     this.selectedCategoryIds = event.value;
+    this.loadStats();
+  }
+
+  onSecondaryCategoryChange(event: any): void {
+    this.selectedSecondaryCategoryIds = event.value;
     this.loadStats();
   }
 
@@ -225,6 +234,10 @@ export class StatsReportDialogComponent implements OnInit {
     }
     for (const id of this.selectedCategoryIds) {
       parts.push(`category_ids[]=${encodeURIComponent(id)}`);
+    }
+    const secParam = this.data.secondaryCategoryParam || 'rating_ids';
+    for (const id of this.selectedSecondaryCategoryIds) {
+      parts.push(`${secParam}[]=${encodeURIComponent(id)}`);
     }
     if (parts.length > 0) {
       url += '?' + parts.join('&');

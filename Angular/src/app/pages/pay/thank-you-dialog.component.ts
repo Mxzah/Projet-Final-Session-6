@@ -7,7 +7,7 @@ import { TranslationService } from '../../services/translation.service';
 export interface ThankYouDialogData {
   title: string;
   message: string;
-  reviewLabel: string;
+  reviewLabel: string | null;
   quitLabel: string;
 }
 
@@ -26,10 +26,12 @@ export type ThankYouDialogResult = 'review' | 'quit';
         {{ data.message }}
       </mat-dialog-content>
       <mat-dialog-actions class="thank-you-actions" align="center">
-        <button mat-raised-button color="primary" class="review-btn" (click)="choose('review')">
-          <mat-icon>star</mat-icon>
-          {{ data.reviewLabel }}
-        </button>
+        @if (data.reviewLabel) {
+          <button mat-raised-button color="primary" class="review-btn" (click)="choose('review')">
+            <mat-icon>star</mat-icon>
+            {{ data.reviewLabel }}
+          </button>
+        }
         <button mat-button class="quit-btn" (click)="choose('quit')">
           {{ data.quitLabel }}
         </button>

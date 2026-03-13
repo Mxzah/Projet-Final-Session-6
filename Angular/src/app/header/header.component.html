@@ -57,12 +57,28 @@
         <mat-icon>restaurant</mat-icon>
         {{ ts.t('header.kitchen') }}
       </button>
+      <button mat-button class="nav-btn" (click)="goToMenu()">
+        <mat-icon>restaurant_menu</mat-icon>
+        {{ ts.t('header.quit') }}
+      </button>
+      <button mat-button class="nav-btn" (click)="goToHistory()">
+        <mat-icon>history</mat-icon>
+        {{ ts.t('header.history') }}
+      </button>
       <span class="header-divider">|</span>
     }
     @if (showLogout && authService.isWaiter() && !authService.isAdmin()) {
       <button mat-button class="nav-btn" [class.nav-active]="isActive('server')" (click)="goToServer()">
         <mat-icon>room_service</mat-icon>
         {{ ts.t('header.server') }}
+      </button>
+      <button mat-button class="nav-btn" (click)="goToMenu()">
+        <mat-icon>restaurant_menu</mat-icon>
+        {{ ts.t('header.quit') }}
+      </button>
+      <button mat-button class="nav-btn" (click)="goToHistory()">
+        <mat-icon>history</mat-icon>
+        {{ ts.t('header.history') }}
       </button>
       <span class="header-divider">|</span>
     }
@@ -134,11 +150,27 @@
         <mat-icon>restaurant</mat-icon>
         {{ ts.t('header.kitchen') }}
       </button>
+      <button mat-button class="nav-btn" (click)="goToMenu(); toggleMobileMenu()">
+        <mat-icon>restaurant_menu</mat-icon>
+        {{ ts.t('header.quit') }}
+      </button>
+      <button mat-button class="nav-btn" (click)="goToHistory(); toggleMobileMenu()">
+        <mat-icon>history</mat-icon>
+        {{ ts.t('header.history') }}
+      </button>
     }
     @if (showLogout && authService.isWaiter() && !authService.isAdmin()) {
       <button mat-button class="nav-btn" [class.nav-active]="isActive('server')" (click)="goToServer(); toggleMobileMenu()">
         <mat-icon>room_service</mat-icon>
         {{ ts.t('header.server') }}
+      </button>
+      <button mat-button class="nav-btn" (click)="goToMenu(); toggleMobileMenu()">
+        <mat-icon>restaurant_menu</mat-icon>
+        {{ ts.t('header.quit') }}
+      </button>
+      <button mat-button class="nav-btn" (click)="goToHistory(); toggleMobileMenu()">
+        <mat-icon>history</mat-icon>
+        {{ ts.t('header.history') }}
       </button>
     }
     @if (authService.isAuthenticated()) {

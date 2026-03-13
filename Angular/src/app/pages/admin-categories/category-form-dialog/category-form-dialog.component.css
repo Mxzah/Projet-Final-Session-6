@@ -74,7 +74,8 @@ mat-dialog-actions {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.25rem;
 }
 
 .field-full {

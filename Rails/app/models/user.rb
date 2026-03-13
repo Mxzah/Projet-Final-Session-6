@@ -39,19 +39,15 @@ class User < ApplicationRecord
     super && active? && deleted_at.nil?
   end
 
-  def employee_discount_percentage
-    return 0 unless EMPLOYEE_TYPES.include?(type)
+  # discount_percentage is stored directly in the DB column (set by admin).
+  # No computation needed; the column default is 0.
 
-    tenure_months = ((Time.current - created_at) / 1.month.seconds).floor
-    if tenure_months >= 24
-      15
-    elsif tenure_months >= 12
-      10
-    elsif tenure_months >= 6
-      5
-    else
-      0
-    end
+  def employee?
+    EMPLOYEE_TYPES.include?(type)
+  end
+
+  def can_review?
+    false
   end
 
   def as_json(_options = {})
@@ -63,6 +59,7 @@ class User < ApplicationRecord
       type: type,
       status: status,
       block_note: block_note,
+      discount_percentage: discount_percentage,
       created_at: created_at
     }
   end

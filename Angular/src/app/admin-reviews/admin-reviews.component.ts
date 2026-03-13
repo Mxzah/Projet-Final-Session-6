@@ -15,6 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ReviewService, ReviewData } from '../services/review.service';
 import { TranslationService } from '../services/translation.service';
 import { DeleteReviewDialogComponent, DeleteReviewDialogResult } from './delete-review-dialog.component';
+import { StatsReportDialogComponent } from '../shared/stats-report-dialog/stats-report-dialog.component';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -143,6 +144,32 @@ export class AdminReviewsComponent implements OnInit, OnDestroy {
     if (this.filterStatus() !== 'active') queryParams.status = this.filterStatus();
     if (this.sortOrder() !== 'newest') queryParams.sort = this.sortOrder();
     this.router.navigate([], { queryParams, replaceUrl: true });
+  }
+
+  openStats(): void {
+    const previousUrl = this.router.url;
+    const ref = this.dialog.open(StatsReportDialogComponent, {
+      data: {
+        endpoint: '/api/reviews/stats',
+        dialogTitle: this.ts.t('admin.reviews.statsTitle'),
+        categories: [
+          { id: 'Item', name: 'Item' },
+          { id: 'Combo', name: 'Combo' },
+          { id: 'User', name: this.ts.t('admin.reviews.typeServer') }
+        ],
+        categoryLabel: this.ts.t('admin.reviews.filterType'),
+        secondaryCategories: [1, 2, 3, 4, 5].map(n => ({ id: n, name: `${n} ★` })),
+        secondaryCategoryLabel: this.ts.t('admin.reviews.filterAvgRating'),
+        secondaryCategoryParam: 'rating_ids'
+      },
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '90vh'
+    });
+    this.router.navigate([], { queryParams: { view: 'stats' }, replaceUrl: true });
+    ref.afterClosed().subscribe(() => {
+      this.router.navigateByUrl(previousUrl);
+    });
   }
 
   confirmDelete(review: ReviewData): void {

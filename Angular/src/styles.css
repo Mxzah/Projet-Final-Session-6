@@ -11,6 +11,12 @@
 .mdc-dialog__title {
   text-align: left !important;
   padding-left: 24px !important;
+  padding-top: 16px !important;
+}
+
+.cdk-overlay-pane {
+  max-height: 85vh !important;
+  margin-top: 5vh !important;
 }
 
 /* Remove vertical line artifact on Material outline fields */

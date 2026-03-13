@@ -169,7 +169,7 @@ module Api
 
     def user_params
       params.require(:user).permit(:email, :first_name, :last_name, :type, :status, :password, :password_confirmation,
-                                   :block_note)
+                                   :block_note, :discount_percentage)
     end
   end
 end

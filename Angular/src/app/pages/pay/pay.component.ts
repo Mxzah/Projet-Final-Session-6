@@ -136,7 +136,8 @@ export class PayComponent implements OnInit {
   }
 
   goToReviews(): void {
-    this.router.navigate(['/history']);
+    const o = this.order();
+    this.router.navigate(['/history'], o ? { queryParams: { openReview: o.id } } : {});
   }
 
   skipReview(): void {
@@ -149,15 +150,22 @@ export class PayComponent implements OnInit {
     });
   }
 
+  private isClient(): boolean {
+    return this.authService.getCurrentUser()?.type === 'Client';
+  }
+
   private openThankYouDialog(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const showReviewOption = this.isClient();
     const ref = this.dialog.open<ThankYouDialogComponent, any, ThankYouDialogResult>(
       ThankYouDialogComponent,
       {
         data: {
           title: this.ts.t('pay.thankYouTitle'),
           message: this.ts.t('pay.thankYouMsg'),
-          reviewLabel: this.ts.t('pay.reviewNow'),
-          quitLabel: this.ts.t('pay.reviewLater'),
+          reviewLabel: showReviewOption ? this.ts.t('pay.reviewNow') : null,
+          quitLabel: showReviewOption ? this.ts.t('pay.reviewLater') : this.ts.t('header.logout'),
         },
         width: '400px',
         maxHeight: '90vh',

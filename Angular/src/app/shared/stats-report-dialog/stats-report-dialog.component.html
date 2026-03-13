@@ -31,6 +31,17 @@
         </mat-select>
       </mat-form-field>
     }
+
+    @if (data.secondaryCategories && data.secondaryCategories.length > 0) {
+      <mat-form-field>
+        <mat-label>{{ data.secondaryCategoryLabel || 'Filtre' }}</mat-label>
+        <mat-select multiple (selectionChange)="onSecondaryCategoryChange($event)">
+          @for (cat of data.secondaryCategories; track cat.id) {
+            <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
   </div>
 
   @if (isLoading()) {

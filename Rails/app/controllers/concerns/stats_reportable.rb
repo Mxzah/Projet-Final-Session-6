@@ -30,7 +30,8 @@ module StatsReportable
     # Date filters go into extra (for JOIN conditions), not into WHERE
     # so LEFT JOINed items without orders are not excluded
     if params[:category_ids].present?
-      ids = Array(params[:category_ids]).map(&:to_i)
+      raw_ids = Array(params[:category_ids])
+      ids = config[:category_strings] ? raw_ids : raw_ids.map(&:to_i)
       conditions << "#{config[:category_column]} IN (#{ids.map { '?' }.join(', ')})"
       binds.concat(ids)
     end
@@ -38,7 +39,7 @@ module StatsReportable
     where_clause = conditions.any? ? "WHERE #{conditions.join(' AND ')}" : ""
     sanitized_where = ActiveRecord::Base.sanitize_sql_array([where_clause] + binds)
 
-    extra = { start_date: params[:start_date], end_date: params[:end_date] }
+    extra = { start_date: params[:start_date], end_date: params[:end_date], params: params }
     sql = config[:sql].call(sanitized_where, extra)
     rows = ActiveRecord::Base.connection.exec_query(sql).to_a
 
