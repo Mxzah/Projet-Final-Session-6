@@ -17,10 +17,10 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         children: [
             { path: '', redirectTo: 'tables', pathMatch: 'full' },
-            { path: 'tables', loadComponent: () => import('./admin-tables/admin-tables.component').then(m => m.AdminTablesComponent) },
+            { path: 'tables', loadComponent: () => import('./pages/admin-tables/admin-tables.component').then(m => m.AdminTablesComponent) },
             { path: 'items', loadComponent: () => import('./pages/admin-items/admin-items/admin-items.component').then(m => m.AdminItemsComponent) },
             { path: 'categories', loadComponent: () => import('./pages/admin-categories/admin-categories/admin-categories.component').then(m => m.AdminCategoriesComponent) },
-            { path: 'combos', loadComponent: () => import('./admin-combos/admin-combos.component').then(m => m.AdminCombosComponent) },
+            { path: 'combos', loadComponent: () => import('./pages/admin-combos/admin-combos.component').then(m => m.AdminCombosComponent) },
             { path: 'users', loadComponent: () => import('./admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
             { path: 'reviews', loadComponent: () => import('./admin-reviews/admin-reviews.component').then(m => m.AdminReviewsComponent) },
             { path: 'vibes', loadComponent: () => import('./admin-vibes/admin-vibes.component').then(m => m.AdminVibesComponent) },

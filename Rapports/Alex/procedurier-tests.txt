@@ -565,3 +565,234 @@ MODULE 14 — Nettoyage de la table (clean)
      - La modal se ferme, aucun changement
 
 ================================================================================
+
+
+================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+              Recherche, tri et filtres (SSF) — Tables (admin-tables)
+================================================================================
+
+================================================================================
+MODULE 15 — Recherche de tables (Search)
+================================================================================
+
+15.1 Recherche par numéro
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/tables
+     - Taper un numéro de table dans la barre de recherche (ex : « 2 »)
+     - Seule la table numéro 2 s'affiche
+
+15.2 Recherche sans résultat
+     - Taper un numéro inexistant (ex : « 888 »)
+     - Le message « Aucune table trouvée » s'affiche
+
+15.3 Recherche vide
+     - Effacer le champ de recherche
+     - Toutes les tables réapparaissent
+
+15.4 Recherche non numérique
+     - Taper du texte (ex : « abc »)
+     - Aucune table ne correspond, liste vide
+
+================================================================================
+MODULE 16 — Tri des tables (Sort)
+================================================================================
+
+16.1 Tri par capacité croissante
+     - Sélectionner « Capacité croissante » dans le menu de tri
+     - Les tables sont triées par nombre de places croissant
+
+16.2 Tri par capacité décroissante
+     - Sélectionner « Capacité décroissante » dans le menu de tri
+     - Les tables sont triées par nombre de places décroissant
+
+16.3 Tri par défaut
+     - Sélectionner « Par défaut » ou sans tri
+     - Les tables sont triées par numéro croissant
+
+16.4 Tri avec valeur invalide
+     - Si la valeur de tri est invalide, le tri par défaut s'applique
+
+================================================================================
+MODULE 17 — Filtres des tables (Filter)
+================================================================================
+
+17.1 Filtre par capacité minimum
+     - Définir un minimum de places (ex : 5)
+     - Seules les tables avec 5 places ou plus s'affichent
+
+17.2 Filtre par capacité maximum
+     - Définir un maximum de places (ex : 4)
+     - Seules les tables avec 4 places ou moins s'affichent
+
+17.3 Filtre par fourchette de capacité
+     - Définir un minimum de 3 ET un maximum de 8
+     - Seules les tables dans cet intervalle s'affichent
+
+17.4 Filtre avec fourchette impossible
+     - Définir un minimum de 100 et un maximum de 200
+     - Aucune table ne correspond, liste vide
+
+17.5 Filtre avec min > max
+     - Définir un minimum de 20 et un maximum de 1
+     - Aucune table ne correspond, liste vide
+
+================================================================================
+
+
+================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+              Recherche, tri et filtres (SSF) — Combos (admin-combos)
+================================================================================
+
+================================================================================
+MODULE 18 — Recherche de combos (Search)
+================================================================================
+
+18.1 Recherche par nom
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/combos
+     - Taper un mot dans la barre de recherche (ex : « Duo »)
+     - Seuls les combos dont le nom contient « Duo » s'affichent
+
+18.2 Recherche partielle
+     - Taper une partie du nom (ex : « Trio »)
+     - Les combos correspondants s'affichent
+
+18.3 Recherche sans résultat
+     - Taper un texte inexistant (ex : « InexistantXYZ »)
+     - Le message « Aucun combo pour le moment » s'affiche
+
+18.4 Recherche vide
+     - Effacer le champ de recherche
+     - Tous les combos réapparaissent
+
+================================================================================
+MODULE 19 — Tri des combos (Sort)
+================================================================================
+
+19.1 Tri par prix croissant
+     - Sélectionner « Prix croissant » dans le menu de tri
+     - Les combos sont triés par prix croissant
+
+19.2 Tri par prix décroissant
+     - Sélectionner « Prix décroissant » dans le menu de tri
+     - Les combos sont triés par prix décroissant
+
+19.3 Tri par défaut
+     - Sans tri sélectionné
+     - Les combos sont triés par date de création décroissante
+
+================================================================================
+MODULE 20 — Filtres des combos (Filter)
+================================================================================
+
+20.1 Filtre par prix minimum
+     - Définir un prix minimum (ex : 50)
+     - Seuls les combos avec un prix >= 50 s'affichent
+
+20.2 Filtre par prix maximum
+     - Définir un prix maximum (ex : 60)
+     - Seuls les combos avec un prix <= 60 s'affichent
+
+20.3 Filtre par fourchette de prix
+     - Définir un prix min de 30 ET un prix max de 70
+     - Seuls les combos dans cet intervalle s'affichent
+
+20.4 Filtre avec fourchette impossible
+     - Définir un prix min de 10 000 et un max de 20 000
+     - Aucun combo ne correspond, liste vide
+
+20.5 Filtre avec min > max
+     - Définir un prix min de 100 et un max de 10
+     - Aucun combo ne correspond, liste vide
+
+20.6 Combos avec include_deleted (admin)
+     - En tant qu'admin, cocher « Afficher les supprimés »
+     - Les combos supprimés apparaissent avec un badge « Supprimé »
+
+20.7 Client ne voit pas les combos supprimés
+     - En tant que client, ajouter include_deleted=true ne montre pas les supprimés
+
+================================================================================
+
+
+================================================================================
+                        PROCÉDURIER DE TESTS — RestoQR
+              Statistiques des tables (admin-tables — Stats)
+================================================================================
+
+================================================================================
+MODULE 21 — Accès aux statistiques
+================================================================================
+
+21.1 Accès admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à la page des statistiques des tables
+     - Le rapport de statistiques s'affiche correctement
+
+21.2 Accès client refusé
+     Avec client@restoqr.ca : password123
+     - Se connecter et essayer d'accéder aux statistiques
+     - Message « Accès réservé aux administrateurs »
+
+21.3 Accès serveur refusé
+     Avec waiter@restoqr.ca : password123
+     - Se connecter et essayer d'accéder aux statistiques
+     - Message « Accès réservé aux administrateurs »
+
+21.4 Accès cuisinier refusé
+     Avec cook@restoqr.ca : password123
+     - Se connecter et essayer d'accéder aux statistiques
+     - Message « Accès réservé aux administrateurs »
+
+21.5 Accès non connecté refusé
+     - Ouvrir directement l'URL des statistiques sans être connecté
+     - Accès refusé
+
+================================================================================
+MODULE 22 — Contenu du rapport de statistiques
+================================================================================
+
+22.1 Colonnes affichées
+     - Le rapport affiche les colonnes : Numéro de table, Capacité,
+       Nb commandes, Clients distincts, Moy personnes, Moy durée (min),
+       Ambiance top, % utilisation
+
+22.2 Données des rows
+     - Chaque row contient les données d'une table
+     - Les valeurs numériques sont arrondies à 1 décimale
+
+================================================================================
+MODULE 23 — Filtres des statistiques
+================================================================================
+
+23.1 Filtre par date de début
+     - Sélectionner une date de début (ex : 2024-01-01)
+     - Le rapport ne montre que les données à partir de cette date
+
+23.2 Filtre par date de fin
+     - Sélectionner une date de fin (ex : 2025-12-31)
+     - Le rapport ne montre que les données jusqu'à cette date
+
+23.3 Filtre par plage de dates
+     - Sélectionner une date de début ET une date de fin
+     - Le rapport filtre les données dans cette plage
+
+23.4 Date de début invalide
+     - Entrer une date invalide dans le champ de début
+     - Message d'erreur affiché
+
+23.5 Date de fin avant date de début
+     - Entrer une date de fin antérieure à la date de début
+     - Message d'erreur affiché
+
+23.6 Filtre par serveur
+     - Sélectionner un ou plusieurs serveurs dans le filtre
+     - Le rapport ne montre que les données des tables gérées par ces serveurs
+
+23.7 Serveur sans commande
+     - Sélectionner un serveur qui n'a aucune commande
+     - Le rapport affiche des valeurs à 0
+
+================================================================================

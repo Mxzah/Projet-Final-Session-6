@@ -1367,6 +1367,229 @@ A7.4 Annulation du nettoyage
 
 
 ================================================================================
+              Recherche, tri et filtres (SSF) — Tables (admin-tables)
+                                   Alex
+================================================================================
+
+================================================================================
+MODULE A8 — Recherche de tables (Search)
+================================================================================
+
+A8.1 Recherche par numéro
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/tables
+     - Taper un numéro de table dans la barre de recherche (ex : « 2 »)
+     - Seule la table numéro 2 s'affiche
+
+A8.2 Recherche sans résultat
+     - Taper un numéro inexistant (ex : « 888 »)
+     - Le message « Aucune table trouvée » s'affiche
+
+A8.3 Recherche vide
+     - Effacer le champ de recherche
+     - Toutes les tables réapparaissent
+
+A8.4 Recherche non numérique
+     - Taper du texte (ex : « abc »)
+     - Aucune table ne correspond, liste vide
+
+================================================================================
+MODULE A9 — Tri des tables (Sort)
+================================================================================
+
+A9.1 Tri par capacité croissante
+     - Sélectionner « Capacité croissante » dans le menu de tri
+     - Les tables sont triées par nombre de places croissant
+
+A9.2 Tri par capacité décroissante
+     - Sélectionner « Capacité décroissante » dans le menu de tri
+     - Les tables sont triées par nombre de places décroissant
+
+A9.3 Tri par défaut
+     - Sans tri sélectionné
+     - Les tables sont triées par numéro croissant
+
+A9.4 Tri avec valeur invalide
+     - Si la valeur de tri est invalide, le tri par défaut s'applique
+
+================================================================================
+MODULE A10 — Filtres des tables (Filter)
+================================================================================
+
+A10.1 Filtre par capacité minimum
+     - Définir un minimum de places (ex : 5)
+     - Seules les tables avec 5 places ou plus s'affichent
+
+A10.2 Filtre par capacité maximum
+     - Définir un maximum de places (ex : 4)
+     - Seules les tables avec 4 places ou moins s'affichent
+
+A10.3 Filtre par fourchette de capacité
+     - Définir un minimum de 3 ET un maximum de 8
+     - Seules les tables dans cet intervalle s'affichent
+
+A10.4 Filtre avec fourchette impossible
+     - Définir un minimum de 100 et un maximum de 200
+     - Aucune table ne correspond, liste vide
+
+A10.5 Filtre avec min > max
+     - Définir un minimum de 20 et un maximum de 1
+     - Aucune table ne correspond, liste vide
+
+================================================================================
+              Recherche, tri et filtres (SSF) — Combos (admin-combos)
+                                   Alex
+================================================================================
+
+================================================================================
+MODULE A11 — Recherche de combos (Search)
+================================================================================
+
+A11.1 Recherche par nom
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à /admin/combos
+     - Taper un mot dans la barre de recherche (ex : « Duo »)
+     - Seuls les combos dont le nom contient « Duo » s'affichent
+
+A11.2 Recherche partielle
+     - Taper une partie du nom (ex : « Trio »)
+     - Les combos correspondants s'affichent
+
+A11.3 Recherche sans résultat
+     - Taper un texte inexistant (ex : « InexistantXYZ »)
+     - Le message « Aucun combo pour le moment » s'affiche
+
+A11.4 Recherche vide
+     - Effacer le champ de recherche
+     - Tous les combos réapparaissent
+
+================================================================================
+MODULE A12 — Tri des combos (Sort)
+================================================================================
+
+A12.1 Tri par prix croissant
+     - Sélectionner « Prix croissant » dans le menu de tri
+     - Les combos sont triés par prix croissant
+
+A12.2 Tri par prix décroissant
+     - Sélectionner « Prix décroissant » dans le menu de tri
+     - Les combos sont triés par prix décroissant
+
+A12.3 Tri par défaut
+     - Sans tri sélectionné
+     - Les combos sont triés par date de création décroissante
+
+================================================================================
+MODULE A13 — Filtres des combos (Filter)
+================================================================================
+
+A13.1 Filtre par prix minimum
+     - Définir un prix minimum (ex : 50)
+     - Seuls les combos avec un prix >= 50 s'affichent
+
+A13.2 Filtre par prix maximum
+     - Définir un prix maximum (ex : 60)
+     - Seuls les combos avec un prix <= 60 s'affichent
+
+A13.3 Filtre par fourchette de prix
+     - Définir un prix min de 30 ET un prix max de 70
+     - Seuls les combos dans cet intervalle s'affichent
+
+A13.4 Filtre avec fourchette impossible
+     - Définir un prix min de 10 000 et un max de 20 000
+     - Aucun combo ne correspond, liste vide
+
+A13.5 Filtre avec min > max
+     - Définir un prix min de 100 et un max de 10
+     - Aucun combo ne correspond, liste vide
+
+A13.6 Combos avec include_deleted (admin)
+     - En tant qu'admin, cocher « Afficher les supprimés »
+     - Les combos supprimés apparaissent avec un badge « Supprimé »
+
+A13.7 Client ne voit pas les combos supprimés
+     - En tant que client, le paramètre include_deleted ne montre pas les supprimés
+
+================================================================================
+              Statistiques des tables (admin-tables — Stats)
+                                   Alex
+================================================================================
+
+================================================================================
+MODULE A14 — Accès aux statistiques
+================================================================================
+
+A14.1 Accès admin
+     Avec admin@restoqr.ca : password123
+     - Se connecter et accéder à la page des statistiques des tables
+     - Le rapport de statistiques s'affiche correctement
+
+A14.2 Accès client refusé
+     Avec client@restoqr.ca : password123
+     - Se connecter et essayer d'accéder aux statistiques
+     - Message « Accès réservé aux administrateurs »
+
+A14.3 Accès serveur refusé
+     Avec waiter@restoqr.ca : password123
+     - Se connecter et essayer d'accéder aux statistiques
+     - Message « Accès réservé aux administrateurs »
+
+A14.4 Accès cuisinier refusé
+     Avec cook@restoqr.ca : password123
+     - Se connecter et essayer d'accéder aux statistiques
+     - Message « Accès réservé aux administrateurs »
+
+A14.5 Accès non connecté refusé
+     - Ouvrir directement l'URL des statistiques sans être connecté
+     - Accès refusé
+
+================================================================================
+MODULE A15 — Contenu du rapport de statistiques
+================================================================================
+
+A15.1 Colonnes affichées
+     - Le rapport affiche les colonnes : Numéro de table, Capacité,
+       Nb commandes, Clients distincts, Moy personnes, Moy durée (min),
+       Ambiance top, % utilisation
+
+A15.2 Données des rows
+     - Chaque row contient les données d'une table
+     - Les valeurs numériques sont arrondies à 1 décimale
+
+================================================================================
+MODULE A16 — Filtres des statistiques
+================================================================================
+
+A16.1 Filtre par date de début
+     - Sélectionner une date de début (ex : 2024-01-01)
+     - Le rapport ne montre que les données à partir de cette date
+
+A16.2 Filtre par date de fin
+     - Sélectionner une date de fin (ex : 2025-12-31)
+     - Le rapport ne montre que les données jusqu'à cette date
+
+A16.3 Filtre par plage de dates
+     - Sélectionner une date de début ET une date de fin
+     - Le rapport filtre les données dans cette plage
+
+A16.4 Date de début invalide
+     - Entrer une date invalide dans le champ de début
+     - Message d'erreur affiché
+
+A16.5 Date de fin avant date de début
+     - Entrer une date de fin antérieure à la date de début
+     - Message d'erreur affiché
+
+A16.6 Filtre par serveur
+     - Sélectionner un ou plusieurs serveurs dans le filtre
+     - Le rapport ne montre que les données des tables gérées par ces serveurs
+
+A16.7 Serveur sans commande
+     - Sélectionner un serveur qui n'a aucune commande
+     - Le rapport affiche des valeurs à 0
+
+
+================================================================================
 ================================================================================
      PARTIE C — Connexion + Inscription + Admin Users + Avis + Rabais
                               (Samer)
