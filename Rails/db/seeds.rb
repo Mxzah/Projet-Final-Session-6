@@ -931,10 +931,10 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     { user: client_test, reviewable: tartare_item, order: closed1, rating: 5,
       comment: "Incroyablement frais, le meilleur tartare que j'ai mangé! " \
                'Les chips de won-ton ajoutent une texture parfaite.',
-      ago: 3.days.ago },
+      ago: 3.days.ago, image: 'TartareDeSaumon.jpeg' },
     { user: client_test, reviewable: filet_item, order: closed1, rating: 4,
       comment: 'Très tendre et bien assaisonné, cuisson parfaite. La sauce au poivre vert est un délice.',
-      ago: 3.days.ago },
+      ago: 3.days.ago, image: 'FiletMignonAAA.jpg' },
     { user: client_test, reviewable: marie, order: closed1, rating: 5,
       comment: 'Service impeccable! Marie est toujours souriante et attentionnée, ' \
                "elle a rendu notre soirée d'anniversaire spéciale.",
@@ -946,7 +946,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
       ago: 6.days.ago },
     { user: client_test, reviewable: carpaccio_item, order: closed2, rating: 4,
       comment: "Présentation magnifique, l'huile de truffe relève parfaitement le plat. À recommander!",
-      ago: 6.days.ago },
+      ago: 6.days.ago, image: 'CarpaccioDeBœufjpg.jpg' },
     { user: client_test, reviewable: jean, order: closed2, rating: 4,
       comment: 'Très professionnel, bonnes recommandations de vins. Service rapide et courtois.',
       ago: 6.days.ago },
@@ -954,11 +954,11 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     # alice@restoqr.ca — from closed order 3 (Marie, 2 days ago)
     { user: alice, reviewable: bar_item, order: closed3, rating: 5,
       comment: 'Le bar était cuit à la perfection, un vrai délice! Le beurre blanc au citron est sublime.',
-      ago: 1.day.ago },
+      ago: 1.day.ago, image: 'FiletdeBarGrille.jpg' },
     { user: alice, reviewable: magret_item, order: closed3, rating: 4,
       comment: 'Sauce aux cerises et porto incroyable. Le canard était un peu ' \
                'plus rosé que demandé mais excellent quand même.',
-      ago: 1.day.ago },
+      ago: 1.day.ago, image: 'MagretDeCanard.jpg' },
     { user: alice, reviewable: filet_item, order: closed3, rating: 5,
       comment: 'Meilleur filet mignon en ville! Fondant comme du beurre, les pommes dauphines sont addictives.',
       ago: 1.day.ago },
@@ -969,7 +969,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     # alice@restoqr.ca — from closed order 4 (Serveur Test, 5 days ago)
     { user: alice, reviewable: tartare_item, order: closed4, rating: 4,
       comment: "Très bon tartare, portion généreuse. L'huile de sésame apporte une belle originalité.",
-      ago: 4.days.ago },
+      ago: 4.days.ago, image: 'TartareDeSaumon.jpeg' },
     { user: alice, reviewable: waiter_test, order: closed4, rating: 3,
       comment: 'Service correct mais un peu lent ce soir-là. Les plats ont mis du temps à arriver.',
       ago: 4.days.ago }
@@ -980,7 +980,7 @@ if client_test && alice && bob && marie && jean && tartare_item && filet_item
     reviews_data << { user: client_test, reviewable: surf_turf_combo, order: closed1, rating: 5,
                       comment: 'Combinaison terre et mer extraordinaire! Le filet mignon ' \
                                'et les pétoncles se complètent à merveille.',
-                      ago: 2.days.ago }
+                      ago: 2.days.ago, image: 'SurfTurfPremium.jpg' }
   end
   if menu_mer_combo
     reviews_data << { user: client_test, reviewable: menu_mer_combo, order: closed2, rating: 4,

@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { Router, ActivatedRoute } from '@angular/router';
 import { TableService, TableData } from '../../services/table.service';
 import { AuthService } from '../../services/auth.service';
-import { HeaderComponent } from '../../header/header.component';
+import { HeaderComponent } from '../../shared/header/header.component';
 import { OrderService, VibeData } from '../../services/order.service';
 import { TranslationService } from '../../services/translation.service';
 import { MatFormFieldModule } from '@angular/material/form-field';

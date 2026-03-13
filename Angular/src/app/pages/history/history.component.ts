@@ -14,7 +14,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HeaderComponent } from '../../header/header.component';
+import { HeaderComponent } from '../../shared/header/header.component';
 import { AuthService } from '../../services/auth.service';
 import { OrderService, OrderData } from '../../services/order.service';
 import { ReviewService, ReviewData } from '../../services/review.service';

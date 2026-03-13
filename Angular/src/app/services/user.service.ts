@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiService, ApiResponse } from './api.service';
-import { UserInfo } from '../admin-users/user.model';
+import { UserInfo } from '../pages/admin-users/user.model';
 
 @Injectable({
   providedIn: 'root'

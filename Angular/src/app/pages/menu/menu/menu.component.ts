@@ -25,7 +25,7 @@ import { OrderService } from '../../../services/order.service';
 import { TranslationService } from '../../../services/translation.service';
 import { ErrorService } from '../../../services/error.service';
 import { ReviewService, ReviewData } from '../../../services/review.service';
-import { HeaderComponent } from '../../../header/header.component';
+import { HeaderComponent } from '../../../shared/header/header.component';
 import { SsfSidebarComponent } from '../../../shared/ssf-sidebar/ssf-sidebar.component';
 import { SsfBarComponent } from '../../../shared/ssf-bar/ssf-bar.component';
 import { Item, Category } from '../../../models/menu.models';

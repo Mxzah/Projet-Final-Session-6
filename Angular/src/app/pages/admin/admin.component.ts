@@ -1,0 +1,40 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../services/auth.service';
+import { TranslationService } from '../../services/translation.service';
+import { HeaderComponent } from '../../shared/header/header.component';
+
+@Component({
+  selector: 'app-admin',
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, HeaderComponent],
+  templateUrl: './admin.component.html',
+  styleUrls: ['./admin.component.css']
+})
+export class AdminComponent {
+  tabs = [
+    { path: 'tables', label: 'admin.tables.tab' },
+    { path: 'items', label: 'admin.items.tab' },
+    { path: 'categories', label: 'admin.categories.tab' },
+    { path: 'combos', label: 'admin.combos.tab' },
+    { path: 'users', label: 'admin.users.tab' },
+    { path: 'reviews', label: 'admin.reviews.tab' },
+    { path: 'vibes', label: 'admin.vibes.tab' },
+  ];
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    public ts: TranslationService
+  ) { }
+
+  logout(): void {
+    this.authService.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => this.router.navigate(['/login'])
+    });
+  }
+}

@@ -13,12 +13,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ServerService, ServerOrdersResponse, ServerTable } from '../../services/server.service';
 import { CuisineOrder, CuisineOrderLine } from '../../services/cuisine.service';
 import { AuthService } from '../../services/auth.service';
-import { HeaderComponent } from '../../header/header.component';
+import { HeaderComponent } from '../../shared/header/header.component';
 import { TranslationService } from '../../services/translation.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../admin-items/confirm-dialog/confirm-dialog.component';
 import { EditOrderLineDialogComponent, EditOrderLineDialogData, EditOrderLineDialogResult } from '../admin-items/edit-order-line-dialog/edit-order-line-dialog.component';
 import { QrDialogComponent, QrDialogData } from './qr-dialog/qr-dialog.component';
-import QRCodeStyling from 'styled-qr-code';
 
 @Component({
   selector: 'app-server-page',

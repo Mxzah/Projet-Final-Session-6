@@ -3,7 +3,6 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslationService } from '../../../services/translation.service';
-import QRCodeStyling from 'styled-qr-code';
 
 export interface QrDialogData {
     tableNumber: number;
@@ -29,10 +28,11 @@ export class QrDialogComponent implements AfterViewInit {
         this.renderQr();
     }
 
-    private renderQr(): void {
+    private async renderQr(): Promise<void> {
         const container = document.getElementById('dialog-qr-container');
         if (!container) return;
 
+        const { default: QRCodeStyling } = await import('styled-qr-code');
         container.innerHTML = '';
         const qrCode = new QRCodeStyling({
             width: 250,

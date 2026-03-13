@@ -26,6 +26,13 @@ class ServerTablesSuccessTest < ActionDispatch::IntegrationTest
     assert_response :ok
     @table3 = JSON.parse(response.body)["data"]
 
+    # Ajouter des disponibilités pour que les tables apparaissent dans la liste
+    [@table1, @table2, @table3].each do |t|
+      table_obj = Table.find(t["id"])
+      avail = Availability.new(available: table_obj, start_at: 1.hour.ago, end_at: 1.day.from_now)
+      avail.save(validate: false)
+    end
+
     delete "/users/sign_out", as: :json
   end
 

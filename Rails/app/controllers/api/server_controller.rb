@@ -11,47 +11,35 @@ module Api
     # GET /api/server/tables — returns all tables with QR tokens for the server to present
     def tables
       now = Time.current
-      tables = Table.includes(:availabilities, orders: :server).order(:number).select do |t|
-        open_order = t.orders.detect { |o| o.ended_at.nil? }
-        next true if open_order.present?
-
-        t.availabilities.any? { |a| a.start_at <= now && (a.end_at.nil? || a.end_at > now) }
-      end
+      occupied_ids = Table.joins(:orders).where(orders: { ended_at: nil }).distinct.pluck(:id)
+      available_ids = Table.joins(:availabilities)
+                          .where("availabilities.start_at <= ? AND (availabilities.end_at IS NULL OR availabilities.end_at > ?)", now, now)
+                          .distinct.pluck(:id)
+      table_ids = (occupied_ids + available_ids).uniq
+      tables = Table.where(id: table_ids).includes(:availabilities, orders: :server).order(:number)
       render_success(data: tables.map { |t| server_table_json(t) }, errors: [])
     end
 
     # GET /api/server/orders — returns { mine: [...] }
     # Admin sees ALL orders; waiters see only their own.
     def orders
-      if current_user.is_a?(Administrator)
-        mine = Order.where(ended_at: nil)
-                    .includes(:table, :client, :server, :vibe, order_lines: :orderable)
-                    .order(created_at: :asc)
+      base_scope = current_user.is_a?(Administrator) ? Order.all : Order.where(server: current_user)
 
-        paid_mine = Order.where("ended_at > ? AND ended_at IS NOT NULL", 24.hours.ago)
-                         .includes(:table, :client, :server, :vibe, order_lines: :orderable)
-                         .order(created_at: :desc)
-                         .reject { |o| o.table.cleaned_at.present? && o.table.cleaned_at >= o.ended_at }
-      else
-        mine = Order.where(ended_at: nil, server: current_user)
-                    .includes(:table, :client, :server, :vibe, order_lines: :orderable)
-                    .order(created_at: :asc)
+      mine = base_scope.where(ended_at: nil)
+                       .includes(:table, :client, :server, :vibe)
+                       .preload(order_lines: :orderable)
+                       .order(created_at: :asc)
 
-        paid_mine = Order.where(server: current_user)
-                         .where("ended_at > ? AND ended_at IS NOT NULL", 24.hours.ago)
-                         .includes(:table, :client, :server, :vibe, order_lines: :orderable)
-                         .order(created_at: :desc)
-                         .reject { |o| o.table.cleaned_at.present? && o.table.cleaned_at >= o.ended_at }
-      end
+      paid_mine = base_scope.where("ended_at > ? AND ended_at IS NOT NULL", 24.hours.ago)
+                            .joins(:table)
+                            .where("tables.cleaned_at IS NULL OR tables.cleaned_at < orders.ended_at")
+                            .includes(:client, :server, :vibe)
+                            .preload(:table, order_lines: :orderable)
+                            .order(created_at: :desc)
 
       all_orders = (mine + paid_mine).uniq(&:id)
-      all_lines = all_orders.flat_map(&:order_lines)
-      item_ids  = all_lines.select { |l| l.orderable_type == "Item" }.map(&:orderable_id).uniq
-      combo_ids = all_lines.select { |l| l.orderable_type == "Combo" }.map(&:orderable_id).uniq
-      items_map  = Item.where(id: item_ids).index_by(&:id)
-      combos_map = Combo.where(id: combo_ids).index_by(&:id)
 
-      render_success(data: { mine: all_orders.map { |o| order_json(o, items_map, combos_map) } }, errors: [])
+      render_success(data: { mine: all_orders.map { |o| order_json(o) } }, errors: [])
     end
 
     # POST /api/server/orders/:id/assign — assign current user as server
@@ -228,10 +216,9 @@ module Api
       }
     end
 
-    def order_json(order, items_map, combos_map)
+    def order_json(order)
       visible_lines = order.order_lines.reject { |l| l.status == "waiting" }
       lines = visible_lines.map do |l|
-        orderable = find_orderable(l.orderable_type, l.orderable_id, items_map, combos_map)
         {
           id: l.id,
           quantity: l.quantity,
@@ -240,7 +227,7 @@ module Api
           status: l.status,
           orderable_type: l.orderable_type,
           orderable_id: l.orderable_id,
-          orderable_name: orderable&.name
+          orderable_name: l.orderable&.name
         }
       end
 
@@ -260,14 +247,6 @@ module Api
         server_released: order.server_released,
         order_lines: lines
       }
-    end
-
-    def find_orderable(type, id, items_map, combos_map)
-      return nil unless type.present? && id.present?
-      return items_map[id]  if type == "Item"
-      return combos_map[id] if type == "Combo"
-
-      nil
     end
 
     def server_table_json(table)
