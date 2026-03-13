@@ -39,8 +39,26 @@ class User < ApplicationRecord
     super && active? && deleted_at.nil?
   end
 
-  # discount_percentage is stored directly in the DB column (set by admin).
-  # No computation needed; the column default is 0.
+  # Employee discount based on tenure (time since account creation):
+  #   < 6 months  → 0%
+  #   6–12 months → 5%
+  #   1–2 years   → 10%
+  #   2+ years    → 15%
+  # Non-employees (Clients) always get 0%.
+  def discount_percentage
+    return 0 unless employee?
+
+    months = ((Time.current - created_at) / 1.month).floor
+    if months >= 24
+      15
+    elsif months >= 12
+      10
+    elsif months >= 6
+      5
+    else
+      0
+    end
+  end
 
   def employee?
     EMPLOYEE_TYPES.include?(type)

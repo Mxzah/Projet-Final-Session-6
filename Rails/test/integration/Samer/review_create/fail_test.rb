@@ -85,7 +85,7 @@ class ReviewCreateFailTest < ActionDispatch::IntegrationTest
 
     assert_difference "Review.count", 1 do
       post "/api/reviews", params: {
-        review: { rating: 4, comment: "", reviewable_type: "Item", reviewable_id: items(:item_one).id }
+        review: { rating: 4, comment: "", reviewable_type: "Item", reviewable_id: items(:item_one).id, order_id: orders(:closed_order).id }
       }, as: :json
     end
 
@@ -119,7 +119,7 @@ class ReviewCreateFailTest < ActionDispatch::IntegrationTest
 
     assert_difference "Review.count", 1 do
       post "/api/reviews", params: {
-        review: { rating: 4, comment: "   ", reviewable_type: "Item", reviewable_id: items(:item_one).id }
+        review: { rating: 4, comment: "   ", reviewable_type: "Item", reviewable_id: items(:item_one).id, order_id: orders(:open_order).id }
       }, as: :json
     end
 

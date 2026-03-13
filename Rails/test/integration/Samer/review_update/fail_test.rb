@@ -22,7 +22,7 @@ class ReviewUpdateFailTest < ActionDispatch::IntegrationTest
 
     # JSON response
     assert_not json["success"]
-    assert_includes json["errors"], I18n.t("controllers.reviews.update_own_only")
+    assert_includes json["errors"], I18n.t("controllers.reviews.only_clients")
 
     # Database state: unchanged
     @review.reload

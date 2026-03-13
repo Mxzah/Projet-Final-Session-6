@@ -1025,6 +1025,19 @@ else
   puts 'Skipping reviews — required users or items not found'
 end
 
+# Backfill discount_percentage on closed orders for employees
+puts "\nBackfilling employee discounts on closed orders..."
+User.where(type: User::EMPLOYEE_TYPES).find_each do |emp|
+  pct = emp.discount_percentage
+  next if pct.zero?
+
+  count = Order.unscoped.where(client_id: emp.id, deleted_at: nil)
+               .where.not(ended_at: nil)
+               .where(discount_percentage: 0)
+               .update_all(discount_percentage: pct)
+  puts "- #{emp.first_name} #{emp.last_name} (#{pct}%): #{count} orders updated" if count > 0
+end
+
 puts "\nAll seeds created!"
 
 # Mark tables with no open orders as cleaned so they show as "available" in /admin/tables

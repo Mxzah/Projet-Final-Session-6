@@ -11,6 +11,8 @@ class Order < ApplicationRecord
   # Scope: voir si ouverte ou fermée (ended_at IS NULL ou NOT NULL)
   scope :open, -> { where(ended_at: nil) }
 
+  before_save :snapshot_discount, if: :closing?
+
   validates :nb_people, presence: true,
                         numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 20 }
   validates :note, length: { maximum: 255 },
@@ -27,7 +29,8 @@ class Order < ApplicationRecord
     lines_data = order_lines.map(&:as_json)
     total = lines_data.sum { |l| l[:unit_price] * l[:quantity] }
 
-    discount_pct = client&.discount_percentage || 0
+    # Closed orders use the snapshot; open orders compute live from tenure
+    discount_pct = ended_at? ? (read_attribute(:discount_percentage) || 0) : (client&.discount_percentage || 0)
     discount_amt = (total * discount_pct / 100.0).round(2)
     adj_total = (total - discount_amt).round(2)
 
@@ -56,6 +59,15 @@ class Order < ApplicationRecord
   end
 
   private
+
+  # Snapshot the employee discount when the order is being closed
+  def closing?
+    ended_at.present? && ended_at_changed?
+  end
+
+  def snapshot_discount
+    self.discount_percentage = client&.discount_percentage || 0
+  end
 
   # ended_at must be >= created_at
   def ended_at_after_created_at
