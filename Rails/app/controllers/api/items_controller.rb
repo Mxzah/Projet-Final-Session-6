@@ -13,7 +13,7 @@ module Api
 
     # GET /api/items?search=…&sort=asc|desc&price_min=…&price_max=…
     def index
-      base = current_user&.type == "Administrator" ? Item.unscoped : Item
+      base = current_user&.type == "Administrator" && params[:admin] == "true" ? Item.unscoped : Item
       items = base.includes(:category, :order_lines, :combo_items, :availabilities)
 
       unless current_user&.type == "Administrator" && params[:admin] == "true"
